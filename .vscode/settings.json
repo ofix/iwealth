@@ -1,0 +1,7 @@
+{
+  "C_Cpp.errorSquiggles": "disabled",
+  "mesonbuild.configureOnOpen": true,
+  "C_Cpp.default.compileCommands": "e:\\work\\iwealth\\builddir/compile_commands.json",
+  "C_Cpp.default.configurationProvider": "mesonbuild.mesonbuild",
+  "cmake.configureOnOpen": false
+}
