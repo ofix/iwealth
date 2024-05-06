@@ -15,17 +15,30 @@ if host_machine.cpu_family().startswith('x86')
       meson.current_source_dir(), 'lib/curl/x86_64')
 else
     third_party_lib = join_paths(meson.source_root(),
-      meson.current_source_dir(), 'lib/curl/arm')
+      meson.current_source_dir(), 'lib/curl/arm64')
 endif
 
-inc = include_directories(['include','include/curl','include/search','include/util','include/net'])
+message(third_party_lib)
+
+inc = include_directories([
+    'include',
+    'include/curl',
+    'include/search',
+    'include/util',
+    'include/net'
+])
 
 cc = meson.get_compiler('cpp')
 
 third_party_dep = declare_dependency(
-      dependencies : [cc.find_library('crypto', dirs: third_party_lib), cc.find_library('ssl', dirs: third_party_lib),
-      cc.find_library('curl', dirs: third_party_lib)],
-      include_directories: [include_directories('include')],
+      dependencies : [
+        cc.find_library('crypto', dirs: third_party_lib), 
+        cc.find_library('ssl', dirs: third_party_lib),
+        cc.find_library('curl', dirs: third_party_lib)
+      ],
+      include_directories: [
+        include_directories('include/curl')
+      ],
     )
 
 compile_time = run_command('date', '+%F %H:%M:%S').stdout().strip()
@@ -33,12 +46,15 @@ compile_time = run_command('date', '+%F %H:%M:%S').stdout().strip()
 cpp_args = [
     #'-Werror'
 ]
+
 sources = [
-    'src/Application.cpp',
-    'src/search/Trie.cpp',
-    'src/util/ConsoleTable.cpp',
-    'src/util/Global.cpp']
+    'src/application.cpp',
+    'src/net/request.cpp',
+    'src/search/trie.cpp',
+    'src/util/console_table.cpp',
+    'src/util/global.cpp']
 
 executable('iwealth', sources,
             cpp_args:cpp_args,
-            include_directories : inc)
+            include_directories : inc,
+            dependencies : [third_party_dep])

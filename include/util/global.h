@@ -8,7 +8,7 @@
 #include <stdexcept>
 #include <string>
 #include <vector>
-#include "Color.h"
+#include "color.h"
 
 typedef struct _cell_size {
     uint16_t nrows;
