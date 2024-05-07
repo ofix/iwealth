@@ -25,7 +25,9 @@ inc = include_directories([
     'include/curl',
     'include/search',
     'include/util',
-    'include/net'
+    'include/net',
+    'include/spider',
+    'lib/nlohmann'
 ])
 
 cc = meson.get_compiler('cpp')
@@ -49,6 +51,8 @@ cpp_args = [
 
 sources = [
     'src/application.cpp',
+    'src/spider/stock_list_spider_hexun.cpp',
+    'src/spider/spider.cpp',
     'src/net/request.cpp',
     'src/search/trie.cpp',
     'src/util/console_table.cpp',
