@@ -1,4 +1,5 @@
 #include "stock_list_spider_hexun.h"
+using json = nlohmann::json;
 
 StockListSpiderHexun::StockListSpiderHexun(const std::string& save_path)
     : m_stock_list_file(save_path) {}
@@ -14,6 +15,8 @@ void StockListSpiderHexun::Run() {
     m_progress = 0.75;
     FetchStockListData(1789);  // 科创板
     m_progress = 1;
+    std::vector<StockItem> all_stock_items = GetAllStockItems();
+    PrintAllStockItems(all_stock_items);
 }
 
 void StockListSpiderHexun::FetchStockListData(int market) {
@@ -29,6 +32,40 @@ void StockListSpiderHexun::FetchStockListData(int market) {
 void StockListSpiderHexun::ParseStockListData(std::string& data, std::string market) {
     data = regex_replace(data, std::regex{R"(\()"}, "");
     data = regex_replace(data, std::regex{R"(\);)"}, "");
+    json o = json::parse(data);
+    const int count = o["Total"].template get<int>();
+    json arr = o["Data"][0];
+    std::vector<StockItem> market_stocks;
+    for (json::iterator it = arr.begin(); it != arr.end(); ++it) {
+        StockItem item;
+        item.code = (*it)[0].template get<std::string>();
+        item.name = (*it)[1].template get<std::string>();
+        market_stocks.push_back(item);
+    }
+    m_market_stock_count.insert({market, count});
+    m_stock_list.insert({market, market_stocks});
+}
+
+std::vector<StockItem> StockListSpiderHexun::GetAllStockItems() {
+    std::vector<StockItem> all_stocks;
+    for (std::map<std::string, std::vector<StockItem>>::iterator it =
+             m_stock_list.begin();
+         it != m_stock_list.end(); it++) {
+        std::vector<StockItem> stocks = it->second;
+        all_stocks.insert(all_stocks.end(), stocks.begin(), stocks.end());
+    }
+    return all_stocks;
+}
+
+void StockListSpiderHexun::PrintAllStockItems(std::vector<StockItem>& all_stock_items) {
+    json result = json::array();
+    for (auto item : all_stock_items) {
+        json o = json::object();
+        o["code"] = item.code;
+        o["name"] = item.name;
+        result.push_back(o);
+    }
+    // json result(all_stock_items);
+    std::string data = result.dump(4);
     std::cout << data << std::endl;
-    // json o = json::parse(data);
 }

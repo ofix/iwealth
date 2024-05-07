@@ -1,6 +1,4 @@
 #include "spider.h"
-#include "json.hpp"
-#include "json_fwd.hpp"
 
 Spider::Spider() : m_finished(false) {}
 

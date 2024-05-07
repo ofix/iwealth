@@ -1,6 +1,8 @@
+#pragma once
 #include <map>
 #include <regex>
 #include <vector>
+#include "json.hpp"
 #include "spider.h"
 
 class StockListSpiderHexun : public Spider {
@@ -10,6 +12,8 @@ class StockListSpiderHexun : public Spider {
     void Run();
     void FetchStockListData(int market);
     void ParseStockListData(std::string& data, std::string market);
+    std::vector<StockItem> GetAllStockItems();
+    void PrintAllStockItems(std::vector<StockItem>& all_stock_items);
 
    private:
     std::string m_stock_list_file;
