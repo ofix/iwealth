@@ -17,7 +17,7 @@ Request* Request::Instance() {
     return m_pThis;
 }
 
-std::string Request::Get(std::string url) {
+std::string Request::Get(const std::string& url) {
     conn_t conn;
     conn.url = url;
     conn.timeout = 50000;
@@ -32,6 +32,14 @@ std::string Request::Get(conn_t* conn) {
     std::string response = DoRequest(conn, inner_conn);
     CurlClose(inner_conn);
     return response;
+}
+
+std::string Request::Post(const std::string& url, const std::string& payload) {
+    conn_t conn;
+    conn.url = url;
+    conn.timeout = 50000;
+    conn.payload = payload;
+    return Request::Post(&conn);
 }
 
 // 发送 HTTPS POST 请求
@@ -63,6 +71,14 @@ std::string Request::Post(conn_t* conn) {
     return response;
 }
 
+std::string Request::Put(const std::string& url, const std::string& payload) {
+    conn_t conn;
+    conn.url = url;
+    conn.timeout = 50000;
+    conn.payload = payload;
+    return Request::Put(&conn);
+}
+
 // 发送 HTTPS PUT 请求
 std::string Request::Put(conn_t* conn) {
     inner_conn_t* inner_conn = CurlInit(conn);
@@ -80,6 +96,14 @@ std::string Request::Put(conn_t* conn) {
     return response;
 }
 
+std::string Request::Patch(const std::string& url, const std::string& payload) {
+    conn_t conn;
+    conn.url = url;
+    conn.timeout = 50000;
+    conn.payload = payload;
+    return Request::Patch(&conn);
+}
+
 // 发送 HTTPS PATCH 请求
 std::string Request::Patch(conn_t* conn) {
     inner_conn_t* inner_conn = CurlInit(conn);
@@ -95,6 +119,13 @@ std::string Request::Patch(conn_t* conn) {
     std::string response = DoRequest(conn, inner_conn);
     CurlClose(inner_conn);
     return response;
+}
+
+std::string Request::Delete(const std::string& url) {
+    conn_t conn;
+    conn.url = url;
+    conn.timeout = 50000;
+    return Request::Delete(&conn);
 }
 
 // 发送 HTTPS DELETE 请求
@@ -257,4 +288,35 @@ void Request::CurlClose(inner_conn_t* inner_conn) {
         inner_conn->recv_buf.clear();
     }
     delete inner_conn;
+}
+
+std::string HttpGet(const std::string& url) {
+    return Request::Instance()->Get(url);
+}
+std::string HttpGet(conn_t* conn) {
+    return Request::Instance()->Get(conn);
+}
+std::string HttpPost(const std::string& url, const std::string& payload) {
+    return Request::Instance()->Post(url, payload);
+}
+std::string HttpPost(conn_t* conn) {
+    return Request::Instance()->Post(conn);
+}
+std::string HttpPut(const std::string& url, const std::string& payload) {
+    return Request::Instance()->Put(url, payload);
+}
+std::string HttpPut(conn_t* conn) {
+    return Request::Instance()->Put(conn);
+}
+std::string HttpPatch(const std::string& url, const std::string& payload) {
+    return Request::Instance()->Patch(url, payload);
+}
+std::string HttpPatch(conn_t* conn) {
+    return Request::Instance()->Patch(conn);
+}
+std::string HttpDelete(const std::string& url) {
+    return Request::Instance()->Delete(url);
+}
+std::string HttpDelete(conn_t* conn) {
+    return Request::Instance()->Delete(conn);
 }
