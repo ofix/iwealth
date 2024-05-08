@@ -58,14 +58,3 @@ std::string HttpPatch(const std::string& url, const std::string& payload);
 std::string HttpPatch(conn_t* conn);
 std::string HttpDelete(const std::string& url);
 std::string HttpDelete(conn_t* conn);
-
-class MultiRequest {
-    CURL* handlers[8];  // 一次最多8个并发请求
-    CURLM* multi_handler;
-    std::thread thread_handler;
-    std::vector<conn_t> conn_list;  // 请求列表
-    int still_running = 1;
-    int i;
-    CURLMsg* msg;  /* for picking up messages with the transfer status */
-    int msgs_left; /* how many messages are left */
-};

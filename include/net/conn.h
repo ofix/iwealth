@@ -13,6 +13,7 @@ typedef struct upload_info {
 
 typedef struct conn {
     std::string url;
+    std::string method;
     std::string payload;
     std::vector<std::string> headers;
     std::string response;

@@ -52,8 +52,10 @@ cpp_args = [
 sources = [
     'src/application.cpp',
     'src/spider/stock_list_spider_hexun.cpp',
+    'src/spider/stock_history_spider.cpp',
     'src/spider/spider.cpp',
     'src/net/request.cpp',
+    'src/net/concurrent_request.cpp',
     'src/search/trie.cpp',
     'src/util/console_table.cpp',
     'src/util/global.cpp']
