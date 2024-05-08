@@ -16,7 +16,6 @@ typedef struct conn {
     std::string method;
     std::string payload;
     std::vector<std::string> headers;
-    std::string response;
     std::string status;
     upload_info_t* upload_info;
     int http_code;
@@ -24,13 +23,11 @@ typedef struct conn {
     int timeout = 5000;  // 请求超时时间
     std::string basic_auth_name;
     std::string basic_auth_pwd;
-    std::function<int(std::string&)> callback;
+    CURL* easy_curl;                             // HTTP(s)请求句柄
+    struct curl_slist* curl_header_list;         // CURL 依赖头
+    curl_off_t queue_time;                       // 请求排队时间
+    curl_off_t total_time;                       // 请求响应总时间
+    std::string response;                        // 返回响应数据
+    std::function<void(std::string&)> callback;  // HTTP(s)回调响应处理函数
     bool debug = false;
 } conn_t;
-
-typedef struct inner_conn {
-    CURL* easy_curl;
-    struct curl_slist* curl_header_list;
-    std::string recv_buf;
-    size_t recv_size;
-} inner_conn_t;

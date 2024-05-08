@@ -17,7 +17,7 @@ void ConcurrentRequest::AddConnection(conn_t& connection) {
     m_connections.push_back(connection);
 }
 
-void ConcurrentRequest::AddConnectionList(std::vector<conn_t>& connections) {
+void ConcurrentRequest::AddConnectionList(const std::vector<conn_t>& connections) {
     for (auto connection : connections) {
         m_connections.push_back(connection);
     }
@@ -28,11 +28,10 @@ size_t ConcurrentRequest::_CurlOnResponseBodyRecv(void* ptr,
                                                   size_t size,
                                                   size_t nmemb,
                                                   void* data) {
-    inner_conn_t* inner_conn = static_cast<inner_conn_t*>(data);
-    if (inner_conn) {
+    conn_t* conn = static_cast<conn_t*>(data);
+    if (conn) {
         size_t recv_size = size * nmemb;
-        inner_conn->recv_size += recv_size;
-        inner_conn->recv_buf.append(static_cast<char*>(ptr), recv_size);
+        conn->response.append(static_cast<char*>(ptr), recv_size);
     }
     return size * nmemb;
 }
@@ -43,107 +42,108 @@ size_t ConcurrentRequest::_CurlOnResponseHeaderRecv(void* ptr,
                                                     size_t nmemb,
                                                     void* data) {
     size_t recv_size = size * nmemb;
-    // inner_conn_t* inner_conn = static_cast<inner_conn_t*>(data);
-    // if (inner_conn) {
-    //     char* str_head = strstr(static_cast<char*>(ptr), "Content-Length: ");
-    //     if (NULL == str_head) {
-    //         return recv_size;
-    //     }
-    // }
     return recv_size;
 }
 
 // 初始化 LibCurl 依赖库
-inner_conn_t* ConcurrentRequest::_CurlInit(conn_t* conn) {
-    inner_conn_t* inner_conn = new inner_conn_t();
-    inner_conn->easy_curl = curl_easy_init();
-    inner_conn->recv_buf = "";
-    inner_conn->recv_size = 0;
-    if (inner_conn->easy_curl) {
-        _SetRequestHeader(conn, inner_conn);
-        _SetCommonOptions(conn, inner_conn);
-        _SetMiscOptions(conn, inner_conn);
+void ConcurrentRequest::_CurlInit(conn_t* conn) {
+    conn->easy_curl = curl_easy_init();
+    conn->response = "";
+    if (conn->easy_curl) {
+        _SetRequestHeader(conn);
+        _SetCommonOptions(conn);
+        _SetMiscOptions(conn);
     }
-    return inner_conn;
 }
 
-void ConcurrentRequest::_SetRequestHeader(conn_t* conn, inner_conn_t* inner_conn) {
+void ConcurrentRequest::_CurlClose(conn_t* conn) {
+    curl_easy_cleanup(conn->easy_curl);
+    if (conn->curl_header_list) {
+        curl_slist_free_all(conn->curl_header_list);
+        conn->curl_header_list = NULL;
+    }
+    if (conn->response.length() > 0) {
+        conn->response.clear();
+    }
+    delete conn;
+}
+
+void ConcurrentRequest::_SetRequestHeader(conn_t* conn) {
     if (conn->headers.size() > 0) {
         struct curl_slist* list = NULL;
         for (int i = 0; conn->headers.size(); i++) {
             list = curl_slist_append(list, conn->headers[i].c_str());
         }
         list = curl_slist_append(list, "Expect: ");
-        curl_easy_setopt(inner_conn->easy_curl, CURLOPT_HTTPHEADER, list);
-        inner_conn->curl_header_list = list;
+        curl_easy_setopt(conn->easy_curl, CURLOPT_HTTPHEADER, list);
+        conn->curl_header_list = list;
     }
 }
 
-void ConcurrentRequest::_SetCommonOptions(conn_t* conn, inner_conn_t* inner_conn) {
-    curl_easy_setopt(inner_conn->easy_curl, CURLOPT_SSL_VERIFYPEER, 0L);
-    curl_easy_setopt(inner_conn->easy_curl, CURLOPT_SSL_VERIFYHOST, 0L);
-    curl_easy_setopt(inner_conn->easy_curl, CURLOPT_URL, conn->url.c_str());
-    curl_easy_setopt(inner_conn->easy_curl, CURLOPT_PRIVATE, conn->url.c_str());
+void ConcurrentRequest::_SetCommonOptions(conn_t* conn) {
+    curl_easy_setopt(conn->easy_curl, CURLOPT_SSL_VERIFYPEER, 0L);
+    curl_easy_setopt(conn->easy_curl, CURLOPT_SSL_VERIFYHOST, 0L);
+    curl_easy_setopt(conn->easy_curl, CURLOPT_URL, conn->url.c_str());
+    curl_easy_setopt(conn->easy_curl, CURLOPT_PRIVATE, conn);
     if (conn->basic_auth_name.length() > 0) {
-        curl_easy_setopt(inner_conn->easy_curl, CURLOPT_USERNAME,
+        curl_easy_setopt(conn->easy_curl, CURLOPT_USERNAME,
                          conn->basic_auth_name.c_str());
     }
 
     if (conn->basic_auth_pwd.length() > 0) {
-        curl_easy_setopt(inner_conn->easy_curl, CURLOPT_PASSWORD,
-                         conn->basic_auth_pwd.c_str());
+        curl_easy_setopt(conn->easy_curl, CURLOPT_PASSWORD, conn->basic_auth_pwd.c_str());
     }
-    curl_easy_setopt(inner_conn->easy_curl, CURLOPT_CONNECTTIMEOUT, conn->timeout);
-    curl_easy_setopt(inner_conn->easy_curl, CURLOPT_TIMEOUT, conn->timeout);
-    curl_easy_setopt(inner_conn->easy_curl, CURLOPT_WRITEFUNCTION,
+
+    curl_easy_setopt(conn->easy_curl, CURLOPT_CONNECTTIMEOUT, conn->timeout);
+    curl_easy_setopt(conn->easy_curl, CURLOPT_TIMEOUT, conn->timeout);
+    curl_easy_setopt(conn->easy_curl, CURLOPT_WRITEFUNCTION,
                      ConcurrentRequest::_CurlOnResponseBodyRecv);
-    curl_easy_setopt(inner_conn->easy_curl, CURLOPT_WRITEDATA, inner_conn);
-    // curl_easy_setopt(inner_conn->easy_curl, CURLOPT_HEADERFUNCTION,
+    curl_easy_setopt(conn->easy_curl, CURLOPT_WRITEDATA, conn);
+    // curl_easy_setopt(conn->easy_curl, CURLOPT_HEADERFUNCTION,
     //                  Request::CurlOnResponseHeaderRecv);
-    // curl_easy_setopt(inner_conn->easy_curl, CURLOPT_HEADERDATA, inner_conn);
+    // curl_easy_setopt(conn->easy_curl, CURLOPT_HEADERDATA, conn);
     if (conn->debug) {
-        curl_easy_setopt(inner_conn->easy_curl, CURLOPT_VERBOSE, 1L);
+        curl_easy_setopt(conn->easy_curl, CURLOPT_VERBOSE, 1L);
     }
 }
 
-void ConcurrentRequest::_SetMiscOptions(conn_t* conn, inner_conn_t* inner_conn) {
+void ConcurrentRequest::_SetMiscOptions(conn_t* conn) {
     if (conn->method == "GET") {
-        curl_easy_setopt(inner_conn->easy_curl, CURLOPT_HTTPGET, 1L);
-        curl_easy_setopt(inner_conn->easy_curl, CURLOPT_CUSTOMREQUEST, "GET");
+        curl_easy_setopt(conn->easy_curl, CURLOPT_HTTPGET, 1L);
+        curl_easy_setopt(conn->easy_curl, CURLOPT_CUSTOMREQUEST, "GET");
     } else if (conn->method == "POST") {
         if (conn->upload_info) {
-            curl_easy_setopt(inner_conn->easy_curl, CURLOPT_CUSTOMREQUEST, "POST");
-            curl_easy_setopt(inner_conn->easy_curl, CURLOPT_TIMEOUT, conn->timeout);
-            curl_easy_setopt(inner_conn->easy_curl, CURLOPT_INFILESIZE,
+            curl_easy_setopt(conn->easy_curl, CURLOPT_CUSTOMREQUEST, "POST");
+            curl_easy_setopt(conn->easy_curl, CURLOPT_TIMEOUT, conn->timeout);
+            curl_easy_setopt(conn->easy_curl, CURLOPT_INFILESIZE,
                              conn->upload_info->file_size);
-            curl_easy_setopt(inner_conn->easy_curl, CURLOPT_READDATA,
+            curl_easy_setopt(conn->easy_curl, CURLOPT_READDATA,
                              conn->upload_info->file_src);
-            curl_easy_setopt(inner_conn->easy_curl, CURLOPT_UPLOAD, 1L);
-            curl_easy_setopt(inner_conn->easy_curl, CURLOPT_USERAGENT, "chrome");
+            curl_easy_setopt(conn->easy_curl, CURLOPT_UPLOAD, 1L);
+            curl_easy_setopt(conn->easy_curl, CURLOPT_USERAGENT, "chrome");
         } else {
-            curl_easy_setopt(inner_conn->easy_curl, CURLOPT_CUSTOMREQUEST, "POST");
+            curl_easy_setopt(conn->easy_curl, CURLOPT_CUSTOMREQUEST, "POST");
             // 指定post数据大小，解决post数据为空时请求阻塞的问题
             if (conn->payload.length() == 0) {
-                curl_easy_setopt(inner_conn->easy_curl, CURLOPT_POSTFIELDSIZE, 0);
+                curl_easy_setopt(conn->easy_curl, CURLOPT_POSTFIELDSIZE, 0);
             } else {
-                curl_easy_setopt(inner_conn->easy_curl, CURLOPT_POSTFIELDSIZE,
+                curl_easy_setopt(conn->easy_curl, CURLOPT_POSTFIELDSIZE,
                                  conn->payload.length());
-                curl_easy_setopt(inner_conn->easy_curl, CURLOPT_POSTFIELDS,
+                curl_easy_setopt(conn->easy_curl, CURLOPT_POSTFIELDS,
                                  conn->payload.c_str());
             }
         }
     } else if ((conn->method == "PUT") || (conn->method == "PATCH")) {
-        curl_easy_setopt(inner_conn->easy_curl, CURLOPT_CUSTOMREQUEST, conn->method);
+        curl_easy_setopt(conn->easy_curl, CURLOPT_CUSTOMREQUEST, conn->method);
         if (conn->payload.length() == 0) {
-            curl_easy_setopt(inner_conn->easy_curl, CURLOPT_POSTFIELDSIZE, 0);
+            curl_easy_setopt(conn->easy_curl, CURLOPT_POSTFIELDSIZE, 0);
         } else {
-            curl_easy_setopt(inner_conn->easy_curl, CURLOPT_POSTFIELDSIZE,
+            curl_easy_setopt(conn->easy_curl, CURLOPT_POSTFIELDSIZE,
                              conn->payload.length());
-            curl_easy_setopt(inner_conn->easy_curl, CURLOPT_POSTFIELDS,
-                             conn->payload.c_str());
+            curl_easy_setopt(conn->easy_curl, CURLOPT_POSTFIELDS, conn->payload.c_str());
         }
     } else if (conn->method == "DELETE") {
-        curl_easy_setopt(inner_conn->easy_curl, CURLOPT_CUSTOMREQUEST, "DELETE");
+        curl_easy_setopt(conn->easy_curl, CURLOPT_CUSTOMREQUEST, "DELETE");
     }
 }
 
@@ -153,8 +153,8 @@ void ConcurrentRequest::_SetMiscOptions(conn_t* conn, inner_conn_t* inner_conn) 
  */
 void ConcurrentRequest::AddNewRequest(CURLM* cm, size_t i) {
     conn_t conn = m_connections[i];
-    inner_conn_t* inner_conn = _CurlInit(&conn);
-    curl_multi_add_handle(cm, inner_conn->easy_curl);
+    _CurlInit(&conn);
+    curl_multi_add_handle(cm, conn.easy_curl);
     m_running += 1;
 }
 
@@ -184,14 +184,23 @@ void ConcurrentRequest::Run() {
 
         while ((msg = curl_multi_info_read(cm, &msgs_left))) {
             if (msg->msg == CURLMSG_DONE) {
-                char* url;
+                conn_t* conn;
                 CURL* easy_curl = msg->easy_handle;
-                curl_easy_getinfo(msg->easy_handle, CURLINFO_PRIVATE, &url);
-                std::cout << "Result: " << msg->data.result << " - "
-                          << curl_easy_strerror(msg->data.result) << "<" << url << ">"
-                          << std::endl;
+                curl_easy_getinfo(msg->easy_handle, CURLINFO_PRIVATE, &conn);
+                curl_easy_getinfo(conn->easy_curl, CURLINFO_RESPONSE_CODE,
+                                  &conn->http_code);
+                curl_easy_getinfo(conn->easy_curl, CURLINFO_TOTAL_TIME,
+                                  &conn->total_time);
+                if (conn->callback != nullptr && conn->http_code == 200) {
+                    conn->callback(conn->response);
+                }
+                if (conn->debug) {
+                    std::cout << "\n===============================\n";
+                    std::cout << conn->response;
+                    std::cout << "\n===============================" << std::endl;
+                }
                 curl_multi_remove_handle(cm, easy_curl);
-                curl_easy_cleanup(easy_curl);
+                _CurlClose(conn);
                 m_successed += 1;
                 m_running--;
             } else {
@@ -230,4 +239,23 @@ size_t ConcurrentRequest::GetFailCount() {
 
 size_t ConcurrentRequest::GetFinishCount() {
     return m_successed + m_failed;
+}
+
+void HttpConcurrentGet(const std::vector<std::string>& urls, uint32_t concurrent_size) {
+    ConcurrentRequest request(concurrent_size);
+    std::vector<conn_t> connections;
+    for (auto url : urls) {
+        conn_t conn;
+        conn.url = url;
+        conn.method = "GET";
+        connections.push_back(conn);
+    }
+    request.AddConnectionList(connections);
+    request.Run();
+}
+
+void HttpConcurrentGet(const std::vector<conn_t>& connections, uint32_t concurrent_size) {
+    ConcurrentRequest request(concurrent_size);
+    request.AddConnectionList(connections);
+    request.Run();
 }

@@ -28,10 +28,10 @@ class Request {
     static std::string Delete(conn_t* conn);
 
    private:
-    static inner_conn_t* CurlInit(conn_t* conn);
-    static void SetRequestHeader(conn_t* conn, inner_conn_t* inner_conn);
-    static void SetCommonOptions(conn_t* conn, inner_conn_t* inner_conn);
-    static std::string DoRequest(conn_t* conn, inner_conn_t* inner_conn);
+    static void CurlInit(conn_t* conn);
+    static void SetRequestHeader(conn_t* conn);
+    static void SetCommonOptions(conn_t* conn);
+    static std::string DoRequest(conn_t* conn);
     static size_t CurlOnResponseBodyRecv(void* ptr,
                                          size_t size,
                                          size_t nmemb,
@@ -40,7 +40,7 @@ class Request {
                                            size_t size,
                                            size_t nmemb,
                                            void* data);
-    static void CurlClose(inner_conn_t* inner_conn);
+    static void CurlClose(conn_t* conn);
 
     Request();
     Request(const Request&){};

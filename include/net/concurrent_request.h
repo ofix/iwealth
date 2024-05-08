@@ -10,20 +10,21 @@ class ConcurrentRequest {
     ConcurrentRequest(std::vector<conn_t>& connections, uint32_t concurrent_size = 3);
     virtual ~ConcurrentRequest();
     void AddConnection(conn_t& connection);
-    void AddConnectionList(std::vector<conn_t>& connections);
+    void AddConnectionList(const std::vector<conn_t>& connections);
     void Run();
     uint32_t GetConcurrentSize() const;
     size_t GetSuccessCount();
     size_t GetRunningCount();
     size_t GetFailCount();
     size_t GetFinishCount();
-    void AddNewRequest(CURLM* cm, size_t i);
 
-   protected:
-    static inner_conn_t* _CurlInit(conn_t* conn);
-    static void _SetRequestHeader(conn_t* conn, inner_conn_t* inner_conn);
-    static void _SetCommonOptions(conn_t* conn, inner_conn_t* inner_conn);
-    static void _SetMiscOptions(conn_t* conn, inner_conn_t* inner_conn);
+   private:
+    void AddNewRequest(CURLM* cm, size_t i);
+    static void _CurlInit(conn_t* conn);
+    static void _SetRequestHeader(conn_t* conn);
+    static void _SetCommonOptions(conn_t* conn);
+    static void _SetMiscOptions(conn_t* conn);
+    static void _CurlClose(conn_t* conn);
     static size_t _CurlOnResponseBodyRecv(void* ptr,
                                           size_t size,
                                           size_t nmemb,
@@ -41,3 +42,8 @@ class ConcurrentRequest {
     size_t m_failed;                    // 失败请求数
     size_t m_total;                     // 所有请求数
 };
+
+void HttpConcurrentGet(const std::vector<std::string>& urls,
+                       uint32_t concurrent_size = 3);
+void HttpConcurrentGet(const std::vector<conn_t>& connections,
+                       uint32_t concurrent_size = 3);
