@@ -53,28 +53,19 @@
 #include "curlver.h"         /* libcurl version defines   */
 #include "system.h"          /* determine things run-time */
 
-/*
- * Define CURL_WIN32 when build target is Win32 API
- */
-
-#if (defined(_WIN32) || defined(__WIN32__) || defined(WIN32)) &&        \
-  !defined(__SYMBIAN32__)
-#define CURL_WIN32
-#endif
-
 #include <stdio.h>
 #include <limits.h>
 
-#if (defined(__FreeBSD__) && (__FreeBSD__ >= 2)) || defined(__MidnightBSD__)
+#if defined(__FreeBSD__) || defined(__MidnightBSD__)
 /* Needed for __FreeBSD_version or __MidnightBSD_version symbol definition */
-#include <osreldate.h>
+#include <sys/param.h>
 #endif
 
 /* The include stuff here below is mainly for time_t! */
 #include <sys/types.h>
 #include <time.h>
 
-#if defined(CURL_WIN32) && !defined(_WIN32_WCE) && !defined(__CYGWIN__)
+#if defined(_WIN32) && !defined(_WIN32_WCE) && !defined(__CYGWIN__)
 #if !(defined(_WINSOCKAPI_) || defined(_WINSOCK_H) || \
       defined(__LWIP_OPT_H__) || defined(LWIP_HDR_OPT_H))
 /* The check above prevents the winsock2 inclusion if winsock.h already was
@@ -88,7 +79,7 @@
    libc5-based Linux systems. Only include it on systems that are known to
    require it! */
 #if defined(_AIX) || defined(__NOVELL_LIBC__) || defined(__NetBSD__) || \
-    defined(__minix) || defined(__SYMBIAN32__) || defined(__INTEGRITY) || \
+    defined(__minix) || defined(__INTEGRITY) || \
     defined(ANDROID) || defined(__ANDROID__) || defined(__OpenBSD__) || \
     defined(__CYGWIN__) || defined(AMIGA) || defined(__NuttX__) || \
    (defined(__FreeBSD_version) && (__FreeBSD_version < 800000)) || \
@@ -97,11 +88,11 @@
 #include <sys/select.h>
 #endif
 
-#if !defined(CURL_WIN32) && !defined(_WIN32_WCE)
+#if !defined(_WIN32) && !defined(_WIN32_WCE)
 #include <sys/socket.h>
 #endif
 
-#if !defined(CURL_WIN32)
+#if !defined(_WIN32)
 #include <sys/time.h>
 #endif
 
@@ -128,7 +119,7 @@ typedef void CURLSH;
 
 #ifdef CURL_STATICLIB
 #  define CURL_EXTERN
-#elif defined(CURL_WIN32) || defined(__SYMBIAN32__) || \
+#elif defined(_WIN32) || \
      (__has_declspec_attribute(dllexport) && \
       __has_declspec_attribute(dllimport))
 #  if defined(BUILDING_LIBCURL)
@@ -144,7 +135,7 @@ typedef void CURLSH;
 
 #ifndef curl_socket_typedef
 /* socket typedef */
-#if defined(CURL_WIN32) && !defined(__LWIP_OPT_H__) && !defined(LWIP_HDR_OPT_H)
+#if defined(_WIN32) && !defined(__LWIP_OPT_H__) && !defined(LWIP_HDR_OPT_H)
 typedef SOCKET curl_socket_t;
 #define CURL_SOCKET_BAD INVALID_SOCKET
 #else
@@ -159,7 +150,7 @@ typedef enum {
   CURLSSLBACKEND_NONE = 0,
   CURLSSLBACKEND_OPENSSL = 1,
   CURLSSLBACKEND_GNUTLS = 2,
-  CURLSSLBACKEND_NSS = 3,
+  CURLSSLBACKEND_NSS                    CURL_DEPRECATED(8.3.0, "") = 3,
   CURLSSLBACKEND_OBSOLETE4 = 4,  /* Was QSOSSL. */
   CURLSSLBACKEND_GSKIT                  CURL_DEPRECATED(8.3.0, "") = 5,
   CURLSSLBACKEND_POLARSSL               CURL_DEPRECATED(7.69.0, "") = 6,
@@ -640,16 +631,17 @@ typedef enum {
   CURLE_PROXY,                   /* 97 - proxy handshake error */
   CURLE_SSL_CLIENTCERT,          /* 98 - client-side certificate required */
   CURLE_UNRECOVERABLE_POLL,      /* 99 - poll/select returned fatal error */
+  CURLE_TOO_LARGE,               /* 100 - a value/data met its maximum */
   CURL_LAST /* never use! */
 } CURLcode;
 
 #ifndef CURL_NO_OLDIES /* define this to test if your app builds with all
                           the obsolete stuff removed! */
 
-/* Previously obsolete error code re-used in 7.38.0 */
+/* Previously obsolete error code reused in 7.38.0 */
 #define CURLE_OBSOLETE16 CURLE_HTTP2
 
-/* Previously obsolete error codes re-used in 7.24.0 */
+/* Previously obsolete error codes reused in 7.24.0 */
 #define CURLE_OBSOLETE10 CURLE_FTP_ACCEPT_FAILED
 #define CURLE_OBSOLETE12 CURLE_FTP_ACCEPT_TIMEOUT
 
@@ -1358,7 +1350,7 @@ typedef enum {
      operation slower and is less friendly for the network. */
   CURLOPT(CURLOPT_FRESH_CONNECT, CURLOPTTYPE_LONG, 74),
 
-  /* Set to explicitly forbid the upcoming transfer's connection to be re-used
+  /* Set to explicitly forbid the upcoming transfer's connection to be reused
      when done. Do not use this unless you're absolutely sure of this, as it
      makes the operation slower and is less friendly for the network. */
   CURLOPT(CURLOPT_FORBID_REUSE, CURLOPTTYPE_LONG, 75),
@@ -1652,7 +1644,7 @@ typedef enum {
   CURLOPT(CURLOPT_SOCKOPTFUNCTION, CURLOPTTYPE_FUNCTIONPOINT, 148),
   CURLOPT(CURLOPT_SOCKOPTDATA, CURLOPTTYPE_CBPOINT, 149),
 
-  /* set to 0 to disable session ID re-use for this transfer, default is
+  /* set to 0 to disable session ID reuse for this transfer, default is
      enabled (== 1) */
   CURLOPT(CURLOPT_SSL_SESSIONID_CACHE, CURLOPTTYPE_LONG, 150),
 
@@ -1854,7 +1846,8 @@ typedef enum {
   /* allow GSSAPI credential delegation */
   CURLOPT(CURLOPT_GSSAPI_DELEGATION, CURLOPTTYPE_VALUES, 210),
 
-  /* Set the name servers to use for DNS resolution */
+  /* Set the name servers to use for DNS resolution.
+   * Only supported by the c-ares DNS backend */
   CURLOPT(CURLOPT_DNS_SERVERS, CURLOPTTYPE_STRINGPOINT, 211),
 
   /* Time-out accept operations (currently for FTP only) after this amount
@@ -2209,6 +2202,9 @@ typedef enum {
 
   /* set a specific client IP for HAProxy PROXY protocol header? */
   CURLOPT(CURLOPT_HAPROXY_CLIENT_IP, CURLOPTTYPE_STRINGPOINT, 323),
+
+  /* millisecond version */
+  CURLOPT(CURLOPT_SERVER_RESPONSE_TIMEOUT_MS, CURLOPTTYPE_LONG, 324),
 
   CURLOPT_LASTENTRY /* the last unused */
 } CURLoption;
@@ -2941,7 +2937,9 @@ typedef enum {
   CURLINFO_CAPATH           = CURLINFO_STRING + 62,
   CURLINFO_XFER_ID          = CURLINFO_OFF_T + 63,
   CURLINFO_CONN_ID          = CURLINFO_OFF_T + 64,
-  CURLINFO_LASTONE          = 64
+  CURLINFO_QUEUE_TIME_T     = CURLINFO_OFF_T + 65,
+  CURLINFO_USED_PROXY       = CURLINFO_LONG + 66,
+  CURLINFO_LASTONE          = 66
 } CURLINFO;
 
 /* CURLINFO_RESPONSE_CODE is the new name for the option previously known as
@@ -3220,6 +3218,7 @@ CURL_EXTERN CURLcode curl_easy_pause(CURL *handle, int bitmask);
 #include "options.h"
 #include "header.h"
 #include "websockets.h"
+#include "mprintf.h"
 
 /* the typechecker doesn't work in C++ (yet) */
 #if defined(__GNUC__) && defined(__GNUC_MINOR__) && \

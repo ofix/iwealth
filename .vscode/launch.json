@@ -9,6 +9,7 @@
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/build/iwealth",
+            // "program": "${workspaceFolder}/build/iwealth.exe",
             "args": [
             ],
             "stopAtEntry": true,

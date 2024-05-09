@@ -12,7 +12,7 @@ ldflags = ['-Wl,-z,relro,-z,now']
 
 if host_machine.cpu_family().startswith('x86')
     third_party_lib = join_paths(meson.source_root(),
-      meson.current_source_dir(), 'lib/curl/x86_64')
+      meson.current_source_dir(), 'lib/curl/x86_64_windows')
 else
     third_party_lib = join_paths(meson.source_root(),
       meson.current_source_dir(), 'lib/curl/arm64')
