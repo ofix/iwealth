@@ -21,6 +21,8 @@ std::string Request::Get(const std::string& url) {
     conn_t conn;
     conn.url = url;
     conn.timeout = 50000;
+    conn.curl_header_list = nullptr;
+    conn.upload_info = nullptr;
     return Request::Get(&conn);
 }
 
@@ -39,6 +41,8 @@ std::string Request::Post(const std::string& url, const std::string& payload) {
     conn.url = url;
     conn.timeout = 50000;
     conn.payload = payload;
+    conn.curl_header_list = nullptr;
+    conn.upload_info = nullptr;
     return Request::Post(&conn);
 }
 
@@ -74,6 +78,8 @@ std::string Request::Put(const std::string& url, const std::string& payload) {
     conn.url = url;
     conn.timeout = 50000;
     conn.payload = payload;
+    conn.curl_header_list = nullptr;
+    conn.upload_info = nullptr;
     return Request::Put(&conn);
 }
 
@@ -97,6 +103,8 @@ std::string Request::Patch(const std::string& url, const std::string& payload) {
     conn.url = url;
     conn.timeout = 50000;
     conn.payload = payload;
+    conn.curl_header_list = nullptr;
+    conn.upload_info = nullptr;
     return Request::Patch(&conn);
 }
 
@@ -119,6 +127,8 @@ std::string Request::Delete(const std::string& url) {
     conn_t conn;
     conn.url = url;
     conn.timeout = 50000;
+    conn.curl_header_list = nullptr;
+    conn.upload_info = nullptr;
     return Request::Delete(&conn);
 }
 
@@ -278,7 +288,6 @@ void Request::CurlClose(conn_t* conn) {
     if (conn->response.length() > 0) {
         conn->response.clear();
     }
-    delete conn;
 }
 
 std::string HttpGet(const std::string& url) {
