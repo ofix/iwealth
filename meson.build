@@ -43,6 +43,13 @@ third_party_dep = declare_dependency(
 
 compile_time = run_command('date', '+%F %H:%M:%S').stdout().strip()
 
+if host_machine.cpu_family().startswith('x86')
+cpp_args = [
+    '-I../lib/wxWidgets/3.2.4/mingw_x64_windows/mswu/',
+    '-I../include/wxWidgets/3.2.4/include',
+    '-DWXUSINGDLL',
+]
+else
 cpp_args = [
     #'-Werror'
     '-I../lib/wxWidgets/3.2.4/aarch64_linux/wx/include/gtk3-unicode-3.2',
@@ -52,19 +59,34 @@ cpp_args = [
     '-D__WXGTK__',
     '-D_FILE_OFFSET_BITS=64'
 ]
+endif
 
-ldflags = [
-    #'-z,relro,now,',
-    '-L/home/greatwall/work/iwealth/lib/wxWidgets/3.2.4/aarch64_linux',
-    '-pthread',
-    '-Wl,-rpath,/home/greatwall/work/iwealth/lib/wxWidgets/3.2.4/aarch64_linux',
-    '-lwx_gtk3u_xrc-3.2',
-    '-lwx_gtk3u_html-3.2',
-    '-lwx_gtk3u_qa-3.2',
-    '-lwx_gtk3u_core-3.2',
-    '-lwx_baseu_xml-3.2',
-    '-lwx_baseu_net-3.2',
-    '-lwx_baseu-3.2']
+if host_machine.cpu_family().startswith('x86')
+  ldflags = [
+      #'-z,relro,now,',
+      '-LE:/work/iwealth/lib/wxWidgets/3.2.4/mingw_x64_windows',
+      '-pthread',
+      '-Wl,-rpath,E:/work/iwealth/lib/wxWidgets/3.2.4/mingw_x64_windows',
+      '-lwxmsw32u_xrc',
+      '-lwxmsw32u_html',
+      '-lwxmsw32u_core',
+      '-lwxbase32u_xml',
+      '-lwxbase32u_net',
+      '-lwxbase32u'
+      ]
+else
+    ldflags = [
+      '-L/home/greatwall/work/iwealth/lib/wxWidgets/3.2.4/aarch64_linux',
+      '-pthread',
+      '-Wl,-rpath,/home/greatwall/work/iwealth/lib/wxWidgets/3.2.4/aarch64_linux',
+      '-lwx_gtk3u_xrc-3.2',
+      '-lwx_gtk3u_html-3.2',
+      '-lwx_gtk3u_qa-3.2',
+      '-lwx_gtk3u_core-3.2',
+      '-lwx_baseu_xml-3.2',
+      '-lwx_baseu_net-3.2',
+      '-lwx_baseu-3.2']
+endif
 
 sources = [
     # 'src/application.cpp',
