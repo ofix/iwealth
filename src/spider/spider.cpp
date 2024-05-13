@@ -1,4 +1,4 @@
-#include "spider.h"
+#include "spider/spider.h"
 
 Spider::Spider() : m_finished(false) {}
 

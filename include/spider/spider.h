@@ -1,6 +1,6 @@
 #pragma once
 #include <string>
-#include "request.h"
+#include "net/request.h"
 
 typedef struct _stock_item {
     std::string code;

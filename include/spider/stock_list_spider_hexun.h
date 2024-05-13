@@ -2,8 +2,8 @@
 #include <map>
 #include <regex>
 #include <vector>
-#include "json.hpp"
-#include "spider.h"
+#include "nlohmann/json.hpp"
+#include "spider/spider.h"
 
 class StockListSpiderHexun : public Spider {
    public:
