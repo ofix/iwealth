@@ -3344,7 +3344,7 @@
 	<vector>
 	"color.h"
 
-1715603007 source:e:\work\iwealth\src\util\global.cpp
+1715608224 source:e:\work\iwealth\src\util\global.cpp
 	"util/global.h"
 
 1715603007 source:e:\work\iwealth\src\ui\rich_app.cpp
@@ -6016,4 +6016,29 @@
 
 1715603007 source:e:\work\iwealth\src\ui\rich_main_frame.cpp
 	"ui/rich_main_frame.h"
+
+1715614151 source:e:\work\iwealth\src\ui\richmainframe.cpp
+	"ui/RichMainFrame.h"
+
+1715611111 e:\work\iwealth\include\ui\richmainframe.h
+	<wx/wxprec.h>
+	<wx/wx.h>
+
+1715611048 source:e:\work\iwealth\build\code_blocks_x86_64\newframe.cpp
+	"NewFrame.h"
+	<wx/intl.h>
+	<wx/string.h>
+
+1715611047 e:\work\iwealth\build\code_blocks_x86_64\newframe.h
+	<wx/frame.h>
+
+1715614463 source:e:\work\iwealth\src\ui\richapplication.cpp
+	"ui/RichApplication.h"
+	"ui/RichMainFrame.h"
+	"ui/RichMainFrame.h"
+	<wx/image.h>
+
+1715603007 e:\work\iwealth\include\ui\richapplication.h
+	<wx/wxprec.h>
+	<wx/wx.h>
 

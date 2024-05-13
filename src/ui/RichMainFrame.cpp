@@ -1,6 +1,12 @@
-#include "ui/rich_main_frame.h"
+#include "ui/RichMainFrame.h"
 
-RichMainFrame::RichMainFrame() : wxFrame(NULL, wxID_ANY, "Hello World") {
+RichMainFrame::RichMainFrame(wxWindow* parent,wxWindowID id,const wxPoint& pos,const wxSize& size){
+	//(*Initialize(RichMainFrame)
+	Create(parent, id, _("东方巴菲特333"), wxDefaultPosition, wxDefaultSize, wxDEFAULT_FRAME_STYLE, _T("id"));
+	SetClientSize(wxSize(1800,800));
+	Move(wxDefaultPosition);
+	//*)
+
     wxMenu* menuFile = new wxMenu;
     menuFile->Append(ID_Hello, "&Hello...\tCtrl-H",
                      "Help string shown in status bar for this menu item");
@@ -35,4 +41,10 @@ void RichMainFrame::OnAbout(wxCommandEvent& event) {
 
 void RichMainFrame::OnHello(wxCommandEvent& event) {
     wxLogMessage("Hello world from wxWidgets!");
+}
+
+RichMainFrame::~RichMainFrame()
+{
+	//(*Destroy(RichMainFrame)
+	//*)
 }

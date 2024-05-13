@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<wxsmith>
+	<object class="wxFrame" name="RichMainFrame">
+		<title>东方巴菲特333</title>
+		<icon stock_id="wxART_DEL_BOOKMARK" />
+		<size>1800,800</size>
+		<pos_arg>1</pos_arg>
+		<size_arg>1</size_arg>
+	</object>
+</wxsmith>

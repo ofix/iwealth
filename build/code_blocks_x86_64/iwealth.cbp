@@ -84,6 +84,7 @@
 		</Linker>
 		<Unit filename="../../LICENSE" />
 		<Unit filename="../../README.md" />
+		<Unit filename="../../doc/code_blocks.md" />
 		<Unit filename="../../doc/env.md" />
 		<Unit filename="../../include/curl/curl.h" />
 		<Unit filename="../../include/curl/curlver.h" />
@@ -105,23 +106,30 @@
 		<Unit filename="../../include/spider/spider.h" />
 		<Unit filename="../../include/spider/stock_history_spider.h" />
 		<Unit filename="../../include/spider/stock_list_spider_hexun.h" />
-		<Unit filename="../../include/ui/rich_app.h" />
-		<Unit filename="../../include/ui/rich_main_frame.h" />
+		<Unit filename="../../include/ui/RichApplication.h" />
+		<Unit filename="../../include/ui/RichMainFrame.h" />
 		<Unit filename="../../include/util/color.h" />
 		<Unit filename="../../include/util/console_table.h" />
 		<Unit filename="../../include/util/global.h" />
-		<Unit filename="../../src/application.cpp" />
 		<Unit filename="../../src/net/concurrent_request.cpp" />
 		<Unit filename="../../src/net/request.cpp" />
 		<Unit filename="../../src/search/trie.cpp" />
 		<Unit filename="../../src/spider/spider.cpp" />
 		<Unit filename="../../src/spider/stock_history_spider.cpp" />
 		<Unit filename="../../src/spider/stock_list_spider_hexun.cpp" />
-		<Unit filename="../../src/ui/rich_app.cpp" />
-		<Unit filename="../../src/ui/rich_main_frame.cpp" />
+		<Unit filename="../../src/ui/RichApplication.cpp" />
+		<Unit filename="../../src/ui/RichMainFrame.cpp" />
+		<Unit filename="../../src/ui/wxsmith/RichMainFrame.wxs" />
 		<Unit filename="../../src/util/console_table.cpp" />
 		<Unit filename="../../src/util/global.cpp" />
 		<Unit filename="iwealth.layout" />
-		<Extensions />
+		<Extensions>
+			<wxsmith version="1">
+				<gui name="wxWidgets" src="..\..\src\ui\RichApplication.cpp" main="RichMainFrame" init_handlers="necessary" language="CPP" />
+				<resources>
+					<wxFrame wxs="../../src/ui/wxsmith/RichMainFrame.wxs" src="../../src/ui/RichMainFrame.cpp" hdr="../../include/ui/RichMainFrame.h" fwddecl="0" i18n="1" name="RichMainFrame" language="CPP" />
+				</resources>
+			</wxsmith>
+		</Extensions>
 	</Project>
 </CodeBlocks_project_file>

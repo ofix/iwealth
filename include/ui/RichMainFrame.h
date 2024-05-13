@@ -18,7 +18,8 @@ enum { ID_Hello = 1 };
 
 class RichMainFrame : public wxFrame {
    public:
-    RichMainFrame();
+    RichMainFrame(wxWindow* parent,wxWindowID id=wxID_ANY,const wxPoint& pos=wxDefaultPosition,const wxSize& size=wxDefaultSize);
+    virtual ~RichMainFrame();
 
    private:
     void OnHello(wxCommandEvent& event);
