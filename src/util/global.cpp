@@ -116,7 +116,7 @@ std::string ltrim_copy(std::string str) {
  * @author songhuabiao@greatwall.com.cn
  */
 std::string rtrim_copy(std::string str) {
-    rtrim_copy(str);
+    rtrim(str);
     return str;
 }
 
