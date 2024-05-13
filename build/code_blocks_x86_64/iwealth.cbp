@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="iWealth" />
+		<Option pch_mode="0" />
+		<Option compiler="gcc" />
+		<Build>
+			<Target title="Debug">
+				<Option output="bin/Debug/iWealth" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/Debug/" />
+				<Option type="0" />
+				<Option compiler="gcc" />
+				<Option projectLinkerOptionsRelation="2" />
+				<Compiler>
+					<Add option="-g" />
+					<Add option="`wx-config  --version=3.1 --static=no --unicode=yes --debug=yes --cflags`" />
+					<Add directory="../../include" />
+					<Add directory="../../lib" />
+					<Add directory="../../lib/wxWidgets/3.2.4/mingw_x64_windows/mswu" />
+					<Add directory="../../include/wxWidgets/3.2.4/include" />
+				</Compiler>
+				<Linker>
+					<Add directory="../../lib" />
+				</Linker>
+			</Target>
+			<Target title="Release">
+				<Option output="bin/Release/iWealth" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/Release/" />
+				<Option type="0" />
+				<Option compiler="gcc" />
+				<Option projectLinkerOptionsRelation="2" />
+				<Compiler>
+					<Add option="-O2" />
+					<Add option="`wx-config  --version=3.1 --static=no --unicode=yes --debug=no --cflags`" />
+				</Compiler>
+				<Linker>
+					<Add option="-s" />
+					<Add option="`wx-config  --version=3.1 --static=no --unicode=yes --debug=no --libs`" />
+				</Linker>
+			</Target>
+		</Build>
+		<Compiler>
+			<Add option="-Wall" />
+			<Add option="-DWX_PRECOMP" />
+		</Compiler>
+		<Linker>
+			<Add library="../../lib/curl/x86_64_windows/libbrotlicommon.a" />
+			<Add library="../../lib/curl/x86_64_windows/libbrotlidec.a" />
+			<Add library="../../lib/curl/x86_64_windows/libcrypto.a" />
+			<Add library="../../lib/curl/x86_64_windows/libcurl.a" />
+			<Add library="../../lib/curl/x86_64_windows/libcurl.dll.a" />
+			<Add library="../../lib/curl/x86_64_windows/libnghttp2.a" />
+			<Add library="../../lib/curl/x86_64_windows/libnghttp3.a" />
+			<Add library="../../lib/curl/x86_64_windows/libngtcp2.a" />
+			<Add library="../../lib/curl/x86_64_windows/libngtcp2_crypto_quictls.a" />
+			<Add library="../../lib/curl/x86_64_windows/libpsl.a" />
+			<Add library="../../lib/curl/x86_64_windows/libssh2.a" />
+			<Add library="../../lib/curl/x86_64_windows/libssl.a" />
+			<Add library="../../lib/curl/x86_64_windows/libz.a" />
+			<Add library="../../lib/curl/x86_64_windows/libzstd.a" />
+			<Add library="../../lib/wxWidgets/3.2.4/mingw_x64_windows/libwxbase32u.a" />
+			<Add library="../../lib/wxWidgets/3.2.4/mingw_x64_windows/libwxbase32u_net.a" />
+			<Add library="../../lib/wxWidgets/3.2.4/mingw_x64_windows/libwxbase32u_xml.a" />
+			<Add library="../../lib/wxWidgets/3.2.4/mingw_x64_windows/libwxexpat.a" />
+			<Add library="../../lib/wxWidgets/3.2.4/mingw_x64_windows/libwxjpeg.a" />
+			<Add library="../../lib/wxWidgets/3.2.4/mingw_x64_windows/libwxmsw32u_adv.a" />
+			<Add library="../../lib/wxWidgets/3.2.4/mingw_x64_windows/libwxmsw32u_aui.a" />
+			<Add library="../../lib/wxWidgets/3.2.4/mingw_x64_windows/libwxmsw32u_core.a" />
+			<Add library="../../lib/wxWidgets/3.2.4/mingw_x64_windows/libwxmsw32u_gl.a" />
+			<Add library="../../lib/wxWidgets/3.2.4/mingw_x64_windows/libwxmsw32u_html.a" />
+			<Add library="../../lib/wxWidgets/3.2.4/mingw_x64_windows/libwxmsw32u_media.a" />
+			<Add library="../../lib/wxWidgets/3.2.4/mingw_x64_windows/libwxmsw32u_propgrid.a" />
+			<Add library="../../lib/wxWidgets/3.2.4/mingw_x64_windows/libwxmsw32u_ribbon.a" />
+			<Add library="../../lib/wxWidgets/3.2.4/mingw_x64_windows/libwxmsw32u_richtext.a" />
+			<Add library="../../lib/wxWidgets/3.2.4/mingw_x64_windows/libwxmsw32u_stc.a" />
+			<Add library="../../lib/wxWidgets/3.2.4/mingw_x64_windows/libwxmsw32u_webview.a" />
+			<Add library="../../lib/wxWidgets/3.2.4/mingw_x64_windows/libwxmsw32u_xrc.a" />
+			<Add library="../../lib/wxWidgets/3.2.4/mingw_x64_windows/libwxpng.a" />
+			<Add library="../../lib/wxWidgets/3.2.4/mingw_x64_windows/libwxregexu.a" />
+			<Add library="../../lib/wxWidgets/3.2.4/mingw_x64_windows/libwxscintilla.a" />
+			<Add library="../../lib/wxWidgets/3.2.4/mingw_x64_windows/libwxtiff.a" />
+			<Add library="../../lib/wxWidgets/3.2.4/mingw_x64_windows/libwxzlib.a" />
+		</Linker>
+		<Unit filename="../../LICENSE" />
+		<Unit filename="../../README.md" />
+		<Unit filename="../../doc/env.md" />
+		<Unit filename="../../include/curl/curl.h" />
+		<Unit filename="../../include/curl/curlver.h" />
+		<Unit filename="../../include/curl/easy.h" />
+		<Unit filename="../../include/curl/header.h" />
+		<Unit filename="../../include/curl/mprintf.h" />
+		<Unit filename="../../include/curl/multi.h" />
+		<Unit filename="../../include/curl/options.h" />
+		<Unit filename="../../include/curl/stdcheaders.h" />
+		<Unit filename="../../include/curl/system.h" />
+		<Unit filename="../../include/curl/typecheck-gcc.h" />
+		<Unit filename="../../include/curl/urlapi.h" />
+		<Unit filename="../../include/curl/websockets.h" />
+		<Unit filename="../../include/iwealth.h" />
+		<Unit filename="../../include/net/concurrent_request.h" />
+		<Unit filename="../../include/net/conn.h" />
+		<Unit filename="../../include/net/request.h" />
+		<Unit filename="../../include/search/trie.h" />
+		<Unit filename="../../include/spider/spider.h" />
+		<Unit filename="../../include/spider/stock_history_spider.h" />
+		<Unit filename="../../include/spider/stock_list_spider_hexun.h" />
+		<Unit filename="../../include/ui/rich_app.h" />
+		<Unit filename="../../include/ui/rich_main_frame.h" />
+		<Unit filename="../../include/util/color.h" />
+		<Unit filename="../../include/util/console_table.h" />
+		<Unit filename="../../include/util/global.h" />
+		<Unit filename="../../src/application.cpp" />
+		<Unit filename="../../src/net/concurrent_request.cpp" />
+		<Unit filename="../../src/net/request.cpp" />
+		<Unit filename="../../src/search/trie.cpp" />
+		<Unit filename="../../src/spider/spider.cpp" />
+		<Unit filename="../../src/spider/stock_history_spider.cpp" />
+		<Unit filename="../../src/spider/stock_list_spider_hexun.cpp" />
+		<Unit filename="../../src/ui/rich_app.cpp" />
+		<Unit filename="../../src/ui/rich_main_frame.cpp" />
+		<Unit filename="../../src/util/console_table.cpp" />
+		<Unit filename="../../src/util/global.cpp" />
+		<Unit filename="iwealth.layout" />
+		<Extensions />
+	</Project>
+</CodeBlocks_project_file>
