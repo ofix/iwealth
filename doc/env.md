@@ -27,7 +27,7 @@ wxWidgets-3.2.4/linux_aarch64_build/wx-config --libs
 -L/home/greatwall/work/wxWidgets-3.2.4/linux_aarch64_build/lib -pthread -Wl,-rpath,/home/greatwall/work/wxWidgets-3.2.4/linux_aarch64_build/lib -lwx_gtk3u_xrc-3.2 -lwx_gtk3u_html-3.2 -lwx_gtk3u_qa-3.2 -lwx_gtk3u_core-3.2 -lwx_baseu_xml-3.2 -lwx_baseu_net-3.2 -lwx_baseu-3.2
 ```
 
-### MinGw 编译wxWidgets最新版本方法
+### MinGw 编译 wxWidgets 最新版本方法
 
 1. 去 [https://www.mingw-w64.org/downloads/](https://www.mingw-w64.org/downloads/) 下载最新版本 mingw，这里我们选择 `w64devkit`
 2. 打开控制台程序，进入 `wxWidgets-3.2.4/build/msw` 目录
@@ -42,3 +42,7 @@ process_begin: CreateProcess(NULL, -c "if not exist ..\..\lib\gcc_dll\mswu mkdir
 make (e=2): The system cannot find the file specified.
 mingw32-make: *** [..\..\lib\gcc_dll\mswu] Error 2
 ```
+
+### mingw-x64 版本选择
+
+> 选择 `x86_64-posix-sjlj`，因为 Win32 线程模型不支持 C++ 11 的 `std::thread` 抽象，而 posix 版本支持； seh 异常模型采用 windows 操作系统内置的异常捕获机制，效率比 sjlj 要高，但存在跨平台不利影响。

@@ -10,22 +10,17 @@ project('iwealth', 'cpp',
 
 if host_machine.cpu_family().startswith('x86')
     third_party_lib = join_paths(meson.source_root(),
-      meson.current_source_dir(), 'lib/curl/x86_64_windows')
+      meson.current_source_dir(), '../../lib/curl/x86_64_windows')
 else
     third_party_lib = join_paths(meson.source_root(),
-      meson.current_source_dir(), 'lib/curl/aarch64_linux')
+      meson.current_source_dir(), '../../lib/curl/aarch64_linux')
 endif
 
 message(third_party_lib)
 
 inc = include_directories([
-    'include',
-    'include/curl',
-    'include/search',
-    'include/util',
-    'include/net',
-    'include/spider',
-    'lib/nlohmann'
+    '../../include',
+    '../../lib/nlohmann'
 ])
 
 cc = meson.get_compiler('cpp')
@@ -37,7 +32,7 @@ third_party_dep = declare_dependency(
         cc.find_library('curl', dirs: third_party_lib)
       ],
       include_directories: [
-        include_directories('include/curl')
+        include_directories('../../include/curl')
       ],
     )
 
@@ -45,15 +40,15 @@ compile_time = run_command('date', '+%F %H:%M:%S').stdout().strip()
 
 if host_machine.cpu_family().startswith('x86')
 cpp_args = [
-    '-I../lib/wxWidgets/3.2.4/mingw_x64_windows/mswu/',
-    '-I../include/wxWidgets/3.2.4/include',
+    '-I../../../lib/wxWidgets/3.2.4/mingw_x64_windows/mswu/',
+    '-I../../../include/wxWidgets/3.2.4/include',
     '-DWXUSINGDLL',
 ]
 else
 cpp_args = [
     #'-Werror'
-    '-I../lib/wxWidgets/3.2.4/aarch64_linux/wx/include/gtk3-unicode-3.2',
-    '-I../include/wxWidgets/3.2.4/include',
+    '-I../../../lib/wxWidgets/3.2.4/aarch64_linux/wx/include/gtk3-unicode-3.2',
+    '-I../../../include/wxWidgets/3.2.4/include',
     '-DWXUSINGDLL',
     '-D__WXGTK3__',
     '-D__WXGTK__',
@@ -88,7 +83,7 @@ else
       '-lwx_baseu-3.2']
 endif
 
-sources = [
+raw_sources = [
     # 'src/application.cpp',
     # 'src/spider/stock_list_spider_hexun.cpp',
     # 'src/spider/stock_history_spider.cpp',
@@ -98,8 +93,14 @@ sources = [
     # 'src/search/trie.cpp',
     # 'src/util/console_table.cpp',
     # 'src/util/global.cpp'
-    'src/ui/wxapplication.cpp'
+    'ui/rich_app.cpp',
+    'ui/rich_main_frame.cpp'
     ]
+sources = []
+foreach file : raw_sources
+    full_path = join_paths('../../src', file)
+    sources += files(full_path)
+endforeach
 
 executable('iwealth', sources,
             cpp_args:cpp_args,

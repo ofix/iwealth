@@ -31,5 +31,4 @@
 *.out
 *.app
 
-build
-gcc810_x64_windows
+build/meson/build
