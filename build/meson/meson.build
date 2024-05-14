@@ -84,6 +84,8 @@ else
 endif
 
 raw_sources = [
+    'ui/RichApplication.cpp',
+    'ui/RichMainFrame.cpp'
     # 'src/application.cpp',
     # 'src/spider/stock_list_spider_hexun.cpp',
     # 'src/spider/stock_history_spider.cpp',
@@ -93,8 +95,6 @@ raw_sources = [
     # 'src/search/trie.cpp',
     # 'src/util/console_table.cpp',
     # 'src/util/global.cpp'
-    'ui/rich_app.cpp',
-    'ui/rich_main_frame.cpp'
     ]
 sources = []
 foreach file : raw_sources

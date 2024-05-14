@@ -14,13 +14,40 @@
 				<Option projectLinkerOptionsRelation="2" />
 				<Compiler>
 					<Add option="-g" />
-					<Add option="`wx-config  --version=3.1 --static=no --unicode=yes --debug=yes --cflags`" />
+					<Add option="-DWXUSINGDLL" />
+					<Add option="-D__WXGTK3__" />
+					<Add option="-D__WXGTK__" />
+					<Add option="-D_FILE_OFFSET_BITS=64" />
 					<Add directory="../../include" />
 					<Add directory="../../lib/wxWidgets/3.2.4/aarch64_linux/wx/include/gtk3-unicode-3.2" />
+					<Add directory="../../include/wxWidgets/3.2.4/include" />
+					<Add directory="../../lib" />
 				</Compiler>
 				<Linker>
-					<Add option="`wx-config  --version=3.1 --static=no --unicode=yes --debug=yes --libs`" />
+					<Add option="-lpthread" />
+					<Add library="../../lib/wxWidgets/3.2.4/aarch64_linux/webkit2_extu-3.2.so" />
+					<Add library="../../lib/wxWidgets/3.2.4/aarch64_linux/libwxscintilla-3.2.a" />
+					<Add library="../../lib/wxWidgets/3.2.4/aarch64_linux/libwx_gtk3u_xrc-3.2.so" />
+					<Add library="../../lib/wxWidgets/3.2.4/aarch64_linux/libwx_gtk3u_webview-3.2.so" />
+					<Add library="../../lib/wxWidgets/3.2.4/aarch64_linux/libwx_gtk3u_stc-3.2.so" />
+					<Add library="../../lib/wxWidgets/3.2.4/aarch64_linux/libwx_gtk3u_richtext-3.2.so" />
+					<Add library="../../lib/wxWidgets/3.2.4/aarch64_linux/libwx_gtk3u_ribbon-3.2.so" />
+					<Add library="../../lib/wxWidgets/3.2.4/aarch64_linux/libwx_gtk3u_qa-3.2.so" />
+					<Add library="../../lib/wxWidgets/3.2.4/aarch64_linux/libwx_gtk3u_propgrid-3.2.so" />
+					<Add library="../../lib/wxWidgets/3.2.4/aarch64_linux/libwx_gtk3u_html-3.2.so" />
+					<Add library="../../lib/wxWidgets/3.2.4/aarch64_linux/libwx_gtk3u_gl-3.2.so" />
+					<Add library="../../lib/wxWidgets/3.2.4/aarch64_linux/libwx_gtk3u_core-3.2.so" />
+					<Add library="../../lib/wxWidgets/3.2.4/aarch64_linux/libwx_gtk3u_aui-3.2.so" />
+					<Add library="../../lib/wxWidgets/3.2.4/aarch64_linux/libwx_gtk3u_adv-3.2.so" />
+					<Add library="../../lib/wxWidgets/3.2.4/aarch64_linux/libwx_baseu_xml-3.2.so" />
+					<Add library="../../lib/wxWidgets/3.2.4/aarch64_linux/libwx_baseu_net-3.2.so" />
+					<Add library="../../lib/wxWidgets/3.2.4/aarch64_linux/libwx_baseu-3.2.so" />
+					<Add library="../../lib/curl/aarch64_linux/libssl.a" />
+					<Add library="../../lib/curl/aarch64_linux/libcurl.a" />
+					<Add library="../../lib/curl/aarch64_linux/libcrypto.a" />
 					<Add directory="../../lib" />
+					<Add directory="../../lib/wxWidgets/3.2.4/aarch64_linux" />
+					<Add directory="../../lib/curl/aarch64_linux" />
 				</Linker>
 			</Target>
 			<Target title="Release">
@@ -45,6 +72,7 @@
 		</Compiler>
 		<Unit filename="../../LICENSE" />
 		<Unit filename="../../README.md" />
+		<Unit filename="../../doc/code_blocks.md" />
 		<Unit filename="../../doc/env.md" />
 		<Unit filename="../../include/curl/curl.h" />
 		<Unit filename="../../include/curl/curlver.h" />
@@ -66,8 +94,8 @@
 		<Unit filename="../../include/spider/spider.h" />
 		<Unit filename="../../include/spider/stock_history_spider.h" />
 		<Unit filename="../../include/spider/stock_list_spider_hexun.h" />
-		<Unit filename="../../include/ui/rich_app.h" />
-		<Unit filename="../../include/ui/rich_main_frame.h" />
+		<Unit filename="../../include/ui/RichApplication.h" />
+		<Unit filename="../../include/ui/RichMainFrame.h" />
 		<Unit filename="../../include/util/color.h" />
 		<Unit filename="../../include/util/console_table.h" />
 		<Unit filename="../../include/util/global.h" />
@@ -1549,152 +1577,25 @@
 		<Unit filename="../../include/wxWidgets/3.2.4/include/wx/xtixml.h" />
 		<Unit filename="../../include/wxWidgets/3.2.4/include/wx/zipstrm.h" />
 		<Unit filename="../../include/wxWidgets/3.2.4/include/wx/zstream.h" />
-		<Unit filename="../../lib/curl/aarch64_linux/libcrypto.a" />
-		<Unit filename="../../lib/curl/aarch64_linux/libcrypto.so.3" />
-		<Unit filename="../../lib/curl/aarch64_linux/libcurl.a" />
-		<Unit filename="../../lib/curl/aarch64_linux/libcurl.la" />
-		<Unit filename="../../lib/curl/aarch64_linux/libcurl.so.4" />
-		<Unit filename="../../lib/curl/aarch64_linux/libcurl.so.4.8.0" />
-		<Unit filename="../../lib/curl/aarch64_linux/libssl.a" />
-		<Unit filename="../../lib/curl/aarch64_linux/libssl.so.3" />
-		<Unit filename="../../lib/curl/x86_64_linux/libcrypto.a" />
-		<Unit filename="../../lib/curl/x86_64_linux/libcrypto.so.3" />
-		<Unit filename="../../lib/curl/x86_64_linux/libcurl.a" />
-		<Unit filename="../../lib/curl/x86_64_linux/libcurl.la" />
-		<Unit filename="../../lib/curl/x86_64_linux/libcurl.so.4" />
-		<Unit filename="../../lib/curl/x86_64_linux/libcurl.so.4.8.0" />
-		<Unit filename="../../lib/curl/x86_64_linux/libssl.a" />
-		<Unit filename="../../lib/curl/x86_64_linux/libssl.so.3" />
-		<Unit filename="../../lib/curl/x86_64_windows/libbrotlicommon.a" />
-		<Unit filename="../../lib/curl/x86_64_windows/libbrotlidec.a" />
-		<Unit filename="../../lib/curl/x86_64_windows/libcrypto.a" />
-		<Unit filename="../../lib/curl/x86_64_windows/libcurl.a" />
-		<Unit filename="../../lib/curl/x86_64_windows/libcurl.dll.a" />
-		<Unit filename="../../lib/curl/x86_64_windows/libnghttp2.a" />
-		<Unit filename="../../lib/curl/x86_64_windows/libnghttp3.a" />
-		<Unit filename="../../lib/curl/x86_64_windows/libngtcp2.a" />
-		<Unit filename="../../lib/curl/x86_64_windows/libngtcp2_crypto_quictls.a" />
-		<Unit filename="../../lib/curl/x86_64_windows/libpsl.a" />
-		<Unit filename="../../lib/curl/x86_64_windows/libssh2.a" />
-		<Unit filename="../../lib/curl/x86_64_windows/libssl.a" />
-		<Unit filename="../../lib/curl/x86_64_windows/libz.a" />
-		<Unit filename="../../lib/curl/x86_64_windows/libzstd.a" />
-		<Unit filename="../../lib/nlohmann/json.hpp" />
-		<Unit filename="../../lib/nlohmann/json_fwd.hpp" />
-		<Unit filename="../../lib/wxWidgets/3.2.4/aarch64_linux/libwx_baseu-3.2.so" />
-		<Unit filename="../../lib/wxWidgets/3.2.4/aarch64_linux/libwx_baseu-3.2.so.0" />
-		<Unit filename="../../lib/wxWidgets/3.2.4/aarch64_linux/libwx_baseu-3.2.so.0.2.2" />
-		<Unit filename="../../lib/wxWidgets/3.2.4/aarch64_linux/libwx_baseu_net-3.2.so" />
-		<Unit filename="../../lib/wxWidgets/3.2.4/aarch64_linux/libwx_baseu_net-3.2.so.0" />
-		<Unit filename="../../lib/wxWidgets/3.2.4/aarch64_linux/libwx_baseu_net-3.2.so.0.2.2" />
-		<Unit filename="../../lib/wxWidgets/3.2.4/aarch64_linux/libwx_baseu_xml-3.2.so" />
-		<Unit filename="../../lib/wxWidgets/3.2.4/aarch64_linux/libwx_baseu_xml-3.2.so.0" />
-		<Unit filename="../../lib/wxWidgets/3.2.4/aarch64_linux/libwx_baseu_xml-3.2.so.0.2.2" />
-		<Unit filename="../../lib/wxWidgets/3.2.4/aarch64_linux/libwx_gtk3u_adv-3.2.so" />
-		<Unit filename="../../lib/wxWidgets/3.2.4/aarch64_linux/libwx_gtk3u_adv-3.2.so.0" />
-		<Unit filename="../../lib/wxWidgets/3.2.4/aarch64_linux/libwx_gtk3u_adv-3.2.so.0.2.2" />
-		<Unit filename="../../lib/wxWidgets/3.2.4/aarch64_linux/libwx_gtk3u_aui-3.2.so" />
-		<Unit filename="../../lib/wxWidgets/3.2.4/aarch64_linux/libwx_gtk3u_aui-3.2.so.0" />
-		<Unit filename="../../lib/wxWidgets/3.2.4/aarch64_linux/libwx_gtk3u_aui-3.2.so.0.2.2" />
-		<Unit filename="../../lib/wxWidgets/3.2.4/aarch64_linux/libwx_gtk3u_core-3.2.so" />
-		<Unit filename="../../lib/wxWidgets/3.2.4/aarch64_linux/libwx_gtk3u_core-3.2.so.0" />
-		<Unit filename="../../lib/wxWidgets/3.2.4/aarch64_linux/libwx_gtk3u_core-3.2.so.0.2.2" />
-		<Unit filename="../../lib/wxWidgets/3.2.4/aarch64_linux/libwx_gtk3u_gl-3.2.so" />
-		<Unit filename="../../lib/wxWidgets/3.2.4/aarch64_linux/libwx_gtk3u_gl-3.2.so.0" />
-		<Unit filename="../../lib/wxWidgets/3.2.4/aarch64_linux/libwx_gtk3u_gl-3.2.so.0.2.2" />
-		<Unit filename="../../lib/wxWidgets/3.2.4/aarch64_linux/libwx_gtk3u_html-3.2.so" />
-		<Unit filename="../../lib/wxWidgets/3.2.4/aarch64_linux/libwx_gtk3u_html-3.2.so.0" />
-		<Unit filename="../../lib/wxWidgets/3.2.4/aarch64_linux/libwx_gtk3u_html-3.2.so.0.2.2" />
-		<Unit filename="../../lib/wxWidgets/3.2.4/aarch64_linux/libwx_gtk3u_propgrid-3.2.so" />
-		<Unit filename="../../lib/wxWidgets/3.2.4/aarch64_linux/libwx_gtk3u_propgrid-3.2.so.0" />
-		<Unit filename="../../lib/wxWidgets/3.2.4/aarch64_linux/libwx_gtk3u_propgrid-3.2.so.0.2.2" />
-		<Unit filename="../../lib/wxWidgets/3.2.4/aarch64_linux/libwx_gtk3u_qa-3.2.so" />
-		<Unit filename="../../lib/wxWidgets/3.2.4/aarch64_linux/libwx_gtk3u_qa-3.2.so.0" />
-		<Unit filename="../../lib/wxWidgets/3.2.4/aarch64_linux/libwx_gtk3u_qa-3.2.so.0.2.2" />
-		<Unit filename="../../lib/wxWidgets/3.2.4/aarch64_linux/libwx_gtk3u_ribbon-3.2.so" />
-		<Unit filename="../../lib/wxWidgets/3.2.4/aarch64_linux/libwx_gtk3u_ribbon-3.2.so.0" />
-		<Unit filename="../../lib/wxWidgets/3.2.4/aarch64_linux/libwx_gtk3u_ribbon-3.2.so.0.2.2" />
-		<Unit filename="../../lib/wxWidgets/3.2.4/aarch64_linux/libwx_gtk3u_richtext-3.2.so" />
-		<Unit filename="../../lib/wxWidgets/3.2.4/aarch64_linux/libwx_gtk3u_richtext-3.2.so.0" />
-		<Unit filename="../../lib/wxWidgets/3.2.4/aarch64_linux/libwx_gtk3u_richtext-3.2.so.0.2.2" />
-		<Unit filename="../../lib/wxWidgets/3.2.4/aarch64_linux/libwx_gtk3u_stc-3.2.so" />
-		<Unit filename="../../lib/wxWidgets/3.2.4/aarch64_linux/libwx_gtk3u_stc-3.2.so.0" />
-		<Unit filename="../../lib/wxWidgets/3.2.4/aarch64_linux/libwx_gtk3u_stc-3.2.so.0.2.2" />
-		<Unit filename="../../lib/wxWidgets/3.2.4/aarch64_linux/libwx_gtk3u_webview-3.2.so" />
-		<Unit filename="../../lib/wxWidgets/3.2.4/aarch64_linux/libwx_gtk3u_webview-3.2.so.0" />
-		<Unit filename="../../lib/wxWidgets/3.2.4/aarch64_linux/libwx_gtk3u_webview-3.2.so.0.2.2" />
-		<Unit filename="../../lib/wxWidgets/3.2.4/aarch64_linux/libwx_gtk3u_xrc-3.2.so" />
-		<Unit filename="../../lib/wxWidgets/3.2.4/aarch64_linux/libwx_gtk3u_xrc-3.2.so.0" />
-		<Unit filename="../../lib/wxWidgets/3.2.4/aarch64_linux/libwx_gtk3u_xrc-3.2.so.0.2.2" />
-		<Unit filename="../../lib/wxWidgets/3.2.4/aarch64_linux/libwxscintilla-3.2.a" />
-		<Unit filename="../../lib/wxWidgets/3.2.4/aarch64_linux/webkit2_extu-3.2.so" />
-		<Unit filename="../../lib/wxWidgets/3.2.4/aarch64_linux/wx/config/gtk3-unicode-3.2" />
-		<Unit filename="../../lib/wxWidgets/3.2.4/aarch64_linux/wx/config/inplace-gtk3-unicode-3.2" />
-		<Unit filename="../../lib/wxWidgets/3.2.4/aarch64_linux/wx/include/gtk3-unicode-3.2/wx/setup.h" />
-		<Unit filename="../../lib/wxWidgets/3.2.4/aarch64_linux/wxWidgetsConfig.cmake" />
-		<Unit filename="../../lib/wxWidgets/3.2.4/aarch64_linux/wxWidgetsConfigVersion.cmake" />
-		<Unit filename="../../lib/wxWidgets/3.2.4/aarch64_linux/wxrc-3.2" />
-		<Unit filename="../../lib/wxWidgets/3.2.4/mingw_x64_windows/libwxbase32u.a" />
-		<Unit filename="../../lib/wxWidgets/3.2.4/mingw_x64_windows/libwxbase32u_net.a" />
-		<Unit filename="../../lib/wxWidgets/3.2.4/mingw_x64_windows/libwxbase32u_xml.a" />
-		<Unit filename="../../lib/wxWidgets/3.2.4/mingw_x64_windows/libwxexpat.a" />
-		<Unit filename="../../lib/wxWidgets/3.2.4/mingw_x64_windows/libwxjpeg.a" />
-		<Unit filename="../../lib/wxWidgets/3.2.4/mingw_x64_windows/libwxmsw32u_adv.a" />
-		<Unit filename="../../lib/wxWidgets/3.2.4/mingw_x64_windows/libwxmsw32u_aui.a" />
-		<Unit filename="../../lib/wxWidgets/3.2.4/mingw_x64_windows/libwxmsw32u_core.a" />
-		<Unit filename="../../lib/wxWidgets/3.2.4/mingw_x64_windows/libwxmsw32u_gl.a" />
-		<Unit filename="../../lib/wxWidgets/3.2.4/mingw_x64_windows/libwxmsw32u_html.a" />
-		<Unit filename="../../lib/wxWidgets/3.2.4/mingw_x64_windows/libwxmsw32u_media.a" />
-		<Unit filename="../../lib/wxWidgets/3.2.4/mingw_x64_windows/libwxmsw32u_propgrid.a" />
-		<Unit filename="../../lib/wxWidgets/3.2.4/mingw_x64_windows/libwxmsw32u_ribbon.a" />
-		<Unit filename="../../lib/wxWidgets/3.2.4/mingw_x64_windows/libwxmsw32u_richtext.a" />
-		<Unit filename="../../lib/wxWidgets/3.2.4/mingw_x64_windows/libwxmsw32u_stc.a" />
-		<Unit filename="../../lib/wxWidgets/3.2.4/mingw_x64_windows/libwxmsw32u_webview.a" />
-		<Unit filename="../../lib/wxWidgets/3.2.4/mingw_x64_windows/libwxmsw32u_xrc.a" />
-		<Unit filename="../../lib/wxWidgets/3.2.4/mingw_x64_windows/libwxpng.a" />
-		<Unit filename="../../lib/wxWidgets/3.2.4/mingw_x64_windows/libwxregexu.a" />
-		<Unit filename="../../lib/wxWidgets/3.2.4/mingw_x64_windows/libwxscintilla.a" />
-		<Unit filename="../../lib/wxWidgets/3.2.4/mingw_x64_windows/libwxtiff.a" />
-		<Unit filename="../../lib/wxWidgets/3.2.4/mingw_x64_windows/libwxzlib.a" />
-		<Unit filename="../../lib/wxWidgets/3.2.4/mingw_x64_windows/mswu/build.cfg" />
-		<Unit filename="../../lib/wxWidgets/3.2.4/mingw_x64_windows/mswu/wx/msw/rcdefs.h" />
-		<Unit filename="../../lib/wxWidgets/3.2.4/mingw_x64_windows/mswu/wx/setup.h" />
-		<Unit filename="../../src/application.cpp" />
 		<Unit filename="../../src/net/concurrent_request.cpp" />
 		<Unit filename="../../src/net/request.cpp" />
 		<Unit filename="../../src/search/trie.cpp" />
 		<Unit filename="../../src/spider/spider.cpp" />
 		<Unit filename="../../src/spider/stock_history_spider.cpp" />
 		<Unit filename="../../src/spider/stock_list_spider_hexun.cpp" />
-		<Unit filename="../../src/ui/rich_app.cpp" />
-		<Unit filename="../../src/ui/rich_main_frame.cpp" />
+		<Unit filename="../../src/ui/RichApplication.cpp" />
+		<Unit filename="../../src/ui/RichMainFrame.cpp" />
+		<Unit filename="../../src/ui/wxsmith/RichMainFrame.wxs" />
 		<Unit filename="../../src/util/console_table.cpp" />
 		<Unit filename="../../src/util/global.cpp" />
-		<Unit filename="../meson/build/build.ninja" />
-		<Unit filename="../meson/build/compile_commands.json" />
-		<Unit filename="../meson/build/iwealth" />
-		<Unit filename="../meson/build/meson-info/intro-benchmarks.json" />
-		<Unit filename="../meson/build/meson-info/intro-buildoptions.json" />
-		<Unit filename="../meson/build/meson-info/intro-buildsystem_files.json" />
-		<Unit filename="../meson/build/meson-info/intro-dependencies.json" />
-		<Unit filename="../meson/build/meson-info/intro-installed.json" />
-		<Unit filename="../meson/build/meson-info/intro-projectinfo.json" />
-		<Unit filename="../meson/build/meson-info/intro-targets.json" />
-		<Unit filename="../meson/build/meson-info/intro-tests.json" />
-		<Unit filename="../meson/build/meson-info/meson-info.json" />
-		<Unit filename="../meson/build/meson-logs/meson-log.txt" />
-		<Unit filename="../meson/build/meson-private/build.dat" />
-		<Unit filename="../meson/build/meson-private/cmd_line.txt" />
-		<Unit filename="../meson/build/meson-private/coredata.dat" />
-		<Unit filename="../meson/build/meson-private/coredata.dat.prev" />
-		<Unit filename="../meson/build/meson-private/install.dat" />
-		<Unit filename="../meson/build/meson-private/meson.lock" />
-		<Unit filename="../meson/build/meson-private/meson_benchmark_setup.dat" />
-		<Unit filename="../meson/build/meson-private/meson_test_setup.dat" />
-		<Unit filename="../meson/build/meson-private/sanitycheckcpp.cc" />
-		<Unit filename="../meson/build/meson-private/sanitycheckcpp.exe" />
-		<Unit filename="../meson/meson.build" />
 		<Unit filename="iwealth.layout" />
-		<Extensions />
+		<Extensions>
+			<wxsmith version="1">
+				<gui name="wxWidgets" src="..\..\src\ui\RichApplication.cpp" main="RichMainFrame" init_handlers="necessary" language="CPP" />
+				<resources>
+					<wxFrame wxs="../../src/ui/wxsmith/RichMainFrame.wxs" src="../../src/ui/RichMainFrame.cpp" hdr="../../include/ui/RichMainFrame.h" fwddecl="0" i18n="1" name="RichMainFrame" language="CPP" />
+				</resources>
+			</wxsmith>
+		</Extensions>
 	</Project>
 </CodeBlocks_project_file>
