@@ -6292,3 +6292,50 @@
 1715648131 source:/home/greatwall/work/iwealth/src/ui/RichMainFrame.cpp
 	"ui/RichMainFrame.h"
 
+1715678355 source:/home/greatwall/work/iwealth/src/ui/components/RichVolumeBarCtrl.cpp
+	"ui/components/RichVolumeBarCtrl.h"
+	"ui/components/RichKlineCtrl.h"
+
+1715678252 /home/greatwall/work/iwealth/include/ui/components/RichVolumeBarCtrl.h
+	<vector>
+	<wx/dcclient.h>
+	"stock/Stock.h"
+
+1715675284 /home/greatwall/work/iwealth/include/stock/Stock.h
+	<string>
+
+1715679742 /home/greatwall/work/iwealth/include/ui/components/RichKlineCtrl.h
+	<vector>
+	<wx/control.h>
+	<wx/textfile.h>
+	<wx/dcclient.h>
+	<wx/dcbuffer.h>
+	"stock/Stock.h"
+
+1699484035 /home/greatwall/work/iwealth/include/wxWidgets/3.2.4/include/wx/textfile.h
+	"wx/defs.h"
+	"wx/textbuf.h"
+	"wx/file.h"
+
+1699484035 /home/greatwall/work/iwealth/include/wxWidgets/3.2.4/include/wx/textbuf.h
+	"wx/defs.h"
+	"wx/arrstr.h"
+	"wx/convauto.h"
+	"wx/string.h"
+	"wx/dynarray.h"
+
+1699484035 /home/greatwall/work/iwealth/include/wxWidgets/3.2.4/include/wx/dcbuffer.h
+	"wx/dcmemory.h"
+	"wx/dcclient.h"
+	"wx/window.h"
+
+1715679098 source:/home/greatwall/work/iwealth/src/ui/components/RichKlineInfoCtrl.cpp
+	"ui/components/RichKlineInfoCtrl.h"
+	"ui/components/RichKlineCtrl.h"
+
+1715678260 /home/greatwall/work/iwealth/include/ui/components/RichKlineInfoCtrl.h
+	<string>
+	<wx/dcclient.h>
+	<wx/datetime.h>
+	"stock/Stock.h"
+

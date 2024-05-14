@@ -24,6 +24,8 @@
 				<Option type="0" />
 				<Option compiler="gcc" />
 				<Option projectLinkerOptionsRelation="2" />
+				<Compiler>
+				</Compiler>
 				<Linker>
 					<Add option="-s" />
 					<Add directory="../../lib/wxWidgets/3.2.4/aarch64_linux" />
@@ -69,6 +71,11 @@
 		</ExtraCommands>
 		<Unit filename="../../LICENSE" />
 		<Unit filename="../../README.md" />
+		<Unit filename="../../doc/Kylin_compiler_search_directories.png" />
+		<Unit filename="../../doc/Kylin_compiler_settings_#defines.png" />
+		<Unit filename="../../doc/Kylin_linker_search_directories.png" />
+		<Unit filename="../../doc/Kylin_linker_settings.png" />
+		<Unit filename="../../doc/Kylin_post_build_steps.png" />
 		<Unit filename="../../doc/code_blocks.md" />
 		<Unit filename="../../doc/env.md" />
 		<Unit filename="../../include/curl/curl.h" />
@@ -91,9 +98,12 @@
 		<Unit filename="../../include/spider/spider.h" />
 		<Unit filename="../../include/spider/stock_history_spider.h" />
 		<Unit filename="../../include/spider/stock_list_spider_hexun.h" />
+		<Unit filename="../../include/stock/Stock.h" />
 		<Unit filename="../../include/ui/RichApplication.h" />
 		<Unit filename="../../include/ui/RichMainFrame.h" />
-		<Unit filename="../../include/ui/components/RichVolumeBar.h" />
+		<Unit filename="../../include/ui/components/RichKlineCtrl.h" />
+		<Unit filename="../../include/ui/components/RichKlineInfoCtrl.h" />
+		<Unit filename="../../include/ui/components/RichVolumeBarCtrl.h" />
 		<Unit filename="../../include/util/color.h" />
 		<Unit filename="../../include/util/console_table.h" />
 		<Unit filename="../../include/util/global.h" />
@@ -105,7 +115,9 @@
 		<Unit filename="../../src/spider/stock_list_spider_hexun.cpp" />
 		<Unit filename="../../src/ui/RichApplication.cpp" />
 		<Unit filename="../../src/ui/RichMainFrame.cpp" />
-		<Unit filename="../../src/ui/components/RichVolumeBar.cpp" />
+		<Unit filename="../../src/ui/components/RichKlineCtrl.cpp" />
+		<Unit filename="../../src/ui/components/RichKlineInfoCtrl.cpp" />
+		<Unit filename="../../src/ui/components/RichVolumeBarCtrl.cpp" />
 		<Unit filename="../../src/ui/wxsmith/RichMainFrame.wxs" />
 		<Unit filename="../../src/util/console_table.cpp" />
 		<Unit filename="../../src/util/global.cpp" />

@@ -11,18 +11,18 @@
 #include <wx/wxprec.h>
 
 #ifndef WX_PRECOMP
-#include <wx/wx.h>
+    #include <wx/wx.h>
 #endif
 
 enum { ID_Hello = 1 };
 
 class RichMainFrame : public wxFrame {
-   public:
-    RichMainFrame(wxWindow* parent,wxWindowID id=wxID_ANY,const wxPoint& pos=wxDefaultPosition,const wxSize& size=wxDefaultSize);
-    virtual ~RichMainFrame();
+    public:
+        RichMainFrame(wxWindow* parent,wxWindowID id=wxID_ANY,const wxPoint& pos=wxDefaultPosition,const wxSize& size=wxDefaultSize);
+        virtual ~RichMainFrame();
 
-   private:
-    void OnHello(wxCommandEvent& event);
-    void OnExit(wxCommandEvent& event);
-    void OnAbout(wxCommandEvent& event);
+    private:
+        void OnHello(wxCommandEvent& event);
+        void OnExit(wxCommandEvent& event);
+        void OnAbout(wxCommandEvent& event);
 };
