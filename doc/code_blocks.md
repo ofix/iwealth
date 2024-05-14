@@ -28,5 +28,16 @@ cp  $(PROJECT_DIR)../../lib/wxWidgets/3.2.4/aarch64_linux/*.so.*  $(PROJECT_DIR)
 
 ### Linux 编译 libcurl，并支持 https
 
+```
 ./configure --with-ssl=/home/greatwall/cpp_libs/openssl_share_3.0.13
 --prefix=/home/greatwall/cpp_libs/libcurl_share_8.7.1
+```
+
+或者
+
+```
+mkdir build
+cd build
+cmake ..
+make
+```

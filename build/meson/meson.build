@@ -27,8 +27,8 @@ cc = meson.get_compiler('cpp')
 
 third_party_dep = declare_dependency(
       dependencies : [
-        cc.find_library('crypto', dirs: third_party_lib), 
-        cc.find_library('ssl', dirs: third_party_lib),
+        # cc.find_library('crypto', dirs: third_party_lib), 
+        # cc.find_library('ssl', dirs: third_party_lib),
         cc.find_library('curl', dirs: third_party_lib)
       ],
       include_directories: [
