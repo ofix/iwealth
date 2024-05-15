@@ -20,7 +20,7 @@ message(third_party_lib)
 
 inc = include_directories([
     '../../include',
-    '../../lib/nlohmann'
+    '../../lib'
 ])
 
 cc = meson.get_compiler('cpp')
@@ -85,16 +85,19 @@ endif
 
 raw_sources = [
     'ui/RichApplication.cpp',
-    'ui/RichMainFrame.cpp'
-    # 'src/application.cpp',
-    # 'src/spider/stock_list_spider_hexun.cpp',
-    # 'src/spider/stock_history_spider.cpp',
-    # 'src/spider/spider.cpp',
-    # 'src/net/request.cpp',
-    # 'src/net/concurrent_request.cpp',
-    # 'src/search/trie.cpp',
-    # 'src/util/console_table.cpp',
-    # 'src/util/global.cpp'
+    'ui/RichMainFrame.cpp',
+    'ui/components/RichKlineCtrl.cpp',
+    'ui/components/RichKlineInfoCtrl.cpp',
+    'ui/components/RichVolumeBarCtrl.cpp',
+    'stock/share_data_center.cpp',
+    'spider/share_list_spider_hexun.cpp',
+    'spider/share_history_spider.cpp',
+    'spider/spider.cpp',
+    'net/request.cpp',
+    'net/concurrent_request.cpp',
+    'search/trie.cpp',
+    'util/console_table.cpp',
+    'util/global.cpp'
     ]
 sources = []
 foreach file : raw_sources

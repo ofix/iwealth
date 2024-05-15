@@ -8,11 +8,11 @@
             "name": "(gdb) 启动",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/build/iwealth",
+            "program": "${workspaceFolder}/build/meson/build/iwealth",
             // "program": "${workspaceFolder}/build/iwealth.exe",
             "args": [
             ],
-            "stopAtEntry": true,
+            "stopAtEntry": false,
             "cwd": "${fileDirname}",
             "environment": [],
             "externalConsole": false,
