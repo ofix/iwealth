@@ -1,6 +1,8 @@
 #include "spider/spider.h"
+#include "stock/share_data_center.h"
 
-Spider::Spider() : m_finished(false) {}
+Spider::Spider(ShareDataCenter* data_center)
+    : m_pDataCenter(data_center), m_progress(0) {}
 
 Spider::~Spider() {}
 
@@ -15,7 +17,7 @@ void Spider::Pause() {}
 void Spider::Stop() {}
 
 bool Spider::HasFinish() {
-    return m_finished;
+    return m_progress >= 1.0;
 }
 
 double Spider::GetProgress() {

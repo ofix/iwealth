@@ -24,8 +24,6 @@
 				<Option type="0" />
 				<Option compiler="gcc" />
 				<Option projectLinkerOptionsRelation="2" />
-				<Compiler>
-				</Compiler>
 				<Linker>
 					<Add option="-s" />
 					<Add directory="../../lib/wxWidgets/3.2.4/aarch64_linux" />
@@ -78,27 +76,16 @@
 		<Unit filename="../../doc/Kylin_post_build_steps.png" />
 		<Unit filename="../../doc/code_blocks.md" />
 		<Unit filename="../../doc/env.md" />
-		<Unit filename="../../include/curl/curl.h" />
-		<Unit filename="../../include/curl/curlver.h" />
-		<Unit filename="../../include/curl/easy.h" />
-		<Unit filename="../../include/curl/header.h" />
-		<Unit filename="../../include/curl/mprintf.h" />
-		<Unit filename="../../include/curl/multi.h" />
-		<Unit filename="../../include/curl/options.h" />
-		<Unit filename="../../include/curl/stdcheaders.h" />
-		<Unit filename="../../include/curl/system.h" />
-		<Unit filename="../../include/curl/typecheck-gcc.h" />
-		<Unit filename="../../include/curl/urlapi.h" />
-		<Unit filename="../../include/curl/websockets.h" />
 		<Unit filename="../../include/iwealth.h" />
 		<Unit filename="../../include/net/concurrent_request.h" />
 		<Unit filename="../../include/net/conn.h" />
 		<Unit filename="../../include/net/request.h" />
 		<Unit filename="../../include/search/trie.h" />
+		<Unit filename="../../include/spider/share_history_spider.h" />
+		<Unit filename="../../include/spider/share_list_spider_hexun.h" />
 		<Unit filename="../../include/spider/spider.h" />
-		<Unit filename="../../include/spider/stock_history_spider.h" />
-		<Unit filename="../../include/spider/stock_list_spider_hexun.h" />
-		<Unit filename="../../include/stock/Stock.h" />
+		<Unit filename="../../include/stock/share_data_center.h" />
+		<Unit filename="../../include/stock/stock.h" />
 		<Unit filename="../../include/ui/RichApplication.h" />
 		<Unit filename="../../include/ui/RichMainFrame.h" />
 		<Unit filename="../../include/ui/components/RichKlineCtrl.h" />
@@ -110,9 +97,10 @@
 		<Unit filename="../../src/net/concurrent_request.cpp" />
 		<Unit filename="../../src/net/request.cpp" />
 		<Unit filename="../../src/search/trie.cpp" />
+		<Unit filename="../../src/spider/share_history_spider.cpp" />
+		<Unit filename="../../src/spider/share_list_spider_hexun.cpp" />
 		<Unit filename="../../src/spider/spider.cpp" />
-		<Unit filename="../../src/spider/stock_history_spider.cpp" />
-		<Unit filename="../../src/spider/stock_list_spider_hexun.cpp" />
+		<Unit filename="../../src/stock/share_data_center.cpp" />
 		<Unit filename="../../src/ui/RichApplication.cpp" />
 		<Unit filename="../../src/ui/RichMainFrame.cpp" />
 		<Unit filename="../../src/ui/components/RichKlineCtrl.cpp" />

@@ -76,6 +76,9 @@
     "typeinfo": "cpp",
     "any": "cpp",
     "codecvt": "cpp",
-    "valarray": "cpp"
+    "valarray": "cpp",
+    "hash_map": "cpp",
+    "hash_set": "cpp",
+    "unordered_set": "cpp"
 }
 }

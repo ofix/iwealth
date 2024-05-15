@@ -3,7 +3,7 @@
 
 #include <vector>
 #include <wx/dcclient.h>
-#include "stock/Stock.h"
+#include "stock/stock.h"
 
 class RichKlineCtrl;
 class RichVolumeBarCtrl {

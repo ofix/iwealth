@@ -3375,10 +3375,10 @@
 	<unordered_map>
 	<vector>
 
-1715592690 source:/home/greatwall/work/iwealth/src/spider/spider.cpp
+1715756406 source:/home/greatwall/work/iwealth/src/spider/spider.cpp
 	"spider/spider.h"
 
-1715592757 /home/greatwall/work/iwealth/include/spider/spider.h
+1715762107 /home/greatwall/work/iwealth/include/spider/spider.h
 	<string>
 	"net/request.h"
 
@@ -3620,15 +3620,16 @@
 1715648131 source:/home/greatwall/work/iwealth/src/util/global.cpp
 	"util/global.h"
 
-1715648131 source:/home/greatwall/work/iwealth/src/ui/RichApplication.cpp
+1715761382 source:/home/greatwall/work/iwealth/src/ui/RichApplication.cpp
 	"ui/RichApplication.h"
 	"ui/RichMainFrame.h"
 	"ui/RichMainFrame.h"
 	<wx/image.h>
 
-1715648131 /home/greatwall/work/iwealth/include/ui/RichApplication.h
+1715761245 /home/greatwall/work/iwealth/include/ui/RichApplication.h
 	<wx/wxprec.h>
 	<wx/wx.h>
+	"stock/share_data_center.h"
 
 1699484035 /home/greatwall/work/iwealth/include/wxWidgets/3.2.4/include/wx/wxprec.h
 	"wx/defs.h"
@@ -6285,32 +6286,32 @@
 
 1699484035 /home/greatwall/work/iwealth/include/wxWidgets/3.2.4/include/wx/qt/mdi.h
 
-1715648131 /home/greatwall/work/iwealth/include/ui/RichMainFrame.h
+1715680640 /home/greatwall/work/iwealth/include/ui/RichMainFrame.h
 	<wx/wxprec.h>
 	<wx/wx.h>
 
-1715648131 source:/home/greatwall/work/iwealth/src/ui/RichMainFrame.cpp
+1715680669 source:/home/greatwall/work/iwealth/src/ui/RichMainFrame.cpp
 	"ui/RichMainFrame.h"
 
-1715678355 source:/home/greatwall/work/iwealth/src/ui/components/RichVolumeBarCtrl.cpp
+1715751659 source:/home/greatwall/work/iwealth/src/ui/components/RichVolumeBarCtrl.cpp
 	"ui/components/RichVolumeBarCtrl.h"
 	"ui/components/RichKlineCtrl.h"
 
-1715678252 /home/greatwall/work/iwealth/include/ui/components/RichVolumeBarCtrl.h
+1715760102 /home/greatwall/work/iwealth/include/ui/components/RichVolumeBarCtrl.h
 	<vector>
 	<wx/dcclient.h>
-	"stock/Stock.h"
+	"stock/stock.h"
 
 1715675284 /home/greatwall/work/iwealth/include/stock/Stock.h
 	<string>
 
-1715679742 /home/greatwall/work/iwealth/include/ui/components/RichKlineCtrl.h
-	<vector>
+1715760644 /home/greatwall/work/iwealth/include/ui/components/RichKlineCtrl.h
 	<wx/control.h>
-	<wx/textfile.h>
-	<wx/dcclient.h>
 	<wx/dcbuffer.h>
-	"stock/Stock.h"
+	<wx/dcclient.h>
+	<wx/textfile.h>
+	<vector>
+	"stock/stock.h"
 
 1699484035 /home/greatwall/work/iwealth/include/wxWidgets/3.2.4/include/wx/textfile.h
 	"wx/defs.h"
@@ -6329,13 +6330,46 @@
 	"wx/dcclient.h"
 	"wx/window.h"
 
-1715679098 source:/home/greatwall/work/iwealth/src/ui/components/RichKlineInfoCtrl.cpp
+1715751660 source:/home/greatwall/work/iwealth/src/ui/components/RichKlineInfoCtrl.cpp
 	"ui/components/RichKlineInfoCtrl.h"
 	"ui/components/RichKlineCtrl.h"
 
-1715678260 /home/greatwall/work/iwealth/include/ui/components/RichKlineInfoCtrl.h
-	<string>
-	<wx/dcclient.h>
+1715760097 /home/greatwall/work/iwealth/include/ui/components/RichKlineInfoCtrl.h
 	<wx/datetime.h>
-	"stock/Stock.h"
+	<wx/dcclient.h>
+	<string>
+	"stock/stock.h"
+
+1715760782 source:/home/greatwall/work/iwealth/src/ui/components/RichKlineCtrl.cpp
+	"ui/components/RichKlineCtrl.h"
+	"ui/components/RichKlineInfoCtrl.h"
+
+1715760768 /home/greatwall/work/iwealth/include/stock/stock.h
+	<string>
+	<vector>
+
+1715756655 source:/home/greatwall/work/iwealth/src/spider/share_history_spider.cpp
+	"spider/share_history_spider.h"
+
+1715762071 /home/greatwall/work/iwealth/include/spider/share_history_spider.h
+	"spider/spider.h"
+
+1715761284 source:/home/greatwall/work/iwealth/src/stock/share_data_center.cpp
+	"stock/share_data_center.h"
+
+1715762281 /home/greatwall/work/iwealth/include/stock/share_data_center.h
+	<map>
+	<iostream>
+	"nlohmann/json.hpp"
+	"stock/stock.h"
+
+1715762095 /home/greatwall/work/iwealth/include/spider/share_list_spider_hexun.h
+	<regex>
+	<string>
+	"nlohmann/json.hpp"
+	"spider/spider.h"
+	"stock/stock.h"
+
+1715761593 source:/home/greatwall/work/iwealth/src/spider/share_list_spider_hexun.cpp
+	"spider/share_list_spider_hexun.h"
 

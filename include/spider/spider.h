@@ -2,14 +2,10 @@
 #include <string>
 #include "net/request.h"
 
-typedef struct _stock_item {
-    std::string code;
-    std::string name;
-} StockItem;
-
+class ShareDataCenter;
 class Spider {
    public:
-    Spider();
+    Spider(ShareDataCenter* data_center);
     std::string Fetch(const std::string& url);
     virtual ~Spider();
     void Run();
@@ -19,6 +15,6 @@ class Spider {
     double GetProgress();
 
    protected:
+    ShareDataCenter* m_pDataCenter;
     double m_progress;
-    bool m_finished;
 };
