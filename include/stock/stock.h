@@ -3,6 +3,7 @@
 
 #include <string>
 #include <vector>
+#include <stdint.h>
 
 enum class Market {
     ShangHai = 1,     // 沪市

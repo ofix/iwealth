@@ -9,6 +9,8 @@
 
 #include "stock/share_data_center.h"
 #include "spider/share_list_spider_hexun.h"
+#include "util/easy_logger.h"
+// #include <windows.h>
 
 using json = nlohmann::json;
 
@@ -24,6 +26,10 @@ void ShareDataCenter::LoadStockAllShares() {
     // 检查本地的股票代号文件是否存在,如果存在，检查文件时间是否超过24小时，如果是，同步信息
     ShareListSpiderHexun* spiderHexun = new ShareListSpiderHexun(this);
     spiderHexun->Run();
+    PrintAllShares(m_market_shares);
+
+    // Set console code page to UTF-8 so console known how to interpret string data
+    // SetConsoleOutputCP(936);
 }
 
 std::vector<Share> ShareDataCenter::GetMarketAllShares() {
@@ -39,5 +45,5 @@ void ShareDataCenter::PrintAllShares(std::vector<Share>& all_shares) {
         result.push_back(o);
     }
     std::string data = result.dump(4);
-    std::cout << data << std::endl;
+    gLogger->log("%s", data.c_str());
 }

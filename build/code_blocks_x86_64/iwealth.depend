@@ -3097,10 +3097,11 @@
 	<unordered_map>
 	<vector>
 
-1715603007 source:e:\work\iwealth\src\spider\spider.cpp
+1715772499 source:e:\work\iwealth\src\spider\spider.cpp
 	"spider/spider.h"
+	"stock/share_data_center.h"
 
-1715603007 e:\work\iwealth\include\spider\spider.h
+1715772499 e:\work\iwealth\include\spider\spider.h
 	<string>
 	"net/request.h"
 
@@ -6017,10 +6018,10 @@
 1715603007 source:e:\work\iwealth\src\ui\rich_main_frame.cpp
 	"ui/rich_main_frame.h"
 
-1715614151 source:e:\work\iwealth\src\ui\richmainframe.cpp
+1715783263 source:e:\work\iwealth\src\ui\richmainframe.cpp
 	"ui/RichMainFrame.h"
 
-1715611111 e:\work\iwealth\include\ui\richmainframe.h
+1715772499 e:\work\iwealth\include\ui\richmainframe.h
 	<wx/wxprec.h>
 	<wx/wx.h>
 
@@ -6032,13 +6033,107 @@
 1715611047 e:\work\iwealth\build\code_blocks_x86_64\newframe.h
 	<wx/frame.h>
 
-1715614463 source:e:\work\iwealth\src\ui\richapplication.cpp
+1715783157 source:e:\work\iwealth\src\ui\richapplication.cpp
 	"ui/RichApplication.h"
 	"ui/RichMainFrame.h"
-	"ui/RichMainFrame.h"
 	<wx/image.h>
+	"ui/RichMainFrame.h"
 
-1715603007 e:\work\iwealth\include\ui\richapplication.h
+1715772499 e:\work\iwealth\include\ui\richapplication.h
 	<wx/wxprec.h>
 	<wx/wx.h>
+	"stock/share_data_center.h"
+
+1715772499 source:e:\work\iwealth\src\spider\share_history_spider.cpp
+	"spider/share_history_spider.h"
+	"stock/share_data_center.h"
+
+1715772499 e:\work\iwealth\include\spider\share_history_spider.h
+	"spider/spider.h"
+
+1715772499 e:\work\iwealth\include\stock\share_data_center.h
+	<map>
+	<iostream>
+	"nlohmann/json.hpp"
+	"stock/stock.h"
+
+1715773922 e:\work\iwealth\include\stock\stock.h
+	<string>
+	<vector>
+	<stdint.h>
+
+1715772499 source:e:\work\iwealth\src\spider\share_list_spider_hexun.cpp
+	"spider/share_list_spider_hexun.h"
+	"stock/share_data_center.h"
+
+1715772499 e:\work\iwealth\include\spider\share_list_spider_hexun.h
+	<regex>
+	<string>
+	"nlohmann/json.hpp"
+	"spider/spider.h"
+	"stock/stock.h"
+
+1715784908 source:e:\work\iwealth\src\stock\share_data_center.cpp
+	"stock/share_data_center.h"
+	"spider/share_list_spider_hexun.h"
+	"util/easy_logger.h"
+
+1715772499 source:e:\work\iwealth\src\ui\components\richklinectrl.cpp
+	"ui/components/RichKlineCtrl.h"
+	"ui/components/RichKlineInfoCtrl.h"
+
+1715772499 e:\work\iwealth\include\ui\components\richklinectrl.h
+	<wx/control.h>
+	<wx/dcbuffer.h>
+	<wx/dcclient.h>
+	<wx/textfile.h>
+	<vector>
+	"stock/stock.h"
+
+1715429911 e:\work\iwealth\include\wxwidgets\3.2.4\include\wx\dcbuffer.h
+	"wx/dcmemory.h"
+	"wx/dcclient.h"
+	"wx/window.h"
+
+1715429911 e:\work\iwealth\include\wxwidgets\3.2.4\include\wx\textfile.h
+	"wx/defs.h"
+	"wx/textbuf.h"
+	"wx/file.h"
+
+1715429911 e:\work\iwealth\include\wxwidgets\3.2.4\include\wx\textbuf.h
+	"wx/defs.h"
+	"wx/arrstr.h"
+	"wx/convauto.h"
+	"wx/string.h"
+	"wx/dynarray.h"
+
+1715772499 e:\work\iwealth\include\ui\components\richklineinfoctrl.h
+	<wx/datetime.h>
+	<wx/dcclient.h>
+	<string>
+	"stock/stock.h"
+
+1715772499 source:e:\work\iwealth\src\ui\components\richklineinfoctrl.cpp
+	"ui/components/RichKlineInfoCtrl.h"
+	"ui/components/RichKlineCtrl.h"
+
+1715772499 source:e:\work\iwealth\src\ui\components\richvolumebarctrl.cpp
+	"ui/components/RichVolumeBarCtrl.h"
+	"ui/components/RichKlineCtrl.h"
+
+1715772499 e:\work\iwealth\include\ui\components\richvolumebarctrl.h
+	<vector>
+	<wx/dcclient.h>
+	"stock/stock.h"
+
+1715785119 e:\work\iwealth\include\util\easy_logger.h
+	<cstdarg>
+	<fstream>
+	<iostream>
+	<string>
+	<cstring>
+	"util/global.h"
+
+1715785017 source:e:\work\iwealth\src\util\easy_logger.cpp
+	"util/easy_logger.h"
 

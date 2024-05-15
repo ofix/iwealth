@@ -3,7 +3,7 @@
 RichMainFrame::RichMainFrame(wxWindow* parent,wxWindowID id,const wxPoint& pos,const wxSize& size) {
     //(*Initialize(RichMainFrame)
     Create(parent, id, _("东方巴菲特333"), wxDefaultPosition, wxDefaultSize, wxDEFAULT_FRAME_STYLE, _T("id"));
-    SetClientSize(wxSize(1800,800));
+    SetClientSize(wxSize(800,640));
     Move(wxDefaultPosition);
     //*)
 

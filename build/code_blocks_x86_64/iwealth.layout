@@ -2,29 +2,59 @@
 <CodeBlocks_layout_file>
 	<FileVersion major="1" minor="0" />
 	<ActiveTarget name="Debug" />
+	<File name="iwealth.layout" open="0" top="0" tabpos="4" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="183" topLine="0" />
+		</Cursor>
+	</File>
+	<File name="..\..\include\ui\RichApplication.h" open="0" top="0" tabpos="5" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="0" topLine="0" />
+		</Cursor>
+	</File>
+	<File name="..\..\include\stock\stock.h" open="0" top="0" tabpos="1" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="93" topLine="55" />
+		</Cursor>
+	</File>
+	<File name="..\..\src\ui\RichApplication.cpp" open="0" top="0" tabpos="4" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="317" topLine="0" />
+		</Cursor>
+	</File>
+	<File name="..\..\src\util\global.cpp" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="0" topLine="180" />
+		</Cursor>
+	</File>
+	<File name="..\..\src\stock\share_data_center.cpp" open="1" top="1" tabpos="1" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="1468" topLine="13" />
+		</Cursor>
+	</File>
+	<File name="..\..\src\spider\share_list_spider_hexun.cpp" open="0" top="0" tabpos="3" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="595" topLine="5" />
+		</Cursor>
+	</File>
 	<File name="..\..\src\ui\RichMainFrame.cpp" open="0" top="0" tabpos="1" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
 			<Cursor1 position="349" topLine="0" />
 		</Cursor>
 	</File>
-	<File name="..\..\src\ui\RichApplication.cpp" open="0" top="0" tabpos="3" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="..\..\src\ui\components\RichKlineInfoCtrl.cpp" open="0" top="0" tabpos="7" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="92" topLine="0" />
+			<Cursor1 position="3967" topLine="76" />
+		</Cursor>
+	</File>
+	<File name="..\..\include\spider\share_list_spider_hexun.h" open="0" top="0" tabpos="2" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="0" topLine="0" />
 		</Cursor>
 	</File>
 	<File name="..\..\include\ui\RichMainFrame.h" open="0" top="0" tabpos="2" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
 			<Cursor1 position="742" topLine="0" />
-		</Cursor>
-	</File>
-	<File name="..\..\src\application.cpp" open="0" top="0" tabpos="1" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="0" topLine="0" />
-		</Cursor>
-	</File>
-	<File name="iwealth.layout" open="0" top="0" tabpos="4" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="183" topLine="0" />
 		</Cursor>
 	</File>
 </CodeBlocks_layout_file>
