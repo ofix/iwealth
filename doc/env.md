@@ -46,3 +46,28 @@ mingw32-make: *** [..\..\lib\gcc_dll\mswu] Error 2
 ### mingw-x64 版本选择
 
 > 选择 `x86_64-posix-sjlj`，因为 Win32 线程模型不支持 C++ 11 的 `std::thread` 抽象，而 posix 版本支持； seh 异常模型采用 windows 操作系统内置的异常捕获机制，效率比 sjlj 要高，但存在跨平台不利影响。
+
+### 友元类相互包含编译报错的问题
+
+```cpp
+// share_data_center.h
+class ShareListSpiderHexun;
+class ShareDataCenter{
+
+}
+// share_list_spider_hexun.h
+class ShareDataCenter;
+class ShareListSpiderHexun : public Spider {
+}
+
+// share_data_center.cpp
+#include "spider/share_list_spider_hexun.h"
+
+// share_list_spider_hexun.cpp
+#include "stock/share_data_center.h"
+
+// NOTE
+// 1. 上面这种方法切记不可使用类名来定义变量和函数的变量参数，只可用来使用引用或者指针
+// 2. 还可以引用基类指针来解决循环引用的问题，请参考博客:
+// https://blog.csdn.net/yang_lang/article/details/6767439
+```
