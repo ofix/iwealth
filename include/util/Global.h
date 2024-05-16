@@ -10,6 +10,12 @@
 #include <vector>
 #include "Color.h"
 
+#ifdef _WIN32
+#define DIRECTORY_SEPARATOR "\\"
+#else
+#define DIRECTORY_SEPARATOR "/"
+#endif
+
 typedef struct _cell_size {
     uint16_t nrows;
     uint16_t ncols;

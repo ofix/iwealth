@@ -13,20 +13,24 @@
 #ifdef _WIN32
 #include <direct.h>  // _mkdir
 #include <windows.h>
+#include <fstream>
 #else
 #include <errno.h>  // errno, ENOENT, EEXIST
 #include <limits.h>
 #include <sys/stat.h>
 #include <unistd.h>
 #endif
+#include <iostream>
 
 bool FileTool::IsFileExists(const std::string& path) {
 #ifdef _WIN32
-    struct _stat info;
-    if (_stat(path.c_str(), &info) == 0) {
-        return true;
-    }
-    return false;
+    // struct _stat info;
+    // if (_stat(path.c_str(), &info) == 0) {
+    //     return true;
+    // }
+    // return false;
+    std::ifstream file(path);
+    return file.good();
 #else
     struct stat st;
     if (stat(path.c_str(), &st) == 0) {
@@ -58,13 +62,23 @@ std::string FileTool::CurrentPath() {
 std::string FileTool::ParentDir(char* path) {
     int len = strlen(path) - 1;
     for (int i = len; i > 0; i--) {
-        if (path[i] == '/') {
+        if (path[i] == '/' || path[i] == '\\') {
             path[i + 1] = 0;
             break;
         }
     }
     std::string dir(path);
     return dir;
+}
+
+std::string FileTool::ParentDir(const std::string& path) {
+    size_t len = path.length();
+    for (size_t i = len; i > 0; i--) {
+        if (path[i] == '/' || path[i] == '\\') {
+            return path.substr(0, i);
+        }
+    }
+    return "";
 }
 
 // 加载整个文件到内存
@@ -88,6 +102,11 @@ std::vector<std::string> FileTool::LoadDir(const std::string& path,
 
 // 保存文件
 bool FileTool::SaveFile(const std::string& file_path, const std::string& content) {
+    // 检查文件是否存在，如果不存在，就递归创建之
+    if (!IsFileExists(file_path)) {
+        std::string parent_dir = ParentDir(file_path);
+        MakeDirs(parent_dir);
+    }
     std::ofstream out(file_path);
     out << content;
     out.close();
