@@ -4,14 +4,14 @@
 #include <string>
 #include <vector>
 
-typedef struct upload_info {
+struct upload_info_t {
     FILE* file_src;
     long file_size;
     std::string file_name;
     std::string file_path;
-} upload_info_t;
+};
 
-typedef struct conn {
+struct conn_t {
     std::string url;
     std::string method;
     std::string payload;
@@ -30,4 +30,4 @@ typedef struct conn {
     std::string response;                        // 返回响应数据
     std::function<void(std::string&)> callback;  // HTTP(s)回调响应处理函数
     bool debug = false;
-} conn_t;
+};

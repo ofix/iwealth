@@ -1,5 +1,5 @@
 
-#include "search/trie.h"
+#include "search/Trie.h"
 
 using std::string;
 using std::unordered_map;

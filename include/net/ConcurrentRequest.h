@@ -2,7 +2,7 @@
 #include <iostream>
 #include <vector>
 #include "../curl/curl.h"
-#include "conn.h"
+#include "net/Conn.h"
 
 class ConcurrentRequest {
    public:

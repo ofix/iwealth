@@ -1,8 +1,7 @@
-#include "spider/spider.h"
-#include "stock/share_data_center.h"
+#include "spider/Spider.h"
+#include "stock/StockDataStorage.h"
 
-Spider::Spider(ShareDataCenter* data_center)
-    : m_pDataCenter(data_center), m_progress(0) {}
+Spider::Spider(StockDataStorage* storage) : m_pStockStorage(storage), m_progress(0) {}
 
 Spider::~Spider() {}
 

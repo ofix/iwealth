@@ -3,13 +3,13 @@
 #include <regex>
 #include <string>
 #include "nlohmann/json.hpp"
-#include "spider/spider.h"
-#include "stock/stock.h"
+#include "spider/Spider.h"
+#include "stock/Stock.h"
 
-class ShareDataCenter;
+class StockDataStorage;
 class ShareListSpiderHexun : public Spider {
    public:
-    ShareListSpiderHexun(ShareDataCenter* data_center);
+    ShareListSpiderHexun(StockDataStorage* storage);
     virtual ~ShareListSpiderHexun();
     void Run();
 

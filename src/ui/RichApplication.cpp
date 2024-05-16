@@ -9,8 +9,8 @@
 wxIMPLEMENT_APP(RichApplication);
 
 bool RichApplication::OnInit() {
-    m_pDataCenter = new ShareDataCenter();
-    m_pDataCenter->Init();  // 进行必要的数据加载
+    m_pStockStorage = new StockDataStorage();
+    m_pStockStorage->Init();  // 进行必要的数据加载
     //(*AppInitialize
     bool wxsOK = true;
     wxInitAllImageHandlers();
@@ -23,6 +23,6 @@ bool RichApplication::OnInit() {
     return true;
 }
 
-ShareDataCenter* RichApplication::GetDataCenter() {
-    return m_pDataCenter;
+StockDataStorage* RichApplication::GetStockDataStorage() {
+    return m_pStockStorage;
 }

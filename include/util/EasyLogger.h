@@ -2,11 +2,12 @@
 #define EASYLOGGER_H
 
 #include <cstdarg>
+#include <cstring>
 #include <fstream>
 #include <iostream>
 #include <string>
-#include <cstring>
-#include "util/global.h"
+#include "util/Global.h"
+
 
 using namespace std;
 #define gLogger EasyLogger::Instance()
@@ -27,4 +28,4 @@ class EasyLogger {
     static ofstream m_logFile;
 };
 
-#endif // EASYLOGGER_H
+#endif  // EASYLOGGER_H

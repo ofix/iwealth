@@ -1,26 +1,26 @@
-#ifndef ShareDataCenter_H
-#define ShareDataCenter_H
-#include <map>
+#ifndef StockDataStorage_H
+#define StockDataStorage_H
 #include <iostream>
+#include <map>
 #include "nlohmann/json.hpp"
-#include "stock/stock.h"
+#include "stock/Stock.h"
 
 class ShareListSpiderHexun;
-class ShareDataCenter {
+class StockDataStorage {
    public:
-    ShareDataCenter();
-    virtual ~ShareDataCenter();
-    void Init();  // 初始化操作
+    StockDataStorage();
+    virtual ~StockDataStorage();
+    void Init();                          // 初始化操作
     uint16_t GetStockMarketShareCount();  // 获取市场股票数量
     uint16_t GetStockMarketShareCountByLocation(const std::string&& location);
     void PrintAllShares(std::vector<Share>& all_shares);
     std::vector<Share> GetMarketAllShares();
 
    protected:
-       void LoadStockAllShares();
+    void LoadStockAllShares();
 
    private:
-    uint16_t m_market_share_total;        // 市场所有股票之和
+    uint16_t m_market_share_total;         // 市场所有股票之和
     std::string m_path_all_market_shares;  // 所有股票代号本地保存路径
     // 内存数据
     std::vector<Share> m_market_shares;  // 所有股票
@@ -30,4 +30,4 @@ class ShareDataCenter {
     friend class ShareListSpiderHexun;  // 和讯网股票爬虫
 };
 
-#endif  // ShareDataCenter_H
+#endif  // StockDataStorage_H

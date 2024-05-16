@@ -5,7 +5,7 @@
 #include <string>
 #include <thread>
 #include "../curl/curl.h"
-#include "conn.h"
+#include "net/Conn.h"
 
 #define BUF_SIZE 1024
 #define HTTPS_TIME_OUT_MIN 15

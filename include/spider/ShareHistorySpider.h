@@ -1,9 +1,9 @@
 #pragma once
-#include "spider/spider.h"
+#include "spider/Spider.h"
 
-class ShareDataCenter;
+class StockDataStorage;
 class ShareHistorySpider : public Spider {
    public:
-    ShareHistorySpider(ShareDataCenter* data_center);
+    ShareHistorySpider(StockDataStorage* storage);
     virtual ~ShareHistorySpider();
 };

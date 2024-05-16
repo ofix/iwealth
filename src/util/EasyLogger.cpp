@@ -1,5 +1,4 @@
-#include "util/easy_logger.h"
-
+#include "util/EasyLogger.h"
 
 const string EasyLogger::m_fileName = "iwealth.log";
 EasyLogger* EasyLogger::m_pThis = NULL;

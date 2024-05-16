@@ -4,7 +4,7 @@
 #include <wx/datetime.h>
 #include <wx/dcclient.h>
 #include <string>
-#include "stock/stock.h"
+#include "stock/Stock.h"
 
 class RichKlineCtrl;
 class RichKlineInfoCtrl {

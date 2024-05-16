@@ -1,11 +1,11 @@
 #pragma once
 #include <string>
-#include "net/request.h"
+#include "net/Request.h"
 
-class ShareDataCenter;
+class StockDataStorage;
 class Spider {
    public:
-    Spider(ShareDataCenter* data_center);
+    Spider(StockDataStorage* storage);
     std::string Fetch(const std::string& url);
     virtual ~Spider();
     void Run();
@@ -15,6 +15,6 @@ class Spider {
     double GetProgress();
 
    protected:
-    ShareDataCenter* m_pDataCenter;
+    StockDataStorage* m_pStockStorage;
     double m_progress;
 };

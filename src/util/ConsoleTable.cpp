@@ -1,4 +1,4 @@
-#include "util/console_table.h"
+#include "util/ConsoleTable.h"
 
 ConsoleTable::ConsoleTable(std::vector<std::vector<std::string>>& data)
     : m_data(data),

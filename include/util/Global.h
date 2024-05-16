@@ -8,7 +8,7 @@
 #include <stdexcept>
 #include <string>
 #include <vector>
-#include "color.h"
+#include "Color.h"
 
 typedef struct _cell_size {
     uint16_t nrows;
@@ -32,6 +32,8 @@ std::string ltrim_copy(std::string str);
 std::string rtrim_copy(std::string str);
 void padding_left(std::string& str, uint16_t size, const char needle = ' ');
 void padding_right(std::string& str, uint16_t size, const char needle = ' ');
+// 获取当前可执行文件所在目录
+std::string current_execute_path();
 
 std::string repeat_chars(char ch, int count);
 void fill_chars(std::string& str,

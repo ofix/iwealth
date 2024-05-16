@@ -13,15 +13,16 @@
 #include <wx/wxprec.h>
 
 #ifndef WX_PRECOMP
-    #include <wx/wx.h>
+#include <wx/wx.h>
 #endif
 
-#include "stock/share_data_center.h"
+#include "stock/StockDataStorage.h"
 
 class RichApplication : public wxApp {
-    public:
-        virtual bool OnInit();
-        ShareDataCenter* GetDataCenter();
-    private:
-        ShareDataCenter* m_pDataCenter;
+   public:
+    virtual bool OnInit();
+    StockDataStorage* GetStockDataStorage();
+
+   private:
+    StockDataStorage* m_pStockStorage;
 };

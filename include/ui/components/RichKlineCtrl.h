@@ -7,7 +7,7 @@
 #include <wx/textfile.h>
 #include <vector>
 
-#include "stock/stock.h"
+#include "stock/Stock.h"
 
 #define KLINE_MODE_DAY 1
 #define KLINE_MODE_WEEK 2
@@ -92,7 +92,7 @@ class RichKlineCtrl : public wxControl {
     wxPoint GetCrossLinePt(long n);
 
    protected:
-    Share m_share;     // the share whose k line want to be draw
+    Share m_share;          // the share whose k line want to be draw
     int m_iMode;            // DAY|Week|Month|Year
     int m_iOrigin;          // 0-CSV 1-pointer
     int m_width;            // the drawing rect width

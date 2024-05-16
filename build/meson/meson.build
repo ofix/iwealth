@@ -89,15 +89,17 @@ raw_sources = [
     'ui/components/RichKlineCtrl.cpp',
     'ui/components/RichKlineInfoCtrl.cpp',
     'ui/components/RichVolumeBarCtrl.cpp',
-    'stock/share_data_center.cpp',
-    'spider/share_list_spider_hexun.cpp',
-    'spider/share_history_spider.cpp',
-    'spider/spider.cpp',
-    'net/request.cpp',
-    'net/concurrent_request.cpp',
-    'search/trie.cpp',
-    'util/console_table.cpp',
-    'util/global.cpp'
+    'stock/StockDataStorage.cpp',
+    'spider/ShareListSpiderHexun.cpp',
+    'spider/ShareHistorySpider.cpp',
+    'spider/Spider.cpp',
+    'net/Request.cpp',
+    'net/ConcurrentRequest.cpp',
+    'search/Trie.cpp',
+    'util/ConsoleTable.cpp',
+    'util/EasyLogger.cpp',
+    'util/FileTool.cpp',
+    'util/Global.cpp'
     ]
 sources = []
 foreach file : raw_sources

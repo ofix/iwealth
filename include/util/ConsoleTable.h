@@ -3,8 +3,8 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
-#include "color.h"
-#include "global.h"
+#include "Color.h"
+#include "Global.h"
 
 class ConsoleTable {
    public:

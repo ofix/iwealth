@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////////////
-// Name:           iwealth/core/ShareDataCenter.cpp
+// Name:           iwealth/core/StockDataStorage.cpp
 // Purpose:     AsyncTaskManger
 // Author:      songhuabiao
 // Created:     2024-05-15-10.58
@@ -7,22 +7,23 @@
 // Licence:     GNU GENERAL PUBLIC LICENSE, Version 3
 ///////////////////////////////////////////////////////////////////////////////
 
-#include "stock/share_data_center.h"
-#include "spider/share_list_spider_hexun.h"
-#include "util/easy_logger.h"
+#include "stock/StockDataStorage.h"
+#include "spider/ShareListSpiderHexun.h"
+#include "util/EasyLogger.h"
+
 // #include <windows.h>
 
 using json = nlohmann::json;
 
-ShareDataCenter::ShareDataCenter() {}
+StockDataStorage::StockDataStorage() {}
 
-ShareDataCenter::~ShareDataCenter() {}
+StockDataStorage::~StockDataStorage() {}
 
-void ShareDataCenter::Init() {
+void StockDataStorage::Init() {
     LoadStockAllShares();
 }
 
-void ShareDataCenter::LoadStockAllShares() {
+void StockDataStorage::LoadStockAllShares() {
     // 检查本地的股票代号文件是否存在,如果存在，检查文件时间是否超过24小时，如果是，同步信息
     ShareListSpiderHexun* spiderHexun = new ShareListSpiderHexun(this);
     spiderHexun->Run();
@@ -32,11 +33,11 @@ void ShareDataCenter::LoadStockAllShares() {
     // SetConsoleOutputCP(936);
 }
 
-std::vector<Share> ShareDataCenter::GetMarketAllShares() {
+std::vector<Share> StockDataStorage::GetMarketAllShares() {
     return m_market_shares;
 }
 
-void ShareDataCenter::PrintAllShares(std::vector<Share>& all_shares) {
+void StockDataStorage::PrintAllShares(std::vector<Share>& all_shares) {
     json result = json::array();
     for (auto item : all_shares) {
         json o = json::object();
