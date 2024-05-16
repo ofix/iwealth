@@ -49,6 +49,9 @@ struct Share {
     uint64_t trade_capital;              // 流通股本
     ShareIndustry* industry;             // 所处行业分类
     Market market;                       // 所在交易所
+    // 必须定义拷贝构造函数，否则使用std::vector.push_back 栈对象，程序会崩溃
+    Share();
+    Share(const Share& other);
 };
 
 // K线绘制

@@ -94,6 +94,7 @@ raw_sources = [
     'spider/SpiderShareListHexun.cpp',
     'spider/SpiderShareHistory.cpp',
     'spider/Spider.cpp',
+    'stock/Stock.cpp',
     'net/Request.cpp',
     'net/ConcurrentRequest.cpp',
     'search/Trie.cpp',

@@ -71,3 +71,26 @@ class SpiderShareListHexun : public Spider {
 // 2. 还可以引用基类指针来解决循环引用的问题，请参考博客:
 // https://blog.csdn.net/yang_lang/article/details/6767439
 ```
+
+
+### 函数没有返回值导致 Ilegal Instruction 错误
+
+```cpp
+bool StockDataStorage::LoadLocalJsonFile(std::string& path, std::vector<Share>& shares) {
+    try {
+        std::string json_data = FileTool::LoadFile(path);
+        json arr = json::parse(json_data);
+        for (auto& item : arr) {
+            Share share;
+            share.code = item["code"].template get<std::string>();
+            share.name = item["name"].template get<std::string>();
+            share.market = static_cast<Market>(item["market"].template get<int>());
+            shares.push_back(share);
+        }
+    } catch (std::exception& e) {
+        std::cout << e.what() << std::endl;
+        return false; // <<< 注释这里
+    }
+    return true; // <<< 同时注释这里，程序会崩溃，出现 illegal instruction 错误 ！！！
+}
+```

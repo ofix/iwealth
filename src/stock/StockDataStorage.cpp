@@ -17,7 +17,7 @@
 
 using json = nlohmann::json;
 
-StockDataStorage::StockDataStorage() {
+StockDataStorage::StockDataStorage() : m_market_shares(std::vector<Share>()) {
     m_data_dir = FileTool::CurrentPath() + "data";
     m_path_share_brief = m_data_dir + DIRECTORY_SEPARATOR + "stock_brief.json";
 }
@@ -61,16 +61,21 @@ std::string StockDataStorage::ToJson(std::vector<Share>& shares) {
 }
 
 bool StockDataStorage::LoadLocalJsonFile(std::string& path, std::vector<Share>& shares) {
-    shares.clear();
-    std::string json_data = FileTool::LoadFile(path);
-    json arr = json::parse(json_data);
-    for (auto& item : arr) {
-        Share share;
-        share.code = item["code"].template get<std::string>();
-        share.name = item["name"].template get<std::string>();
-        share.market = static_cast<Market>(item["market"].template get<int>());
-        shares.push_back(share);
+    try {
+        std::string json_data = FileTool::LoadFile(path);
+        json arr = json::parse(json_data);
+        for (auto& item : arr) {
+            Share share;
+            share.code = item["code"].template get<std::string>();
+            share.name = item["name"].template get<std::string>();
+            share.market = static_cast<Market>(item["market"].template get<int>());
+            shares.push_back(share);
+        }
+    } catch (std::exception& e) {
+        std::cout << e.what() << std::endl;
+        return false;
     }
+    return true;
 }
 
 bool StockDataStorage::CrawlStockHistoryName() {
