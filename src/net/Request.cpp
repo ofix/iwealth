@@ -23,6 +23,7 @@ std::string Request::Get(const std::string& url) {
     conn.timeout = 50000;
     conn.curl_header_list = nullptr;
     conn.upload_info = nullptr;
+    conn.debug = true;
     return Request::Get(&conn);
 }
 

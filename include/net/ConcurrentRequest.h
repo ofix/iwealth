@@ -44,6 +44,8 @@ class ConcurrentRequest {
 };
 
 void HttpConcurrentGet(const std::vector<std::string>& urls,
+                       std::function<void(std::string&)>& callback,
                        uint32_t concurrent_size = 3);
 void HttpConcurrentGet(const std::vector<conn_t>& connections,
+                       std::function<void(std::string&)>& callback,
                        uint32_t concurrent_size = 3);

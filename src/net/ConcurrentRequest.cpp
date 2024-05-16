@@ -191,7 +191,7 @@ void ConcurrentRequest::Run() {
                                   &conn->http_code);
                 curl_easy_getinfo(conn->easy_curl, CURLINFO_TOTAL_TIME,
                                   &conn->total_time);
-                if (conn->callback != nullptr && conn->http_code == 200) {
+                if ((!conn->callback) && conn->http_code == 200) {
                     conn->callback(conn->response);
                 }
                 if (conn->debug) {
@@ -241,20 +241,25 @@ size_t ConcurrentRequest::GetFinishCount() {
     return m_successed + m_failed;
 }
 
-void HttpConcurrentGet(const std::vector<std::string>& urls, uint32_t concurrent_size) {
+void HttpConcurrentGet(const std::vector<std::string>& urls,
+                       std::function<void(std::string&)>& callback,
+                       uint32_t concurrent_size) {
     ConcurrentRequest request(concurrent_size);
     std::vector<conn_t> connections;
     for (auto url : urls) {
         conn_t conn;
         conn.url = url;
         conn.method = "GET";
+        conn.callback = callback;
         connections.push_back(conn);
     }
     request.AddConnectionList(connections);
     request.Run();
 }
 
-void HttpConcurrentGet(const std::vector<conn_t>& connections, uint32_t concurrent_size) {
+void HttpConcurrentGet(const std::vector<conn_t>& connections,
+                       std::function<void(std::string&)>& callback,
+                       uint32_t concurrent_size) {
     ConcurrentRequest request(concurrent_size);
     request.AddConnectionList(connections);
     request.Run();

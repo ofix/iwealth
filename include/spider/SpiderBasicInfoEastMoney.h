@@ -10,8 +10,10 @@ class StockDataStorage;
 class SpiderBasicInfoEastMoney : public Spider {
    public:
     SpiderBasicInfoEastMoney(StockDataStorage* storage);
+    SpiderBasicInfoEastMoney(StockDataStorage* storage, bool concurrent);
     virtual ~SpiderBasicInfoEastMoney();
     virtual void DoCrawl();
+    virtual void ConcurrentResponseCallback(std::string& response);
 
    protected:
     void FetchBasicInfo(Share& share);

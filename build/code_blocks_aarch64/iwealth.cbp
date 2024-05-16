@@ -75,9 +75,10 @@
 		<Unit filename="../../include/net/Conn.h" />
 		<Unit filename="../../include/net/Request.h" />
 		<Unit filename="../../include/search/Trie.h" />
+		<Unit filename="../../include/spider/Spider.h" />
+		<Unit filename="../../include/spider/SpiderBasicInfoEastMoney.h" />
 		<Unit filename="../../include/spider/SpiderShareHistory.h" />
 		<Unit filename="../../include/spider/SpiderShareListHexun.h" />
-		<Unit filename="../../include/spider/Spider.h" />
 		<Unit filename="../../include/stock/Stock.h" />
 		<Unit filename="../../include/stock/StockDataStorage.h" />
 		<Unit filename="../../include/ui/RichApplication.h" />
@@ -93,9 +94,10 @@
 		<Unit filename="../../src/net/ConcurrentRequest.cpp" />
 		<Unit filename="../../src/net/Request.cpp" />
 		<Unit filename="../../src/search/Trie.cpp" />
+		<Unit filename="../../src/spider/Spider.cpp" />
+		<Unit filename="../../src/spider/SpiderBasicInfoEastMoney.cpp" />
 		<Unit filename="../../src/spider/SpiderShareHistory.cpp" />
 		<Unit filename="../../src/spider/SpiderShareListHexun.cpp" />
-		<Unit filename="../../src/spider/Spider.cpp" />
 		<Unit filename="../../src/stock/StockDataStorage.cpp" />
 		<Unit filename="../../src/ui/RichApplication.cpp" />
 		<Unit filename="../../src/ui/RichMainFrame.cpp" />

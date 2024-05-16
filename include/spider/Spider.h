@@ -7,18 +7,23 @@ class StockDataStorage;
 class Spider {
    public:
     Spider(StockDataStorage* storage);
+    Spider(StockDataStorage* storage, bool concurrent);
     std::string Fetch(const std::string& url);
     virtual ~Spider();
     void Crawl();
     void Stop();
     void Pause();
+    void SetCrawlRange(size_t start_pos, size_t end_pos);
     bool HasFinish();
     double GetProgress();
     bool IsConcurrentMode() const;
-    std::chrono::milliseconds GetTimeConsumed() const;
+    std::string GetTimeConsumed() const;
+    static std::string UrlEncode(const std::string& decoded);
+    static std::string UrlDecode(const std::string& encoded);
 
    protected:
     virtual void DoCrawl();
+    virtual void ConcurrentResponseCallback(std::string& response);
 
    protected:
     StockDataStorage* m_pStockStorage;  // 股票集中化数据中心

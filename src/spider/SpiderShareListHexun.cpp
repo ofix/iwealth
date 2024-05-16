@@ -21,7 +21,11 @@ void SpiderShareListHexun::FetchMarketShares(int market) {
                                        {1789, Market::KeChuangBan}};
     std::string url = "https://stocksquote.hexun.com/a/sortlist";
     std::string url_sh = url + "?block=" + std::to_string(market) +
-                         "&title=15&direction=0&start=0&number=10000&column=code,name";
+                         "&title=15"
+                         "&direction=0"
+                         "&start=0"
+                         "&number=10000"
+                         "&column=code,name";
     std::string data = Fetch(url_sh);
     ParseStockListData(data, kv.at(market));
 }

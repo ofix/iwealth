@@ -8,6 +8,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 #include "stock/StockDataStorage.h"
+#include "spider/SpiderBasicInfoEastMoney.h"
 #include "spider/SpiderShareListHexun.h"
 #include "util/EasyLogger.h"
 #include "util/FileTool.h"
@@ -17,7 +18,7 @@
 using json = nlohmann::json;
 
 StockDataStorage::StockDataStorage() {
-    m_data_dir = FileTool::CurrentPath() + "/data";
+    m_data_dir = FileTool::CurrentPath() + "data";
     std::cout << "data_dir: " << m_data_dir << std::endl;
 }
 
@@ -31,7 +32,11 @@ void StockDataStorage::LoadStockAllShares() {
     // 检查本地的股票代号文件是否存在,如果存在，检查文件时间是否超过24小时，如果是，同步信息
     SpiderShareListHexun* spiderHexun = new SpiderShareListHexun(this);
     spiderHexun->Crawl();
-    PrintAllShares(m_market_shares);
+    // 查询股票的曾用名
+    SpiderBasicInfoEastMoney* spiderEastMoney = new SpiderBasicInfoEastMoney(this, true);
+    spiderEastMoney->SetCrawlRange(0, 30);
+    spiderEastMoney->Crawl();
+    // PrintAllShares(m_market_shares);
 
     // Set console code page to UTF-8 so console known how to interpret string data
     // SetConsoleOutputCP(936);
