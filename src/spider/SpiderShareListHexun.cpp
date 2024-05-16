@@ -1,20 +1,20 @@
-#include "spider/ShareListSpiderHexun.h"
+#include "spider/SpiderShareListHexun.h"
 #include "stock/StockDataStorage.h"
 
 using json = nlohmann::json;
 
-ShareListSpiderHexun::ShareListSpiderHexun(StockDataStorage* storage) : Spider(storage) {}
+SpiderShareListHexun::SpiderShareListHexun(StockDataStorage* storage) : Spider(storage) {}
 
-ShareListSpiderHexun::~ShareListSpiderHexun() {}
+SpiderShareListHexun::~SpiderShareListHexun() {}
 
-void ShareListSpiderHexun::Run() {
+void SpiderShareListHexun::DoCrawl() {
     FetchMarketShares(1);     // 沪市A股
     FetchMarketShares(2);     // 深市A股
     FetchMarketShares(6);     // 创业板
     FetchMarketShares(1789);  // 科创板
 }
 
-void ShareListSpiderHexun::FetchMarketShares(int market) {
+void SpiderShareListHexun::FetchMarketShares(int market) {
     static std::map<int, Market> kv = {{1, Market::ShangHai},
                                        {2, Market::ShenZhen},
                                        {6, Market::ChuangYeBan},
@@ -26,7 +26,7 @@ void ShareListSpiderHexun::FetchMarketShares(int market) {
     ParseStockListData(data, kv.at(market));
 }
 
-void ShareListSpiderHexun::ParseStockListData(std::string& data, Market market) {
+void SpiderShareListHexun::ParseStockListData(std::string& data, Market market) {
     data = regex_replace(data, std::regex{R"(\()"}, "");
     data = regex_replace(data, std::regex{R"(\);)"}, "");
     json o = json::parse(data);

@@ -7,11 +7,11 @@
 #include "stock/Stock.h"
 
 class StockDataStorage;
-class ShareListSpiderHexun : public Spider {
+class SpiderShareListHexun : public Spider {
    public:
-    ShareListSpiderHexun(StockDataStorage* storage);
-    virtual ~ShareListSpiderHexun();
-    void Run();
+    SpiderShareListHexun(StockDataStorage* storage);
+    virtual ~SpiderShareListHexun();
+    virtual void DoCrawl();
 
    protected:
     void FetchMarketShares(int market);

@@ -51,13 +51,13 @@ mingw32-make: *** [..\..\lib\gcc_dll\mswu] Error 2
 
 ```cpp
 // share_data_center.h
-class ShareListSpiderHexun;
+class SpiderShareListHexun;
 class ShareDataCenter{
 
 }
 // share_list_spider_hexun.h
 class ShareDataCenter;
-class ShareListSpiderHexun : public Spider {
+class SpiderShareListHexun : public Spider {
 }
 
 // share_data_center.cpp
