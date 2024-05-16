@@ -32,5 +32,6 @@
 *.app
 *.layout
 *.depend
+*.log
 
 build/meson/build
