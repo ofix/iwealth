@@ -15,7 +15,6 @@ enum class Market {
 
 struct ShareIndustry {
     uint8_t source;    // 行业分类来源(申万行业分类/中信行业分类)
-    std::string code;  // 股票代号
     uint8_t level;     // 行业分类等级(1,2,3)
     std::string name;  // 行业分类名称
 };
@@ -49,6 +48,9 @@ struct Share {
     uint64_t trade_capital;              // 流通股本
     ShareIndustry* industry;             // 所处行业分类
     Market market;                       // 所在交易所
+    std::string province;                // 所在省份
+    uint32_t employee_num;               // 员工数
+    uint64_t register_capital;           // 注册资本
     // 必须定义拷贝构造函数，否则使用std::vector.push_back 栈对象，程序会崩溃
     Share();
     Share(const Share& other);

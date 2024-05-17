@@ -4,8 +4,8 @@ project('iwealth', 'cpp',
             'default_library=shared',
             'warning_level=2',
             'debug=true',
-            'c_std=c17', 
-            'cpp_std=c++17'
+            'c_std=c14',
+            'cpp_std=c++14'
         ])
 
 if host_machine.cpu_family().startswith('x86')

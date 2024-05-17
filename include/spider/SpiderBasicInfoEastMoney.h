@@ -13,7 +13,8 @@ class SpiderBasicInfoEastMoney : public Spider {
     SpiderBasicInfoEastMoney(StockDataStorage* storage, bool concurrent);
     virtual ~SpiderBasicInfoEastMoney();
     virtual void DoCrawl();
-    virtual void ConcurrentResponseCallback(std::string& response);
+    virtual void ConcurrentResponseCallback(conn_t* conn);
+    uint8_t GetIndustryLevel(const std::string& industry_name);
 
    protected:
     void FetchBasicInfo(Share& share);

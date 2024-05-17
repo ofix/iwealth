@@ -98,6 +98,7 @@
 		<Unit filename="../../src/spider/SpiderBasicInfoEastMoney.cpp" />
 		<Unit filename="../../src/spider/SpiderShareHistory.cpp" />
 		<Unit filename="../../src/spider/SpiderShareListHexun.cpp" />
+		<Unit filename="../../src/stock/Stock.cpp" />
 		<Unit filename="../../src/stock/StockDataStorage.cpp" />
 		<Unit filename="../../src/ui/RichApplication.cpp" />
 		<Unit filename="../../src/ui/RichMainFrame.cpp" />

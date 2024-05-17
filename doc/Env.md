@@ -72,7 +72,6 @@ class SpiderShareListHexun : public Spider {
 // https://blog.csdn.net/yang_lang/article/details/6767439
 ```
 
-
 ### 函数没有返回值导致 Ilegal Instruction 错误
 
 ```cpp
@@ -92,5 +91,34 @@ bool StockDataStorage::LoadLocalJsonFile(std::string& path, std::vector<Share>& 
         return false; // <<< 注释这里
     }
     return true; // <<< 同时注释这里，程序会崩溃，出现 illegal instruction 错误 ！！！
+}
+```
+
+### 使用 libcurl mutli 异步请求接口出现 bad_alloc 错误
+
+```diff
+ void ConcurrentRequest::AddNewRequest(CURLM* cm, size_t i) {
+-    conn_t conn = m_connections[i]; <-- 这里是导致错误的关键，这个变量属于栈空间，它的地址一直不变
+-    _CurlInit(&conn);
+-    curl_multi_add_handle(cm, conn.easy_curl);
++    _CurlInit(&m_connections[i]);
++    curl_multi_add_handle(cm, m_connections[i].easy_curl);
+     m_running += 1;
+ }
+```
+
+### 不是所有指针都要删除，如果函数传入的指针指向栈变量，删除会异常！！
+
+```diff
+void ConcurrentRequest::_CurlClose(conn_t* conn) {
+    curl_easy_cleanup(conn->easy_curl);
+    if (conn->curl_header_list) { // 变量一定要初始化！！！
+        curl_slist_free_all(conn->curl_header_list);
+        conn->curl_header_list = NULL;
+    }
+    if (conn->response.length() > 0) {
+        conn->response.clear();
+    }
+- delete conn;
 }
 ```

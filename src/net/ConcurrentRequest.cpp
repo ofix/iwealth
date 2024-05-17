@@ -65,7 +65,6 @@ void ConcurrentRequest::_CurlClose(conn_t* conn) {
     if (conn->response.length() > 0) {
         conn->response.clear();
     }
-    delete conn;
 }
 
 void ConcurrentRequest::_SetRequestHeader(conn_t* conn) {
@@ -152,9 +151,8 @@ void ConcurrentRequest::_SetMiscOptions(conn_t* conn) {
  * @param i 发送的第几个请求
  */
 void ConcurrentRequest::AddNewRequest(CURLM* cm, size_t i) {
-    conn_t conn = m_connections[i];
-    _CurlInit(&conn);
-    curl_multi_add_handle(cm, conn.easy_curl);
+    _CurlInit(&m_connections[i]);
+    curl_multi_add_handle(cm, m_connections[i].easy_curl);
     m_running += 1;
 }
 
@@ -191,13 +189,8 @@ void ConcurrentRequest::Run() {
                                   &conn->http_code);
                 curl_easy_getinfo(conn->easy_curl, CURLINFO_TOTAL_TIME,
                                   &conn->total_time);
-                if ((!conn->callback) && conn->http_code == 200) {
-                    conn->callback(conn->response);
-                }
-                if (conn->debug) {
-                    std::cout << "\n===============================\n";
-                    std::cout << conn->response;
-                    std::cout << "\n===============================" << std::endl;
+                if ((conn->callback) && conn->http_code == 200) {
+                    conn->callback(conn);
                 }
                 curl_multi_remove_handle(cm, easy_curl);
                 _CurlClose(conn);
@@ -242,7 +235,8 @@ size_t ConcurrentRequest::GetFinishCount() {
 }
 
 void HttpConcurrentGet(const std::vector<std::string>& urls,
-                       std::function<void(std::string&)>& callback,
+                       std::function<void(conn_t*)>& callback,
+                       void* user_extra,
                        uint32_t concurrent_size) {
     ConcurrentRequest request(concurrent_size);
     std::vector<conn_t> connections;
@@ -251,15 +245,14 @@ void HttpConcurrentGet(const std::vector<std::string>& urls,
         conn.url = url;
         conn.method = "GET";
         conn.callback = callback;
+        conn.extra = user_extra;
         connections.push_back(conn);
     }
     request.AddConnectionList(connections);
     request.Run();
 }
 
-void HttpConcurrentGet(const std::vector<conn_t>& connections,
-                       std::function<void(std::string&)>& callback,
-                       uint32_t concurrent_size) {
+void HttpConcurrentGet(const std::vector<conn_t>& connections, uint32_t concurrent_size) {
     ConcurrentRequest request(concurrent_size);
     request.AddConnectionList(connections);
     request.Run();
