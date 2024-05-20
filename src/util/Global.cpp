@@ -37,21 +37,31 @@ std::string now() {
  * @param separator 分割字符
  * @author songhuabiao@greatwall.com.cn
  */
-std::vector<std::string> split(const std::string& str, const char& separator) {
-    std::smatch matches;
-    std::string origin = str;
-    std::regex rule{separator};
-    std::vector<std::string> result;
-    bool found = false;
-    while (std::regex_search(origin, matches, rule)) {
-        found = true;
-        result.push_back(matches.prefix().str());
-        origin = matches.suffix();
+std::vector<std::string> split(const std::string& str, const char& delimiter) {
+    // std::smatch matches;
+    // std::string origin = str;
+    // std::regex rule{delimiter};
+    // std::vector<std::string> result;
+    // bool found = false;
+    // while (std::regex_search(origin, matches, rule)) {
+    //     found = true;
+    //     result.push_back(matches.prefix().str());
+    //     origin = matches.suffix();
+    // }
+    // if (!found) {
+    //     result.push_back(str);
+    // }
+    // return result;
+
+    std::vector<std::string> parts;
+    std::stringstream ss(str);
+    std::string part;
+
+    while (std::getline(ss, part, delimiter)) {
+        parts.push_back(part);
     }
-    if (!found) {
-        result.push_back(str);
-    }
-    return result;
+
+    return parts;
 }
 
 /**

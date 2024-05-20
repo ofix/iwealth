@@ -83,7 +83,7 @@ else
       '-lwx_baseu-3.2']
 endif
 
-raw_sources = [
+gui_sources = [
     'ui/RichApplication.cpp',
     'ui/RichMainFrame.cpp',
     'ui/components/RichKlineCtrl.cpp',
@@ -102,15 +102,31 @@ raw_sources = [
     'util/EasyLogger.cpp',
     'util/FileTool.cpp',
     'util/Global.cpp'
-    ]
-sources = []
-foreach file : raw_sources
+]
+
+full_gui_sources = []
+foreach file : gui_sources
     full_path = join_paths('../../src', file)
-    sources += files(full_path)
+    full_gui_sources += files(full_path)
 endforeach
 
-executable('iwealth', sources,
+executable('iwealth', full_gui_sources,
             cpp_args:cpp_args,
             link_args : ldflags,
             include_directories : inc,
             dependencies : [third_party_dep])
+
+console_sources = [
+    'console/main.cpp',
+    'stock/Stock.cpp',
+    'util/Global.cpp'
+]
+full_console_sources = []
+foreach file : console_sources
+    full_path = join_paths('../../src', file)
+    full_console_sources += files(full_path)
+endforeach
+
+executable('iconsole',full_console_sources,
+            link_args : [],
+            include_directories : inc)
