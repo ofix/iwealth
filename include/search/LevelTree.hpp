@@ -209,10 +209,22 @@ void LevelTree<N, L>::Print() {
 
 template <typename N, typename L>
 void LevelTree<N, L>::DFSPrint(LevelTreeNode<N, L>* node) {
-    if (!node->IsLeaf()) {
-        std::cout << node->keys.non_leaf << "-";
-    } else {
-        std::cout << node->keys.leaf->name << std::endl;
+    if (node->IsLeaf()) {
+        std::vector<N> parents;
+        LevelTreeNode<N, L>* current = node->parent;
+        while (current && current->keys.non_leaf != "") {
+            parents.push_back(current->keys.non_leaf);
+            current = current->parent;
+        }
+
+        for (auto it = parents.rbegin(); it != parents.rend(); ++it) {
+            if (it != parents.rend() - 1) {
+                std::cout << *it << "-";
+            } else {
+                std::cout << *it;
+            }
+        }
+        std::cout << "," + node->keys.leaf->name << std::endl;
     }
 
     for (LevelTreeNode<N, L>* child_node : node->children) {
