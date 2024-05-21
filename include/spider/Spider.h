@@ -30,6 +30,7 @@ class Spider {
     size_t m_posStart;                  // 股票爬取的起始下标
     size_t m_posEnd;                    // 股票爬取的结束下标
     bool m_concurrentMode;              // 是否是并发请求模式
+    bool m_debug;                       // 是否打印爬虫调试信息
     std::chrono::high_resolution_clock::time_point m_timeStart;  // 爬取起始时间
     std::chrono::high_resolution_clock::time_point m_timeEnd;    // 爬取结束时间
     std::chrono::milliseconds m_timeConsume;                     // 爬虫消耗的时间

@@ -1,3 +1,12 @@
+///////////////////////////////////////////////////////////////////////////////
+// Name:        iwealth/src/spider/Spider.cpp
+// Purpose:     Spider base class
+// Author:      songhuabiao
+// Created:     2024-05-15 10:58
+// Copyright:   (C) Copyright 2024, Wealth Corporation, All Rights Reserved.
+// Licence:     GNU GENERAL PUBLIC LICENSE, Version 3
+///////////////////////////////////////////////////////////////////////////////
+
 #include "spider/Spider.h"
 #include "curl/curl.h"
 #include "stock/StockDataStorage.h"
@@ -7,6 +16,7 @@ Spider::Spider(StockDataStorage* storage)
       m_posStart(0),
       m_posEnd(0),
       m_concurrentMode(false),
+      m_debug(false),
       m_timeStart(std::chrono::milliseconds(0)),
       m_timeEnd(std::chrono::milliseconds(0)),
       m_timeConsume(0),

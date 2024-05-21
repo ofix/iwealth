@@ -1,3 +1,12 @@
+///////////////////////////////////////////////////////////////////////////////
+// Name:        iwealth/src/stock/Stock.cpp
+// Purpose:     iwealth stock shares' core structures
+// Author:      songhuabiao
+// Created:     2024-05-15 10:58
+// Copyright:   (C) Copyright 2024, Wealth Corporation, All Rights Reserved.
+// Licence:     GNU GENERAL PUBLIC LICENSE, Version 3
+///////////////////////////////////////////////////////////////////////////////
+
 #include "stock/Stock.h"
 Share::Share()
     : id(0),

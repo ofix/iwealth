@@ -1,7 +1,9 @@
 #include <string>
 #include <vector>
 #include "search/LevelTree.hpp"
+#include "spider/SpiderConceptListEastMoney.h"
 #include "stock/Stock.h"
+#include "stock/StockDataStorage.h"
 #include "util/Global.h"
 
 template <typename N, typename L>
@@ -29,7 +31,7 @@ Share* GetShare(const std::string& share_name) {
     return pShare;
 }
 
-int main(int argc, char* argv[]) {
+void TestLevelTree() {
     LevelTree<std::string, Share> tree;
     // std::vector<std::string> non_leafs =
     // GetNonLeafTreeNode("医药生物-生物制品-血液制品,上海莱士"); Share* share =
@@ -41,4 +43,15 @@ int main(int argc, char* argv[]) {
     InsertTree("医药生物-生物制品-血液制品,天坛生物", tree);
     InsertTree("医药生物-生物制品-血液制品,华兰生物", tree);
     tree.Print();
+}
+
+void TestSpiderConceptListEastMoney() {
+    StockDataStorage* m_pStockStorage = new StockDataStorage();
+    SpiderConceptListEastMoney* spiderEastMoney =
+        new SpiderConceptListEastMoney(m_pStockStorage);
+    spiderEastMoney->Crawl();
+}
+
+int main(int argc, char* argv[]) {
+    TestSpiderConceptListEastMoney();
 }

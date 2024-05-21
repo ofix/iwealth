@@ -91,6 +91,7 @@ gui_sources = [
     'ui/components/RichVolumeBarCtrl.cpp',
     'stock/StockDataStorage.cpp',
     'spider/SpiderBasicInfoEastMoney.cpp',
+    'spider/SpiderConceptListEastMoney.cpp',
     'spider/SpiderShareListHexun.cpp',
     'spider/SpiderShareHistory.cpp',
     'spider/Spider.cpp',
@@ -117,8 +118,21 @@ executable('iwealth', full_gui_sources,
             dependencies : [third_party_dep])
 
 console_sources = [
-    'console/main.cpp',
+    'console/Test.cpp',
     'stock/Stock.cpp',
+    'stock/StockDataStorage.cpp',
+    'spider/SpiderBasicInfoEastMoney.cpp',
+    'spider/SpiderConceptListEastMoney.cpp',
+    'spider/SpiderShareListHexun.cpp',
+    'spider/SpiderShareHistory.cpp',
+    'spider/Spider.cpp',
+    'stock/Stock.cpp',
+    'net/Request.cpp',
+    'net/ConcurrentRequest.cpp',
+    'search/Trie.cpp',
+    'util/ConsoleTable.cpp',
+    'util/EasyLogger.cpp',
+    'util/FileTool.cpp',
     'util/Global.cpp'
 ]
 full_console_sources = []
@@ -129,4 +143,5 @@ endforeach
 
 executable('iconsole',full_console_sources,
             link_args : [],
-            include_directories : inc)
+            include_directories : inc,
+            dependencies : [third_party_dep])

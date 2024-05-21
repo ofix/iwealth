@@ -1,3 +1,12 @@
+///////////////////////////////////////////////////////////////////////////////
+// Name:        iwealth/src/spider/SpiderBasicInfoEastMoney.cpp
+// Purpose:     crawl east money website's stock basic information
+// Author:      songhuabiao
+// Created:     2024-05-15 10:58
+// Copyright:   (C) Copyright 2024, Wealth Corporation, All Rights Reserved.
+// Licence:     GNU GENERAL PUBLIC LICENSE, Version 3
+///////////////////////////////////////////////////////////////////////////////
+
 #include "spider/SpiderBasicInfoEastMoney.h"
 #include "net/ConcurrentRequest.h"
 #include "stock/StockDataStorage.h"

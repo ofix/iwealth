@@ -19,38 +19,45 @@ struct ShareIndustry {
     std::string name;  // 行业分类名称
 };
 
+struct Share;  // 前项声明
+struct ShareConcept {
+    std::string name;
+    std::vector<Share*> shares;
+};
+
 struct Share {
-    int id;                              // 序号
-    std::string code;                    // 股票代号
-    std::string name;                    // 股票名称
-    std::vector<std::string> old_names;  // 股票曾用名称
-    double price_now;                    // 最新价
-    double change_amount;                // 涨跌额
-    double change_rate;                  // 涨跌幅度
-    uint64_t volume;                     // 成交量
-    uint64_t amount;                     // 成交额
-    double amplitude;                    // 振幅
-    double price_max;                    // 最高价
-    double price_min;                    // 最低价
-    double price_open;                   // 开盘价
-    double price_close;                  // 收盘价
-    double qrr;                          // 量比 quantity relative ratio
-    double pe;                           // 市盈率 price earnings ratio (P/E ratio)
-    double pb;                           // 市净率 price net asset ratio (PBR)
-    double roe;                          // 净资产收益率 return on equity
-    double turnover_rate;                // 换手率
-    double revenue;                      // 当前营收
-    double bonus;                        // 当前分红
-    double history_bonus;                // 历史分红总额
-    double history_fund;                 // 历史融资总额
-    std::string operation_analysis;      // 经营评述
-    uint64_t total_capital;              // 总市值
-    uint64_t trade_capital;              // 流通股本
-    ShareIndustry* industry;             // 所处行业分类
-    Market market;                       // 所在交易所
-    std::string province;                // 所在省份
-    uint32_t employee_num;               // 员工数
-    uint64_t register_capital;           // 注册资本
+    int id;                               // 序号
+    std::string code;                     // 股票代号
+    std::string name;                     // 股票名称
+    std::vector<std::string> old_names;   // 股票曾用名称
+    double price_now;                     // 最新价
+    double change_amount;                 // 涨跌额
+    double change_rate;                   // 涨跌幅度
+    uint64_t volume;                      // 成交量
+    uint64_t amount;                      // 成交额
+    double amplitude;                     // 振幅
+    double price_max;                     // 最高价
+    double price_min;                     // 最低价
+    double price_open;                    // 开盘价
+    double price_close;                   // 收盘价
+    double qrr;                           // 量比 quantity relative ratio
+    double pe;                            // 市盈率 price earnings ratio (P/E ratio)
+    double pb;                            // 市净率 price net asset ratio (PBR)
+    double roe;                           // 净资产收益率 return on equity
+    double turnover_rate;                 // 换手率
+    double revenue;                       // 当前营收
+    double bonus;                         // 当前分红
+    double history_bonus;                 // 历史分红总额
+    double history_fund;                  // 历史融资总额
+    std::string operation_analysis;       // 经营评述
+    uint64_t total_capital;               // 总市值
+    uint64_t trade_capital;               // 流通股本
+    ShareIndustry* industry;              // 所处行业分类
+    Market market;                        // 所在交易所
+    std::string province;                 // 所在省份
+    uint32_t employee_num;                // 员工数
+    uint64_t register_capital;            // 注册资本
+    std::vector<ShareConcept*> concepts;  // 所属概念板块
     // 必须定义拷贝构造函数，否则使用std::vector.push_back 栈对象，程序会崩溃
     Share();
     Share(const Share& other);
