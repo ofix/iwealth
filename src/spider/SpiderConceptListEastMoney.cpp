@@ -47,20 +47,19 @@ std::string SpiderConceptListEastMoney::GetRequestUrl() {
 void SpiderConceptListEastMoney::ParseResponse(std::string& response) {
     json _response = json::parse(response);
     json arr = _response["data"]["diff"];
-    std::vector<std::string> concepts;
     m_pStockStorage->m_market_concepts.clear();  // 清空概念个股映射表
+    m_pStockStorage->m_market_concepts.reserve(arr.size());  // 防止频繁和移动底层数组
     for (json::iterator it = arr.begin(); it != arr.end(); ++it) {
         std::string concept_name = (*it)["f14"];
-        concepts.push_back(concept_name);
         ShareConcept* pConcept = new ShareConcept();
         pConcept->name = concept_name;
         pConcept->shares = std::vector<Share*>();
         m_pStockStorage->m_market_concepts[concept_name] = pConcept;
+        if (m_debug) {
+            std::cout << concept_name << ",";
+        }
     }
     if (m_debug) {
-        for (auto& concept : concepts) {
-            std::cout << concept << ",";
-        }
         std::cout << std::endl;
     }
 }
