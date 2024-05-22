@@ -37,20 +37,25 @@ class TimerTask {
  *
  * ```
  * // 添加一次性定时器
- * Timer::SetTimeout(500,[&](uint32_t timer_id, void* args){
- *     std::cout<< "Timer[<<"<<timer_id<<"], timeout: 500ms"<<std::endl;
- * });
+ *   Timer::SetTimeout(2000, [](uint32_t timer_id, void* args) {
+ *       std::cout << "Timer[" << timer_id
+ *                 << "], timeout: 2s, task count: " << Timer::GetTaskCount()
+ *                 <<  std::endl;
+ *   });
  *
- * // 添加周期性定时器
- * int loop = 0;
- * Timer::SetInterval(500,[&](uint32_t timer_id, void* args){
- *     std::cout<< "Timer[<<"<<timer_id<<"], interval: 500ms"<<std::endl;
- *     loop += 1;
- *     if(loop==5){
- *          // 取消周期性定时任务
- *          Timer::CancelTimer(timer_id);
- *     }
- * });
+ *   // 添加周期性定时器
+ *   Timer::SetInterval(1000, [](uint32_t timer_id, void* args) {
+ *       std::cout << "Timer[" << timer_id
+ *                 << "], interval: 1s, task count: " << Timer::GetTaskCount()
+ *                 << std::endl;
+ *       static int loop = 0;
+ *       loop += 1;
+ *       if (loop == 5000) {
+ *           // 取消周期性定时任务
+ *           Timer::CancelTimer(timer_id);
+ *       }
+ *   });
+ *   std::cin.get();
  * ```
  */
 class Timer {
@@ -69,17 +74,17 @@ class Timer {
         int timeout,
         std::function<void(uint32_t timer_id, void* args)>& callback,
         void* arguments = NULL);
-    static uint32_t SetTimeout(int timeout,
+    static uint32_t SetTimeout(uint32_t timeout,
                                void (*callback)(uint32_t timer_id, void* args),
                                void* arguments = NULL);
     static uint32_t SetInterval(
-        int interval,
+        uint32_t interval,
         std::function<void(uint32_t timer_id, void* args)>& callback,
-        int delay_time = 0,
+        uint32_t delay_time = 0,
         void* arguments = NULL);
-    static uint32_t SetInterval(int interval,
+    static uint32_t SetInterval(uint32_t interval,
                                 void (*callback)(uint32_t timer_id, void* args),
-                                int delay_time = 0,
+                                uint32_t delay_time = 0,
                                 void* arguments = NULL);
     static bool CancelTimer(uint32_t timer_id);
     static void CancelAllTimer();
@@ -94,19 +99,19 @@ class Timer {
     bool InternalCancelTimer(uint32_t timer_id);
     void InternalCancelAllTimer();
     uint32_t AddTimerTask(bool is_period,
-                          int interval,
+                          uint32_t interval,
                           void (*callback)(uint32_t timer_id, void* args),
-                          int delay_time = 0,
+                          uint32_t delay_time = 0,
                           void* arguments = NULL);
-    void AddTimerTask(TimerTask* timer_task);
+    void InternalAddTimerTask(TimerTask* timer_task);
     void DelTimerTask(TimerTask* timer_task);
     int64_t CurrentTimeInMilliSecond();
     void MoveTimerTaskToTickWheel(uint32_t wi, uint32_t si);
     void Schedule();  // 使用额外的线程进行定时
     void Tick();
     static Timer* instance;
-    uint64_t m_tick;                      // 时间精度 100 ms
     uint32_t m_timer_id;                  // 当前定时类，永远递增
+    uint64_t m_tick;                      // 时间精度 100 ms
     std::atomic<uint32_t> m_timer_tasks;  // 定时器数量
     std::mutex m_mutex;                   // 互斥锁
     std::thread m_timer_thread;

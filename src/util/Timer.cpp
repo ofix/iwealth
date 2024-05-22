@@ -16,7 +16,6 @@ void Timer::Schedule() {
 }
 
 void Timer::Tick() {
-    uint32_t timer_id = 0;
     for (;;) {
         std::this_thread::sleep_for(std::chrono::milliseconds(TIMER_TICK_MS));
         std::lock_guard<std::mutex> lock(m_mutex);
@@ -29,6 +28,7 @@ void Timer::Tick() {
                 (this->m_tick >> ((i + 1) * TIMER_WHEEL_SLOT_BITS)) & TIMER_MASK;
             MoveTimerTaskToTickWheel(i + 1, next_wheel_slot);
         }
+        uint32_t timer_id = 0;
         TimerTask* pTimerTask = this->head[0][current_wheel_slot];
         TimerTask* next = nullptr;
         for (; pTimerTask != nullptr; pTimerTask = next) {
@@ -38,7 +38,8 @@ void Timer::Tick() {
                 pTimerTask->callback(pTimerTask->timer_id, pTimerTask->args);
                 if (pTimerTask->is_period) {
                     pTimerTask->expire = this->m_tick + pTimerTask->interval;
-                    AddTimerTask(pTimerTask);
+                    InternalAddTimerTask(
+                        pTimerTask);  // 重新添加定时任务，并不会增加定时任务数量，只是移动了指针
                 } else {
                     DelTimerTask(pTimerTask);  // 执行完删除定时器
                 }
@@ -169,16 +170,16 @@ uint32_t Timer::SetTimeout(int timeout,
  * @param callback, 定时任务回调函数
  * @param arguments, 传递给回调函数 callback 的参数
  */
-uint32_t Timer::SetTimeout(int timeout,
+uint32_t Timer::SetTimeout(uint32_t timeout,
                            void (*callback)(uint32_t timer_id, void* args),
                            void* arguments) {
     Timer* pTimer = Timer::GetInstance();
     return pTimer->AddTimerTask(false, 0, callback, timeout, arguments);
 }
 
-uint32_t Timer::SetInterval(int interval,
+uint32_t Timer::SetInterval(uint32_t interval,
                             std::function<void(uint32_t, void*)>& callback,
-                            int delay_time,
+                            uint32_t delay_time,
                             void* arguments) {
     Timer* pTimer = Timer::GetInstance();
     return pTimer->AddTimerTask(true, interval, callback.target<void(uint32_t, void*)>(),
@@ -192,24 +193,24 @@ uint32_t Timer::SetInterval(int interval,
  * @param delay_time, 延迟执行时间
  * @param arguments, 传递给回调函数 callback 的参数
  */
-uint32_t Timer::SetInterval(int interval,
+uint32_t Timer::SetInterval(uint32_t interval,
                             void (*callback)(uint32_t timer_id, void* args),
-                            int delay_time,
+                            uint32_t delay_time,
                             void* arguments) {
     Timer* pTimer = Timer::GetInstance();
     return pTimer->AddTimerTask(true, interval, callback, delay_time, arguments);
 }
 
 uint32_t Timer::AddTimerTask(bool is_period,
-                             int interval,
+                             uint32_t interval,
                              void (*callback)(uint32_t timer_id, void* args),
-                             int delay_time,
+                             uint32_t delay_time,
                              void* arguments) {
     if (callback == nullptr) {
         return TIMER_CREATE_FAILED;
     }
 
-    if (interval <= 0 || interval < TIMER_TICK_MS) {
+    if (is_period && (interval <= 0 || interval < TIMER_TICK_MS)) {
         return TIMER_CREATE_FAILED;
     }
 
@@ -246,11 +247,12 @@ uint32_t Timer::AddTimerTask(bool is_period,
         new_timer_task->interval = 0;
     }
 
-    AddTimerTask(new_timer_task);
+    InternalAddTimerTask(new_timer_task);
+    m_timer_tasks++;
     return GetTimerId();
 }
 
-void Timer::AddTimerTask(TimerTask* pTimerTask) {
+void Timer::InternalAddTimerTask(TimerTask* pTimerTask) {
     uint8_t wi = 0;
     uint8_t si = 0;
 
@@ -276,7 +278,6 @@ void Timer::AddTimerTask(TimerTask* pTimerTask) {
         pTimerTask->prev = tail[wi][si];
         tail[wi][si] = pTimerTask;
     }
-    m_timer_tasks++;
 }
 
 // 将其他轮子上的任务列表添加到主轮上
@@ -286,7 +287,7 @@ void Timer::MoveTimerTaskToTickWheel(uint32_t wi, uint32_t si) {
     for (; pTimerTask != nullptr; pTimerTask = next) {
         next = pTimerTask->next;
         if (!pTimerTask->canceled) {
-            AddTimerTask(pTimerTask);
+            InternalAddTimerTask(pTimerTask);
         } else {
             DelTimerTask(pTimerTask);
         }

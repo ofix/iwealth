@@ -56,12 +56,12 @@ void TestSpiderConceptListEastMoney() {
 void TestTimer() {
     // 添加一次性定时器
     Timer::SetTimeout(2000, [](uint32_t timer_id, void* args) {
-        std::cout << "Timer[<<" << timer_id << "], timeout: 2s" << Timer::GetTaskCount()
-                  << std::endl;
+        std::cout << "Timer[" << timer_id
+                  << "], timeout: 2s, task count: " << Timer::GetTaskCount() << std::endl;
     });
-    // 添加周期性定时器
 
-    Timer::SetInterval(100, [](uint32_t timer_id, void* args) {
+    // 添加周期性定时器
+    Timer::SetInterval(1000, [](uint32_t timer_id, void* args) {
         std::cout << "Timer[" << timer_id
                   << "], interval: 1s, task count: " << Timer::GetTaskCount()
                   << std::endl;
