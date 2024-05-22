@@ -5,6 +5,7 @@
 #include "stock/Stock.h"
 #include "stock/StockDataStorage.h"
 #include "util/Global.h"
+#include "util/Timer.h"
 
 template <typename N, typename L>
 void InsertTree(const std::string& str, LevelTree<N, L>& tree) {
@@ -52,6 +53,29 @@ void TestSpiderConceptListEastMoney() {
     spiderEastMoney->Crawl();
 }
 
+void TestTimer() {
+    // 添加一次性定时器
+    Timer::SetTimeout(2000, [](uint32_t timer_id, void* args) {
+        std::cout << "Timer[<<" << timer_id << "], timeout: 2s" << Timer::GetTaskCount()
+                  << std::endl;
+    });
+    // 添加周期性定时器
+
+    Timer::SetInterval(100, [](uint32_t timer_id, void* args) {
+        std::cout << "Timer[" << timer_id
+                  << "], interval: 1s, task count: " << Timer::GetTaskCount()
+                  << std::endl;
+        static int loop = 0;
+        loop += 1;
+        if (loop == 5000) {
+            // 取消周期性定时任务
+            Timer::CancelTimer(timer_id);
+        }
+    });
+    std::cin.get();
+}
+
 int main(int argc, char* argv[]) {
-    TestSpiderConceptListEastMoney();
+    // TestSpiderConceptListEastMoney();
+    TestTimer();
 }

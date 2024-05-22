@@ -1,10 +1,5 @@
 #include "util/Timer.h"
-#include <stddef.h>
-#include <stdlib.h>
-#include <time.h>
-#include <cassert>
 #include <chrono>
-#include <functional>
 
 Timer* Timer::instance = nullptr;
 Timer* Timer::GetInstance() {
@@ -16,25 +11,24 @@ Timer* Timer::GetInstance() {
 }
 
 void Timer::Schedule() {
-    m_timer_thread = std::thread(std::bind(&Timer::TimerLoop, this));
+    m_timer_thread = std::thread(std::bind(&Timer::Tick, this));
     m_timer_thread.detach();
 }
 
-void Timer::TimerLoop() {
+void Timer::Tick() {
+    uint32_t timer_id = 0;
     for (;;) {
         std::this_thread::sleep_for(std::chrono::milliseconds(TIMER_TICK_MS));
         std::lock_guard<std::mutex> lock(m_mutex);
 
-        // auto now_ms = CurrentTimeInMilliSecond() / TIMER_TICK_MS;
-        uint32_t timer_id = 0;
-        uint8_t current_wheel_slot = this->m_current_time & TIMER_MASK;
+        uint8_t current_wheel_slot = this->m_tick & TIMER_MASK;
         uint8_t next_wheel_slot = current_wheel_slot;
-        for (uint8_t i = 0; i < TIMER_WHEELS - 1 && next_wheel_slot == 0; i++) {
+        for (uint8_t i = 0; i < TIMER_WHEELS - 1 && next_wheel_slot == 0;
+             i++) {  // 最小轮转完一圈需要进位，将被动轮上的定时任务挪到主动轮上统一处理
             next_wheel_slot =
-                (this->m_current_time >> ((i + 1) * TIMER_WHEEL_SLOT_BITS)) & TIMER_MASK;
-            CascadeTimer(i + 1, next_wheel_slot);
+                (this->m_tick >> ((i + 1) * TIMER_WHEEL_SLOT_BITS)) & TIMER_MASK;
+            MoveTimerTaskToTickWheel(i + 1, next_wheel_slot);
         }
-
         TimerTask* pTimerTask = this->head[0][current_wheel_slot];
         TimerTask* next = nullptr;
         for (; pTimerTask != nullptr; pTimerTask = next) {
@@ -43,8 +37,8 @@ void Timer::TimerLoop() {
             if (!pTimerTask->canceled) {
                 pTimerTask->callback(pTimerTask->timer_id, pTimerTask->args);
                 if (pTimerTask->is_period) {
-                    pTimerTask->expire = this->m_current_time + pTimerTask->interval;
-                    AddTimerTask(pTimerTask, 0, current_wheel_slot);
+                    pTimerTask->expire = this->m_tick + pTimerTask->interval;
+                    AddTimerTask(pTimerTask);
                 } else {
                     DelTimerTask(pTimerTask);  // 执行完删除定时器
                 }
@@ -54,11 +48,11 @@ void Timer::TimerLoop() {
         }
         this->head[0][current_wheel_slot] = nullptr;
         this->tail[0][current_wheel_slot] = nullptr;
-        this->m_current_time++;  // 更新当前时间
+        this->m_tick++;  // 更新当前时间
     }
 }
 
-Timer::Timer() : m_timer_id(0) {
+Timer::Timer() : m_timer_id(0), m_tick(0), m_timer_tasks(0) {
     for (int8_t wi = 0; wi < TIMER_WHEELS; wi++) {
         for (int8_t si = 0; si < TIMER_WHEEL_SLOTS; si++) {
             this->head[wi][si] = nullptr;
@@ -66,7 +60,7 @@ Timer::Timer() : m_timer_id(0) {
         }
     }
     // 当前时间，时间精度为 TIMER_TICK_MS 毫秒，默认 50ms 的时间精度
-    this->m_current_time = CurrentTimeInMilliSecond() / TIMER_TICK_MS;
+    // this->m_tick = 0;  // CurrentTimeInMilliSecond() / TIMER_TICK_MS;
 }
 
 Timer::~Timer() {
@@ -102,10 +96,10 @@ std::unordered_map<uint32_t, TimerTask*> Timer::GetTimerMap() {
  */
 bool Timer::CancelTimer(uint32_t timer_id) {
     Timer* pTimer = Timer::GetInstance();
-    return pTimer->CancelTimerInternal(timer_id);
+    return pTimer->InternalCancelTimer(timer_id);
 }
 
-bool Timer::CancelTimerInternal(uint32_t timer_id) {
+bool Timer::InternalCancelTimer(uint32_t timer_id) {
     std::lock_guard<std::mutex> lock(m_mutex);
     std::unordered_map<uint32_t, TimerTask*>::iterator it = m_timer_map.find(timer_id);
     if (it == m_timer_map.end()) {
@@ -128,10 +122,10 @@ bool Timer::CancelTimerInternal(uint32_t timer_id) {
  */
 void Timer::CancelAllTimer() {
     Timer* pTimer = Timer::GetInstance();
-    pTimer->CancelAllTimerInternal();
+    pTimer->InternalCancelAllTimer();
 }
 
-void Timer::CancelAllTimerInternal() {
+void Timer::InternalCancelAllTimer() {
     std::lock_guard<std::mutex> lock(m_mutex);
     for (std::unordered_map<uint32_t, TimerTask*>::iterator it = m_timer_map.begin();
          it != m_timer_map.end(); ++it) {
@@ -148,8 +142,25 @@ void Timer::IncrementTimerId() {
     m_timer_id += 1;
 }
 
-int64_t Timer::CurrentTime() {
-    return m_current_time;
+uint64_t Timer::CurrentTick() {
+    return m_tick;
+}
+
+uint32_t Timer::GetTaskCount() {
+    Timer* pTimer = Timer::GetInstance();
+    return pTimer->InternalGetTaskCount();
+}
+
+uint32_t Timer::InternalGetTaskCount() {
+    return m_timer_tasks;
+}
+
+uint32_t Timer::SetTimeout(int timeout,
+                           std::function<void(uint32_t, void*)>& callback,
+                           void* arguments) {
+    Timer* pTimer = Timer::GetInstance();
+    return pTimer->AddTimerTask(false, 0, callback.target<void(uint32_t, void*)>(),
+                                timeout, arguments);
 }
 
 /**
@@ -162,7 +173,16 @@ uint32_t Timer::SetTimeout(int timeout,
                            void (*callback)(uint32_t timer_id, void* args),
                            void* arguments) {
     Timer* pTimer = Timer::GetInstance();
-    return pTimer->AddTimerTask(true, 0, callback, timeout, arguments);
+    return pTimer->AddTimerTask(false, 0, callback, timeout, arguments);
+}
+
+uint32_t Timer::SetInterval(int interval,
+                            std::function<void(uint32_t, void*)>& callback,
+                            int delay_time,
+                            void* arguments) {
+    Timer* pTimer = Timer::GetInstance();
+    return pTimer->AddTimerTask(true, interval, callback.target<void(uint32_t, void*)>(),
+                                delay_time, arguments);
 }
 
 /**
@@ -193,6 +213,19 @@ uint32_t Timer::AddTimerTask(bool is_period,
         return TIMER_CREATE_FAILED;
     }
 
+    interval /= TIMER_TICK_MS;
+    delay_time /= TIMER_TICK_MS;
+
+    if (is_period) {
+        if (interval > uint32_t(1) << (TIMER_WHEEL_SLOT_BITS * (TIMER_WHEELS))) {
+            return TIMER_CREATE_FAILED;
+        }
+    } else {
+        if (delay_time > uint32_t(1) << (TIMER_WHEEL_SLOT_BITS * (TIMER_WHEELS))) {
+            return TIMER_CREATE_FAILED;
+        }
+    }
+
     std::lock_guard<std::mutex> lock(m_mutex);
 
     TimerTask* new_timer_task = new TimerTask();
@@ -200,66 +233,60 @@ uint32_t Timer::AddTimerTask(bool is_period,
         return TIMER_CREATE_FAILED;
     }
 
-    interval /= TIMER_TICK_MS;
-    delay_time /= TIMER_TICK_MS;
     IncrementTimerId();
     new_timer_task->timer_id = GetTimerId();
     new_timer_task->is_period = is_period;
     new_timer_task->callback = callback;
     new_timer_task->args = arguments;
     new_timer_task->canceled = false;
-    new_timer_task->expire = CurrentTime() + delay_time;
+    new_timer_task->expire = m_tick + delay_time;
     if (is_period) {
-        new_timer_task->interval = CurrentTime() + interval;
+        new_timer_task->interval = m_tick + interval;
     } else {
         new_timer_task->interval = 0;
     }
 
-    AddTimerTask(new_timer_task, 0, 0);
+    AddTimerTask(new_timer_task);
     return GetTimerId();
 }
 
-void Timer::AddTimerTask(TimerTask* pTimerTask, uint8_t wheel_index, uint8_t slot_index) {
+void Timer::AddTimerTask(TimerTask* pTimerTask) {
     uint8_t wi = 0;
     uint8_t si = 0;
 
     uint32_t expire = pTimerTask->expire;
-    uint32_t timeout = expire - m_current_time;
+    uint32_t ticks = expire - m_tick;
 
-    if (timeout < uint32_t(1) << (TIMER_WHEEL_SLOT_BITS * (TIMER_WHEELS))) {
-        for (uint32_t i = 0; i < TIMER_WHEELS; i++) {
-            if (timeout < uint32_t(1) << (TIMER_WHEEL_SLOT_BITS * (i + 1))) {
-                si = (expire >> (TIMER_WHEEL_SLOT_BITS * i)) & TIMER_MASK;
-                wi = i;
-                break;
-            }
+    for (uint32_t i = 0; i < TIMER_WHEELS; i++) {
+        if (ticks < uint32_t(1) << (TIMER_WHEEL_SLOT_BITS * (i + 1))) {
+            si = (expire >> (TIMER_WHEEL_SLOT_BITS * i)) & TIMER_MASK;
+            wi = i;
+            break;
         }
-    } else if (timeout < 0) {
-        wi = 0;
-        si = m_current_time & TIMER_MASK;
-    } else {
-        return;  // 不支持添加超时时间过大的定时器
     }
 
-    if (tail[wi][si] == nullptr) {
+    if (tail[wi][si] == nullptr) {  // 空节点
         head[wi][si] = pTimerTask;
         tail[wi][si] = pTimerTask;
         pTimerTask->next = nullptr;
-    } else {
+        pTimerTask->prev = head[wi][si];
+    } else {  // 往尾部添加一个定时任务
         tail[wi][si]->next = pTimerTask;
         pTimerTask->next = nullptr;
+        pTimerTask->prev = tail[wi][si];
         tail[wi][si] = pTimerTask;
     }
+    m_timer_tasks++;
 }
 
-// 循环该slot里的所有节点，重新AddTimer到管理器中
-void Timer::CascadeTimer(uint32_t wi, uint32_t si) {
+// 将其他轮子上的任务列表添加到主轮上
+void Timer::MoveTimerTaskToTickWheel(uint32_t wi, uint32_t si) {
     TimerTask* pTimerTask = head[wi][si];
     TimerTask* next = nullptr;
     for (; pTimerTask != nullptr; pTimerTask = next) {
         next = pTimerTask->next;
         if (!pTimerTask->canceled) {
-            AddTimerTask(pTimerTask, wi, si);
+            AddTimerTask(pTimerTask);
         } else {
             DelTimerTask(pTimerTask);
         }
@@ -271,4 +298,5 @@ void Timer::CascadeTimer(uint32_t wi, uint32_t si) {
 void Timer::DelTimerTask(TimerTask* pTimerTask) {
     this->m_timer_map.erase(pTimerTask->timer_id);
     delete pTimerTask;
+    m_timer_tasks--;
 }

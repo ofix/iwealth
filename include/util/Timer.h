@@ -3,6 +3,7 @@
 #include <stdint.h>
 #include <atomic>
 #include <chrono>
+#include <functional>
 #include <mutex>
 #include <thread>
 #include <unordered_map>
@@ -17,6 +18,7 @@
 class TimerTask {
    public:
     TimerTask* next;    // 下一个定时任务
+    TimerTask* prev;    // 上一个定时任务
     uint32_t timer_id;  // 定时ID，用于取消定时任务
     uint32_t expire;    // 定时任务第一次执行间隔，单位ms
     uint32_t interval;  // 定时任务间隔
@@ -63,38 +65,50 @@ class Timer {
     Timer& operator=(Timer&&) = delete;
 
    public:  // 对外调用函数
+    static uint32_t SetTimeout(
+        int timeout,
+        std::function<void(uint32_t timer_id, void* args)>& callback,
+        void* arguments = NULL);
     static uint32_t SetTimeout(int timeout,
                                void (*callback)(uint32_t timer_id, void* args),
                                void* arguments = NULL);
+    static uint32_t SetInterval(
+        int interval,
+        std::function<void(uint32_t timer_id, void* args)>& callback,
+        int delay_time = 0,
+        void* arguments = NULL);
     static uint32_t SetInterval(int interval,
                                 void (*callback)(uint32_t timer_id, void* args),
                                 int delay_time = 0,
                                 void* arguments = NULL);
     static bool CancelTimer(uint32_t timer_id);
     static void CancelAllTimer();
+    static uint32_t GetTaskCount();
 
    private:
     std::unordered_map<uint32_t, TimerTask*> GetTimerMap();
     void IncrementTimerId();
     uint32_t GetTimerId();
-    int64_t CurrentTime();
-    bool CancelTimerInternal(uint32_t timer_id);
-    void CancelAllTimerInternal();
+    uint64_t CurrentTick();
+    uint32_t InternalGetTaskCount();
+    bool InternalCancelTimer(uint32_t timer_id);
+    void InternalCancelAllTimer();
     uint32_t AddTimerTask(bool is_period,
                           int interval,
                           void (*callback)(uint32_t timer_id, void* args),
                           int delay_time = 0,
                           void* arguments = NULL);
-    void AddTimerTask(TimerTask* timer_task, uint8_t wheel_index, uint8_t slot_index);
+    void AddTimerTask(TimerTask* timer_task);
     void DelTimerTask(TimerTask* timer_task);
     int64_t CurrentTimeInMilliSecond();
-    void CascadeTimer(uint32_t wi, uint32_t si);
+    void MoveTimerTaskToTickWheel(uint32_t wi, uint32_t si);
     void Schedule();  // 使用额外的线程进行定时
-    void TimerLoop();
+    void Tick();
     static Timer* instance;
-    int64_t m_current_time;  // 时间精度 100 ms
-    uint32_t m_timer_id;     // 当前定时类，永远递增
-    std::mutex m_mutex;      // 互斥锁
+    uint64_t m_tick;                      // 时间精度 100 ms
+    uint32_t m_timer_id;                  // 当前定时类，永远递增
+    std::atomic<uint32_t> m_timer_tasks;  // 定时器数量
+    std::mutex m_mutex;                   // 互斥锁
     std::thread m_timer_thread;
     std::unordered_map<uint32_t, TimerTask*>
         m_timer_map;  // 定时器map，方便快速删除定时器
