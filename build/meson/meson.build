@@ -99,6 +99,7 @@ gui_sources = [
     'net/Request.cpp',
     'net/ConcurrentRequest.cpp',
     'search/Trie.cpp',
+    'util/Timer.cpp',
     'util/ConsoleTable.cpp',
     'util/EasyLogger.cpp',
     'util/FileTool.cpp',
@@ -130,6 +131,7 @@ console_sources = [
     'net/Request.cpp',
     'net/ConcurrentRequest.cpp',
     'search/Trie.cpp',
+    'util/Timer.cpp',
     'util/ConsoleTable.cpp',
     'util/EasyLogger.cpp',
     'util/FileTool.cpp',
@@ -142,6 +144,6 @@ foreach file : console_sources
 endforeach
 
 executable('iconsole',full_console_sources,
-            link_args : [],
+            link_args : ['-pthread'],
             include_directories : inc,
             dependencies : [third_party_dep])
