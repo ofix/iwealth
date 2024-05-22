@@ -24,13 +24,11 @@ void Timer::TimerLoop() {
     for (;;) {
         std::this_thread::sleep_for(std::chrono::milliseconds(TIMER_TICK_MS));
         std::lock_guard<std::mutex> lock(m_mutex);
-        uint8_t current_wheel_slot = 0;
-        uint8_t next_wheel_slot = 0;
 
-        auto now_ms = CurrentTimeInMilliSecond() / TIMER_TICK_MS;
+        // auto now_ms = CurrentTimeInMilliSecond() / TIMER_TICK_MS;
         uint32_t timer_id = 0;
-        current_wheel_slot = this->m_current_time & TIMER_MASK;
-        next_wheel_slot = current_wheel_slot;
+        uint8_t current_wheel_slot = this->m_current_time & TIMER_MASK;
+        uint8_t next_wheel_slot = current_wheel_slot;
         for (uint8_t i = 0; i < TIMER_WHEELS - 1 && next_wheel_slot == 0; i++) {
             next_wheel_slot =
                 (this->m_current_time >> ((i + 1) * TIMER_WHEEL_SLOT_BITS)) & TIMER_MASK;
