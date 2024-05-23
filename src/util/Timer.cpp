@@ -18,7 +18,6 @@ void Timer::Schedule() {
 void Timer::Tick() {
     for (;;) {
         std::this_thread::sleep_for(std::chrono::milliseconds(TIMER_TICK_MS));
-        std::lock_guard<std::mutex> lock(m_mutex);
 
         uint8_t current_wheel_slot = this->m_tick & TIMER_MASK;
         uint8_t next_wheel_slot = current_wheel_slot;
@@ -31,6 +30,7 @@ void Timer::Tick() {
         uint32_t timer_id = 0;
         TimerTask* pTimerTask = this->head[0][current_wheel_slot];
         TimerTask* next = nullptr;
+        std::lock_guard<std::mutex> lock(link_list_mutex[0][current_wheel_slot]);
         for (; pTimerTask != nullptr; pTimerTask = next) {
             next = pTimerTask->next;
             timer_id = pTimerTask->timer_id;
@@ -160,8 +160,13 @@ uint32_t Timer::SetTimeout(int timeout,
                            std::function<void(uint32_t, void*)>& callback,
                            void* arguments) {
     Timer* pTimer = Timer::GetInstance();
+#ifdef _WIN32
     return pTimer->AddTimerTask(false, 0, callback.target<void(uint32_t, void*)>(),
                                 timeout, arguments);
+#else  // 老版本GCC编译会报错，只好采用强制类型转换了
+    return pTimer->AddTimerTask(false, 0, *(callback.target<void (*)(uint32_t, void*)>()),
+                                timeout, arguments);
+#endif
 }
 
 /**
@@ -182,8 +187,15 @@ uint32_t Timer::SetInterval(uint32_t interval,
                             uint32_t delay_time,
                             void* arguments) {
     Timer* pTimer = Timer::GetInstance();
-    return pTimer->AddTimerTask(true, interval, callback.target<void(uint32_t, void*)>(),
+#ifdef _WIN32
+    return pTimer->AddTimerTask(true, interval,
+                                callback.template target<void(uint32_t, void*)>(),
                                 delay_time, arguments);
+#else
+    return pTimer->AddTimerTask(true, interval,
+                                *(callback.target<void (*)(uint32_t, void*)>()),
+                                delay_time, arguments);
+#endif
 }
 
 /**
@@ -227,8 +239,6 @@ uint32_t Timer::AddTimerTask(bool is_period,
         }
     }
 
-    std::lock_guard<std::mutex> lock(m_mutex);
-
     TimerTask* new_timer_task = new TimerTask();
     if (new_timer_task == nullptr) {
         return TIMER_CREATE_FAILED;
@@ -266,6 +276,8 @@ void Timer::InternalAddTimerTask(TimerTask* pTimerTask) {
             break;
         }
     }
+
+    std::lock_guard<std::mutex> lock(link_list_mutex[wi][si]);
 
     if (tail[wi][si] == nullptr) {  // 空节点
         head[wi][si] = pTimerTask;

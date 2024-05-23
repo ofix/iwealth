@@ -119,4 +119,5 @@ class Timer {
         m_timer_map;  // 定时器map，方便快速删除定时器
     TimerTask* head[TIMER_WHEELS][TIMER_WHEEL_SLOTS];
     TimerTask* tail[TIMER_WHEELS][TIMER_WHEEL_SLOTS];
+    std::mutex link_list_mutex[TIMER_WHEELS][TIMER_WHEEL_SLOTS];
 };

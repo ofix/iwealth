@@ -58,6 +58,16 @@ void TestTimer() {
     Timer::SetTimeout(2000, [](uint32_t timer_id, void* args) {
         std::cout << "Timer[" << timer_id
                   << "], timeout: 2s, task count: " << Timer::GetTaskCount() << std::endl;
+        Timer::SetTimeout(2000, [](uint32_t timer_id, void* args) {
+            std::cout << "Timer[" << timer_id
+                      << "], timeout: 4s, task count: " << Timer::GetTaskCount()
+                      << std::endl;
+        });
+        Timer::SetTimeout(8000, [](uint32_t timer_id, void* args) {
+            std::cout << "Timer[" << timer_id
+                      << "], timeout: 8s, task count: " << Timer::GetTaskCount()
+                      << std::endl;
+        });
     });
 
     // 添加周期性定时器
