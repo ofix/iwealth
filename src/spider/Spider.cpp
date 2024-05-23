@@ -39,8 +39,8 @@ void Spider::SetCrawlRange(size_t start_pos, size_t end_pos) {
     m_posEnd = end_pos;
 }
 
-std::string Spider::Fetch(const std::string& url) {
-    return HttpGet(url);
+std::string Spider::Fetch(const std::string& url, int http_version) {
+    return HttpGet(url, http_version);
 }
 
 void Spider::Crawl() {

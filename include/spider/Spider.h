@@ -8,7 +8,7 @@ class Spider {
    public:
     Spider(StockDataStorage* storage);
     Spider(StockDataStorage* storage, bool concurrent);
-    std::string Fetch(const std::string& url);
+    std::string Fetch(const std::string& url, int http_version = CURL_HTTP_VERSION_1_1);
     virtual ~Spider();
     void Crawl();
     void Stop();

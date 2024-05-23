@@ -10,7 +10,7 @@
 class SpiderShareListHexun;
 class SpiderBasicInfoEastMoney;
 class SpiderConceptListEastMoney;
-class SpiderShareHistory;
+class SpiderShareHistoryBaidu;
 class StockDataStorage {
    public:
     StockDataStorage();
@@ -40,14 +40,19 @@ class StockDataStorage {
     HashProvinceShare m_hash_province_share;  // 省份->[股票1,股票2] hash映射表
     // 统计信息
     std::unordered_map<Market, int> m_market_share_count;  // 分市场股票数量统计
-    // 个股概念板块映射表
-    std::unordered_map<std::string, ShareConcept*>
-        m_market_concepts;  // 市场个股概念板块映射表
+    // 市场个股概念板块映射表
+    std::unordered_map<std::string, ShareConcept*> m_market_concepts;
+    // 市场个股前复权历史K线
+    std::unordered_map<std::string, std::vector<uiKline>> m_day_klines_adjust;
+    // 市场个股不复权历史K线
+    std::unordered_map<std::string, std::vector<uiKline>> m_day_klines;
+
     // 爬虫友元类，减少数据拷贝
     friend class SpiderShareListHexun;        // 和讯网股票爬虫
     friend class SpiderBasicInfoEastMoney;    // 东方财富股票爬虫
     friend class SpiderShareHistory;          // 网易股票爬虫
     friend class SpiderConceptListEastMoney;  // 东方财富题材概念列表爬虫
+    friend class SpiderShareHistoryBaidu;     // 百度财经股票历史K线数据爬虫
 };
 
 #endif  // StockDataStorage_H

@@ -71,8 +71,6 @@ struct uiKlineRange {
 
 struct uiKline {
     std::string day;       // 交易日期
-    std::string code;      // 股票代号
-    std::string name;      // 股票名称
     double market_cap;     // 股票市值
     double change_rate;    // 涨跌幅
     double change_amount;  // 涨跌额
@@ -83,6 +81,7 @@ struct uiKline {
     double price_max;      // 最高价
     double price_min;      // 最低价
     double price_now;      // 当前实时价
+    double turnover_rate;  // 换手率
     uint8_t danger;        // 1:security 2:warning 3: danger 4: damage
     uint8_t favorite;      // 0:not favorite 1:favorite
 };

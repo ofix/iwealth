@@ -9,6 +9,7 @@
 
 #include "stock/StockDataStorage.h"
 #include "spider/SpiderBasicInfoEastMoney.h"
+#include "spider/SpiderShareHistoryBaidu.h"
 #include "spider/SpiderShareListHexun.h"
 #include "util/EasyLogger.h"
 #include "util/FileTool.h"
@@ -39,9 +40,8 @@ void StockDataStorage::LoadStockAllShares() {
         FileTool::SaveFile(m_path_share_brief, json_shares);
     }
     // 查询股票的曾用名
-    SpiderBasicInfoEastMoney* spiderEastMoney = new SpiderBasicInfoEastMoney(this, true);
-    spiderEastMoney->SetCrawlRange(0, 30);
-    spiderEastMoney->Crawl();
+    // SpiderBasicInfoEastMoney* spiderEastMoney = new SpiderBasicInfoEastMoney(this,
+    // true); spiderEastMoney->SetCrawlRange(0, 30); spiderEastMoney->Crawl();
     // PrintAllShares(m_market_shares);
 
     // Set console code page to UTF-8 so console known how to interpret string data

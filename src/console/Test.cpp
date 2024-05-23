@@ -2,6 +2,7 @@
 #include <vector>
 #include "search/LevelTree.hpp"
 #include "spider/SpiderConceptListEastMoney.h"
+#include "spider/SpiderShareHistoryBaidu.h"
 #include "stock/Stock.h"
 #include "stock/StockDataStorage.h"
 #include "util/Global.h"
@@ -48,9 +49,18 @@ void TestLevelTree() {
 
 void TestSpiderConceptListEastMoney() {
     StockDataStorage* m_pStockStorage = new StockDataStorage();
+    m_pStockStorage->Init();
     SpiderConceptListEastMoney* spiderEastMoney =
         new SpiderConceptListEastMoney(m_pStockStorage);
     spiderEastMoney->Crawl();
+}
+
+void TestSpiderShareHistoryBaidu() {
+    StockDataStorage* m_pStockStorage = new StockDataStorage();
+    m_pStockStorage->Init();
+    SpiderShareHistoryBaidu* spiderBaidu = new SpiderShareHistoryBaidu(m_pStockStorage);
+    spiderBaidu->SetCrawlRange(0, 1);
+    spiderBaidu->Crawl();
 }
 
 void TestTimer() {
@@ -87,5 +97,6 @@ void TestTimer() {
 
 int main(int argc, char* argv[]) {
     // TestSpiderConceptListEastMoney();
-    TestTimer();
+    // TestTimer();
+    TestSpiderShareHistoryBaidu();
 }
