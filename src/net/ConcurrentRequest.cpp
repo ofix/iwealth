@@ -49,6 +49,7 @@ size_t ConcurrentRequest::_CurlOnResponseHeaderRecv(void* ptr,
 void ConcurrentRequest::_CurlInit(conn_t* conn) {
     conn->easy_curl = curl_easy_init();
     conn->response = "";
+    conn->reuse = false;  // 默认不复用请求
     if (conn->easy_curl) {
         _SetRequestHeader(conn);
         _SetCommonOptions(conn);

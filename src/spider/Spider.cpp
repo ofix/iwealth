@@ -53,7 +53,7 @@ void Spider::Crawl() {
 
 void Spider::DoCrawl() {}
 
-void Spider::ConcurrentResponseCallback(std::string& response) {}
+void Spider::ConcurrentResponseCallback(conn_t* conn) {}
 
 void Spider::Pause() {}
 

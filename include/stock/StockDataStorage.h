@@ -10,7 +10,7 @@
 class SpiderShareListHexun;
 class SpiderBasicInfoEastMoney;
 class SpiderConceptListEastMoney;
-class SpiderShareHistoryBaidu;
+class SpiderShareDayKlineBaidu;
 class StockDataStorage {
    public:
     StockDataStorage();
@@ -52,7 +52,7 @@ class StockDataStorage {
     friend class SpiderBasicInfoEastMoney;    // 东方财富股票爬虫
     friend class SpiderShareHistory;          // 网易股票爬虫
     friend class SpiderConceptListEastMoney;  // 东方财富题材概念列表爬虫
-    friend class SpiderShareHistoryBaidu;     // 百度财经股票历史K线数据爬虫
+    friend class SpiderShareDayKlineBaidu;    // 百度财经股票历史K线数据爬虫
 };
 
 #endif  // StockDataStorage_H

@@ -90,7 +90,7 @@ void SpiderBasicInfoEastMoney::ConcurrentFetchBasicInfo(size_t start_pos,
                                                         size_t end_pos) {
     std::vector<Share> shares = m_pStockStorage->m_market_shares;
     std::vector<std::string> urls;
-    for (size_t i = start_pos; i < end_pos; i++) {
+    for (size_t i = start_pos; i <= end_pos; i++) {
         urls.push_back(GetRequestUrl(shares[i]));
     }
     std::function<void(conn_t*)> callback =

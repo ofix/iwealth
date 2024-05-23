@@ -9,7 +9,7 @@
 
 #include "stock/StockDataStorage.h"
 #include "spider/SpiderBasicInfoEastMoney.h"
-#include "spider/SpiderShareHistoryBaidu.h"
+#include "spider/SpiderShareDayKlineBaidu.h"
 #include "spider/SpiderShareListHexun.h"
 #include "util/EasyLogger.h"
 #include "util/FileTool.h"

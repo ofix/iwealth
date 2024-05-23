@@ -23,7 +23,7 @@ class Spider {
 
    protected:
     virtual void DoCrawl();
-    virtual void ConcurrentResponseCallback(std::string& response);
+    virtual void ConcurrentResponseCallback(conn_t* conn);
 
    protected:
     StockDataStorage* m_pStockStorage;  // 股票集中化数据中心

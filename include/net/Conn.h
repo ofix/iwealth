@@ -28,7 +28,10 @@ struct conn_t {
     curl_off_t queue_time;                          // 请求排队时间
     curl_off_t total_time;                          // 请求响应总时间
     std::string response;                           // 返回响应数据
+    bool reuse;  // 是否复用当前请求，比如百度财经的历史K线页面，
+                 // 要分批次请求才能获取完整的历史K线数据
     void* extra = nullptr;  // 用户传入的额外数据,方便响应处理
     bool debug = false;
     std::function<void(conn_t*)> callback;  // HTTP(s)回调响应处理函数
+    // 定义拷贝函数
 };
