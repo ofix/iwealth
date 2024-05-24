@@ -43,6 +43,53 @@ make (e=2): The system cannot find the file specified.
 mingw32-make: *** [..\..\lib\gcc_dll\mswu] Error 2
 ```
 
+### Linux 下编译 OpenSSL3.2.0
+
+```shell
+# 首先查看 configure 支持哪些编译选项
+cd ~/cpp_libs/sources/openssl-3.3.0
+./Configure --help
+# 指定编译后的程序的自定义安装路径
+./Configure --prefix=/home/greatwall/cpp_libs/libraries/openssl_share_3.3.0
+make
+make install
+```
+
+### Linux 下编译 LibCurl,支持 HTTP/2
+
+```shell
+# 1.先编译libssh2-1.11.0
+mkdir build
+cd build
+cmake .. -DCMAKE_INSTALL_PREFIX=/home/greatwall/cpp_libs/libraries/libssh2_share_1.11.0
+make
+make install
+# 2.先编译ng-http2
+mkdir build
+cd build
+cmake .. -DCMAKE_INSTALL_PREFIX=/home/greatwall/cpp_libs/libraries/nghttp2_share_1.62.1
+make
+make install
+# 3.再编译openssl3.3
+./Configure --prefix=/home/greatwall/cpp_libs/libraries/openssl_share_3.3.0
+make
+make install
+# 4.cmake 指定自定义openssl路径有两种方法
+# 4.1 第一种在命令行指定
+cmake .. -DUSE_NGHTTP2=ON -DCMAKE_PREFIX_PATH=/home/greatwall/cpp_libs/libraries/openssl_share_3.3.0
+-DCMAKE_INSTALL_PREFIX=/home/greatwall/cpp_libs/libraries/libcurl_share_8.7.1
+# 4.2 第二种直接修改CMakeLists.txt文件,在文件合适位置添加如下两行代码
+set(OPENSSL_INCLUDE_DIR /home/greatwall/cpp_libs/libraries/openssl_share_3.3.0/include)
+set(OPENSSL_LIBRARIES /home/greatwall/cpp_libs/libraries/openssl_share_3.3.0/lib)
+
+# 5.编译安装libcurl，支持http2/ssh2/https/sftp等
+mkdir build
+cd build
+cmake .. -DUSE_NGHTTP2=ON -DCMAKE_PREFIX_PATH=/home/greatwall/cpp_libs/libraries/openssl_share_3.3.0 /home/greatwall/cpp_libs/libraries/libssh2_share_1.11.0  /home/greatwall/cpp_libs/libraries/nghttp2_share_1.62.1 -DCMAKE_INSTALL_PREFIX=/home/greatwall/cpp_libs/libraries/libcurl_share_8.7.1
+make
+make install
+```
+
 ### mingw-x64 版本选择
 
 > 选择 `x86_64-posix-sjlj`，因为 Win32 线程模型不支持 C++ 11 的 `std::thread` 抽象，而 posix 版本支持； seh 异常模型采用 windows 操作系统内置的异常捕获机制，效率比 sjlj 要高，但存在跨平台不利影响。
