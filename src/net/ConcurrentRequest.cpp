@@ -1,11 +1,19 @@
 #include "net/ConcurrentRequest.h"
+#include "util/EasyLogger.h"
+
+size_t ConcurrentRequest::m_recv_total_bytes = 0;
 
 ConcurrentRequest::ConcurrentRequest(uint32_t concurrent_size)
-    : m_concurrent_size(concurrent_size), m_successed(0), m_running(0), m_failed(0) {}
+    : m_request_size(0),
+      m_concurrent_size(concurrent_size),
+      m_successed(0),
+      m_running(0),
+      m_failed(0) {}
 
-ConcurrentRequest::ConcurrentRequest(std::vector<conn_t>& connections,
+ConcurrentRequest::ConcurrentRequest(std::list<conn_t*>& connections,
                                      uint32_t concurrent_size)
     : m_concurrent_size(concurrent_size),
+      m_request_size(0),
       m_connections(connections),
       m_successed(0),
       m_running(0),
@@ -13,13 +21,14 @@ ConcurrentRequest::ConcurrentRequest(std::vector<conn_t>& connections,
 
 ConcurrentRequest::~ConcurrentRequest() {}
 
-void ConcurrentRequest::AddConnection(conn_t& connection) {
+void ConcurrentRequest::AddConnection(conn_t* connection) {
     m_connections.push_back(connection);
 }
 
-void ConcurrentRequest::AddConnectionList(const std::vector<conn_t>& connections) {
+void ConcurrentRequest::AddConnectionList(const std::list<conn_t*>& connections) {
     for (auto connection : connections) {
-        m_connections.push_back(connection);
+        m_connections.push_back(connection);  // 插入到链表的尾部
+        m_request_size += 1;
     }
 }
 
@@ -29,11 +38,13 @@ size_t ConcurrentRequest::_CurlOnResponseBodyRecv(void* ptr,
                                                   size_t nmemb,
                                                   void* data) {
     conn_t* conn = static_cast<conn_t*>(data);
+    size_t recv_size = size * nmemb;
     if (conn) {
-        size_t recv_size = size * nmemb;
+        m_recv_total_bytes += recv_size;
+        // m_time_current = now();
         conn->response.append(static_cast<char*>(ptr), recv_size);
     }
-    return size * nmemb;
+    return recv_size;
 }
 
 // libCurl设置HTTPS请求响应头回调函数
@@ -151,17 +162,20 @@ void ConcurrentRequest::_SetMiscOptions(conn_t* conn) {
  * @param cm CURLM*
  * @param i 发送的第几个请求
  */
-void ConcurrentRequest::AddNewRequest(CURLM* cm, size_t i) {
-    _CurlInit(&m_connections[i]);
-    curl_multi_add_handle(cm, m_connections[i].easy_curl);
-    m_running += 1;
+void ConcurrentRequest::AddNewRequest(CURLM* cm) {
+    if (!m_connections.empty()) {
+        conn_t* conn = m_connections.back();  // 获取最后一个元素
+        _CurlInit(conn);
+        curl_multi_add_handle(cm, conn->easy_curl);
+        m_running += 1;
+        m_connections.pop_back();  // 移除最后一个元素
+    }
 }
 
 void ConcurrentRequest::Run() {
     CURLM* cm;
     CURLMsg* msg;
     int msgs_left = -1;
-    size_t request_sended;  // 已经发送的请求下标
 
     curl_global_init(CURL_GLOBAL_ALL);
     cm = curl_multi_init();
@@ -169,12 +183,10 @@ void ConcurrentRequest::Run() {
     /* Limit the amount of simultaneous connections curl should allow: */
     curl_multi_setopt(cm, CURLMOPT_MAXCONNECTS, static_cast<long>(m_concurrent_size));
 
-    m_total = m_connections.size();
+    m_total = m_request_size;
 
-    for (request_sended = 0;
-         request_sended < m_concurrent_size && request_sended < m_total;
-         request_sended++) {
-        AddNewRequest(cm, request_sended);
+    for (size_t i = 0; i < m_concurrent_size; i++) {
+        AddNewRequest(cm);
     }
 
     do {
@@ -201,9 +213,7 @@ void ConcurrentRequest::Run() {
                 fprintf(stderr, "E: CURLMsg (%d)\n", msg->msg);
                 m_failed += 1;
             }
-            if (request_sended < m_total) {
-                AddNewRequest(cm, request_sended++);
-            }
+            AddNewRequest(cm);
         }
         if (m_running) {
             curl_multi_wait(cm, NULL, 0, 1000, NULL);
@@ -235,25 +245,36 @@ size_t ConcurrentRequest::GetFinishCount() {
     return m_successed + m_failed;
 }
 
-void HttpConcurrentGet(const std::vector<std::string>& urls,
+// 获取平均响应速度
+double ConcurrentRequest::GetAverageSpeed() {
+    double speed =
+        static_cast<double>(m_recv_total_bytes) / (m_time_current - m_time_start);
+    return speed;
+}
+
+void HttpConcurrentGet(const std::list<std::string>& urls,
                        std::function<void(conn_t*)>& callback,
                        void* user_extra,
                        uint32_t concurrent_size) {
     ConcurrentRequest request(concurrent_size);
-    std::vector<conn_t> connections;
+    std::list<conn_t*> connections;
     for (auto url : urls) {
-        conn_t conn;
-        conn.url = url;
-        conn.method = "GET";
-        conn.callback = callback;
-        conn.extra = user_extra;
-        connections.push_back(conn);
+        conn_t* pConn = new conn_t();
+        if (!pConn) {
+            gLogger->log("%s line %d error", __FILE__, __LINE__);
+            break;
+        }
+        pConn->url = url;
+        pConn->method = "GET";
+        pConn->callback = callback;
+        pConn->extra = user_extra;
+        connections.push_back(pConn);
     }
     request.AddConnectionList(connections);
     request.Run();
 }
 
-void HttpConcurrentGet(const std::vector<conn_t>& connections, uint32_t concurrent_size) {
+void HttpConcurrentGet(const std::list<conn_t*>& connections, uint32_t concurrent_size) {
     ConcurrentRequest request(concurrent_size);
     request.AddConnectionList(connections);
     request.Run();

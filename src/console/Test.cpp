@@ -2,7 +2,7 @@
 #include <vector>
 #include "search/LevelTree.hpp"
 #include "spider/SpiderConceptListEastMoney.h"
-#include "spider/SpiderShareDayKlineBaidu.h"
+#include "spider/SpiderShareKline.h"
 #include "stock/Stock.h"
 #include "stock/StockDataStorage.h"
 #include "util/Global.h"
@@ -58,7 +58,7 @@ void TestSpiderConceptListEastMoney() {
 void TestSpiderShareHistoryBaidu() {
     StockDataStorage* m_pStockStorage = new StockDataStorage();
     m_pStockStorage->Init();
-    SpiderShareDayKlineBaidu* spiderBaidu = new SpiderShareDayKlineBaidu(m_pStockStorage);
+    SpiderShareKline* spiderBaidu = new SpiderShareKline(m_pStockStorage);
     spiderBaidu->SetCrawlRange(3, 3);
     spiderBaidu->Crawl();
 }

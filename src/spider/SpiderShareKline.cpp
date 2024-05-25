@@ -7,28 +7,27 @@
 // Licence:     GNU GENERAL PUBLIC LICENSE, Version 3
 ///////////////////////////////////////////////////////////////////////////////
 
-#include "spider/SpiderShareDayKlineBaidu.h"
+#include "spider/SpiderShareKline.h"
 #include "net/ConcurrentRequest.h"
 #include "stock/Stock.h"
 #include "stock/StockDataStorage.h"
+#include "util/EasyLogger.h"
 #include "util/Global.h"
 
 using json = nlohmann::json;
 
-SpiderShareDayKlineBaidu::SpiderShareDayKlineBaidu(StockDataStorage* storage)
-    : Spider(storage) {
+SpiderShareKline::SpiderShareKline(StockDataStorage* storage) : Spider(storage) {
     m_debug = true;
 }
 
-SpiderShareDayKlineBaidu::SpiderShareDayKlineBaidu(StockDataStorage* storage,
-                                                   bool concurrent)
+SpiderShareKline::SpiderShareKline(StockDataStorage* storage, bool concurrent)
     : Spider(storage, concurrent) {
     m_debug = true;
 }
 
-SpiderShareDayKlineBaidu::~SpiderShareDayKlineBaidu() {}
+SpiderShareKline::~SpiderShareKline() {}
 
-void SpiderShareDayKlineBaidu::DoCrawl() {
+void SpiderShareKline::DoCrawl() {
     if (this->IsConcurrentMode()) {
         ConcurrentFetchShareAdjustDayKline(m_posStart, m_posEnd);
     } else {
@@ -41,7 +40,7 @@ void SpiderShareDayKlineBaidu::DoCrawl() {
 }
 
 // 分批抓取股票历史K线
-void SpiderShareDayKlineBaidu::FetchShareAdjustDayKline(const Share& share) {
+void SpiderShareKline::FetchShareAdjustDayKline(const Share& share) {
     std::string url = GetRequestUrl(share);
     std::string data = Fetch(url, CURL_HTTP_VERSION_2_0);
 
@@ -69,8 +68,8 @@ void SpiderShareDayKlineBaidu::FetchShareAdjustDayKline(const Share& share) {
     m_pStockStorage->m_day_klines_adjust[share.code] = adjust_klines;
 }
 
-std::string SpiderShareDayKlineBaidu::GetRequestUrl(const std::string& share_code,
-                                                    const std::string& end_date) {
+std::string SpiderShareKline::GetRequestUrl(const std::string& share_code,
+                                            const std::string& end_date) {
     std::string extra = "";
     if (end_date != "") {
         extra = "&end_time=" + end_date + "&count=3000";
@@ -91,16 +90,16 @@ std::string SpiderShareDayKlineBaidu::GetRequestUrl(const std::string& share_cod
     return url;
 }
 
-std::string SpiderShareDayKlineBaidu::GetRequestUrl(const Share& share,
-                                                    const std::string& end_date) {
+std::string SpiderShareKline::GetRequestUrl(const Share& share,
+                                            const std::string& end_date) {
     return GetRequestUrl(share.code, end_date);
 }
 
-std::string SpiderShareDayKlineBaidu::GetShareCodeFromUrl(const std::string& url) {
+std::string SpiderShareKline::GetShareCodeFromUrl(const std::string& url) {
     return url;
 }
 
-std::vector<uiKline> SpiderShareDayKlineBaidu::ParseResponse(std::string& response) {
+std::vector<uiKline> SpiderShareKline::ParseResponse(std::string& response) {
     json _response = json::parse(response);
     std::string data = _response["Result"]["newMarketData"]["marketData"];
     std::vector<uiKline> uiKlines = {};
@@ -131,16 +130,15 @@ std::vector<uiKline> SpiderShareDayKlineBaidu::ParseResponse(std::string& respon
 }
 
 // 并发请求
-void SpiderShareDayKlineBaidu::ConcurrentFetchShareAdjustDayKline(size_t start_pos,
-                                                                  size_t end_pos) {
+void SpiderShareKline::ConcurrentFetchShareAdjustDayKline(size_t start_pos,
+                                                          size_t end_pos) {
     std::vector<Share> shares = m_pStockStorage->m_market_shares;
-    std::vector<std::string> urls;
+    std::list<std::string> urls;
     for (size_t i = start_pos; i <= end_pos; i++) {
         urls.push_back(GetRequestUrl(shares[i]));
     }
-    std::function<void(conn_t*)> callback =
-        std::bind(&SpiderShareDayKlineBaidu::ConcurrentResponseCallback, this,
-                  std::placeholders::_1);
+    std::function<void(conn_t*)> callback = std::bind(
+        &SpiderShareKline::ConcurrentResponseCallback, this, std::placeholders::_1);
     try {
         HttpConcurrentGet(urls, callback, static_cast<void*>(nullptr), 3);
     } catch (std::exception& e) {
@@ -148,7 +146,7 @@ void SpiderShareDayKlineBaidu::ConcurrentFetchShareAdjustDayKline(size_t start_p
     }
 }
 
-void SpiderShareDayKlineBaidu::ConcurrentResponseCallback(conn_t* conn) {
+void SpiderShareKline::ConcurrentResponseCallback(conn_t* conn) {
     try {
         std::vector<uiKline> multi_kline = ParseResponse(conn->response);
         if (multi_kline.size() > 0) {

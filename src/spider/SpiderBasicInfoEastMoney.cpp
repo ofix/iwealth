@@ -8,6 +8,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 #include "spider/SpiderBasicInfoEastMoney.h"
+#include <list>
 #include "net/ConcurrentRequest.h"
 #include "stock/StockDataStorage.h"
 #include "util/Global.h"
@@ -89,7 +90,7 @@ void SpiderBasicInfoEastMoney::ParseResponse(std::string& response, Share& share
 void SpiderBasicInfoEastMoney::ConcurrentFetchBasicInfo(size_t start_pos,
                                                         size_t end_pos) {
     std::vector<Share> shares = m_pStockStorage->m_market_shares;
-    std::vector<std::string> urls;
+    std::list<std::string> urls;
     for (size_t i = start_pos; i <= end_pos; i++) {
         urls.push_back(GetRequestUrl(shares[i]));
     }

@@ -8,11 +8,11 @@
 #include "stock/Stock.h"
 
 class StockDataStorage;
-class SpiderShareDayKlineBaidu : public Spider {
+class SpiderShareKline : public Spider {
    public:
-    SpiderShareDayKlineBaidu(StockDataStorage* storage);
-    SpiderShareDayKlineBaidu(StockDataStorage* storage, bool concurrent);
-    virtual ~SpiderShareDayKlineBaidu();
+    SpiderShareKline(StockDataStorage* storage);
+    SpiderShareKline(StockDataStorage* storage, bool concurrent);
+    virtual ~SpiderShareKline();
 
    protected:
     virtual void DoCrawl();
