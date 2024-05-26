@@ -128,6 +128,7 @@ std::string SpiderShareKline::GetDayKlineUrlEastMoney(const Share& share, const 
 
 std::string SpiderShareKline::GetDayKlineUrlEastMoney(const std::string& share_code,
                                                       const std::string& end_date) {
+    // 东方财富行情中心 https://quote.eastmoney.com/concept/sz300729.html
     std::string url =
         "https://push2his.eastmoney.com/api/qt/stock/kline/get?"
         "fields1=f1,f2,f3,f4,f5,f6,f7,f8,f9,f10,f11,f12,f13"
