@@ -20,8 +20,7 @@ SpiderShareKline::SpiderShareKline(StockDataStorage* storage) : Spider(storage) 
     m_debug = true;
 }
 
-SpiderShareKline::SpiderShareKline(StockDataStorage* storage, bool concurrent)
-    : Spider(storage, concurrent) {
+SpiderShareKline::SpiderShareKline(StockDataStorage* storage, bool concurrent) : Spider(storage, concurrent) {
     m_debug = true;
 }
 
@@ -60,16 +59,15 @@ void SpiderShareKline::FetchShareAdjustDayKline(const Share& share) {
         multi_klines.push_back(multi_kline);
     }
     std::vector<uiKline> adjust_klines = {};
-    for (std::vector<std::vector<uiKline>>::const_reverse_iterator it =
-             multi_klines.crbegin();
+    for (std::vector<std::vector<uiKline>>::const_reverse_iterator it = multi_klines.crbegin();
          it != multi_klines.crend(); it++) {
         adjust_klines.insert(adjust_klines.end(), (*it).begin(), (*it).end());
     }
     m_pStockStorage->m_day_klines_adjust[share.code] = adjust_klines;
 }
 
-std::string SpiderShareKline::GetRequestUrl(const std::string& share_code,
-                                            const std::string& end_date) {
+std::string SpiderShareKline::GetDayKlineUrlFinanceBaidu(const std::string& share_code,
+                                                         const std::string& end_date) {
     std::string extra = "";
     if (end_date != "") {
         extra = "&end_time=" + end_date + "&count=3000";
@@ -90,9 +88,74 @@ std::string SpiderShareKline::GetRequestUrl(const std::string& share_code,
     return url;
 }
 
-std::string SpiderShareKline::GetRequestUrl(const Share& share,
-                                            const std::string& end_date) {
-    return GetRequestUrl(share.code, end_date);
+std::string SpiderShareKline::GetDayKlineUrlFinanceBaidu(const Share& share, const std::string& end_date) {
+    return GetDayKlineUrlFinanceBaidu(share.code, end_date);
+}
+
+std::string SpiderShareKline::GetWeekKlineUrlFinanceBaidu(const Share& share,
+                                                          const std::string& end_date = "") {
+    return GetWeekKlineUrlFinanceBaidu(share.code, end_date);
+}
+
+std::string SpiderShareKline::GetWeekKlineUrlFinanceBaidu(const std::string& share_code,
+                                                          const std::string& end_date) {
+    return "";
+}
+
+std::string SpiderShareKline::GetMonthKlineUrlFinanceBaidu(const Share& share,
+                                                           const std::string& end_date = "") {
+    return GetMonthKlineUrlFinanceBaidu(share.code, end_date);
+}
+
+std::string SpiderShareKline::GetMonthKlineUrlFinanceBaidu(const std::string& share_code,
+                                                           const std::string& end_date) {
+    return "";
+}
+
+std::string SpiderShareKline::GetYearKlineUrlFinanceBaidu(const Share& share,
+                                                          const std::string& end_date = "") {
+    return GetYearKlineUrlFinanceBaidu(share.code, end_date);
+}
+
+std::string SpiderShareKline::GetYearKlineUrlFinanceBaidu(const std::string& share_code,
+                                                          const std::string& end_date) {
+    return "";
+}
+
+std::string SpiderShareKline::GetDayKlineUrlEastMoney(const Share& share, const std::string& end_date = "") {
+    return GetDayKlineUrlEastMoney(share.code, end_date);
+}
+
+std::string SpiderShareKline::GetDayKlineUrlEastMoney(const std::string& share_code,
+                                                      const std::string& end_date) {
+    return "";
+}
+
+std::string SpiderShareKline::GetWeekKlineUrlEastMoney(const Share& share, const std::string& end_date = "") {
+    return GetWeekKlineUrlEastMoney(share.code, end_date);
+}
+
+std::string SpiderShareKline::GetWeekKlineUrlEastMoney(const std::string& share_code,
+                                                       const std::string& end_date) {
+    return "";
+}
+
+std::string SpiderShareKline::GetMonthKlineUrlEastMoney(const Share& share,
+                                                        const std::string& end_date = "") {
+    return GetMonthKlineUrlEastMoney(share.code, end_date);
+}
+
+std::string SpiderShareKline::GetMonthKlineUrlEastMoney(const std::string& share_code,
+                                                        const std::string& end_date) {
+    return "";
+}
+
+std::string SpiderShareKline::GetYearKlineUrlEastMoney(const Share& share, const std::string& end_date = "") {
+    return GetYearKlineUrlEastMoney(share.code, end_date);
+}
+std::string SpiderShareKline::GetYearKlineUrlEastMoney(const std::string& share_code,
+                                                       const std::string& end_date) {
+    return "";
 }
 
 std::string SpiderShareKline::GetShareCodeFromUrl(const std::string& url) {
@@ -130,15 +193,14 @@ std::vector<uiKline> SpiderShareKline::ParseResponse(std::string& response) {
 }
 
 // 并发请求
-void SpiderShareKline::ConcurrentFetchShareAdjustDayKline(size_t start_pos,
-                                                          size_t end_pos) {
+void SpiderShareKline::ConcurrentFetchShareAdjustDayKline(size_t start_pos, size_t end_pos) {
     std::vector<Share> shares = m_pStockStorage->m_market_shares;
     std::list<std::string> urls;
     for (size_t i = start_pos; i <= end_pos; i++) {
         urls.push_back(GetRequestUrl(shares[i]));
     }
-    std::function<void(conn_t*)> callback = std::bind(
-        &SpiderShareKline::ConcurrentResponseCallback, this, std::placeholders::_1);
+    std::function<void(conn_t*)> callback =
+        std::bind(&SpiderShareKline::ConcurrentResponseCallback, this, std::placeholders::_1);
     try {
         HttpConcurrentGet(urls, callback, static_cast<void*>(nullptr), 3);
     } catch (std::exception& e) {
