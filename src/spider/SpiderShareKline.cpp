@@ -128,7 +128,32 @@ std::string SpiderShareKline::GetDayKlineUrlEastMoney(const Share& share, const 
 
 std::string SpiderShareKline::GetDayKlineUrlEastMoney(const std::string& share_code,
                                                       const std::string& end_date) {
-    return "";
+    std::string url =
+        "https://push2his.eastmoney.com/api/qt/stock/kline/get?"
+        "fields1=f1,f2,f3,f4,f5,f6,f7,f8,f9,f10,f11,f12,f13"
+        "&fields2=f51,f52,f53,f54,f55,f56,f57,f58,f59,f60,f61"
+        "&beg=0"
+        "&end=20500101"
+        "&ut=fa5fd1943c7b386f172d6893dbfba10b"
+        "&rtntype=6"
+        "&secid=0." +
+        share_code +
+        "&klt=101"
+        "&fqt=1"
+        "&cb=jsonp1716738365308";
+    std::string url2 =
+        "https://push2his.eastmoney.com/api/qt/stock/kline/get?"
+        "&secid+=0." +
+        share_code +
+        "&ut=fa5fd1943c7b386f172d6893dbfba10b"
+        "&fields1=f1,f2,f3,f4,f5,f6"
+        "&fields2=f51,f52,f53,f54,f55,f56,f57,f58,f59,f60,f61"
+        "&klt=101"
+        "&fqt=1"
+        "&end=20240526"
+        "&lmt=570"
+        "&cb=quote_jp9";
+    return url;
 }
 
 std::string SpiderShareKline::GetWeekKlineUrlEastMoney(const Share& share, const std::string& end_date = "") {
