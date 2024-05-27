@@ -63,6 +63,7 @@ void SpiderShareKline::ConurrentCrawl(std::vector<KlineCrawlTask>& tasks, KlineT
             pExtra->provider = tasks[i].provider;
             pExtra->type = kline_type;
             pExtra->market = shares[j].market;
+            pExtra->share = &shares[j];
             user_data.push_back(static_cast<void*>(pExtra));
         }
         pos_start = pos_end + 1;
@@ -92,6 +93,7 @@ void SpiderShareKline::SingleCrawl(std::vector<KlineCrawlTask>& tasks, KlineType
             pExtra->provider = tasks[i].provider;
             pExtra->type = kline_type;
             pExtra->market = shares[j].market;
+            pExtra->share = &shares[j];
         }
         pos_start = pos_end + 1;
     }
@@ -268,7 +270,7 @@ void SpiderShareKline::SingleResponseCallback(conn_t* conn) {
     std::vector<uiKline> multi_kline = ParseResponse(conn->response, pExtra->type, pExtra->provider);
     if (pExtra->provider == KlineProvider::FinanceBaidu && multi_kline.size() > 0) {
         std::string end_date = multi_kline[0].day;
-        std::string share_code = GetShareCodeFromUrl(conn->url);
+        std::string share_code = pExtra->share->code;
         conn->url = GetKlineUrl(pExtra->provider, pExtra->type, share_code, pExtra->market, end_date);
         conn->reuse = true;  // 需要复用
         this->m_concurrent_klines[share_code].push_back(multi_kline);
@@ -280,13 +282,9 @@ void SpiderShareKline::ConcurrentResponseCallback(conn_t* conn) {
     std::vector<uiKline> multi_kline = ParseResponse(conn->response, pExtra->type, pExtra->provider);
     if (pExtra->provider == KlineProvider::FinanceBaidu && multi_kline.size() > 0) {
         std::string end_date = multi_kline[0].day;
-        std::string share_code = GetShareCodeFromUrl(conn->url);
+        std::string share_code = pExtra->share->code;
         conn->url = GetKlineUrl(pExtra->provider, pExtra->type, share_code, pExtra->market, end_date);
         conn->reuse = true;  // 需要复用
         this->m_concurrent_klines[share_code].push_back(multi_kline);
     }
-}
-
-std::string SpiderShareKline::GetShareCodeFromUrl(const std::string& url) {
-    return url;
 }

@@ -22,9 +22,11 @@ enum class KlineProvider {
 };
 
 struct KlineCrawlExtra {
-    KlineProvider provider;
-    KlineType type;
-    Market market;
+    KlineProvider provider;  // K线爬取网站标识
+    KlineType type;          // K线类型，日/周/月/季度/年K线
+    Market market;           // 深交所/北交所/上交所
+    Share* share;            // StockDataStorage::m_market_shares 元素，
+                             // 下载完数据不能释放此指针指向的对象
 };
 
 struct KlineCrawlTask {
@@ -103,7 +105,6 @@ class SpiderShareKline : public Spider {
 
     void SingleResponseCallback(conn_t* conn);
     void ConcurrentResponseCallback(conn_t* conn);
-    std::string GetShareCodeFromUrl(const std::string& url);
 
    private:
     std::unordered_map<std::string, std::vector<std::vector<uiKline>>> m_concurrent_klines;
