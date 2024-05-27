@@ -4,14 +4,9 @@
 size_t ConcurrentRequest::m_recv_total_bytes = 0;
 
 ConcurrentRequest::ConcurrentRequest(uint32_t concurrent_size)
-    : m_request_size(0),
-      m_concurrent_size(concurrent_size),
-      m_successed(0),
-      m_running(0),
-      m_failed(0) {}
+    : m_request_size(0), m_concurrent_size(concurrent_size), m_successed(0), m_running(0), m_failed(0) {}
 
-ConcurrentRequest::ConcurrentRequest(std::list<conn_t*>& connections,
-                                     uint32_t concurrent_size)
+ConcurrentRequest::ConcurrentRequest(std::list<conn_t*>& connections, uint32_t concurrent_size)
     : m_concurrent_size(concurrent_size),
       m_request_size(0),
       m_connections(connections),
@@ -33,10 +28,7 @@ void ConcurrentRequest::AddConnectionList(const std::list<conn_t*>& connections)
 }
 
 // libCurl设置HTTPS响应回调函数
-size_t ConcurrentRequest::_CurlOnResponseBodyRecv(void* ptr,
-                                                  size_t size,
-                                                  size_t nmemb,
-                                                  void* data) {
+size_t ConcurrentRequest::_CurlOnResponseBodyRecv(void* ptr, size_t size, size_t nmemb, void* data) {
     conn_t* conn = static_cast<conn_t*>(data);
     size_t recv_size = size * nmemb;
     if (conn) {
@@ -48,10 +40,7 @@ size_t ConcurrentRequest::_CurlOnResponseBodyRecv(void* ptr,
 }
 
 // libCurl设置HTTPS请求响应头回调函数
-size_t ConcurrentRequest::_CurlOnResponseHeaderRecv(void* ptr,
-                                                    size_t size,
-                                                    size_t nmemb,
-                                                    void* data) {
+size_t ConcurrentRequest::_CurlOnResponseHeaderRecv(void* ptr, size_t size, size_t nmemb, void* data) {
     size_t recv_size = size * nmemb;
     return recv_size;
 }
@@ -97,8 +86,7 @@ void ConcurrentRequest::_SetCommonOptions(conn_t* conn) {
     curl_easy_setopt(conn->easy_curl, CURLOPT_URL, conn->url.c_str());
     curl_easy_setopt(conn->easy_curl, CURLOPT_PRIVATE, conn);
     if (conn->basic_auth_name.length() > 0) {
-        curl_easy_setopt(conn->easy_curl, CURLOPT_USERNAME,
-                         conn->basic_auth_name.c_str());
+        curl_easy_setopt(conn->easy_curl, CURLOPT_USERNAME, conn->basic_auth_name.c_str());
     }
 
     if (conn->basic_auth_pwd.length() > 0) {
@@ -107,8 +95,7 @@ void ConcurrentRequest::_SetCommonOptions(conn_t* conn) {
 
     curl_easy_setopt(conn->easy_curl, CURLOPT_CONNECTTIMEOUT, conn->timeout);
     curl_easy_setopt(conn->easy_curl, CURLOPT_TIMEOUT, conn->timeout);
-    curl_easy_setopt(conn->easy_curl, CURLOPT_WRITEFUNCTION,
-                     ConcurrentRequest::_CurlOnResponseBodyRecv);
+    curl_easy_setopt(conn->easy_curl, CURLOPT_WRITEFUNCTION, ConcurrentRequest::_CurlOnResponseBodyRecv);
     curl_easy_setopt(conn->easy_curl, CURLOPT_WRITEDATA, conn);
     // curl_easy_setopt(conn->easy_curl, CURLOPT_HEADERFUNCTION,
     //                  Request::CurlOnResponseHeaderRecv);
@@ -126,10 +113,8 @@ void ConcurrentRequest::_SetMiscOptions(conn_t* conn) {
         if (conn->upload_info) {
             curl_easy_setopt(conn->easy_curl, CURLOPT_CUSTOMREQUEST, "POST");
             curl_easy_setopt(conn->easy_curl, CURLOPT_TIMEOUT, conn->timeout);
-            curl_easy_setopt(conn->easy_curl, CURLOPT_INFILESIZE,
-                             conn->upload_info->file_size);
-            curl_easy_setopt(conn->easy_curl, CURLOPT_READDATA,
-                             conn->upload_info->file_src);
+            curl_easy_setopt(conn->easy_curl, CURLOPT_INFILESIZE, conn->upload_info->file_size);
+            curl_easy_setopt(conn->easy_curl, CURLOPT_READDATA, conn->upload_info->file_src);
             curl_easy_setopt(conn->easy_curl, CURLOPT_UPLOAD, 1L);
             curl_easy_setopt(conn->easy_curl, CURLOPT_USERAGENT, "chrome");
         } else {
@@ -138,10 +123,8 @@ void ConcurrentRequest::_SetMiscOptions(conn_t* conn) {
             if (conn->payload.length() == 0) {
                 curl_easy_setopt(conn->easy_curl, CURLOPT_POSTFIELDSIZE, 0);
             } else {
-                curl_easy_setopt(conn->easy_curl, CURLOPT_POSTFIELDSIZE,
-                                 conn->payload.length());
-                curl_easy_setopt(conn->easy_curl, CURLOPT_POSTFIELDS,
-                                 conn->payload.c_str());
+                curl_easy_setopt(conn->easy_curl, CURLOPT_POSTFIELDSIZE, conn->payload.length());
+                curl_easy_setopt(conn->easy_curl, CURLOPT_POSTFIELDS, conn->payload.c_str());
             }
         }
     } else if ((conn->method == "PUT") || (conn->method == "PATCH")) {
@@ -149,8 +132,7 @@ void ConcurrentRequest::_SetMiscOptions(conn_t* conn) {
         if (conn->payload.length() == 0) {
             curl_easy_setopt(conn->easy_curl, CURLOPT_POSTFIELDSIZE, 0);
         } else {
-            curl_easy_setopt(conn->easy_curl, CURLOPT_POSTFIELDSIZE,
-                             conn->payload.length());
+            curl_easy_setopt(conn->easy_curl, CURLOPT_POSTFIELDSIZE, conn->payload.length());
             curl_easy_setopt(conn->easy_curl, CURLOPT_POSTFIELDS, conn->payload.c_str());
         }
     } else if (conn->method == "DELETE") {
@@ -198,10 +180,8 @@ void ConcurrentRequest::Run() {
                 conn_t* conn;
                 CURL* easy_curl = msg->easy_handle;
                 curl_easy_getinfo(msg->easy_handle, CURLINFO_PRIVATE, &conn);
-                curl_easy_getinfo(conn->easy_curl, CURLINFO_RESPONSE_CODE,
-                                  &conn->http_code);
-                curl_easy_getinfo(conn->easy_curl, CURLINFO_TOTAL_TIME,
-                                  &conn->total_time);
+                curl_easy_getinfo(conn->easy_curl, CURLINFO_RESPONSE_CODE, &conn->http_code);
+                curl_easy_getinfo(conn->easy_curl, CURLINFO_TOTAL_TIME, &conn->total_time);
                 if ((conn->callback) && conn->http_code == 200) {
                     conn->callback(conn);
                 }
@@ -247,8 +227,7 @@ size_t ConcurrentRequest::GetFinishCount() {
 
 // 获取平均响应速度
 double ConcurrentRequest::GetAverageSpeed() {
-    double speed =
-        static_cast<double>(m_recv_total_bytes) / (m_time_current - m_time_start);
+    double speed = static_cast<double>(m_recv_total_bytes) / (m_time_current - m_time_start);
     return speed;
 }
 
@@ -268,6 +247,29 @@ void HttpConcurrentGet(const std::list<std::string>& urls,
         pConn->method = "GET";
         pConn->callback = callback;
         pConn->extra = user_extra;
+        connections.push_back(pConn);
+    }
+    request.AddConnectionList(connections);
+    request.Run();
+}
+
+void HttpConcurrentGet(const std::list<std::string>& urls,
+                       std::function<void(conn_t*)>& callback,
+                       const std::vector<void*>& user_extra,
+                       uint32_t concurrent_size) {
+    ConcurrentRequest request(concurrent_size);
+    std::list<conn_t*> connections;
+    size_t i = 0;
+    for (auto url : urls) {
+        conn_t* pConn = new conn_t();
+        if (!pConn) {
+            gLogger->log("%s line %d error", __FILE__, __LINE__);
+            break;
+        }
+        pConn->url = url;
+        pConn->method = "GET";
+        pConn->callback = callback;
+        pConn->extra = user_extra[i++];
         connections.push_back(pConn);
     }
     request.AddConnectionList(connections);

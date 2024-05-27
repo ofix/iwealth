@@ -26,14 +26,8 @@ class ConcurrentRequest {
     static void _SetCommonOptions(conn_t* conn);
     static void _SetMiscOptions(conn_t* conn);
     static void _CurlClose(conn_t* conn);
-    static size_t _CurlOnResponseBodyRecv(void* ptr,
-                                          size_t size,
-                                          size_t nmemb,
-                                          void* data);
-    static size_t _CurlOnResponseHeaderRecv(void* ptr,
-                                            size_t size,
-                                            size_t nmemb,
-                                            void* data);
+    static size_t _CurlOnResponseBodyRecv(void* ptr, size_t size, size_t nmemb, void* data);
+    static size_t _CurlOnResponseHeaderRecv(void* ptr, size_t size, size_t nmemb, void* data);
 
    protected:
     uint32_t m_concurrent_size;        // 一次并发数
@@ -54,5 +48,8 @@ void HttpConcurrentGet(const std::list<std::string>& urls,
                        std::function<void(conn_t*)>& callback,
                        void* user_extra,
                        uint32_t concurrent_size = 3);
-void HttpConcurrentGet(const std::list<conn_t*>& connections,
+void HttpConcurrentGet(const std::list<std::string>& urls,
+                       std::function<void(conn_t*)>& callback,
+                       const std::vector<void*>& user_extra,
                        uint32_t concurrent_size = 3);
+void HttpConcurrentGet(const std::list<conn_t*>& connections, uint32_t concurrent_size = 3);

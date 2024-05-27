@@ -1,4 +1,5 @@
 #include "net/Request.h"
+#include "util/EasyLogger.h"
 
 Request* Request::m_pThis = NULL;
 
@@ -37,9 +38,7 @@ std::string Request::Get(conn_t* conn, int http_version) {
     return response;
 }
 
-std::string Request::Post(const std::string& url,
-                          const std::string& payload,
-                          int http_version) {
+std::string Request::Post(const std::string& url, const std::string& payload, int http_version) {
     conn_t conn;
     conn.url = url;
     conn.timeout = 50000;
@@ -55,8 +54,7 @@ std::string Request::Post(conn_t* conn, int http_version) {
     if (conn->upload_info) {
         curl_easy_setopt(conn->easy_curl, CURLOPT_CUSTOMREQUEST, "POST");
         curl_easy_setopt(conn->easy_curl, CURLOPT_TIMEOUT, 360L);
-        curl_easy_setopt(conn->easy_curl, CURLOPT_INFILESIZE,
-                         conn->upload_info->file_size);
+        curl_easy_setopt(conn->easy_curl, CURLOPT_INFILESIZE, conn->upload_info->file_size);
         curl_easy_setopt(conn->easy_curl, CURLOPT_READDATA, conn->upload_info->file_src);
         curl_easy_setopt(conn->easy_curl, CURLOPT_UPLOAD, 1L);
         curl_easy_setopt(conn->easy_curl, CURLOPT_USERAGENT, "chrome");
@@ -66,8 +64,7 @@ std::string Request::Post(conn_t* conn, int http_version) {
         if (conn->payload.length() == 0) {
             curl_easy_setopt(conn->easy_curl, CURLOPT_POSTFIELDSIZE, 0);
         } else {
-            curl_easy_setopt(conn->easy_curl, CURLOPT_POSTFIELDSIZE,
-                             conn->payload.length());
+            curl_easy_setopt(conn->easy_curl, CURLOPT_POSTFIELDSIZE, conn->payload.length());
             curl_easy_setopt(conn->easy_curl, CURLOPT_POSTFIELDS, conn->payload.c_str());
         }
     }
@@ -76,9 +73,7 @@ std::string Request::Post(conn_t* conn, int http_version) {
     return response;
 }
 
-std::string Request::Put(const std::string& url,
-                         const std::string& payload,
-                         int http_version) {
+std::string Request::Put(const std::string& url, const std::string& payload, int http_version) {
     conn_t conn;
     conn.url = url;
     conn.timeout = 50000;
@@ -103,9 +98,7 @@ std::string Request::Put(conn_t* conn, int http_version) {
     return response;
 }
 
-std::string Request::Patch(const std::string& url,
-                           const std::string& payload,
-                           int http_version) {
+std::string Request::Patch(const std::string& url, const std::string& payload, int http_version) {
     conn_t conn;
     conn.url = url;
     conn.timeout = 50000;
@@ -218,8 +211,7 @@ void Request::SetCommonOptions(conn_t* conn) {
     curl_easy_setopt(conn->easy_curl, CURLOPT_SSL_VERIFYHOST, 0L);
     curl_easy_setopt(conn->easy_curl, CURLOPT_URL, conn->url.c_str());
     if (conn->basic_auth_name.length() > 0) {
-        curl_easy_setopt(conn->easy_curl, CURLOPT_USERNAME,
-                         conn->basic_auth_name.c_str());
+        curl_easy_setopt(conn->easy_curl, CURLOPT_USERNAME, conn->basic_auth_name.c_str());
     }
 
     if (conn->basic_auth_pwd.length() > 0) {
@@ -227,11 +219,9 @@ void Request::SetCommonOptions(conn_t* conn) {
     }
     curl_easy_setopt(conn->easy_curl, CURLOPT_CONNECTTIMEOUT, conn->timeout);
     curl_easy_setopt(conn->easy_curl, CURLOPT_TIMEOUT, conn->timeout);
-    curl_easy_setopt(conn->easy_curl, CURLOPT_WRITEFUNCTION,
-                     Request::CurlOnResponseBodyRecv);
+    curl_easy_setopt(conn->easy_curl, CURLOPT_WRITEFUNCTION, Request::CurlOnResponseBodyRecv);
     curl_easy_setopt(conn->easy_curl, CURLOPT_WRITEDATA, conn);
-    curl_easy_setopt(conn->easy_curl, CURLOPT_HEADERFUNCTION,
-                     Request::CurlOnResponseHeaderRecv);
+    curl_easy_setopt(conn->easy_curl, CURLOPT_HEADERFUNCTION, Request::CurlOnResponseHeaderRecv);
     curl_easy_setopt(conn->easy_curl, CURLOPT_HEADERDATA, conn);
     if (conn->debug) {
         curl_easy_setopt(conn->easy_curl, CURLOPT_VERBOSE, 1L);
@@ -249,10 +239,7 @@ size_t Request::CurlOnResponseBodyRecv(void* ptr, size_t size, size_t nmemb, voi
 }
 
 // libCurl设置HTTPS请求响应头回调函数
-size_t Request::CurlOnResponseHeaderRecv(void* ptr,
-                                         size_t size,
-                                         size_t nmemb,
-                                         void* data) {
+size_t Request::CurlOnResponseHeaderRecv(void* ptr, size_t size, size_t nmemb, void* data) {
     size_t recv_size = size * nmemb;
     conn_t* conn = static_cast<conn_t*>(data);
     if (conn) {
@@ -301,28 +288,44 @@ void Request::CurlClose(conn_t* conn) {
 std::string HttpGet(const std::string& url, int http_version) {
     return Request::Instance()->Get(url, http_version);
 }
+
+void HttpBatchGet(const std::list<std::string>& urls,
+                  std::function<void(conn_t*)>& callback,
+                  const std::vector<void*>& user_extra,
+                  int http_version) {
+    std::list<conn_t*> connections;
+    size_t i = 0;
+    for (auto url : urls) {
+        conn_t* pConn = new conn_t();
+        if (!pConn) {
+            gLogger->log("%s line %d error", __FILE__, __LINE__);
+            break;
+        }
+        pConn->url = url;
+        pConn->method = "GET";
+        pConn->callback = callback;
+        pConn->extra = user_extra[i++];
+        HttpGet(pConn, http_version);
+    }
+}
+
 std::string HttpGet(conn_t* conn, int http_version) {
     return Request::Instance()->Get(conn, http_version);
 }
-std::string HttpPost(const std::string& url,
-                     const std::string& payload,
-                     int http_version) {
+
+std::string HttpPost(const std::string& url, const std::string& payload, int http_version) {
     return Request::Instance()->Post(url, payload, http_version);
 }
 std::string HttpPost(conn_t* conn, int http_version) {
     return Request::Instance()->Post(conn, http_version);
 }
-std::string HttpPut(const std::string& url,
-                    const std::string& payload,
-                    int http_version) {
+std::string HttpPut(const std::string& url, const std::string& payload, int http_version) {
     return Request::Instance()->Put(url, payload, http_version);
 }
 std::string HttpPut(conn_t* conn, int http_version) {
     return Request::Instance()->Put(conn, http_version);
 }
-std::string HttpPatch(const std::string& url,
-                      const std::string& payload,
-                      int http_version) {
+std::string HttpPatch(const std::string& url, const std::string& payload, int http_version) {
     return Request::Instance()->Patch(url, payload, http_version);
 }
 std::string HttpPatch(conn_t* conn, int http_version) {

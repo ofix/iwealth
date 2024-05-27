@@ -2,6 +2,7 @@
 
 #include <cstring>
 #include <iostream>
+#include <list>
 #include <string>
 #include <thread>
 #include "../curl/curl.h"
@@ -16,8 +17,7 @@ class Request {
    public:
     static Request* Instance();
     virtual ~Request();
-    static std::string Get(const std::string& url,
-                           int http_version = CURL_HTTP_VERSION_1_1);
+    static std::string Get(const std::string& url, int http_version = CURL_HTTP_VERSION_1_1);
     static std::string Get(conn_t* conn, int http_version = CURL_HTTP_VERSION_1_1);
     static std::string Post(const std::string& url,
                             const std::string& payload,
@@ -31,8 +31,7 @@ class Request {
                              const std::string& payload,
                              int http_version = CURL_HTTP_VERSION_1_1);
     static std::string Patch(conn_t* conn, int http_version = CURL_HTTP_VERSION_1_1);
-    static std::string Delete(const std::string& url,
-                              int http_version = CURL_HTTP_VERSION_1_1);
+    static std::string Delete(const std::string& url, int http_version = CURL_HTTP_VERSION_1_1);
     static std::string Delete(conn_t* conn, int http_version = CURL_HTTP_VERSION_1_1);
 
    private:
@@ -40,14 +39,8 @@ class Request {
     static void SetRequestHeader(conn_t* conn);
     static void SetCommonOptions(conn_t* conn);
     static std::string DoRequest(conn_t* conn);
-    static size_t CurlOnResponseBodyRecv(void* ptr,
-                                         size_t size,
-                                         size_t nmemb,
-                                         void* data);
-    static size_t CurlOnResponseHeaderRecv(void* ptr,
-                                           size_t size,
-                                           size_t nmemb,
-                                           void* data);
+    static size_t CurlOnResponseBodyRecv(void* ptr, size_t size, size_t nmemb, void* data);
+    static size_t CurlOnResponseHeaderRecv(void* ptr, size_t size, size_t nmemb, void* data);
     static void CurlClose(conn_t* conn);
 
     Request();
@@ -55,6 +48,11 @@ class Request {
     Request& operator=(const Request&) { return *this; };
     static Request* m_pThis;
 };
+
+void HttpBatchGet(const std::list<std::string>& urls,
+                  std::function<void(conn_t*)>& callback,
+                  const std::vector<void*>& user_extra,
+                  int http_version);
 
 std::string HttpGet(const std::string& url, int http_version = CURL_HTTP_VERSION_1_1);
 std::string HttpGet(conn_t* conn, int http_version = CURL_HTTP_VERSION_1_1);
