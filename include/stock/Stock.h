@@ -2,6 +2,8 @@
 #define STOCK_H
 
 #include <stdint.h>
+#include <atomic>
+#include <mutex>
 #include <string>
 #include <vector>
 
@@ -17,6 +19,19 @@ struct ShareIndustry {
     uint8_t source;    // 行业分类来源(申万行业分类/中信行业分类)
     uint8_t level;     // 行业分类等级(1,2,3)
     std::string name;  // 行业分类名称
+};
+
+enum class KlineType {
+    Day = 0,      // 日K线
+    Week = 1,     // 周K线
+    Month = 2,    // 月K线
+    Quarter = 3,  // 季度K线
+    Year = 4      // 年K线
+};
+
+enum class KlineProvider {
+    FinanceBaidu,  // 百度财经
+    EastMoney      // 东方财富
 };
 
 struct Share;  // 前项声明

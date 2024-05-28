@@ -19,8 +19,7 @@ Spider::Spider(StockDataStorage* storage)
       m_debug(false),
       m_timeStart(std::chrono::milliseconds(0)),
       m_timeEnd(std::chrono::milliseconds(0)),
-      m_timeConsume(0),
-      m_progress(0) {}
+      m_timeConsume(0) {}
 
 Spider::Spider(StockDataStorage* storage, bool concurrent)
     : m_pStockStorage(storage),
@@ -29,8 +28,7 @@ Spider::Spider(StockDataStorage* storage, bool concurrent)
       m_concurrentMode(concurrent),
       m_timeStart(std::chrono::milliseconds(0)),
       m_timeEnd(std::chrono::milliseconds(0)),
-      m_timeConsume(0),
-      m_progress(0) {}
+      m_timeConsume(0) {}
 
 Spider::~Spider() {}
 
@@ -47,8 +45,7 @@ void Spider::Crawl() {
     m_timeStart = std::chrono::high_resolution_clock::now();
     DoCrawl();
     m_timeEnd = std::chrono::high_resolution_clock::now();
-    m_timeConsume =
-        std::chrono::duration_cast<std::chrono::milliseconds>(m_timeEnd - m_timeStart);
+    m_timeConsume = std::chrono::duration_cast<std::chrono::milliseconds>(m_timeEnd - m_timeStart);
 }
 
 void Spider::DoCrawl() {}
@@ -64,27 +61,24 @@ bool Spider::IsConcurrentMode() const {
 }
 
 std::string Spider::GetTimeConsumed() const {
-    std::chrono::seconds::rep total_seconds =
-        std::chrono::duration_cast<std::chrono::seconds>(m_timeConsume).count();
+    std::chrono::seconds::rep total_seconds = std::chrono::duration_cast<std::chrono::seconds>(m_timeConsume).count();
     std::chrono::milliseconds::rep remaining_ms = m_timeConsume.count() % 1000;
 
     std::ostringstream oss;
-    oss << std::fixed << std::setprecision(3) << total_seconds << "." << remaining_ms
-        << " s";
+    oss << std::fixed << std::setprecision(3) << total_seconds << "." << remaining_ms << " s";
     return oss.str();
 }
 
 bool Spider::HasFinish() {
-    return m_progress >= 1.0;
+    return m_statistics.progress >= 1.0;
 }
 
 double Spider::GetProgress() {
-    return m_progress;
+    return m_statistics.progress;
 }
 
 std::string Spider::UrlEncode(const std::string& decoded) {
-    const auto encoded_value =
-        curl_easy_escape(nullptr, decoded.c_str(), static_cast<int>(decoded.length()));
+    const auto encoded_value = curl_easy_escape(nullptr, decoded.c_str(), static_cast<int>(decoded.length()));
     std::string result(encoded_value);
     curl_free(encoded_value);
     return result;
@@ -92,8 +86,8 @@ std::string Spider::UrlEncode(const std::string& decoded) {
 
 std::string Spider::UrlDecode(const std::string& encoded) {
     int output_length;
-    const auto decoded_value = curl_easy_unescape(
-        nullptr, encoded.c_str(), static_cast<int>(encoded.length()), &output_length);
+    const auto decoded_value =
+        curl_easy_unescape(nullptr, encoded.c_str(), static_cast<int>(encoded.length()), &output_length);
     std::string result(decoded_value, output_length);
     curl_free(decoded_value);
     return result;

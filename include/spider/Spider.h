@@ -2,6 +2,21 @@
 #include <chrono>
 #include <string>
 #include "net/Request.h"
+#include "net/RequestStatistics.h"
+#include "stock/Stock.h"
+
+struct KlineCrawlExtra {
+    KlineProvider provider;  // K线爬取网站标识
+    KlineType type;          // K线类型，日/周/月/季度/年K线
+    Market market;           // 深交所/北交所/上交所
+    Share* share;            // StockDataStorage::m_market_shares 元素，
+                             // 下载完数据不能释放此指针指向的对象
+};
+
+struct KlineCrawlTask {
+    KlineProvider provider;
+    double priority;
+};
 
 class StockDataStorage;
 class Spider {
@@ -26,13 +41,13 @@ class Spider {
     virtual void ConcurrentResponseCallback(conn_t* conn);
 
    protected:
-    StockDataStorage* m_pStockStorage;  // 股票集中化数据中心
-    size_t m_posStart;                  // 股票爬取的起始下标
-    size_t m_posEnd;                    // 股票爬取的结束下标
-    bool m_concurrentMode;              // 是否是并发请求模式
-    bool m_debug;                       // 是否打印爬虫调试信息
+    StockDataStorage* m_pStockStorage;                           // 股票集中化数据中心
+    size_t m_posStart;                                           // 股票爬取的起始下标
+    size_t m_posEnd;                                             // 股票爬取的结束下标
+    bool m_concurrentMode;                                       // 是否是并发请求模式
+    bool m_debug;                                                // 是否打印爬虫调试信息
     std::chrono::high_resolution_clock::time_point m_timeStart;  // 爬取起始时间
     std::chrono::high_resolution_clock::time_point m_timeEnd;    // 爬取结束时间
     std::chrono::milliseconds m_timeConsume;                     // 爬虫消耗的时间
-    double m_progress;                                           // 爬取的进度
+    RequestStatistics m_statistics;                              // 爬取统计
 };

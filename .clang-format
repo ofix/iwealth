@@ -1,4 +1,4 @@
 BasedOnStyle: Chromium
 IndentWidth: 4
-ColumnLimit: 110
+ColumnLimit: 120
 PointerAlignment: Left
