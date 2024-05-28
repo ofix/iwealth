@@ -1,18 +1,10 @@
 #include "net/ConcurrentRequest.h"
 #include "util/EasyLogger.h"
 
-size_t ConcurrentRequest::m_recv_total_bytes = 0;
-
-ConcurrentRequest::ConcurrentRequest(uint32_t concurrent_size)
-    : m_request_size(0), m_concurrent_size(concurrent_size), m_successed(0), m_running(0), m_failed(0) {}
+ConcurrentRequest::ConcurrentRequest(uint32_t concurrent_size) : m_concurrent_size(concurrent_size) {}
 
 ConcurrentRequest::ConcurrentRequest(std::list<conn_t*>& connections, uint32_t concurrent_size)
-    : m_concurrent_size(concurrent_size),
-      m_request_size(0),
-      m_connections(connections),
-      m_successed(0),
-      m_running(0),
-      m_failed(0) {}
+    : m_concurrent_size(concurrent_size), m_connections(connections) {}
 
 ConcurrentRequest::~ConcurrentRequest() {}
 
@@ -32,9 +24,8 @@ size_t ConcurrentRequest::_CurlOnResponseBodyRecv(void* ptr, size_t size, size_t
     conn_t* conn = static_cast<conn_t*>(data);
     size_t recv_size = size * nmemb;
     if (conn) {
-        m_recv_total_bytes += recv_size;
-        // m_time_current = now();
         conn->response.append(static_cast<char*>(ptr), recv_size);
+        // 这里需要增加数据统计
     }
     return recv_size;
 }
@@ -140,16 +131,11 @@ void ConcurrentRequest::_SetMiscOptions(conn_t* conn) {
     }
 }
 
-/**
- * @param cm CURLM*
- * @param i 发送的第几个请求
- */
 void ConcurrentRequest::AddNewRequest(CURLM* cm) {
     if (!m_connections.empty()) {
         conn_t* conn = m_connections.back();  // 获取最后一个元素
         _CurlInit(conn);
         curl_multi_add_handle(cm, conn->easy_curl);
-        m_running += 1;
         m_connections.pop_back();  // 移除最后一个元素
     }
 }
@@ -158,11 +144,11 @@ void ConcurrentRequest::Run() {
     CURLM* cm;
     CURLMsg* msg;
     int msgs_left = -1;
+    bool running = true;
 
     curl_global_init(CURL_GLOBAL_ALL);
     cm = curl_multi_init();
 
-    /* Limit the amount of simultaneous connections curl should allow: */
     curl_multi_setopt(cm, CURLMOPT_MAXCONNECTS, static_cast<long>(m_concurrent_size));
 
     m_total = m_request_size;
@@ -171,7 +157,7 @@ void ConcurrentRequest::Run() {
         AddNewRequest(cm);
     }
 
-    do {
+    for (;;) {
         int still_alive = 1;
         curl_multi_perform(cm, &still_alive);
 
@@ -187,48 +173,23 @@ void ConcurrentRequest::Run() {
                 }
                 curl_multi_remove_handle(cm, easy_curl);
                 _CurlClose(conn);
-                m_successed += 1;
-                m_running--;
             } else {
                 fprintf(stderr, "E: CURLMsg (%d)\n", msg->msg);
-                m_failed += 1;
             }
-            AddNewRequest(cm);
+            if (!m_connections.empty()) {
+                AddNewRequest(cm);
+            }
         }
-        if (m_running) {
+        // 检查是否有进行中的请求
+        if (still_alive || (!m_connections.empty())) {
             curl_multi_wait(cm, NULL, 0, 1000, NULL);
+        } else {
+            break;
         }
-
-    } while (m_running);
+    }
 
     curl_multi_cleanup(cm);
     curl_global_cleanup();
-}
-
-uint32_t ConcurrentRequest::GetConcurrentSize() const {
-    return m_concurrent_size;
-}
-
-size_t ConcurrentRequest::GetSuccessCount() {
-    return m_successed;
-}
-
-size_t ConcurrentRequest::GetRunningCount() {
-    return m_running;
-}
-
-size_t ConcurrentRequest::GetFailCount() {
-    return m_failed;
-}
-
-size_t ConcurrentRequest::GetFinishCount() {
-    return m_successed + m_failed;
-}
-
-// 获取平均响应速度
-double ConcurrentRequest::GetAverageSpeed() {
-    double speed = static_cast<double>(m_recv_total_bytes) / (m_time_current - m_time_start);
-    return speed;
 }
 
 void HttpConcurrentGet(const std::list<std::string>& urls,
