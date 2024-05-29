@@ -57,6 +57,13 @@ void SpiderShareKline::ConurrentCrawl(std::vector<KlineCrawlTask>& tasks, KlineT
         std::vector<void*> user_data;
         priority += tasks[i].priority;
         pos_end = std::round((shares.size() - 1) * priority);
+        RequestStatistics* pStatistics = new RequestStatistics();
+        if (!pStatistics) {
+            gLogger->log("[ConcurrentCrawl] allocate memory failed");
+            return;
+        }
+        pStatistics->provider = tasks[i].provider;
+        m_statisticsList.push_back(pStatistics);
         for (size_t j = pos_start; j <= pos_end; j++) {
             urls.push_back(GetKlineUrl(tasks[i].provider, kline_type, shares[j].code, shares[j].market));
             KlineCrawlExtra* pExtra = new KlineCrawlExtra();
@@ -64,6 +71,7 @@ void SpiderShareKline::ConurrentCrawl(std::vector<KlineCrawlTask>& tasks, KlineT
             pExtra->type = kline_type;
             pExtra->market = shares[j].market;
             pExtra->share = &shares[j];
+            pExtra->statistics = pStatistics;
             user_data.push_back(static_cast<void*>(pExtra));
         }
         pos_start = pos_end + 1;
@@ -177,27 +185,26 @@ int SpiderShareKline::GetKlineTypeEastMoney(const KlineType kline_type) {
 }
 
 /// @brief 响应处理
-/// @param response
-/// @param kline_type
-/// @param kline_provider
-/// @return
-std::vector<uiKline> SpiderShareKline::ParseResponse(std::string& response,
-                                                     KlineType kline_type,
-                                                     KlineProvider kline_provider) {
+/// @param conn
+std::vector<uiKline> SpiderShareKline::ParseResponse(conn_t* conn) {
+    KlineCrawlExtra* pExtra = static_cast<KlineCrawlExtra*>(conn->extra);
     std::vector<uiKline> uiKlines = {};
-    if (kline_provider == KlineProvider::FinanceBaidu) {
-        ParseResponseFinanceBaidu(response, uiKlines);
-    } else if (kline_provider == KlineProvider::EastMoney) {
-        ParseResponseEastMoney(response, uiKlines);
+    if (pExtra->provider == KlineProvider::FinanceBaidu) {
+        ParseResponseFinanceBaidu(conn, uiKlines);
+    } else if (pExtra->provider == KlineProvider::EastMoney) {
+        ParseResponseEastMoney(conn, uiKlines);
     }
     return uiKlines;
 }
 
 // 解析百度财经返回数据
-void SpiderShareKline::ParseResponseFinanceBaidu(std::string& response, std::vector<uiKline>& uiKlines) {
-    json _response = json::parse(response);
+// 百度财经数据完整历史K线需要请求多次，因此这里做统计最合适
+void SpiderShareKline::ParseResponseFinanceBaidu(conn_t* conn, std::vector<uiKline>& uiKlines) {
+    json _response = json::parse(conn->response);
     std::string data = _response["Result"]["newMarketData"]["marketData"];
-    if (data != "") {
+    if (data == "") {
+        conn->reuse = false;  // 所有数据已经请求完毕，不再复用conn
+    } else {
         std::vector<std::string> klines = split(data, ';');
         std::string end_time = "";
         for (size_t i = 0; i < klines.size(); i++) {
@@ -231,8 +238,8 @@ void SpiderShareKline::ParseResponseFinanceBaidu(std::string& response, std::vec
 }
 
 // 解析东方财富返回数据
-void SpiderShareKline::ParseResponseEastMoney(std::string& response, std::vector<uiKline>& uiKlines) {
-    json _response = json::parse(response);
+void SpiderShareKline::ParseResponseEastMoney(conn_t* conn, std::vector<uiKline>& uiKlines) {
+    json _response = json::parse(conn->response);
     json klines = _response["data"]["klines"];
     if (klines != "") {
         for (json::iterator it = klines.begin(); it != klines.end(); ++it) {
@@ -267,7 +274,7 @@ void SpiderShareKline::ParseResponseEastMoney(std::string& response, std::vector
 
 void SpiderShareKline::SingleResponseCallback(conn_t* conn) {
     KlineCrawlExtra* pExtra = static_cast<KlineCrawlExtra*>(conn->extra);
-    std::vector<uiKline> multi_kline = ParseResponse(conn->response, pExtra->type, pExtra->provider);
+    std::vector<uiKline> multi_kline = ParseResponse(conn);
     if (pExtra->provider == KlineProvider::FinanceBaidu && multi_kline.size() > 0) {
         std::string end_date = multi_kline[0].day;
         std::string share_code = pExtra->share->code;
@@ -277,9 +284,10 @@ void SpiderShareKline::SingleResponseCallback(conn_t* conn) {
     }
 }
 
+// 此成员函数通常在分离的线程中运行
 void SpiderShareKline::ConcurrentResponseCallback(conn_t* conn) {
     KlineCrawlExtra* pExtra = static_cast<KlineCrawlExtra*>(conn->extra);
-    std::vector<uiKline> multi_kline = ParseResponse(conn->response, pExtra->type, pExtra->provider);
+    std::vector<uiKline> multi_kline = ParseResponse(conn);
     if (pExtra->provider == KlineProvider::FinanceBaidu && multi_kline.size() > 0) {
         std::string end_date = multi_kline[0].day;
         std::string share_code = pExtra->share->code;

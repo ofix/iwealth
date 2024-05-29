@@ -6,11 +6,12 @@
 #include "stock/Stock.h"
 
 struct KlineCrawlExtra {
-    KlineProvider provider;  // K线爬取网站标识
-    KlineType type;          // K线类型，日/周/月/季度/年K线
-    Market market;           // 深交所/北交所/上交所
-    Share* share;            // StockDataStorage::m_market_shares 元素，
-                             // 下载完数据不能释放此指针指向的对象
+    KlineProvider provider;         // K线爬取网站标识
+    KlineType type;                 // K线类型，日/周/月/季度/年K线
+    Market market;                  // 深交所/北交所/上交所
+    Share* share;                   // StockDataStorage::m_market_shares 元素，
+                                    // 下载完数据不能释放此指针指向的对象
+    RequestStatistics* statistics;  // 统计信息
 };
 
 struct KlineCrawlTask {
@@ -35,6 +36,7 @@ class Spider {
     std::string GetTimeConsumed() const;
     static std::string UrlEncode(const std::string& decoded);
     static std::string UrlDecode(const std::string& encoded);
+    void UpdateRequestStatistics();
 
    protected:
     virtual void DoCrawl();
@@ -49,5 +51,5 @@ class Spider {
     std::chrono::high_resolution_clock::time_point m_timeStart;  // 爬取起始时间
     std::chrono::high_resolution_clock::time_point m_timeEnd;    // 爬取结束时间
     std::chrono::milliseconds m_timeConsume;                     // 爬虫消耗的时间
-    RequestStatistics m_statistics;                              // 爬取统计
+    std::vector<RequestStatistics*> m_statisticsList;            // 爬取统计
 };

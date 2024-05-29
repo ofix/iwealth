@@ -1,4 +1,5 @@
 #include "net/ConcurrentRequest.h"
+#include "spider/Spider.h"
 #include "util/EasyLogger.h"
 
 ConcurrentRequest::ConcurrentRequest(uint32_t concurrent_size) : m_concurrent_size(concurrent_size) {}
@@ -26,6 +27,7 @@ size_t ConcurrentRequest::_CurlOnResponseBodyRecv(void* ptr, size_t size, size_t
     if (conn) {
         conn->response.append(static_cast<char*>(ptr), recv_size);
         // 这里需要增加数据统计
+        conn->statistics->recv_bytes_cur += recv_size;
     }
     return recv_size;
 }
@@ -151,8 +153,6 @@ void ConcurrentRequest::Run() {
 
     curl_multi_setopt(cm, CURLMOPT_MAXCONNECTS, static_cast<long>(m_concurrent_size));
 
-    m_total = m_request_size;
-
     for (size_t i = 0; i < m_concurrent_size; i++) {
         AddNewRequest(cm);
     }
@@ -168,16 +168,26 @@ void ConcurrentRequest::Run() {
                 curl_easy_getinfo(msg->easy_handle, CURLINFO_PRIVATE, &conn);
                 curl_easy_getinfo(conn->easy_curl, CURLINFO_RESPONSE_CODE, &conn->http_code);
                 curl_easy_getinfo(conn->easy_curl, CURLINFO_TOTAL_TIME, &conn->total_time);
+                RequestStatistics* pStatistics = conn->statistics;
                 if ((conn->callback) && conn->http_code == 200) {
-                    conn->callback(conn);
+                    conn->callback(conn);  // 回调函数中可能会设置 reuse 复用选项,如果reuse=true,不要释放conn
                 }
                 curl_multi_remove_handle(cm, easy_curl);
-                _CurlClose(conn);
+                if (!conn->reuse) {  // 如果没有子请求复用，释放资源
+                    _CurlClose(conn);
+                    if (conn->http_code == 200) {
+                        pStatistics->success_requests += 1;
+                    } else {
+                        pStatistics->failed_requests += 1;
+                    }
+                }
+                pStatistics->real_request_count += 1;  // 无论是否是复用的子请求，都统计在内
+                if (!m_connections.empty()) {
+                    AddNewRequest(cm);
+                    pStatistics->ongoing_requests += 1;  // 新增一条请求
+                }
             } else {
                 fprintf(stderr, "E: CURLMsg (%d)\n", msg->msg);
-            }
-            if (!m_connections.empty()) {
-                AddNewRequest(cm);
             }
         }
         // 检查是否有进行中的请求
@@ -192,6 +202,7 @@ void ConcurrentRequest::Run() {
     curl_global_cleanup();
 }
 
+// 通常情况下，这个函数在独立的分离线程工作
 void HttpConcurrentGet(const std::list<std::string>& urls,
                        std::function<void(conn_t*)>& callback,
                        void* user_extra,
@@ -208,12 +219,14 @@ void HttpConcurrentGet(const std::list<std::string>& urls,
         pConn->method = "GET";
         pConn->callback = callback;
         pConn->extra = user_extra;
+        pConn->statistics = static_cast<KlineCrawlExtra*>(user_extra)->statistics;
         connections.push_back(pConn);
     }
     request.AddConnectionList(connections);
     request.Run();
 }
 
+// 通常情况下，这个函数在独立的分离线程工作
 void HttpConcurrentGet(const std::list<std::string>& urls,
                        std::function<void(conn_t*)>& callback,
                        const std::vector<void*>& user_extra,
@@ -231,12 +244,14 @@ void HttpConcurrentGet(const std::list<std::string>& urls,
         pConn->method = "GET";
         pConn->callback = callback;
         pConn->extra = user_extra[i++];
+        pConn->statistics = static_cast<KlineCrawlExtra*>(user_extra[i++])->statistics;
         connections.push_back(pConn);
     }
     request.AddConnectionList(connections);
     request.Run();
 }
 
+// 通常情况下，这个函数在独立的分离线程工作
 void HttpConcurrentGet(const std::list<conn_t*>& connections, uint32_t concurrent_size) {
     ConcurrentRequest request(concurrent_size);
     request.AddConnectionList(connections);

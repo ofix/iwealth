@@ -58,9 +58,9 @@ class SpiderShareKline : public Spider {
     int GetEastMoneyMarketCode(const Market market);
 
     // 解析响应
-    std::vector<uiKline> ParseResponse(std::string& response, KlineType kline_type, KlineProvider kline_provider);
-    void ParseResponseFinanceBaidu(std::string& response, std::vector<uiKline>& uiKlines);
-    void ParseResponseEastMoney(std::string& response, std::vector<uiKline>& uiKlines);
+    std::vector<uiKline> ParseResponse(conn_t* conn);
+    void ParseResponseFinanceBaidu(conn_t* conn, std::vector<uiKline>& uiKlines);
+    void ParseResponseEastMoney(conn_t* conn, std::vector<uiKline>& uiKlines);
 
     void SingleResponseCallback(conn_t* conn);
     void ConcurrentResponseCallback(conn_t* conn);

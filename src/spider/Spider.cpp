@@ -8,6 +8,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 #include "spider/Spider.h"
+#include <mutex>
 #include "curl/curl.h"
 #include "stock/StockDataStorage.h"
 
@@ -70,11 +71,28 @@ std::string Spider::GetTimeConsumed() const {
 }
 
 bool Spider::HasFinish() {
-    return m_statistics.progress >= 1.0;
+    return GetProgress() >= 1.0;
 }
 
 double Spider::GetProgress() {
-    return m_statistics.progress;
+    uint32_t finsished = 0;
+    uint32_t total = 0;
+    for (RequestStatistics* pStatistics : m_statisticsList) {
+        finsished += pStatistics->success_requests + pStatistics->failed_requests;
+        total += pStatistics->request_count;
+    }
+    double progress = static_cast<double>(finsished) / total;
+}
+
+// 定时器每秒钟更新一次
+void Spider::UpdateRequestStatistics() {
+    for (RequestStatistics* pStatistics : m_statisticsList) {
+        // 计算单位时间内接收的字节数
+        pStatistics->real_time_speed = pStatistics->recv_bytes_cur - pStatistics->recv_bytes_last;
+        pStatistics->recv_bytes_last.store(pStatistics->recv_bytes_cur.load());
+        std::lock_guard<std::mutex> lock(pStatistics->mutex);
+        pStatistics->speed_list.push_back(pStatistics->real_time_speed);  // 将每秒的下载字节数压入数组
+    }
 }
 
 std::string Spider::UrlEncode(const std::string& decoded) {
