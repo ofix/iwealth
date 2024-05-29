@@ -56,6 +56,7 @@ class SpiderShareKline : public Spider {
     // 东方财富
     int GetKlineTypeEastMoney(const KlineType kline_type);
     int GetEastMoneyMarketCode(const Market market);
+    void OnRequestTimer(uint32_t timer_id, void* args);
 
     // 解析响应
     std::vector<uiKline> ParseResponse(conn_t* conn);

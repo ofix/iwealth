@@ -54,33 +54,28 @@ void TestSpiderConceptListEastMoney() {
     spiderEastMoney->Crawl();
 }
 
-void TestSpiderShareHistoryBaidu() {
+void TestSpiderShareKline() {
     StockDataStorage* m_pStockStorage = new StockDataStorage();
     m_pStockStorage->Init();
-    SpiderShareKline* spiderBaidu = new SpiderShareKline(m_pStockStorage);
-    spiderBaidu->SetCrawlRange(3, 3);
-    spiderBaidu->Crawl(KlineType::Day);
+    SpiderShareKline* spiderKline = new SpiderShareKline(m_pStockStorage, true);
+    spiderKline->Crawl(KlineType::Day);
 }
 
 void TestTimer() {
     // 添加一次性定时器
     Timer::SetTimeout(2000, [](uint32_t timer_id, void* args) {
-        std::cout << "Timer[" << timer_id << "], timeout: 2s, task count: " << Timer::GetTaskCount()
-                  << std::endl;
+        std::cout << "Timer[" << timer_id << "], timeout: 2s, task count: " << Timer::GetTaskCount() << std::endl;
         Timer::SetTimeout(2000, [](uint32_t timer_id, void* args) {
-            std::cout << "Timer[" << timer_id << "], timeout: 4s, task count: " << Timer::GetTaskCount()
-                      << std::endl;
+            std::cout << "Timer[" << timer_id << "], timeout: 4s, task count: " << Timer::GetTaskCount() << std::endl;
         });
         Timer::SetTimeout(8000, [](uint32_t timer_id, void* args) {
-            std::cout << "Timer[" << timer_id << "], timeout: 8s, task count: " << Timer::GetTaskCount()
-                      << std::endl;
+            std::cout << "Timer[" << timer_id << "], timeout: 8s, task count: " << Timer::GetTaskCount() << std::endl;
         });
     });
 
     // 添加周期性定时器
     Timer::SetInterval(1000, [](uint32_t timer_id, void* args) {
-        std::cout << "Timer[" << timer_id << "], interval: 1s, task count: " << Timer::GetTaskCount()
-                  << std::endl;
+        std::cout << "Timer[" << timer_id << "], interval: 1s, task count: " << Timer::GetTaskCount() << std::endl;
         static int loop = 0;
         loop += 1;
         if (loop == 5000) {
@@ -94,5 +89,6 @@ void TestTimer() {
 int main(int argc, char* argv[]) {
     // TestSpiderConceptListEastMoney();
     // TestTimer();
-    TestSpiderShareHistoryBaidu();
+    TestSpiderShareKline();
+    std::cin.get();
 }

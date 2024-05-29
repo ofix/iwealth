@@ -170,7 +170,11 @@ void ConcurrentRequest::Run() {
                 curl_easy_getinfo(conn->easy_curl, CURLINFO_TOTAL_TIME, &conn->total_time);
                 RequestStatistics* pStatistics = conn->statistics;
                 if ((conn->callback) && conn->http_code == 200) {
-                    conn->callback(conn);  // 回调函数中可能会设置 reuse 复用选项,如果reuse=true,不要释放conn
+                    try {
+                        conn->callback(conn);  // 回调函数中可能会设置 reuse 复用选项,如果reuse=true,不要释放conn
+                    } catch (std::exception& e) {
+                        std::cout << "concurrent loop callback error! " << e.what() << std::endl;
+                    }
                 }
                 curl_multi_remove_handle(cm, easy_curl);
                 if (!conn->reuse) {  // 如果没有子请求复用，释放资源
@@ -219,6 +223,7 @@ void HttpConcurrentGet(const std::list<std::string>& urls,
         pConn->method = "GET";
         pConn->callback = callback;
         pConn->extra = user_extra;
+        pConn->debug = false;
         pConn->statistics = static_cast<KlineCrawlExtra*>(user_extra)->statistics;
         connections.push_back(pConn);
     }
@@ -243,9 +248,11 @@ void HttpConcurrentGet(const std::list<std::string>& urls,
         pConn->url = url;
         pConn->method = "GET";
         pConn->callback = callback;
-        pConn->extra = user_extra[i++];
-        pConn->statistics = static_cast<KlineCrawlExtra*>(user_extra[i++])->statistics;
+        pConn->extra = user_extra[i];
+        pConn->debug = false;
+        pConn->statistics = static_cast<KlineCrawlExtra*>(user_extra[i])->statistics;
         connections.push_back(pConn);
+        i++;
     }
     request.AddConnectionList(connections);
     request.Run();

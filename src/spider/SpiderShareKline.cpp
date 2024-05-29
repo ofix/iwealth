@@ -14,16 +14,13 @@
 #include "stock/StockDataStorage.h"
 #include "util/EasyLogger.h"
 #include "util/Global.h"
+#include "util/Timer.h"
 
 using json = nlohmann::json;
 
-SpiderShareKline::SpiderShareKline(StockDataStorage* storage) : Spider(storage) {
-    m_debug = true;
-}
+SpiderShareKline::SpiderShareKline(StockDataStorage* storage) : Spider(storage) {}
 
-SpiderShareKline::SpiderShareKline(StockDataStorage* storage, bool concurrent) : Spider(storage, concurrent) {
-    m_debug = true;
-}
+SpiderShareKline::SpiderShareKline(StockDataStorage* storage, bool concurrent) : Spider(storage, concurrent) {}
 
 SpiderShareKline::~SpiderShareKline() {}
 
@@ -63,6 +60,7 @@ void SpiderShareKline::ConurrentCrawl(std::vector<KlineCrawlTask>& tasks, KlineT
             return;
         }
         pStatistics->provider = tasks[i].provider;
+        pStatistics->request_count = pos_end - pos_start + 1;
         m_statisticsList.push_back(pStatistics);
         for (size_t j = pos_start; j <= pos_end; j++) {
             urls.push_back(GetKlineUrl(tasks[i].provider, kline_type, shares[j].code, shares[j].market));
@@ -83,6 +81,20 @@ void SpiderShareKline::ConurrentCrawl(std::vector<KlineCrawlTask>& tasks, KlineT
                                            const std::vector<void*>&, uint32_t)>(HttpConcurrentGet),
                       urls, callback, user_data, 3));
         crawl_thread.detach();
+    }
+    // 启动定时器更新打印速度，并打印爬取进度
+    std::function<void(uint32_t timer_id, void* args)> timerCallback =
+        std::bind(&SpiderShareKline::OnRequestTimer, this, std::placeholders::_1, std::placeholders::_2);
+    Timer::SetInterval(1000, timerCallback);
+}
+
+void SpiderShareKline::OnRequestTimer(uint32_t timer_id, void* args) {
+    std::cout << "timer started" << std::endl;
+    this->UpdateRequestStatistics();
+    std::cout << "kline sync progress: " << GetProgress() << std::endl;
+    // 取消周期性定时任务
+    if (this->IsConcurrentMode() && this->HasFinish()) {
+        Timer::CancelTimer(timer_id);
     }
 }
 
@@ -209,30 +221,26 @@ void SpiderShareKline::ParseResponseFinanceBaidu(conn_t* conn, std::vector<uiKli
         std::string end_time = "";
         for (size_t i = 0; i < klines.size(); i++) {
             std::vector<std::string> fields = split(klines[i], ',');
-            try {
-                uiKline kline;
-                kline.day = fields[1];                     // 时间
-                kline.price_open = std::stod(fields[2]);   // 开盘价
-                kline.price_close = std::stod(fields[3]);  // 收盘价
-                if (fields[4] != "-") {
-                    kline.trade_volume = std::stod(fields[4]);  // 成交量
-                } else {
-                    kline.trade_volume = -1000;  // 成交量
-                }
-                if (fields[5] != "-") {
-                    kline.price_max = std::stod(fields[5]);  // 最高价
-                }
-                if (fields[6] != "-") {
-                    kline.price_min = std::stod(fields[6]);  // 最低价
-                }
-                kline.trade_amount = std::stod(fields[7]);    // 成交额
-                kline.change_amount = std::stod(fields[8]);   // 涨跌额
-                kline.change_rate = std::stod(fields[9]);     // 涨跌幅
-                kline.turnover_rate = std::stod(fields[10]);  // 换手率
-                uiKlines.push_back(kline);
-            } catch (std::exception& e) {
-                std::cout << e.what() << std::endl;
+            uiKline kline;
+            kline.day = fields[1];                     // 时间
+            kline.price_open = std::stod(fields[2]);   // 开盘价
+            kline.price_close = std::stod(fields[3]);  // 收盘价
+            if (fields[4] != "-") {
+                kline.trade_volume = std::stod(fields[4]);  // 成交量
+            } else {
+                kline.trade_volume = -1000;  // 成交量
             }
+            if (fields[5] != "-") {
+                kline.price_max = std::stod(fields[5]);  // 最高价
+            }
+            if (fields[6] != "-") {
+                kline.price_min = std::stod(fields[6]);  // 最低价
+            }
+            kline.trade_amount = std::stod(fields[7]);    // 成交额
+            kline.change_amount = std::stod(fields[8]);   // 涨跌额
+            kline.change_rate = std::stod(fields[9]);     // 涨跌幅
+            kline.turnover_rate = std::stod(fields[10]);  // 换手率
+            uiKlines.push_back(kline);
         }
     }
 }
