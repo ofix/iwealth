@@ -1,5 +1,6 @@
 #include "util/Timer.h"
 #include <chrono>
+#include <iostream>
 
 Timer* Timer::instance = nullptr;
 Timer* Timer::GetInstance() {
@@ -15,6 +16,43 @@ void Timer::Schedule() {
     m_timer_thread.detach();
 }
 
+Callback::u::u() {}
+
+Callback::u::~u() {}
+
+Callback::u::u(const std::function<void(uint32_t, void*)> cpp) : cpp(std::move(cpp)) {}
+
+Callback::u::u(void (*c)(uint32_t, void*)) : c(c) {}
+
+Callback::Callback() : style(CallbackStyle::c), func(nullptr) {}
+
+Callback::Callback(const std::function<void(uint32_t, void*)> cpp) : style(CallbackStyle::cpp), func(cpp) {}
+
+Callback::Callback(void (*c)(uint32_t, void*)) : style(CallbackStyle::c), func(c) {}
+
+Callback::Callback(const Callback& other) {
+    this->style = other.style;
+    if (this->style == CallbackStyle::c) {
+        this->func.c = other.func.c;
+    } else {
+        this->func.cpp = other.func.cpp;
+    }
+}
+
+Callback& Callback::operator=(const Callback& other) {
+    if (this != &other) {
+        this->style = other.style;
+        if (this->style == CallbackStyle::c) {
+            this->func.c = other.func.c;
+        } else {
+            this->func.cpp = other.func.cpp;
+        }
+    }
+    return *this;
+}
+
+Callback::~Callback() {}
+
 void Timer::Tick() {
     for (;;) {
         std::this_thread::sleep_for(std::chrono::milliseconds(TIMER_TICK_MS));
@@ -23,8 +61,7 @@ void Timer::Tick() {
         uint8_t next_wheel_slot = current_wheel_slot;
         for (uint8_t i = 0; i < TIMER_WHEELS - 1 && next_wheel_slot == 0;
              i++) {  // 最小轮转完一圈需要进位，将被动轮上的定时任务挪到主动轮上统一处理
-            next_wheel_slot =
-                (this->m_tick >> ((i + 1) * TIMER_WHEEL_SLOT_BITS)) & TIMER_MASK;
+            next_wheel_slot = (this->m_tick >> ((i + 1) * TIMER_WHEEL_SLOT_BITS)) & TIMER_MASK;
             MoveTimerTaskToTickWheel(i + 1, next_wheel_slot);
         }
         uint32_t timer_id = 0;
@@ -35,11 +72,14 @@ void Timer::Tick() {
             next = pTimerTask->next;
             timer_id = pTimerTask->timer_id;
             if (!pTimerTask->canceled) {
-                pTimerTask->callback(pTimerTask->timer_id, pTimerTask->args);
+                if (pTimerTask->callback.style == CallbackStyle::c) {
+                    pTimerTask->callback.func.c(pTimerTask->timer_id, pTimerTask->args);
+                } else {
+                    pTimerTask->callback.func.cpp(pTimerTask->timer_id, pTimerTask->args);
+                }
                 if (pTimerTask->is_period) {
                     pTimerTask->expire = this->m_tick + pTimerTask->interval;
-                    InternalAddTimerTask(
-                        pTimerTask);  // 重新添加定时任务，并不会增加定时任务数量，只是移动了指针
+                    InternalAddTimerTask(pTimerTask);  // 重新添加定时任务，并不会增加定时任务数量，只是移动了指针
                 } else {
                     DelTimerTask(pTimerTask);  // 执行完删除定时器
                 }
@@ -79,11 +119,9 @@ Timer::~Timer() {
 
 // 获取当前时间，以毫秒为单位
 int64_t Timer::CurrentTimeInMilliSecond() {
-    std::chrono::high_resolution_clock::time_point now =
-        std::chrono::high_resolution_clock::now();
+    std::chrono::high_resolution_clock::time_point now = std::chrono::high_resolution_clock::now();
     auto duration = now.time_since_epoch();
-    auto milli_seconds =
-        std::chrono::duration_cast<std::chrono::milliseconds>(duration).count();
+    auto milli_seconds = std::chrono::duration_cast<std::chrono::milliseconds>(duration).count();
     return milli_seconds;
 }
 
@@ -128,8 +166,7 @@ void Timer::CancelAllTimer() {
 
 void Timer::InternalCancelAllTimer() {
     std::lock_guard<std::mutex> lock(m_mutex);
-    for (std::unordered_map<uint32_t, TimerTask*>::iterator it = m_timer_map.begin();
-         it != m_timer_map.end(); ++it) {
+    for (std::unordered_map<uint32_t, TimerTask*>::iterator it = m_timer_map.begin(); it != m_timer_map.end(); ++it) {
         it->second->canceled = true;
     }
     m_timer_map.clear();
@@ -156,17 +193,15 @@ uint32_t Timer::InternalGetTaskCount() {
     return m_timer_tasks;
 }
 
-uint32_t Timer::SetTimeout(int timeout,
-                           std::function<void(uint32_t, void*)>& callback,
-                           void* arguments) {
+uint32_t Timer::SetTimeout(int timeout, const std::function<void(uint32_t, void*)> callback, void* arguments) {
     Timer* pTimer = Timer::GetInstance();
-#ifdef _WIN32
-    return pTimer->AddTimerTask(false, 0, callback.target<void(uint32_t, void*)>(),
-                                timeout, arguments);
-#else  // 老版本GCC编译会报错，只好采用强制类型转换了
-    return pTimer->AddTimerTask(false, 0, *(callback.target<void (*)(uint32_t, void*)>()),
-                                timeout, arguments);
-#endif
+    Callback _callback(callback);
+    return pTimer->AddTimerTask(false, 0, _callback, timeout, arguments);
+    // #ifdef _WIN32
+    //     return pTimer->AddTimerTask(false, 0, callback.target<void(uint32_t, void*)>(), timeout, arguments);
+    // #else  // 老版本GCC编译会报错，只好采用强制类型转换了
+    //     return pTimer->AddTimerTask(false, 0, *(callback.target<void (*)(uint32_t, void*)>()), timeout, arguments);
+    // #endif
 }
 
 /**
@@ -175,27 +210,25 @@ uint32_t Timer::SetTimeout(int timeout,
  * @param callback, 定时任务回调函数
  * @param arguments, 传递给回调函数 callback 的参数
  */
-uint32_t Timer::SetTimeout(uint32_t timeout,
-                           void (*callback)(uint32_t timer_id, void* args),
-                           void* arguments) {
+uint32_t Timer::SetTimeout(uint32_t timeout, void (*callback)(uint32_t timer_id, void* args), void* arguments) {
     Timer* pTimer = Timer::GetInstance();
-    return pTimer->AddTimerTask(false, 0, callback, timeout, arguments);
+    Callback _callback(callback);
+    return pTimer->AddTimerTask(false, 0, _callback, timeout, arguments);
 }
 
 uint32_t Timer::SetInterval(uint32_t interval,
-                            std::function<void(uint32_t, void*)>& callback,
+                            const std::function<void(uint32_t, void*)> callback,
                             uint32_t delay_time,
                             void* arguments) {
     Timer* pTimer = Timer::GetInstance();
-#ifdef _WIN32
-    return pTimer->AddTimerTask(true, interval,
-                                callback.template target<void(uint32_t, void*)>(),
-                                delay_time, arguments);
-#else
-    return pTimer->AddTimerTask(true, interval,
-                                *(callback.target<void (*)(uint32_t, void*)>()),
-                                delay_time, arguments);
-#endif
+    Callback _callback(callback);
+    return pTimer->AddTimerTask(true, interval, _callback, delay_time, arguments);
+    // #ifdef _WIN32
+    //     return pTimer->AddTimerTask(true, interval, callback.target<void(uint32_t, void*)>(), delay_time, arguments);
+    // #else
+    //     return pTimer->AddTimerTask(true, interval, *(callback.target<void (*)(uint32_t, void*)>()), delay_time,
+    //     arguments);
+    // #endif
 }
 
 /**
@@ -210,15 +243,20 @@ uint32_t Timer::SetInterval(uint32_t interval,
                             uint32_t delay_time,
                             void* arguments) {
     Timer* pTimer = Timer::GetInstance();
-    return pTimer->AddTimerTask(true, interval, callback, delay_time, arguments);
+    Callback _callback(callback);
+    return pTimer->AddTimerTask(true, interval, _callback, delay_time, arguments);
 }
 
 uint32_t Timer::AddTimerTask(bool is_period,
                              uint32_t interval,
-                             void (*callback)(uint32_t timer_id, void* args),
+                             Callback& callback,
                              uint32_t delay_time,
                              void* arguments) {
-    if (callback == nullptr) {
+    if (callback.style == CallbackStyle::c && callback.func.c == nullptr) {
+        return TIMER_CREATE_FAILED;
+    }
+
+    if (callback.style == CallbackStyle::cpp && (!callback.func.cpp.operator bool())) {
         return TIMER_CREATE_FAILED;
     }
 

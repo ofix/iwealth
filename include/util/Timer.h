@@ -15,6 +15,28 @@
 #define TIMER_TICK_MS 50  // 最小时间间隔50ms
 #define TIMER_CREATE_FAILED 0
 
+enum class CallbackStyle { c = 0, cpp };
+
+struct Callback {
+    CallbackStyle style;
+    union u {
+        void (*c)(uint32_t, void*);
+        std::function<void(uint32_t, void*)> cpp;
+        u();
+        u(const std::function<void(uint32_t, void*)> cpp);
+        u(void (*c)(uint32_t, void*));
+        ~u();
+    } func;
+
+   public:
+    Callback();
+    Callback(const std::function<void(uint32_t, void*)> cpp);
+    Callback(void (*c)(uint32_t, void*));
+    Callback(const Callback& other);
+    Callback& operator=(const Callback& other);
+    ~Callback();
+};
+
 class TimerTask {
    public:
     TimerTask* next;    // 下一个定时任务
@@ -24,7 +46,8 @@ class TimerTask {
     uint32_t interval;  // 定时任务间隔
     bool is_period;     // 是否是周期性定时任务
     bool canceled;      // 定时任务是否取消
-    void (*callback)(uint32_t timer_id, void* args);
+    Callback callback;
+
     void* args;
 };
 
@@ -70,18 +93,16 @@ class Timer {
     Timer& operator=(Timer&&) = delete;
 
    public:  // 对外调用函数
-    static uint32_t SetTimeout(
-        int timeout,
-        std::function<void(uint32_t timer_id, void* args)>& callback,
-        void* arguments = NULL);
+    static uint32_t SetTimeout(int timeout,
+                               const std::function<void(uint32_t timer_id, void* args)> callback,
+                               void* arguments = NULL);
     static uint32_t SetTimeout(uint32_t timeout,
                                void (*callback)(uint32_t timer_id, void* args),
                                void* arguments = NULL);
-    static uint32_t SetInterval(
-        uint32_t interval,
-        std::function<void(uint32_t timer_id, void* args)>& callback,
-        uint32_t delay_time = 0,
-        void* arguments = NULL);
+    static uint32_t SetInterval(uint32_t interval,
+                                const std::function<void(uint32_t timer_id, void* args)> callback,
+                                uint32_t delay_time = 0,
+                                void* arguments = NULL);
     static uint32_t SetInterval(uint32_t interval,
                                 void (*callback)(uint32_t timer_id, void* args),
                                 uint32_t delay_time = 0,
@@ -100,7 +121,7 @@ class Timer {
     void InternalCancelAllTimer();
     uint32_t AddTimerTask(bool is_period,
                           uint32_t interval,
-                          void (*callback)(uint32_t timer_id, void* args),
+                          Callback& callback,
                           uint32_t delay_time = 0,
                           void* arguments = NULL);
     void InternalAddTimerTask(TimerTask* timer_task);
@@ -115,8 +136,7 @@ class Timer {
     std::atomic<uint32_t> m_timer_tasks;  // 定时器数量
     std::mutex m_mutex;                   // 互斥锁
     std::thread m_timer_thread;
-    std::unordered_map<uint32_t, TimerTask*>
-        m_timer_map;  // 定时器map，方便快速删除定时器
+    std::unordered_map<uint32_t, TimerTask*> m_timer_map;  // 定时器map，方便快速删除定时器
     TimerTask* head[TIMER_WHEELS][TIMER_WHEEL_SLOTS];
     TimerTask* tail[TIMER_WHEELS][TIMER_WHEEL_SLOTS];
     std::mutex link_list_mutex[TIMER_WHEELS][TIMER_WHEEL_SLOTS];
