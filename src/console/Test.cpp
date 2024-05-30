@@ -54,6 +54,8 @@ void TestSpiderConceptListEastMoney() {
     spiderEastMoney->Crawl();
 }
 
+void UpdateProgress(uint32_t timer_id, void* args) {}
+
 void TestSpiderShareKline() {
     StockDataStorage* m_pStockStorage = new StockDataStorage();
     m_pStockStorage->Init();
@@ -65,11 +67,11 @@ void TestTimer() {
     // 添加一次性定时器
     Timer::SetTimeout(2000, [](uint32_t timer_id, void* args) {
         std::cout << "Timer[" << timer_id << "], timeout: 2s, task count: " << Timer::GetTaskCount() << std::endl;
+        Timer::SetTimeout(1000, [](uint32_t timer_id, void* args) {
+            std::cout << "Timer[" << timer_id << "], timeout: 3s, task count: " << Timer::GetTaskCount() << std::endl;
+        });
         Timer::SetTimeout(2000, [](uint32_t timer_id, void* args) {
             std::cout << "Timer[" << timer_id << "], timeout: 4s, task count: " << Timer::GetTaskCount() << std::endl;
-        });
-        Timer::SetTimeout(8000, [](uint32_t timer_id, void* args) {
-            std::cout << "Timer[" << timer_id << "], timeout: 8s, task count: " << Timer::GetTaskCount() << std::endl;
         });
     });
 
@@ -83,7 +85,6 @@ void TestTimer() {
             Timer::CancelTimer(timer_id);
         }
     });
-    std::cin.get();
 }
 
 int main(int argc, char* argv[]) {

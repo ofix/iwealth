@@ -100,7 +100,7 @@ class Timer {
                                void (*callback)(uint32_t timer_id, void* args),
                                void* arguments = NULL);
     static uint32_t SetInterval(uint32_t interval,
-                                const std::function<void(uint32_t timer_id, void* args)> callback,
+                                std::function<void(uint32_t timer_id, void* args)>& callback,
                                 uint32_t delay_time = 0,
                                 void* arguments = NULL);
     static uint32_t SetInterval(uint32_t interval,

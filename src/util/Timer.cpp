@@ -217,7 +217,7 @@ uint32_t Timer::SetTimeout(uint32_t timeout, void (*callback)(uint32_t timer_id,
 }
 
 uint32_t Timer::SetInterval(uint32_t interval,
-                            const std::function<void(uint32_t, void*)> callback,
+                            std::function<void(uint32_t, void*)>& callback,
                             uint32_t delay_time,
                             void* arguments) {
     Timer* pTimer = Timer::GetInstance();
