@@ -204,13 +204,13 @@ void ConcurrentRequest::Run() {
             }
         }
         // 检查是否有进行中的请求
-        if (!still_alive) {
+        if (still_alive) {
             curl_multi_wait(cm, NULL, 0, 1000, NULL);
         } else {
             break;
         }
     }
-
+    std::cout << "[######] finsihed crawl" << std::endl;
     curl_multi_cleanup(cm);
     curl_global_cleanup();
 }

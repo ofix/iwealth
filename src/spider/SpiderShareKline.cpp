@@ -228,29 +228,34 @@ void SpiderShareKline::ParseResponseFinanceBaidu(conn_t* conn, std::vector<uiKli
     } else {
         std::vector<std::string> klines = split(data, ';');
         std::string end_time = "";
-        for (size_t i = 0; i < klines.size(); i++) {
-            std::cout << klines[i] << std::endl;
-            std::vector<std::string> fields = split(klines[i], ',');
-            uiKline kline;
-            kline.day = fields[1];                     // 时间
-            kline.price_open = std::stod(fields[2]);   // 开盘价
-            kline.price_close = std::stod(fields[3]);  // 收盘价
-            if (fields[4] != "-") {
-                kline.trade_volume = std::stod(fields[4]);  // 成交量
-            } else {
-                kline.trade_volume = -1000;  // 成交量
+        std::string last_kline = "";
+        try {
+            for (size_t i = 0; i < klines.size(); i++) {
+                last_kline = klines[i];
+                std::vector<std::string> fields = split(klines[i], ',');
+                uiKline kline;
+                kline.day = fields[1];                     // 时间
+                kline.price_open = std::stod(fields[2]);   // 开盘价
+                kline.price_close = std::stod(fields[3]);  // 收盘价
+                if (fields[4] != "-") {
+                    kline.trade_volume = std::stod(fields[4]);  // 成交量
+                } else {
+                    kline.trade_volume = -1000;  // 成交量
+                }
+                if (fields[5] != "-") {
+                    kline.price_max = std::stod(fields[5]);  // 最高价
+                }
+                if (fields[6] != "-") {
+                    kline.price_min = std::stod(fields[6]);  // 最低价
+                }
+                kline.trade_amount = std::stod(fields[7]);    // 成交额
+                kline.change_amount = std::stod(fields[8]);   // 涨跌额
+                kline.change_rate = std::stod(fields[9]);     // 涨跌幅
+                kline.turnover_rate = std::stod(fields[10]);  // 换手率
+                uiKlines.push_back(kline);
             }
-            if (fields[5] != "-") {
-                kline.price_max = std::stod(fields[5]);  // 最高价
-            }
-            if (fields[6] != "-") {
-                kline.price_min = std::stod(fields[6]);  // 最低价
-            }
-            kline.trade_amount = std::stod(fields[7]);    // 成交额
-            kline.change_amount = std::stod(fields[8]);   // 涨跌额
-            kline.change_rate = std::stod(fields[9]);     // 涨跌幅
-            kline.turnover_rate = std::stod(fields[10]);  // 换手率
-            uiKlines.push_back(kline);
+        } catch (std::exception& e) {
+            std::cout << "[Baidu] parse kline error, " << last_kline << std::endl;
         }
     }
 }
@@ -260,34 +265,40 @@ void SpiderShareKline::ParseResponseEastMoney(conn_t* conn, std::vector<uiKline>
     json _response = json::parse(conn->response);
     json klines = _response["data"]["klines"];
     if (klines != "") {
-        for (json::iterator it = klines.begin(); it != klines.end(); ++it) {
-            std::vector<std::string> fields = split(*it, ',');
-            std::cout << *it << std::endl;
-            uiKline kline;
-            kline.day = fields[0];                     // 时间
-            kline.price_open = std::stod(fields[1]);   // 开盘价
-            kline.price_close = std::stod(fields[2]);  // 收盘价
-            if (fields[3] != "-") {
-                kline.price_max = std::stod(fields[3]);  // 最高价
+        std::string last_kline = "";
+        try {
+            for (json::iterator it = klines.begin(); it != klines.end(); ++it) {
+                std::vector<std::string> fields = split(*it, ',');
+                last_kline = *it;
+                uiKline kline;
+                kline.day = fields[0];                     // 时间
+                kline.price_open = std::stod(fields[1]);   // 开盘价
+                kline.price_close = std::stod(fields[2]);  // 收盘价
+                if (fields[3] != "-") {
+                    kline.price_max = std::stod(fields[3]);  // 最高价
+                }
+                if (fields[4] != "-") {
+                    kline.price_min = std::stod(fields[4]);  // 最低价
+                }
+                if (fields[5] != "-") {
+                    kline.trade_volume = std::stod(fields[5]);  // 成交量
+                } else {
+                    kline.trade_volume = -1000;  // 成交量
+                }
+                if (fields[6] != "-") {
+                    kline.trade_amount = std::stod(fields[6]);  // 成交额
+                } else {
+                    kline.trade_volume = -1000;  // 成交额
+                }
+                kline.change_rate = std::stod(fields[8]);     // 涨跌幅
+                kline.change_amount = std::stod(fields[9]);   // 涨跌额
+                kline.turnover_rate = std::stod(fields[10]);  // 换手率
+                uiKlines.push_back(kline);
             }
-            if (fields[4] != "-") {
-                kline.price_min = std::stod(fields[4]);  // 最低价
-            }
-            if (fields[5] != "-") {
-                kline.trade_volume = std::stod(fields[5]);  // 成交量
-            } else {
-                kline.trade_volume = -1000;  // 成交量
-            }
-            if (fields[6] != "-") {
-                kline.trade_amount = std::stod(fields[6]);  // 成交额
-            } else {
-                kline.trade_volume = -1000;  // 成交额
-            }
-            kline.change_rate = std::stod(fields[8]);     // 涨跌幅
-            kline.change_amount = std::stod(fields[9]);   // 涨跌额
-            kline.turnover_rate = std::stod(fields[10]);  // 换手率
-            uiKlines.push_back(kline);
+        } catch (std::exception& e) {
+            std::cout << "[EastMoney] parse kline error, " << last_kline << std::endl;
         }
+        std::cout << "[EastMoney] pase success!" << std::endl;
     }
 }
 
