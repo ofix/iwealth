@@ -82,6 +82,7 @@ double Spider::GetProgress() {
         total += pStatistics->request_count;
     }
     double progress = static_cast<double>(finsished) / total;
+    return progress;
 }
 
 // 定时器每秒钟更新一次

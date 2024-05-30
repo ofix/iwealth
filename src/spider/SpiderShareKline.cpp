@@ -53,7 +53,7 @@ void SpiderShareKline::ConurrentCrawl(std::vector<KlineCrawlTask>& tasks, KlineT
         std::list<std::string> urls;
         std::vector<void*> user_data;
         priority += tasks[i].priority;
-        pos_end = std::round((shares.size() - 1) * priority);
+        pos_end = std::round((101 /*shares.size()*/ - 1) * priority);
         RequestStatistics* pStatistics = new RequestStatistics();
         if (!pStatistics) {
             gLogger->log("[ConcurrentCrawl] allocate memory failed");
@@ -65,6 +65,9 @@ void SpiderShareKline::ConurrentCrawl(std::vector<KlineCrawlTask>& tasks, KlineT
         for (size_t j = pos_start; j <= pos_end; j++) {
             urls.push_back(GetKlineUrl(tasks[i].provider, kline_type, shares[j].code, shares[j].market));
             KlineCrawlExtra* pExtra = new KlineCrawlExtra();
+            if (!pExtra) {
+                return;
+            }
             pExtra->provider = tasks[i].provider;
             pExtra->type = kline_type;
             pExtra->market = shares[j].market;
@@ -82,14 +85,20 @@ void SpiderShareKline::ConurrentCrawl(std::vector<KlineCrawlTask>& tasks, KlineT
                       urls, callback, user_data, 3));
         crawl_thread.detach();
     }
-    // 启动定时器更新打印速度，并打印爬取进度
-    std::function<void(uint32_t timer_id, void* args)> timerCallback =
-        std::bind(&SpiderShareKline::OnRequestTimer, this, std::placeholders::_1, std::placeholders::_2);
-    Timer::SetInterval(1000, timerCallback);
+    // 启动定时器更新打印速度，并打印爬取进度,以下两种方法绑定成员函数都是OK的
+    // std::function<void(uint32_t, void*)> timerCallback =
+    //     std::bind(&SpiderShareKline::OnRequestTimer, this, std::placeholders::_1, std::placeholders::_2);
+    std::function<void(uint32_t, void*)> timerCallback = [=](uint32_t timer_id, void* args) {
+        OnRequestTimer(timer_id, args);
+    };
+
+    uint32_t timer_id = Timer::SetInterval(1000, timerCallback);
+    if (timer_id == TIMER_CREATE_FAILED) {
+        std::cout << "timer created failed!" << std::endl;
+    }
 }
 
 void SpiderShareKline::OnRequestTimer(uint32_t timer_id, void* args) {
-    std::cout << "timer started" << std::endl;
     this->UpdateRequestStatistics();
     std::cout << "kline sync progress: " << GetProgress() << std::endl;
     // 取消周期性定时任务
@@ -220,6 +229,7 @@ void SpiderShareKline::ParseResponseFinanceBaidu(conn_t* conn, std::vector<uiKli
         std::vector<std::string> klines = split(data, ';');
         std::string end_time = "";
         for (size_t i = 0; i < klines.size(); i++) {
+            std::cout << klines[i] << std::endl;
             std::vector<std::string> fields = split(klines[i], ',');
             uiKline kline;
             kline.day = fields[1];                     // 时间
@@ -252,6 +262,7 @@ void SpiderShareKline::ParseResponseEastMoney(conn_t* conn, std::vector<uiKline>
     if (klines != "") {
         for (json::iterator it = klines.begin(); it != klines.end(); ++it) {
             std::vector<std::string> fields = split(*it, ',');
+            std::cout << *it << std::endl;
             uiKline kline;
             kline.day = fields[0];                     // 时间
             kline.price_open = std::stod(fields[1]);   // 开盘价

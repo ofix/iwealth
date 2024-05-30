@@ -59,6 +59,9 @@ void ConcurrentRequest::_CurlClose(conn_t* conn) {
     if (conn->response.length() > 0) {
         conn->response.clear();
     }
+    if (conn) {
+        delete conn;
+    }
 }
 
 void ConcurrentRequest::_SetRequestHeader(conn_t* conn) {
@@ -139,6 +142,10 @@ void ConcurrentRequest::AddNewRequest(CURLM* cm) {
         _CurlInit(conn);
         curl_multi_add_handle(cm, conn->easy_curl);
         m_connections.pop_back();  // 移除最后一个元素
+        //////// 请求统计 /////////
+        conn->statistics->ongoing_requests += 1;    // 新增一条请求
+        conn->statistics->real_request_count += 1;  // 无论是否是复用的子请求，都统计在内
+        //////////////////////////
     }
 }
 
@@ -146,7 +153,6 @@ void ConcurrentRequest::Run() {
     CURLM* cm;
     CURLMsg* msg;
     int msgs_left = -1;
-    bool running = true;
 
     curl_global_init(CURL_GLOBAL_ALL);
     cm = curl_multi_init();
@@ -161,14 +167,17 @@ void ConcurrentRequest::Run() {
         int still_alive = 1;
         curl_multi_perform(cm, &still_alive);
 
-        while ((msg = curl_multi_info_read(cm, &msgs_left))) {
+        while ((msg = curl_multi_info_read(cm, &msgs_left)) != NULL) {
             if (msg->msg == CURLMSG_DONE) {
                 conn_t* conn;
                 CURL* easy_curl = msg->easy_handle;
                 curl_easy_getinfo(msg->easy_handle, CURLINFO_PRIVATE, &conn);
                 curl_easy_getinfo(conn->easy_curl, CURLINFO_RESPONSE_CODE, &conn->http_code);
                 curl_easy_getinfo(conn->easy_curl, CURLINFO_TOTAL_TIME, &conn->total_time);
+                //////// 请求统计 /////////
                 RequestStatistics* pStatistics = conn->statistics;
+                pStatistics->ongoing_requests -= 1;
+                //////////////////////////
                 if ((conn->callback) && conn->http_code == 200) {
                     try {
                         conn->callback(conn);  // 回调函数中可能会设置 reuse 复用选项,如果reuse=true,不要释放conn
@@ -179,23 +188,23 @@ void ConcurrentRequest::Run() {
                 curl_multi_remove_handle(cm, easy_curl);
                 if (!conn->reuse) {  // 如果没有子请求复用，释放资源
                     _CurlClose(conn);
+                    //////// 请求统计 /////////
                     if (conn->http_code == 200) {
                         pStatistics->success_requests += 1;
                     } else {
                         pStatistics->failed_requests += 1;
                     }
+                    //////////////////////////
+                } else {  // 如果复用，需要重置response
+                    conn->response.clear();
                 }
-                pStatistics->real_request_count += 1;  // 无论是否是复用的子请求，都统计在内
-                if (!m_connections.empty()) {
-                    AddNewRequest(cm);
-                    pStatistics->ongoing_requests += 1;  // 新增一条请求
-                }
+                AddNewRequest(cm);
             } else {
                 fprintf(stderr, "E: CURLMsg (%d)\n", msg->msg);
             }
         }
         // 检查是否有进行中的请求
-        if (still_alive || (!m_connections.empty())) {
+        if (!still_alive) {
             curl_multi_wait(cm, NULL, 0, 1000, NULL);
         } else {
             break;
@@ -214,7 +223,7 @@ void HttpConcurrentGet(const std::list<std::string>& urls,
     ConcurrentRequest request(concurrent_size);
     std::list<conn_t*> connections;
     for (auto url : urls) {
-        conn_t* pConn = new conn_t();
+        conn_t* pConn = new conn_t();  // 必须堆上分配，否则_CurlClose删除conn会报错！
         if (!pConn) {
             gLogger->log("%s line %d error", __FILE__, __LINE__);
             break;
@@ -240,7 +249,7 @@ void HttpConcurrentGet(const std::list<std::string>& urls,
     std::list<conn_t*> connections;
     size_t i = 0;
     for (auto url : urls) {
-        conn_t* pConn = new conn_t();
+        conn_t* pConn = new conn_t();  // 必须堆上分配，否则_CurlClose删除conn会报错！
         if (!pConn) {
             gLogger->log("%s line %d error", __FILE__, __LINE__);
             break;
