@@ -34,6 +34,7 @@ class SpiderShareKline : public Spider {
     int GetEastMoneyMarketCode(const Market market);
 
     // 解析响应
+    bool IsNaN(std::string& data);
     std::vector<uiKline> ParseResponse(conn_t* conn);
     void ParseResponseFinanceBaidu(conn_t* conn, std::vector<uiKline>& uiKlines);
     void ParseResponseEastMoney(conn_t* conn, std::vector<uiKline>& uiKlines);

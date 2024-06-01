@@ -218,6 +218,20 @@ std::vector<uiKline> SpiderShareKline::ParseResponse(conn_t* conn) {
     return uiKlines;
 }
 
+// 检查是否是合法的double数字
+bool SpiderShareKline::IsNaN(std::string& data) {
+    if (data.length() == 0) {
+        return true;  // 空字符串
+    }
+    if (data.length() >= 2) {
+        if (data[1] == '-') {  // 检查第二个字符是否是-,如果是，
+            return true;       // ---或者--都是不合法的，为了快速判断，无需判断其他字符
+        }
+        return false;
+    }
+    return std::isdigit(data[0]) ? false : true;  // 只有一个字符的情况，判断是否是数字
+}
+
 // 解析百度财经返回数据
 // 百度财经数据完整历史K线需要请求多次，因此这里做统计最合适
 void SpiderShareKline::ParseResponseFinanceBaidu(conn_t* conn, std::vector<uiKline>& uiKlines) {
@@ -229,33 +243,45 @@ void SpiderShareKline::ParseResponseFinanceBaidu(conn_t* conn, std::vector<uiKli
         std::vector<std::string> klines = split(data, ';');
         std::string end_time = "";
         std::string last_kline = "";
+        size_t ii = 0;
+        size_t total = klines.size();
         try {
             for (size_t i = 0; i < klines.size(); i++) {
                 last_kline = klines[i];
+                ii = i;
                 std::vector<std::string> fields = split(klines[i], ',');
                 uiKline kline;
                 kline.day = fields[1];                     // 时间
                 kline.price_open = std::stod(fields[2]);   // 开盘价
                 kline.price_close = std::stod(fields[3]);  // 收盘价
-                if (fields[4] != "-") {
+                if (!IsNaN(fields[4])) {
                     kline.trade_volume = std::stod(fields[4]);  // 成交量
                 } else {
-                    kline.trade_volume = -1000;  // 成交量
+                    kline.trade_volume = 0;  // 成交量
                 }
-                if (fields[5] != "-") {
+                if (!IsNaN(fields[5])) {
                     kline.price_max = std::stod(fields[5]);  // 最高价
+                } else {
+                    kline.price_max = 0;
                 }
-                if (fields[6] != "-") {
+                if (!IsNaN(fields[6])) {
                     kline.price_min = std::stod(fields[6]);  // 最低价
+                } else {
+                    kline.price_min = 0;
                 }
-                kline.trade_amount = std::stod(fields[7]);    // 成交额
-                kline.change_amount = std::stod(fields[8]);   // 涨跌额
-                kline.change_rate = std::stod(fields[9]);     // 涨跌幅
-                kline.turnover_rate = std::stod(fields[10]);  // 换手率
+                kline.trade_amount = std::stod(fields[7]);   // 成交额
+                kline.change_amount = std::stod(fields[8]);  // 涨跌额
+                kline.change_rate = std::stod(fields[9]);    // 涨跌幅
+                if (!IsNaN(fields[10])) {
+                    kline.turnover_rate = std::stod(fields[10]);  // 换手率
+                } else {
+                    kline.turnover_rate = 0;
+                }
                 uiKlines.push_back(kline);
             }
         } catch (std::exception& e) {
-            std::cout << "[Baidu] parse kline error, " << last_kline << std::endl;
+            std::cout << "(" << ii << "/" << total << ") kline: " << last_kline << std::endl;
+            throw e;
         }
     }
 }
@@ -274,18 +300,18 @@ void SpiderShareKline::ParseResponseEastMoney(conn_t* conn, std::vector<uiKline>
                 kline.day = fields[0];                     // 时间
                 kline.price_open = std::stod(fields[1]);   // 开盘价
                 kline.price_close = std::stod(fields[2]);  // 收盘价
-                if (fields[3] != "-") {
+                if (!IsNaN(fields[3])) {
                     kline.price_max = std::stod(fields[3]);  // 最高价
                 }
-                if (fields[4] != "-") {
+                if (!IsNaN(fields[4])) {
                     kline.price_min = std::stod(fields[4]);  // 最低价
                 }
-                if (fields[5] != "-") {
+                if (!IsNaN(fields[5])) {
                     kline.trade_volume = std::stod(fields[5]);  // 成交量
                 } else {
                     kline.trade_volume = -1000;  // 成交量
                 }
-                if (fields[6] != "-") {
+                if (!IsNaN(fields[6])) {
                     kline.trade_amount = std::stod(fields[6]);  // 成交额
                 } else {
                     kline.trade_volume = -1000;  // 成交额
@@ -296,9 +322,8 @@ void SpiderShareKline::ParseResponseEastMoney(conn_t* conn, std::vector<uiKline>
                 uiKlines.push_back(kline);
             }
         } catch (std::exception& e) {
-            std::cout << "[EastMoney] parse kline error, " << last_kline << std::endl;
+            throw e;
         }
-        std::cout << "[EastMoney] pase success!" << std::endl;
     }
 }
 
