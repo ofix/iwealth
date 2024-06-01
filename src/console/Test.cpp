@@ -87,9 +87,22 @@ void TestTimer() {
     });
 }
 
+void KlineTest() {
+    std::string error_kline =
+        "1483459200,2017-01-04,20.78,20.78,394641,20.78,20.78,20789688.00,+1.92,+10.18,--,18.86,17.63,1954291,16.66,"
+        "1537991,16.77,1424830";
+    std::vector<std::string> fields = split(error_kline, ',');
+    uiKline kline;
+    bool result = SpiderShareKline::ParseKlineBaidu(error_kline, &kline);
+    if (!result) {
+        std::cout << "parse baidu finance kline error!" << std::endl;
+    }
+}
+
 int main(int argc, char* argv[]) {
     // TestSpiderConceptListEastMoney();
     // TestTimer();
+    // KlineTest();
     TestSpiderShareKline();
     std::cin.get();
 }

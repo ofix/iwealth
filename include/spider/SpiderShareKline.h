@@ -16,6 +16,9 @@ class SpiderShareKline : public Spider {
     virtual ~SpiderShareKline();
     void Crawl(KlineType type = KlineType::Day);
     void OnRequestTimer(uint32_t timer_id, void* args);
+    static bool IsNaN(const std::string& data);
+    static bool ParseKlineBaidu(const std::string& kline, uiKline* uiKline);
+    static bool ParseKlineEastMoney(const std::string& kline, uiKline* uiKline);
 
    protected:
     virtual void DoCrawl(KlineType type = KlineType::Day);
@@ -34,7 +37,6 @@ class SpiderShareKline : public Spider {
     int GetEastMoneyMarketCode(const Market market);
 
     // 解析响应
-    bool IsNaN(std::string& data);
     std::vector<uiKline> ParseResponse(conn_t* conn);
     void ParseResponseFinanceBaidu(conn_t* conn, std::vector<uiKline>& uiKlines);
     void ParseResponseEastMoney(conn_t* conn, std::vector<uiKline>& uiKlines);
