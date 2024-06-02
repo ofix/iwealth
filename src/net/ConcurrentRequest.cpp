@@ -1,4 +1,5 @@
 #include "net/ConcurrentRequest.h"
+#include <iomanip>
 #include "spider/Spider.h"
 #include "util/EasyLogger.h"
 
@@ -146,6 +147,8 @@ void ConcurrentRequest::AddNewRequest(CURLM* cm) {
         conn->statistics->ongoing_requests += 1;    // 新增一条请求
         conn->statistics->real_request_count += 1;  // 无论是否是复用的子请求，都统计在内
         //////////////////////////
+    } else {
+        std::cout << "no new request to added" << std::endl;
     }
 }
 
@@ -153,6 +156,7 @@ void ConcurrentRequest::Run() {
     CURLM* cm;
     CURLMsg* msg;
     int msgs_left = -1;
+    int request_no = 0;
 
     curl_global_init(CURL_GLOBAL_ALL);
     cm = curl_multi_init();
@@ -162,11 +166,10 @@ void ConcurrentRequest::Run() {
     for (size_t i = 0; i < m_concurrent_size; i++) {
         AddNewRequest(cm);
     }
-
+    std::cout << "total size: " << m_connections.size() << std::endl;
     for (;;) {
         int still_alive = 1;
         curl_multi_perform(cm, &still_alive);
-
         while ((msg = curl_multi_info_read(cm, &msgs_left)) != NULL) {
             if (msg->msg == CURLMSG_DONE) {
                 conn_t* conn;
@@ -180,6 +183,8 @@ void ConcurrentRequest::Run() {
                 //////////////////////////
                 if ((conn->callback) && conn->http_code == 200) {
                     try {
+                        request_no += 1;
+                        std::cout << std::setfill('0') << std::setw(3) << request_no << ": " << conn->url << std::endl;
                         conn->callback(conn);  // 回调函数中可能会设置 reuse 复用选项,如果reuse=true,不要释放conn
                     } catch (std::exception& e) {
                         std::cout << "concurrent loop callback error! " << e.what() << std::endl;
@@ -200,7 +205,7 @@ void ConcurrentRequest::Run() {
                 }
                 AddNewRequest(cm);
             } else {
-                fprintf(stderr, "E: CURLMsg (%d)\n", msg->msg);
+                std::cerr << "E:CURLMsg " << msg->msg << std::endl;
             }
         }
         // 检查是否有进行中的请求

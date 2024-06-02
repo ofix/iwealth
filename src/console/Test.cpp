@@ -89,9 +89,8 @@ void TestTimer() {
 
 void KlineTest() {
     std::string error_kline =
-        "1483459200,2017-01-04,20.78,20.78,394641,20.78,20.78,20789688.00,+1.92,+10.18,--,18.86,17.63,1954291,16.66,"
-        "1537991,16.77,1424830";
-    std::vector<std::string> fields = split(error_kline, ',');
+        "1483459200,2017-01-04,6.84,6.85,5320285,6.86,6.77,37188319.00,-0.02,-0.29,--,6.87,6.83,4333075,6.77,4819666,6."
+        "75,5817798";
     uiKline kline;
     bool result = SpiderShareKline::ParseKlineBaidu(error_kline, &kline);
     if (!result) {

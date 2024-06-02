@@ -264,6 +264,7 @@ bool SpiderShareKline::ParseKlineBaidu(const std::string& kline, uiKline* uiKlin
         return true;
     } catch (std::exception& e) {
         std::cout << "[Error] ParseKlineBaidu: " << e.what() << std::endl;
+        std::cout << kline << std::endl;
         return false;
     }
 }
@@ -294,12 +295,25 @@ bool SpiderShareKline::ParseKlineEastMoney(const std::string& kline, uiKline* ui
         } else {
             uiKline->trade_volume = 0;  // 成交额
         }
-        uiKline->change_rate = std::stod(fields[8]);     // 涨跌幅
-        uiKline->change_amount = std::stod(fields[9]);   // 涨跌额
-        uiKline->turnover_rate = std::stod(fields[10]);  // 换手率
+        if (!IsNaN(fields[8])) {
+            uiKline->change_rate = std::stod(fields[8]);  // 涨跌幅
+        } else {
+            uiKline->change_rate = 0;
+        }
+        if (!IsNaN(fields[9])) {
+            uiKline->change_amount = std::stod(fields[9]);  // 涨跌额
+        } else {
+            uiKline->change_amount = 0;
+        }
+        if (!IsNaN(fields[10])) {
+            uiKline->turnover_rate = std::stod(fields[10]);  // 换手率
+        } else {
+            uiKline->turnover_rate = 0;
+        }
         return true;
     } catch (std::exception& e) {
         std::cout << "[Error] ParseKlineEastMoney: " << e.what() << std::endl;
+        std::cout << kline << std::endl;
         return false;
     }
 }
