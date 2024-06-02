@@ -166,7 +166,7 @@ void ConcurrentRequest::Run() {
     for (size_t i = 0; i < m_concurrent_size; i++) {
         AddNewRequest(cm);
     }
-    std::cout << "total size: " << m_connections.size() << std::endl;
+
     for (;;) {
         int still_alive = 1;
         curl_multi_perform(cm, &still_alive);
@@ -188,6 +188,7 @@ void ConcurrentRequest::Run() {
                         conn->callback(conn);  // 回调函数中可能会设置 reuse 复用选项,如果reuse=true,不要释放conn
                     } catch (std::exception& e) {
                         std::cout << "concurrent loop callback error! " << e.what() << std::endl;
+                        std::cout << conn->response << std::endl;
                     }
                 }
                 curl_multi_remove_handle(cm, easy_curl);
@@ -199,9 +200,12 @@ void ConcurrentRequest::Run() {
                     } else {
                         pStatistics->failed_requests += 1;
                     }
+                    std::cout << "success: " << pStatistics->success_requests
+                              << ", failed: " << pStatistics->failed_requests << std::endl;
                     //////////////////////////
                 } else {  // 如果复用，需要重置response
                     conn->response.clear();
+                    AddConnection(conn);  // 再次发送子请求
                 }
                 AddNewRequest(cm);
             } else {

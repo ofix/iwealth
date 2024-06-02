@@ -51,7 +51,7 @@ void SpiderShareKline::ConurrentCrawl(std::vector<KlineCrawlTask>& tasks, KlineT
     double priority = 0;
     for (size_t i = 0; i < tasks.size(); i++) {
         std::list<std::string> urls;
-        std::vector<void*> user_data;
+        std::vector<void*> user_data = {};
         priority += tasks[i].priority;
         pos_end = std::round((101 /*shares.size()*/ - 1) * priority);
         RequestStatistics* pStatistics = new RequestStatistics();
@@ -66,6 +66,7 @@ void SpiderShareKline::ConurrentCrawl(std::vector<KlineCrawlTask>& tasks, KlineT
             urls.push_back(GetKlineUrl(tasks[i].provider, kline_type, shares[j].code, shares[j].market));
             KlineCrawlExtra* pExtra = new KlineCrawlExtra();
             if (!pExtra) {
+                std::cout << "[error]: bad memory alloc KlineCrawlExtra" << std::endl;
                 return;
             }
             pExtra->provider = tasks[i].provider;
@@ -235,32 +236,16 @@ bool SpiderShareKline::IsNaN(const std::string& data) {
 bool SpiderShareKline::ParseKlineBaidu(const std::string& kline, uiKline* uiKline) {
     try {
         std::vector<std::string> fields = split(kline, ',');
-        uiKline->day = fields[1];                     // 时间
-        uiKline->price_open = std::stod(fields[2]);   // 开盘价
-        uiKline->price_close = std::stod(fields[3]);  // 收盘价
-        if (!IsNaN(fields[4])) {
-            uiKline->trade_volume = std::stod(fields[4]);  // 成交量
-        } else {
-            uiKline->trade_volume = 0;  // 成交量
-        }
-        if (!IsNaN(fields[5])) {
-            uiKline->price_max = std::stod(fields[5]);  // 最高价
-        } else {
-            uiKline->price_max = 0;
-        }
-        if (!IsNaN(fields[6])) {
-            uiKline->price_min = std::stod(fields[6]);  // 最低价
-        } else {
-            uiKline->price_min = 0;
-        }
-        uiKline->trade_amount = std::stod(fields[7]);   // 成交额
-        uiKline->change_amount = std::stod(fields[8]);  // 涨跌额
-        uiKline->change_rate = std::stod(fields[9]);    // 涨跌幅
-        if (!IsNaN(fields[10])) {
-            uiKline->turnover_rate = std::stod(fields[10]);  // 换手率
-        } else {
-            uiKline->turnover_rate = 0;
-        }
+        uiKline->day = fields[1];                                                // 时间
+        uiKline->price_open = std::stod(fields[2]);                              // 开盘价
+        uiKline->price_close = std::stod(fields[3]);                             // 收盘价
+        uiKline->trade_volume = IsNaN(fields[4]) ? 0 : std::stod(fields[4]);     // 成交量
+        uiKline->price_max = IsNaN(fields[5]) ? 0 : std::stod(fields[5]);        // 最高价
+        uiKline->price_min = IsNaN(fields[6]) ? 0 : std::stod(fields[6]);        // 最低价
+        uiKline->trade_amount = IsNaN(fields[7]) ? 0 : std::stod(fields[7]);     // 成交额
+        uiKline->change_amount = IsNaN(fields[8]) ? 0 : std::stod(fields[8]);    // 涨跌额
+        uiKline->change_rate = IsNaN(fields[9]) ? 0 : std::stod(fields[9]);      // 涨跌幅
+        uiKline->turnover_rate = IsNaN(fields[10]) ? 0 : std::stod(fields[10]);  // 换手率
         return true;
     } catch (std::exception& e) {
         std::cout << "[Error] ParseKlineBaidu: " << e.what() << std::endl;
@@ -272,44 +257,16 @@ bool SpiderShareKline::ParseKlineBaidu(const std::string& kline, uiKline* uiKlin
 bool SpiderShareKline::ParseKlineEastMoney(const std::string& kline, uiKline* uiKline) {
     try {
         std::vector<std::string> fields = split(kline, ',');
-        uiKline->day = fields[0];                     // 时间
-        uiKline->price_open = std::stod(fields[1]);   // 开盘价
-        uiKline->price_close = std::stod(fields[2]);  // 收盘价
-        if (!IsNaN(fields[3])) {
-            uiKline->price_max = std::stod(fields[3]);  // 最高价
-        } else {
-            uiKline->price_max = 0;
-        }
-        if (!IsNaN(fields[4])) {
-            uiKline->price_min = std::stod(fields[4]);  // 最低价
-        } else {
-            uiKline->price_min = 0;
-        }
-        if (!IsNaN(fields[5])) {
-            uiKline->trade_volume = std::stod(fields[5]);  // 成交量
-        } else {
-            uiKline->trade_volume = 0;  // 成交量
-        }
-        if (!IsNaN(fields[6])) {
-            uiKline->trade_amount = std::stod(fields[6]);  // 成交额
-        } else {
-            uiKline->trade_volume = 0;  // 成交额
-        }
-        if (!IsNaN(fields[8])) {
-            uiKline->change_rate = std::stod(fields[8]);  // 涨跌幅
-        } else {
-            uiKline->change_rate = 0;
-        }
-        if (!IsNaN(fields[9])) {
-            uiKline->change_amount = std::stod(fields[9]);  // 涨跌额
-        } else {
-            uiKline->change_amount = 0;
-        }
-        if (!IsNaN(fields[10])) {
-            uiKline->turnover_rate = std::stod(fields[10]);  // 换手率
-        } else {
-            uiKline->turnover_rate = 0;
-        }
+        uiKline->day = fields[0];                                                // 时间
+        uiKline->price_open = std::stod(fields[1]);                              // 开盘价
+        uiKline->price_close = std::stod(fields[2]);                             // 收盘价
+        uiKline->price_max = IsNaN(fields[3]) ? 0 : std::stod(fields[3]);        // 最高价
+        uiKline->price_min = IsNaN(fields[4]) ? 0 : std::stod(fields[4]);        // 最低价
+        uiKline->trade_volume = IsNaN(fields[5]) ? 0 : std::stod(fields[5]);     // 成交量
+        uiKline->trade_amount = IsNaN(fields[6]) ? 0 : std::stod(fields[6]);     // 成交额
+        uiKline->change_rate = IsNaN(fields[8]) ? 0 : std::stod(fields[8]);      // 涨跌幅
+        uiKline->change_amount = IsNaN(fields[9]) ? 0 : std::stod(fields[9]);    // 涨跌额
+        uiKline->turnover_rate = IsNaN(fields[10]) ? 0 : std::stod(fields[10]);  // 换手率
         return true;
     } catch (std::exception& e) {
         std::cout << "[Error] ParseKlineEastMoney: " << e.what() << std::endl;
@@ -329,7 +286,7 @@ void SpiderShareKline::ParseResponseFinanceBaidu(conn_t* conn, std::vector<uiKli
         std::vector<std::string> klines = split(data, ';');
         for (size_t i = 0; i < klines.size(); i++) {
             uiKline kline;
-            if (ParseKlineEastMoney(klines[i], &kline)) {
+            if (ParseKlineBaidu(klines[i], &kline)) {
                 uiKlines.push_back(kline);
             }
         }
@@ -344,7 +301,7 @@ void SpiderShareKline::ParseResponseEastMoney(conn_t* conn, std::vector<uiKline>
         std::string last_kline = "";
         for (json::iterator it = klines.begin(); it != klines.end(); ++it) {
             uiKline kline;
-            if (ParseKlineBaidu(*it, &kline)) {
+            if (ParseKlineEastMoney(*it, &kline)) {
                 uiKlines.push_back(kline);
             }
         }
@@ -367,11 +324,13 @@ void SpiderShareKline::SingleResponseCallback(conn_t* conn) {
 void SpiderShareKline::ConcurrentResponseCallback(conn_t* conn) {
     KlineCrawlExtra* pExtra = static_cast<KlineCrawlExtra*>(conn->extra);
     std::vector<uiKline> multi_kline = ParseResponse(conn);
-    if (pExtra->provider == KlineProvider::FinanceBaidu && multi_kline.size() > 0) {
-        std::string end_date = multi_kline[0].day;
-        std::string share_code = pExtra->share->code;
-        conn->url = GetKlineUrl(pExtra->provider, pExtra->type, share_code, pExtra->market, end_date);
-        conn->reuse = true;  // 需要复用
-        this->m_concurrent_klines[share_code].push_back(multi_kline);
+    if (pExtra->provider == KlineProvider::FinanceBaidu) {
+        if (multi_kline.size() > 0) {
+            std::string end_date = multi_kline[0].day;
+            std::string share_code = pExtra->share->code;
+            conn->url = GetKlineUrl(pExtra->provider, pExtra->type, share_code, pExtra->market, end_date);
+            conn->reuse = true;  // 需要复用
+            this->m_concurrent_klines[share_code].push_back(multi_kline);
+        }
     }
 }
