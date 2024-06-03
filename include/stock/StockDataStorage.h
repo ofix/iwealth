@@ -44,8 +44,14 @@ class StockDataStorage {
     std::unordered_map<std::string, ShareConcept*> m_market_concepts;
     // 市场个股前复权历史K线
     std::unordered_map<std::string, std::vector<uiKline>> m_day_klines_adjust;
+    std::unordered_map<std::string, std::vector<uiKline>> m_week_klines_adjust;
+    std::unordered_map<std::string, std::vector<uiKline>> m_month_klines_adjust;
+    std::unordered_map<std::string, std::vector<uiKline>> m_year_klines_adjust;
     // 市场个股不复权历史K线
     std::unordered_map<std::string, std::vector<uiKline>> m_day_klines;
+    std::unordered_map<std::string, std::vector<uiKline>> m_week_klines;
+    std::unordered_map<std::string, std::vector<uiKline>> m_month_klines;
+    std::unordered_map<std::string, std::vector<uiKline>> m_year_klines;
 
     // 爬虫友元类，减少数据拷贝
     friend class SpiderShareListHexun;        // 和讯网股票爬虫

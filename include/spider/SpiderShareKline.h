@@ -7,6 +7,7 @@
 #include "SpiderShareKlineUrl.h"
 #include "nlohmann/json.hpp"
 #include "spider/Spider.h"
+#include "stock/Stock.h"
 
 class StockDataStorage;
 class SpiderShareKline : public Spider {
@@ -19,9 +20,15 @@ class SpiderShareKline : public Spider {
     static bool IsNaN(const std::string& data);
     static bool ParseKlineBaidu(const std::string& kline, uiKline* uiKline);
     static bool ParseKlineEastMoney(const std::string& kline, uiKline* uiKline);
+    void MergeShareKlines(const KlineType kline_type = KlineType::Day);
+    size_t GetKlineCount(const std::vector<std::vector<uiKline>>& multi_klines);
 
    protected:
     virtual void DoCrawl(KlineType type = KlineType::Day);
+    void MergeShareKlines(std::unordered_map<std::string, std::vector<std::vector<uiKline>>>& concurrent_klines,
+                          std::unordered_map<std::string, std::vector<uiKline>>& target_klines);
+    void MergeShareKlines(std::unordered_map<std::string, std::vector<uiKline>>& concurrent_klines,
+                          std::unordered_map<std::string, std::vector<uiKline>>& target_klines);
     void SingleCrawl(std::vector<KlineCrawlTask>& tasks, KlineType kline_type);
     void ConurrentCrawl(std::vector<KlineCrawlTask>& tasks, KlineType kline_type);
     // 百度财经
@@ -45,5 +52,8 @@ class SpiderShareKline : public Spider {
     void ConcurrentResponseCallback(conn_t* conn);
 
    private:
-    std::unordered_map<std::string, std::vector<std::vector<uiKline>>> m_concurrent_klines;
+    std::unordered_map<std::string, std::vector<std::vector<uiKline>>> m_concurrent_day_klines_adjust;
+    std::unordered_map<std::string, std::vector<std::vector<uiKline>>> m_concurrent_week_klines_adjust;
+    std::unordered_map<std::string, std::vector<uiKline>> m_concurrent_month_klines_adjust;
+    std::unordered_map<std::string, std::vector<uiKline>> m_concurrent_year_klines_adjust;
 };

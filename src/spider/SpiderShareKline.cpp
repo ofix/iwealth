@@ -316,7 +316,7 @@ void SpiderShareKline::SingleResponseCallback(conn_t* conn) {
         std::string share_code = pExtra->share->code;
         conn->url = GetKlineUrl(pExtra->provider, pExtra->type, share_code, pExtra->market, end_date);
         conn->reuse = true;  // 需要复用
-        this->m_concurrent_klines[share_code].push_back(multi_kline);
+        this->m_concurrent_day_klines_adjust[share_code].push_back(multi_kline);
     }
 }
 
@@ -330,7 +330,52 @@ void SpiderShareKline::ConcurrentResponseCallback(conn_t* conn) {
             std::string share_code = pExtra->share->code;
             conn->url = GetKlineUrl(pExtra->provider, pExtra->type, share_code, pExtra->market, end_date);
             conn->reuse = true;  // 需要复用
-            this->m_concurrent_klines[share_code].push_back(multi_kline);
+            this->m_concurrent_day_klines_adjust[share_code].push_back(multi_kline);
         }
     }
+}
+
+// 合并K线，可以考虑移动语义
+void SpiderShareKline::MergeShareKlines(const KlineType kline_type) {
+    if (kline_type == KlineType::Day) {
+        MergeShareKlines(m_concurrent_day_klines_adjust, m_pStockStorage->m_day_klines_adjust);
+    } else if (kline_type == KlineType::Week) {
+        MergeShareKlines(m_concurrent_week_klines_adjust, m_pStockStorage->m_week_klines_adjust);
+    } else if (kline_type == KlineType::Month) {
+        MergeShareKlines(m_concurrent_month_klines_adjust, m_pStockStorage->m_month_klines_adjust);
+    } else if (kline_type == KlineType::Year) {
+        MergeShareKlines(m_concurrent_year_klines_adjust, m_pStockStorage->m_year_klines_adjust);
+    }
+}
+
+void SpiderShareKline::MergeShareKlines(
+    std::unordered_map<std::string, std::vector<std::vector<uiKline>>>& concurrent_klines,
+    std::unordered_map<std::string, std::vector<uiKline>>& target_klines) {
+    for (std::unordered_map<std::string, std::vector<std::vector<uiKline>>>::const_iterator it =
+             concurrent_klines.begin();
+         it != concurrent_klines.end(); ++it) {
+        const std::string& share_code = it->first;
+        const std::vector<std::vector<uiKline>>& multi_klines = it->second;
+        size_t kline_count = GetKlineCount(multi_klines);
+        std::vector<uiKline> history_kline(kline_count);
+        std::vector<std::vector<uiKline>>::const_reverse_iterator it_klines;
+        for (it_klines = multi_klines.crbegin(); it_klines != multi_klines.crend(); ++it_klines) {
+            const std::vector<uiKline>& kline = *it_klines;
+            history_kline.insert(history_kline.end(), kline.begin(), kline.end());
+        }
+        // 对键和值进行相应操作
+        target_klines.insert({share_code, history_kline});
+    }
+}
+void SpiderShareKline::MergeShareKlines(std::unordered_map<std::string, std::vector<uiKline>>& klines,
+                                        std::unordered_map<std::string, std::vector<uiKline>>& target_klines) {}
+
+// 获取所有历史向量K线的数量，避免std::vector容器反复分配内存带来的性能损失
+size_t SpiderShareKline::GetKlineCount(const std::vector<std::vector<uiKline>>& multi_klines) {
+    std::vector<std::vector<uiKline>>::const_iterator it;
+    std::size_t count = 0;
+    for (it = multi_klines.cbegin(); it != multi_klines.cend(); ++it) {
+        count += (*it).size();
+    }
+    return count;
 }
