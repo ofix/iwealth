@@ -47,6 +47,7 @@ void StockDataStorage::LoadStockAllShares() {
     // Set console code page to UTF-8 so console known how to interpret string data
     // SetConsoleOutputCP(936);
 }
+
 std::string StockDataStorage::ToJson(std::vector<Share>& shares) {
     json result = json::array();
     for (Share share : shares) {
@@ -76,6 +77,28 @@ bool StockDataStorage::LoadLocalJsonFile(std::string& path, std::vector<Share>& 
         return false;
     }
     return true;
+}
+
+bool StockDataStorage::SaveShareKLines(const KlineType kline_type) {
+    std::string path = FileTool::CurrentPath() + "data/";
+    if (kline_type == KlineType::Day) {
+        path += "day";
+        return SaveShareKlines(path, m_day_klines_adjust);
+    } else if (kline_type == KlineType::Week) {
+        path += "week";
+        return SaveShareKlines(path, m_week_klines_adjust);
+    } else if (kline_type == KlineType::Month) {
+        path += "month";
+        return SaveShareKlines(path, m_month_klines_adjust);
+    } else if (kline_type == KlineType::Year) {
+        path += "year";
+        return SaveShareKlines(path, m_year_klines_adjust);
+    }
+}
+
+bool StockDataStorage::SaveShareKlines(const std::string& path,
+                                       const std::unordered_map<std::string, std::vector<uiKline>>& klines) {
+    return false;
 }
 
 bool StockDataStorage::CrawlStockHistoryName() {

@@ -23,6 +23,7 @@ class StockDataStorage {
     std::string GetStockDataSaveDir();
     bool CrawlStockKlinesHistoryData();  // 同步股票历史K线数据
     bool CrawlStockHistoryName();        // 同步股票曾用名
+    bool SaveShareKLines(const KlineType kline_type);
 
    protected:
     std::string ToJson(std::vector<Share>& shares);
@@ -30,6 +31,7 @@ class StockDataStorage {
     bool LoadLocalJsonFile(std::string& path, std::vector<Share>& shares);
 
    protected:
+    bool SaveShareKlines(const std::string& path, const std::unordered_map<std::string, std::vector<uiKline>>& klines);
     // 数据存储
     std::string m_data_dir;                // 数据保存根目录
     std::string m_path_share_brief;        // 股票简称保存
