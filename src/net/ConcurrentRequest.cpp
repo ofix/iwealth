@@ -3,10 +3,13 @@
 #include "spider/Spider.h"
 #include "util/EasyLogger.h"
 
-ConcurrentRequest::ConcurrentRequest(uint32_t concurrent_size) : m_concurrent_size(concurrent_size) {}
+ConcurrentRequest::ConcurrentRequest(const std::string& thread_name, uint32_t concurrent_size)
+    : m_thread_name(thread_name), m_concurrent_size(concurrent_size) {}
 
-ConcurrentRequest::ConcurrentRequest(std::list<conn_t*>& connections, uint32_t concurrent_size)
-    : m_concurrent_size(concurrent_size), m_connections(connections) {}
+ConcurrentRequest::ConcurrentRequest(const std::string& thread_name,
+                                     std::list<conn_t*>& connections,
+                                     uint32_t concurrent_size)
+    : m_thread_name(thread_name), m_concurrent_size(concurrent_size), m_connections(connections) {}
 
 ConcurrentRequest::~ConcurrentRequest() {}
 
@@ -152,6 +155,10 @@ void ConcurrentRequest::AddNewRequest(CURLM* cm) {
     }
 }
 
+std::string ConcurrentRequest::GetThreadPrefix() const {
+    return "[" + m_thread_name + "] ";
+}
+
 void ConcurrentRequest::Run() {
     CURLM* cm;
     CURLMsg* msg;
@@ -187,7 +194,7 @@ void ConcurrentRequest::Run() {
                         std::cout << std::setfill('0') << std::setw(3) << request_no << ": " << conn->url << std::endl;
                         conn->callback(conn);  // 回调函数中可能会设置 reuse 复用选项,如果reuse=true,不要释放conn
                     } catch (std::exception& e) {
-                        std::cout << "concurrent loop callback error! " << e.what() << std::endl;
+                        std::cout << GetThreadPrefix() << "concurrent loop callback error! " << e.what() << std::endl;
                         std::cout << conn->response << std::endl;
                     }
                 }
@@ -200,7 +207,7 @@ void ConcurrentRequest::Run() {
                     } else {
                         pStatistics->failed_requests += 1;
                     }
-                    std::cout << "success: " << pStatistics->success_requests
+                    std::cout << GetThreadPrefix() << "success: " << pStatistics->success_requests
                               << ", failed: " << pStatistics->failed_requests << std::endl;
                     //////////////////////////
                 } else {  // 如果复用，需要重置response
@@ -209,7 +216,7 @@ void ConcurrentRequest::Run() {
                 }
                 AddNewRequest(cm);
             } else {
-                std::cerr << "E:CURLMsg " << msg->msg << std::endl;
+                std::cerr << GetThreadPrefix() << "E:CURLMsg " << msg->msg << std::endl;
             }
         }
         // 检查是否有进行中的请求
@@ -219,17 +226,18 @@ void ConcurrentRequest::Run() {
             break;
         }
     }
-    std::cout << "[######] finsihed crawl" << std::endl;
+    std::cout << GetThreadPrefix() << " progress 100%" << std::endl;
     curl_multi_cleanup(cm);
     curl_global_cleanup();
 }
 
 // 通常情况下，这个函数在独立的分离线程工作
-void HttpConcurrentGet(const std::list<std::string>& urls,
+void HttpConcurrentGet(const std::string& thread_name,
+                       const std::list<std::string>& urls,
                        std::function<void(conn_t*)>& callback,
                        void* user_extra,
                        uint32_t concurrent_size) {
-    ConcurrentRequest request(concurrent_size);
+    ConcurrentRequest request(thread_name, concurrent_size);
     std::list<conn_t*> connections;
     for (auto url : urls) {
         conn_t* pConn = new conn_t();  // 必须堆上分配，否则_CurlClose删除conn会报错！
@@ -250,11 +258,12 @@ void HttpConcurrentGet(const std::list<std::string>& urls,
 }
 
 // 通常情况下，这个函数在独立的分离线程工作
-void HttpConcurrentGet(const std::list<std::string>& urls,
+void HttpConcurrentGet(const std::string& thread_name,
+                       const std::list<std::string>& urls,
                        std::function<void(conn_t*)>& callback,
                        const std::vector<void*>& user_extra,
                        uint32_t concurrent_size) {
-    ConcurrentRequest request(concurrent_size);
+    ConcurrentRequest request(thread_name, concurrent_size);
     std::list<conn_t*> connections;
     size_t i = 0;
     for (auto url : urls) {
@@ -277,8 +286,10 @@ void HttpConcurrentGet(const std::list<std::string>& urls,
 }
 
 // 通常情况下，这个函数在独立的分离线程工作
-void HttpConcurrentGet(const std::list<conn_t*>& connections, uint32_t concurrent_size) {
-    ConcurrentRequest request(concurrent_size);
+void HttpConcurrentGet(const std::string& thread_name,
+                       const std::list<conn_t*>& connections,
+                       uint32_t concurrent_size) {
+    ConcurrentRequest request(thread_name, concurrent_size);
     request.AddConnectionList(connections);
     request.Run();
 }

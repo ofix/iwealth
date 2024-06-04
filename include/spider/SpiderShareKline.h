@@ -22,6 +22,7 @@ class SpiderShareKline : public Spider {
     static bool ParseKlineEastMoney(const std::string& kline, uiKline* uiKline);
     void MergeShareKlines(const KlineType kline_type = KlineType::Day);
     size_t GetKlineCount(const std::vector<std::vector<uiKline>>& multi_klines);
+    std::string GetProviderName(KlineProvider provider) const;
 
    protected:
     virtual void DoCrawl(KlineType type = KlineType::Day);
