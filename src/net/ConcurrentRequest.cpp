@@ -143,15 +143,15 @@ void ConcurrentRequest::_SetMiscOptions(conn_t* conn) {
 void ConcurrentRequest::AddNewRequest(CURLM* cm) {
     if (!m_connections.empty()) {
         conn_t* conn = m_connections.back();  // 获取最后一个元素
-        _CurlInit(conn);
+        bool old_reuse = conn->reuse;
+        _CurlInit(conn);  // 每次初始化会复写reuse，导致百度财经无法正常结束
+        conn->reuse = old_reuse;
         curl_multi_add_handle(cm, conn->easy_curl);
         m_connections.pop_back();  // 移除最后一个元素
         //////// 请求统计 /////////
         conn->statistics->ongoing_requests += 1;    // 新增一条请求
         conn->statistics->real_request_count += 1;  // 无论是否是复用的子请求，都统计在内
         //////////////////////////
-    } else {
-        std::cout << "no new request to added" << std::endl;
     }
 }
 
@@ -177,9 +177,9 @@ void ConcurrentRequest::Run() {
     for (;;) {
         int still_alive = 1;
         curl_multi_perform(cm, &still_alive);
+        conn_t* conn;
         while ((msg = curl_multi_info_read(cm, &msgs_left)) != NULL) {
             if (msg->msg == CURLMSG_DONE) {
-                conn_t* conn;
                 CURL* easy_curl = msg->easy_handle;
                 curl_easy_getinfo(msg->easy_handle, CURLINFO_PRIVATE, &conn);
                 curl_easy_getinfo(conn->easy_curl, CURLINFO_RESPONSE_CODE, &conn->http_code);
@@ -187,6 +187,7 @@ void ConcurrentRequest::Run() {
                 //////// 请求统计 /////////
                 RequestStatistics* pStatistics = conn->statistics;
                 pStatistics->ongoing_requests -= 1;
+                bool response_parse_error = false;
                 //////////////////////////
                 if ((conn->callback) && conn->http_code == 200) {
                     try {
@@ -194,6 +195,7 @@ void ConcurrentRequest::Run() {
                         std::cout << std::setfill('0') << std::setw(3) << request_no << ": " << conn->url << std::endl;
                         conn->callback(conn);  // 回调函数中可能会设置 reuse 复用选项,如果reuse=true,不要释放conn
                     } catch (std::exception& e) {
+                        response_parse_error = true;
                         std::cout << GetThreadPrefix() << "concurrent loop callback error! " << e.what() << std::endl;
                         std::cout << conn->response << std::endl;
                     }
@@ -202,7 +204,7 @@ void ConcurrentRequest::Run() {
                 if (!conn->reuse) {  // 如果没有子请求复用，释放资源
                     _CurlClose(conn);
                     //////// 请求统计 /////////
-                    if (conn->http_code == 200) {
+                    if (conn->http_code == 200 && !response_parse_error) {
                         pStatistics->success_requests += 1;
                     } else {
                         pStatistics->failed_requests += 1;
@@ -223,10 +225,11 @@ void ConcurrentRequest::Run() {
         if (still_alive) {
             curl_multi_wait(cm, NULL, 0, 1000, NULL);
         } else {
-            break;
+            if (!conn->reuse) {
+                break;
+            }
         }
     }
-    std::cout << GetThreadPrefix() << " progress 100%" << std::endl;
     curl_multi_cleanup(cm);
     curl_global_cleanup();
 }

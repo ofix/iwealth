@@ -45,6 +45,15 @@ void SpiderShareKline::DoCrawl(KlineType kline_type) {
     }
 }
 
+std::string SpiderShareKline::GetProviderName(KlineProvider provider) const {
+    if (provider == KlineProvider::EastMoney) {
+        return "EastMoney";
+    } else if (provider == KlineProvider::FinanceBaidu) {
+        return "Baidu";
+    }
+    return "Unknown";
+}
+
 void SpiderShareKline::ConurrentCrawl(std::vector<KlineCrawlTask>& tasks, KlineType kline_type) {
     std::vector<Share> shares = m_pStockStorage->m_market_shares;
     size_t pos_start = 0, pos_end = 0;
@@ -53,7 +62,7 @@ void SpiderShareKline::ConurrentCrawl(std::vector<KlineCrawlTask>& tasks, KlineT
         std::list<std::string> urls;
         std::vector<void*> user_data = {};
         priority += tasks[i].priority;
-        pos_end = std::round((101 /*shares.size()*/ - 1) * priority);
+        pos_end = std::round((11 /*shares.size()*/ - 1) * priority);
         RequestStatistics* pStatistics = new RequestStatistics();
         if (!pStatistics) {
             gLogger->log("[ConcurrentCrawl] allocate memory failed");
@@ -61,6 +70,7 @@ void SpiderShareKline::ConurrentCrawl(std::vector<KlineCrawlTask>& tasks, KlineT
         }
         pStatistics->provider = tasks[i].provider;
         pStatistics->request_count = pos_end - pos_start + 1;
+        std::string provider_name = GetProviderName(tasks[i].provider);
         m_statisticsList.push_back(pStatistics);
         for (size_t j = pos_start; j <= pos_end; j++) {
             urls.push_back(GetKlineUrl(tasks[i].provider, kline_type, shares[j].code, shares[j].market));
@@ -80,10 +90,10 @@ void SpiderShareKline::ConurrentCrawl(std::vector<KlineCrawlTask>& tasks, KlineT
         std::function<void(conn_t*)> callback =
             std::bind(&SpiderShareKline::ConcurrentResponseCallback, this, std::placeholders::_1);
         // 启动新线程进行并发请求
-        std::thread crawl_thread(
-            std::bind(static_cast<void (*)(const std::list<std::string>&, std::function<void(conn_t*)>&,
-                                           const std::vector<void*>&, uint32_t)>(HttpConcurrentGet),
-                      urls, callback, user_data, 3));
+        std::thread crawl_thread(std::bind(
+            static_cast<void (*)(const std::string&, const std::list<std::string>&, std::function<void(conn_t*)>&,
+                                 const std::vector<void*>&, uint32_t)>(HttpConcurrentGet),
+            provider_name, urls, callback, user_data, 3));
         crawl_thread.detach();
     }
     // 启动定时器更新打印速度，并打印爬取进度,以下两种方法绑定成员函数都是OK的
@@ -280,9 +290,7 @@ bool SpiderShareKline::ParseKlineEastMoney(const std::string& kline, uiKline* ui
 void SpiderShareKline::ParseResponseFinanceBaidu(conn_t* conn, std::vector<uiKline>& uiKlines) {
     json _response = json::parse(conn->response);
     std::string data = _response["Result"]["newMarketData"]["marketData"];
-    if (data == "") {
-        conn->reuse = false;  // 所有数据已经请求完毕，不再复用conn
-    } else {
+    if (data != "") {
         std::vector<std::string> klines = split(data, ';');
         for (size_t i = 0; i < klines.size(); i++) {
             uiKline kline;
@@ -311,12 +319,16 @@ void SpiderShareKline::ParseResponseEastMoney(conn_t* conn, std::vector<uiKline>
 void SpiderShareKline::SingleResponseCallback(conn_t* conn) {
     KlineCrawlExtra* pExtra = static_cast<KlineCrawlExtra*>(conn->extra);
     std::vector<uiKline> multi_kline = ParseResponse(conn);
-    if (pExtra->provider == KlineProvider::FinanceBaidu && multi_kline.size() > 0) {
-        std::string end_date = multi_kline[0].day;
-        std::string share_code = pExtra->share->code;
-        conn->url = GetKlineUrl(pExtra->provider, pExtra->type, share_code, pExtra->market, end_date);
-        conn->reuse = true;  // 需要复用
-        this->m_concurrent_day_klines_adjust[share_code].push_back(multi_kline);
+    if (pExtra->provider == KlineProvider::FinanceBaidu) {
+        if (multi_kline.size() > 0) {
+            std::string end_date = multi_kline[0].day;
+            std::string share_code = pExtra->share->code;
+            conn->url = GetKlineUrl(pExtra->provider, pExtra->type, share_code, pExtra->market, end_date);
+            conn->reuse = true;  // 需要复用
+            this->m_concurrent_day_klines_adjust[share_code].push_back(multi_kline);
+        } else {
+            conn->reuse = false;  // 不需要复用
+        }
     }
 }
 
@@ -331,6 +343,8 @@ void SpiderShareKline::ConcurrentResponseCallback(conn_t* conn) {
             conn->url = GetKlineUrl(pExtra->provider, pExtra->type, share_code, pExtra->market, end_date);
             conn->reuse = true;  // 需要复用
             this->m_concurrent_day_klines_adjust[share_code].push_back(multi_kline);
+        } else {
+            conn->reuse = false;  // 不需要复用
         }
     }
 }

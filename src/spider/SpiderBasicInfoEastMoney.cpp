@@ -93,7 +93,7 @@ void SpiderBasicInfoEastMoney::ConcurrentFetchBasicInfo(size_t start_pos, size_t
     std::function<void(conn_t*)> callback =
         std::bind(&SpiderBasicInfoEastMoney::ConcurrentResponseCallback, this, std::placeholders::_1);
     try {
-        HttpConcurrentGet(urls, callback, static_cast<void*>(&shares), 3);
+        HttpConcurrentGet("EastMoney", urls, callback, static_cast<void*>(&shares), 3);
     } catch (std::exception& e) {
         std::cerr << e.what() << std::endl;
     }
