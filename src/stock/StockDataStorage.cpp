@@ -98,7 +98,23 @@ bool StockDataStorage::SaveShareKLines(const KlineType kline_type) {
 
 bool StockDataStorage::SaveShareKlines(const std::string& path,
                                        const std::unordered_map<std::string, std::vector<uiKline>>& klines) {
-    return false;
+    std::string lines;
+    for (uiKline& kline : klines) {
+        std::string line = "";
+        line += kline.day + ",";
+        line += kline.price_open + ",";
+        line += kline.price_close + ",";
+        line += kline.price_max + ",";
+        line += kline.price_min + ",";
+        line += kline.trade_volume + ",";
+        line += kline.trade_amount + ",";
+        line += kline.change_amount + ",";
+        line += kline.change_rate + ",";
+        line += kline.turnover_rate + "\r\n";
+        lines += line;
+    }
+    FileTool::SaveFile(path, lines);
+    return true;
 }
 
 bool StockDataStorage::CrawlStockHistoryName() {
