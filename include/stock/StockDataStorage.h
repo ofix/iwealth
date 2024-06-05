@@ -31,7 +31,8 @@ class StockDataStorage {
     bool LoadLocalJsonFile(std::string& path, std::vector<Share>& shares);
 
    protected:
-    bool SaveShareKlines(const std::string& path, const std::unordered_map<std::string, std::vector<uiKline>>& klines);
+    bool SaveShareKlines(const std::string& dir_path,
+                         const std::unordered_map<std::string, std::vector<uiKline>>& klines);
     // 数据存储
     std::string m_data_dir;                // 数据保存根目录
     std::string m_path_share_brief;        // 股票简称保存

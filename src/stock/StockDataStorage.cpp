@@ -80,40 +80,44 @@ bool StockDataStorage::LoadLocalJsonFile(std::string& path, std::vector<Share>& 
 }
 
 bool StockDataStorage::SaveShareKLines(const KlineType kline_type) {
-    std::string path = FileTool::CurrentPath() + "data/";
+    std::string dir_path = FileTool::CurrentPath() + "data/";
     if (kline_type == KlineType::Day) {
-        path += "day";
-        return SaveShareKlines(path, m_day_klines_adjust);
+        dir_path += "day";
+        return SaveShareKlines(dir_path, m_day_klines_adjust);
     } else if (kline_type == KlineType::Week) {
-        path += "week";
-        return SaveShareKlines(path, m_week_klines_adjust);
+        dir_path += "week";
+        return SaveShareKlines(dir_path, m_week_klines_adjust);
     } else if (kline_type == KlineType::Month) {
-        path += "month";
-        return SaveShareKlines(path, m_month_klines_adjust);
+        dir_path += "month";
+        return SaveShareKlines(dir_path, m_month_klines_adjust);
     } else if (kline_type == KlineType::Year) {
-        path += "year";
-        return SaveShareKlines(path, m_year_klines_adjust);
+        dir_path += "year";
+        return SaveShareKlines(dir_path, m_year_klines_adjust);
     }
 }
 
-bool StockDataStorage::SaveShareKlines(const std::string& path,
+bool StockDataStorage::SaveShareKlines(const std::string& dir_path,
                                        const std::unordered_map<std::string, std::vector<uiKline>>& klines) {
-    std::string lines;
-    for (uiKline& kline : klines) {
-        std::string line = "";
-        line += kline.day + ",";
-        line += kline.price_open + ",";
-        line += kline.price_close + ",";
-        line += kline.price_max + ",";
-        line += kline.price_min + ",";
-        line += kline.trade_volume + ",";
-        line += kline.trade_amount + ",";
-        line += kline.change_amount + ",";
-        line += kline.change_rate + ",";
-        line += kline.turnover_rate + "\r\n";
-        lines += line;
+    for (const auto& pair : klines) {
+        std::string file_path = dir_path + pair.first + ".csv";
+        std::vector<uiKline> vec = pair.second;
+        std::string lines;
+        for (const auto& kline : vec) {
+            std::string line = "";
+            line += kline.day + ",";
+            line += std::to_string(kline.price_open) + ",";
+            line += std::to_string(kline.price_close) + ",";
+            line += std::to_string(kline.price_max) + ",";
+            line += std::to_string(kline.price_min) + ",";
+            line += std::to_string(kline.trade_volume) + ",";
+            line += std::to_string(kline.trade_amount) + ",";
+            line += std::to_string(kline.change_amount) + ",";
+            line += std::to_string(kline.change_rate) + ",";
+            line += std::to_string(kline.turnover_rate) + "\r\n";
+            lines += line;
+        }
+        FileTool::SaveFile(file_path, lines);
     }
-    FileTool::SaveFile(path, lines);
     return true;
 }
 
