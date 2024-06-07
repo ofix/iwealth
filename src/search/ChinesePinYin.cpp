@@ -1,4 +1,5 @@
 #include "search/ChinesePinYin.h"
+#include <iostream>
 
 std::string ChinesePinYin::GetFirstLetters(const std::string& chinese) {
     const static int unicode_dict[] = {
@@ -92,7 +93,7 @@ std::string ChinesePinYin::GetFirstLetters(const std::string& chinese) {
     try {
         // 循环处理字节数组
         const size_t length = chinese.length();
-        const std::string pin_yin;
+        std::string pin_yin;
         for (size_t j = 0, unicode_point = 0; j < length;) {
             // 非汉字处理
             if (chinese.at(j) >= 0 && chinese.at(j) < 128) {
@@ -123,9 +124,9 @@ std::string ChinesePinYin::GetFirstLetters(const std::string& chinese) {
         return "";
     }
     return "";
-
+/*
     std::string result;
-    for (const char& c : chineseStr) {
+    for (const char& c : chinese) {
         if (c >= '\u4e00' && c <= '\u9fff') {
             std::string pinyin = getPinyin(c);
             result += pinyin[0];
@@ -134,4 +135,5 @@ std::string ChinesePinYin::GetFirstLetters(const std::string& chinese) {
         }
     }
     return result;
+*/
 }
