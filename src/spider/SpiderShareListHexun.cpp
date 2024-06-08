@@ -33,7 +33,7 @@ void SpiderShareListHexun::FetchMarketShares(int market) {
                          "&direction=0"
                          "&start=0"
                          "&number=10000"
-                         "&column=code,name";
+                         "&column=code,name,price,updownrate,LastClose,open,high,low,volume,priceweight,amount,exchangeratio,VibrationRatio,VolumeRatio";
     std::string data = Fetch(url_sh);
     ParseStockListData(data, kv.at(market));
 }

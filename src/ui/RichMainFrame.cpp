@@ -61,6 +61,7 @@ RichMainFrame::RichMainFrame(wxWindow* parent, wxWindowID id, const wxPoint& pos
     Bind(wxEVT_MENU, &RichMainFrame::OnHello, this, ID_Hello);
     Bind(wxEVT_MENU, &RichMainFrame::OnAbout, this, wxID_ABOUT);
     Bind(wxEVT_MENU, &RichMainFrame::OnExit, this, wxID_EXIT);
+    LoadStockMarketQuote();
 }
 
 void RichMainFrame::LoadStockMarketQuote() {
@@ -69,7 +70,14 @@ void RichMainFrame::LoadStockMarketQuote() {
         SpiderShareListHexun* spiderKline = new SpiderShareListHexun(pStorage);
         spiderKline->Crawl();  // 当前线程同步爬取市场行情数据
         std::vector<Share> shares = pStorage->GetMarketAllShares();
+        long row =0;
         for (Share& share : shares) {
+            ListViewStockQuote->SetItem(row,0,share.code);
+            ListViewStockQuote->SetItem(row,1,share.name);
+            ListViewStockQuote->SetItem(row,2,std::to_string(share.change_rate*100)+'%');
+            ListViewStockQuote->SetItem(row,3,std::to_string(share.price_now));
+            ListViewStockQuote->SetItem(row,4,std::to_string(share.turnover_rate*100)+'%');
+            row++;
         }
     }
 }
