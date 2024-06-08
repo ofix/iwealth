@@ -10,7 +10,9 @@ wxIMPLEMENT_APP(RichApplication);
 
 bool RichApplication::OnInit() {
     m_pStockStorage = new StockDataStorage();
-    m_pStockStorage->Init();  // 进行必要的数据加载
+    if (m_pStockStorage) {
+        m_pStockStorage->Init();
+    }
     //(*AppInitialize
     bool wxsOK = true;
     wxInitAllImageHandlers();

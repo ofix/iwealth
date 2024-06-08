@@ -102,6 +102,6 @@ int main(int argc, char* argv[]) {
     // TestSpiderConceptListEastMoney();
     // TestTimer();
     // KlineTest();
-    TestSpiderShareKline();
+    // TestSpiderShareKline();
     std::cin.get();
 }

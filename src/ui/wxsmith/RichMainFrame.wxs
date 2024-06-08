@@ -3,8 +3,21 @@
 	<object class="wxFrame" name="RichMainFrame">
 		<title>东方巴菲特333</title>
 		<icon stock_id="wxART_DEL_BOOKMARK" />
-		<size>1800,800</size>
+		<size>364,600</size>
 		<pos_arg>1</pos_arg>
 		<size_arg>1</size_arg>
+		<object class="wxListView" name="ID_LISTVIEW_STOCK_QUOTE" subclass="wxListCtrl" variable="ListViewStockQuote" member="yes">
+			<pos>384,48</pos>
+			<size>728,600</size>
+			<font>
+				<size>14</size>
+				<style>normal</style>
+				<weight>normal</weight>
+				<underlined>0</underlined>
+				<family>swiss</family>
+				<face>微软雅黑</face>
+			</font>
+			<style>wxLC_REPORT|wxLC_VRULES|wxVSCROLL|wxHSCROLL</style>
+		</object>
 	</object>
 </wxsmith>

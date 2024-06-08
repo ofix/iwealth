@@ -8,8 +8,8 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 #include "spider/SpiderShareListHexun.h"
-#include "stock/StockDataStorage.h"
 #include "stock/Stock.h"
+#include "stock/StockDataStorage.h"
 
 using json = nlohmann::json;
 
@@ -49,19 +49,19 @@ void SpiderShareListHexun::ParseStockListData(std::string& data, Market market) 
     m_pStockStorage->m_market_share_total = 0;
     for (json::iterator it = arr.begin(); it != arr.end(); ++it) {
         Share share;
-        share.code = (*it)[0].get<std::string>();                  // 股票代号
-        share.name = (*it)[1].get<std::string>();                  // 股票名称
-        share.price_now = (*it)[2].get<double>() / 100;            // 最新价
-        share.change_rate = (*it)[3].get<double>() / 100;          // 涨跌幅
-        share.price_open = (*it)[5].get<double>() / 100;           // 开盘价
-        share.price_max = (*it)[6].get<double>() / 100;            // 最高价
-        share.price_min = (*it)[7].get<double>() / 100;            // 最低价
-        share.volume = (*it)[8].get<double>() / 100;               // 成交量
-        share.amount = (*it)[10].get<double>() / 100;              // 成交额
-        share.turnover_rate = (*it)[11].get<double>() / 100;       // 换手率
-        share.price_amplitude = (*it)[12].get<double>() / 100;     // 股价振幅
-        share.qrr = (*it)[13].get<double>() / 100;                 // 成交量比
-        share.market = market;                                     // 股票市场
+        share.code = (*it)[0].get<std::string>();               // 股票代号
+        share.name = (*it)[1].get<std::string>();               // 股票名称
+        share.price_now = (*it)[2].get<double>() / 100;         // 最新价
+        share.change_rate = (*it)[3].get<double>() / 100;       // 涨跌幅
+        share.price_open = (*it)[5].get<double>() / 100;        // 开盘价
+        share.price_max = (*it)[6].get<double>() / 100;         // 最高价
+        share.price_min = (*it)[7].get<double>() / 100;         // 最低价
+        share.volume = (*it)[8].get<double>() / 100;            // 成交量
+        share.amount = (*it)[10].get<double>() / 100;           // 成交额
+        share.turnover_rate = (*it)[11].get<double>() / 100;    // 换手率
+        share.price_amplitude = (*it)[12].get<double>() / 100;  // 股价振幅
+        share.qrr = (*it)[13].get<double>() / 100;              // 成交量比
+        share.market = market;                                  // 股票市场
         m_pStockStorage->m_market_shares.push_back(share);
     }
     m_pStockStorage->m_market_share_count.insert({market, count});

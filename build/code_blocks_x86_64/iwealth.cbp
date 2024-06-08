@@ -22,6 +22,9 @@
 					<Add directory="../../lib/wxWidgets/3.2.4/mingw_x64_windows/mswu" />
 					<Add directory="../../include/wxWidgets/3.2.4/include" />
 				</Compiler>
+				<ResourceCompiler>
+					<Add directory="../../src/ui/wxsmith" />
+				</ResourceCompiler>
 				<Linker>
 					<Add option="-m64" />
 					<Add directory="../../lib" />
@@ -45,9 +48,13 @@
 		</Build>
 		<Compiler>
 			<Add option="-Wall" />
+			<Add option="-std=c11" />
+			<Add option="-m64" />
+			<Add option="-g" />
 			<Add option="-DWX_PRECOMP" />
 		</Compiler>
 		<Linker>
+			<Add option="-m64" />
 			<Add library="../../lib/curl/x86_64_windows/libbrotlicommon.a" />
 			<Add library="../../lib/curl/x86_64_windows/libbrotlidec.a" />
 			<Add library="../../lib/curl/x86_64_windows/libcrypto.a" />
@@ -92,11 +99,17 @@
 		<Unit filename="../../include/net/ConcurrentRequest.h" />
 		<Unit filename="../../include/net/Conn.h" />
 		<Unit filename="../../include/net/Request.h" />
+		<Unit filename="../../include/net/RequestStatistics.h" />
+		<Unit filename="../../include/search/ChinesePinYin.h" />
+		<Unit filename="../../include/search/LevelTree.hpp" />
 		<Unit filename="../../include/search/Trie.h" />
 		<Unit filename="../../include/spider/Spider.h" />
 		<Unit filename="../../include/spider/SpiderBasicInfoEastMoney.h" />
-		<Unit filename="../../include/spider/SpiderShareHistory.h" />
+		<Unit filename="../../include/spider/SpiderConceptListEastMoney.h" />
+		<Unit filename="../../include/spider/SpiderShareKline.h" />
+		<Unit filename="../../include/spider/SpiderShareKlineUrl.h" />
 		<Unit filename="../../include/spider/SpiderShareListHexun.h" />
+		<Unit filename="../../include/stock/HashProvinceShare.h" />
 		<Unit filename="../../include/stock/Stock.h" />
 		<Unit filename="../../include/stock/StockDataStorage.h" />
 		<Unit filename="../../include/ui/RichApplication.h" />
@@ -109,13 +122,17 @@
 		<Unit filename="../../include/util/EasyLogger.h" />
 		<Unit filename="../../include/util/FileTool.h" />
 		<Unit filename="../../include/util/Global.h" />
+		<Unit filename="../../include/util/Timer.h" />
 		<Unit filename="../../src/net/ConcurrentRequest.cpp" />
 		<Unit filename="../../src/net/Request.cpp" />
+		<Unit filename="../../src/search/ChinesePinYin.cpp" />
 		<Unit filename="../../src/search/Trie.cpp" />
 		<Unit filename="../../src/spider/Spider.cpp" />
 		<Unit filename="../../src/spider/SpiderBasicInfoEastMoney.cpp" />
-		<Unit filename="../../src/spider/SpiderShareHistory.cpp" />
+		<Unit filename="../../src/spider/SpiderConceptListEastMoney.cpp" />
+		<Unit filename="../../src/spider/SpiderShareKline.cpp" />
 		<Unit filename="../../src/spider/SpiderShareListHexun.cpp" />
+		<Unit filename="../../src/stock/HashProvinceShare.cpp" />
 		<Unit filename="../../src/stock/Stock.cpp" />
 		<Unit filename="../../src/stock/StockDataStorage.cpp" />
 		<Unit filename="../../src/ui/RichApplication.cpp" />
@@ -128,6 +145,7 @@
 		<Unit filename="../../src/util/EasyLogger.cpp" />
 		<Unit filename="../../src/util/FileTool.cpp" />
 		<Unit filename="../../src/util/Global.cpp" />
+		<Unit filename="../../src/util/Timer.cpp" />
 		<Unit filename="iwealth.layout" />
 		<Extensions>
 			<wxsmith version="1">

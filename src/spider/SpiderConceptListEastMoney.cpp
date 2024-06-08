@@ -14,13 +14,11 @@
 
 using json = nlohmann::json;
 
-SpiderConceptListEastMoney::SpiderConceptListEastMoney(StockDataStorage* storage)
-    : Spider(storage) {
+SpiderConceptListEastMoney::SpiderConceptListEastMoney(StockDataStorage* storage) : Spider(storage) {
     m_debug = true;
 }
 
-SpiderConceptListEastMoney::SpiderConceptListEastMoney(StockDataStorage* storage,
-                                                       bool concurrent)
+SpiderConceptListEastMoney::SpiderConceptListEastMoney(StockDataStorage* storage, bool concurrent)
     : Spider(storage, concurrent) {
     m_debug = true;
 }
@@ -47,7 +45,7 @@ std::string SpiderConceptListEastMoney::GetRequestUrl() {
 void SpiderConceptListEastMoney::ParseResponse(std::string& response) {
     json _response = json::parse(response);
     json arr = _response["data"]["diff"];
-    m_pStockStorage->m_market_concepts.clear();  // 清空概念个股映射表
+    m_pStockStorage->m_market_concepts.clear();              // 清空概念个股映射表
     m_pStockStorage->m_market_concepts.reserve(arr.size());  // 防止频繁和移动底层数组
     for (json::iterator it = arr.begin(); it != arr.end(); ++it) {
         std::string concept_name = (*it)["f14"];
