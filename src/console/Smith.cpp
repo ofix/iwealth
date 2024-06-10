@@ -130,6 +130,9 @@ void updateCodeBlockProjectFile(std::vector<wxString>& generated_source_files) {
 
             std::regex rule5("src=\"(" + source_file + ")\"");
             cbp_content = std::regex_replace(cbp_content, rule5, "src=\"../../src/ui/$1\"");
+
+            std::regex rule6("<Unit filename=\"wxsmith/(" + base_name + ").wxs\" />");
+            cbp_content = std::regex_replace(cbp_content, rule6, "<Unit filename=\"../../src/ui/wxsmith/$1.wxs\" />");
         }
     }
     std::cout << "++++++++++++++  CodeBlocks::ProjectFile  +++++++++++++++" << std::endl;

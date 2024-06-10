@@ -114,6 +114,7 @@
 		<Unit filename="../../include/stock/StockDataStorage.h" />
 		<Unit filename="../../include/ui/RichApplication.h" />
 		<Unit filename="../../include/ui/RichMainFrame.h" />
+		<Unit filename="../../include/ui/components/PanelStockQuota.h" />
 		<Unit filename="../../include/ui/components/RichKlineCtrl.h" />
 		<Unit filename="../../include/ui/components/RichKlineInfoCtrl.h" />
 		<Unit filename="../../include/ui/components/RichVolumeBarCtrl.h" />
@@ -137,19 +138,17 @@
 		<Unit filename="../../src/stock/StockDataStorage.cpp" />
 		<Unit filename="../../src/ui/RichApplication.cpp" />
 		<Unit filename="../../src/ui/RichMainFrame.cpp" />
+		<Unit filename="../../src/ui/components/PanelStockQuota.cpp" />
 		<Unit filename="../../src/ui/components/RichKlineCtrl.cpp" />
 		<Unit filename="../../src/ui/components/RichKlineInfoCtrl.cpp" />
 		<Unit filename="../../src/ui/components/RichVolumeBarCtrl.cpp" />
+		<Unit filename="../../src/ui/wxsmith/PanelStockQuota.wxs" />
 		<Unit filename="../../src/ui/wxsmith/RichMainFrame.wxs" />
 		<Unit filename="../../src/util/ConsoleTable.cpp" />
 		<Unit filename="../../src/util/EasyLogger.cpp" />
 		<Unit filename="../../src/util/FileTool.cpp" />
 		<Unit filename="../../src/util/Global.cpp" />
 		<Unit filename="../../src/util/Timer.cpp" />
-		<Unit filename="../../src/ui/components/PanelStockQuota.cpp" />
-		<Unit filename="../../include/ui/components/PanelStockQuota.h" />
-		<Unit filename="iwealth.layout" />
-		<Unit filename="wxsmith/PanelStockQuota.wxs" />
 		<Extensions>
 			<wxsmith version="1">
 				<gui name="wxWidgets" src="..\..\src\ui\RichApplication.cpp" main="RichMainFrame" init_handlers="necessary" language="CPP" />
