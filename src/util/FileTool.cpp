@@ -12,14 +12,18 @@
 
 #ifdef _WIN32
 #include <direct.h>  // _mkdir
+#include <io.h>
 #include <windows.h>
 #include <fstream>
 #else
+#include <dirent.h>
 #include <errno.h>  // errno, ENOENT, EEXIST
 #include <limits.h>
+#include <stdio.h>
 #include <sys/stat.h>
 #include <unistd.h>
 #endif
+#include <cstdio>
 #include <iostream>
 
 bool FileTool::IsFileExists(const std::string& path) {
@@ -94,10 +98,42 @@ std::string FileTool::LoadFile(const std::string& file_path) {
     return "";
 }
 
-std::vector<std::string> FileTool::LoadDir(const std::string& path,
-                                           const std::string& file_suffix) {
+std::vector<std::string> FileTool::LoadDir(const std::string& path, const std::string& file_suffix) {
     std::vector<std::string> result;
     return result;
+}
+
+bool FileTool::FileRegexReplace(const std::string& file_path, const std::regex& rule, const std::string& replace) {
+    std::string content = LoadFile(file_path);
+    if (content == "") {
+        return false;
+    }
+    content = std::regex_replace(content, rule, replace);
+    return SaveFile(file_path, content);
+}
+
+char FileTool::GetPathSeparator() {
+#ifdef _WIN32
+    return '\\';
+#else
+    return '/';
+#endif
+}
+
+std::string FileTool::RemoveFileSuffix(const std::string& filename) {
+    size_t pos = filename.find_last_of('.');
+    if (pos != std::string::npos) {
+        return filename.substr(0, pos);
+    }
+    return filename;
+}
+
+std::string FileTool::GetFileSuffix(const std::string& filename) {
+    size_t pos = filename.find_last_of('.');
+    if (pos != std::string::npos) {
+        return filename.substr(pos + 1);
+    }
+    return "";
 }
 
 // 保存文件
@@ -111,6 +147,50 @@ bool FileTool::SaveFile(const std::string& file_path, const std::string& content
     out << content;
     out.close();
     return true;
+}
+
+bool FileTool::DeleteAllFiles(const std::string& dir_path) {
+#ifdef _WIN32
+    intptr_t hFile = 0;
+    struct _finddata_t fileinfo;
+    std::string path;
+    if ((hFile = _findfirst(path.assign(dir_path).append("\\*").c_str(), &fileinfo)) != -1) {
+        do {
+            if ((fileinfo.attrib & _A_SUBDIR)) {
+                if (strcmp(fileinfo.name, ".") != 0 && strcmp(fileinfo.name, "..") != 0) {
+                    DeleteAllFiles(path.assign(dir_path).append("\\").append(fileinfo.name));
+                }
+            } else {
+                path.assign(dir_path).append("\\").append(fileinfo.name);
+                std::remove(path.c_str());  // 删除文件
+            }
+        } while (_findnext(hFile, &fileinfo) == 0);
+        _findclose(hFile);
+        return true;
+    }
+    return false;
+#else
+    DIR* folder = opendir(dir_path.c_str());
+    struct dirent* file = new dirent();
+    std::string path;
+    while ((file = readdir(folder)) != NULL) {
+        if (strncmp(file->d_name, ".", 1) == 0 || strncmp(file->d_name, "..", 2) == 0) {
+            continue;
+        }
+        if (file->d_type == 8) {  // 文件
+            path.assign(dir_path).append("/").append(file->d_name);
+            remove(path.c_str());        // 删除文件
+        } else if (file->d_type == 4) {  // 文件夹
+            path.assign(dir_path).append("/").append(file->d_name);
+            DeleteAllFiles(path);
+        }
+    }
+    if (folder) {
+        closedir(folder);
+        return true;
+    }
+    return false;
+#endif
 }
 
 // 递归创建文件夹
@@ -164,9 +244,8 @@ std::regex FileTool::BuildRegexFromMap(const std::map<std::string, std::string>&
     return std::regex(pattern_str);
 }
 
-std::string FileTool::MultiRegexReplace(
-    const std::string& text,
-    const std::map<std::string, std::string>& replacement_map) {
+std::string FileTool::MultiRegexReplace(const std::string& text,
+                                        const std::map<std::string, std::string>& replacement_map) {
     auto regex = BuildRegexFromMap(replacement_map);
     std::string result;
     std::sregex_iterator it(text.begin(), text.end(), regex);

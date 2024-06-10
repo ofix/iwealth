@@ -18,10 +18,21 @@ endif
 
 message(third_party_lib)
 
-inc = include_directories([
-    '../../include',
-    '../../lib'
-])
+if host_machine.cpu_family().startswith('x86')
+    inc = include_directories([
+        '../../include',
+        '../../include/wxWidgets/3.2.4/include',
+        '../../lib',
+        '../../lib/wxWidgets/3.2.4/mingw_x64_windows/mswu',
+    ])
+else
+    inc = include_directories([
+        '../../include',
+        '../../include/wxWidgets/3.2.4/include',
+        '../../lib',
+        '../../lib/wxWidgets/3.2.4/aarch64_linux/wx/include/gtk3-unicode-3.2',
+    ])
+endif
 
 cc = meson.get_compiler('cpp')
 
@@ -52,7 +63,7 @@ cpp_args = [
     '-DWXUSINGDLL',
     '-D__WXGTK3__',
     '-D__WXGTK__',
-    '-D_FILE_OFFSET_BITS=64'
+    '-D_FILE_OFFSET_BITS=64',
 ]
 endif
 
@@ -145,5 +156,24 @@ endforeach
 
 executable('iconsole',full_console_sources,
             link_args : ['-pthread'],
+            include_directories : inc,
+            dependencies : [third_party_dep])
+
+
+
+smith_sources = [
+    'console/Smith.cpp',
+    'util/FileTool.cpp',
+    'util/Global.cpp'
+]
+full_smith_sources = []
+foreach file : smith_sources
+    full_path = join_paths('../../src', file)
+    full_smith_sources += files(full_path)
+endforeach
+
+executable('smith',full_smith_sources,
+            cpp_args:cpp_args,
+            link_args : ldflags,
             include_directories : inc,
             dependencies : [third_party_dep])
