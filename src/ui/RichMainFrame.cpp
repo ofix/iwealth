@@ -11,6 +11,7 @@ RichMainFrame::RichMainFrame(wxWindow* parent, wxWindowID id, const wxPoint& pos
     Create(parent, id, _("东方巴菲特333"), wxDefaultPosition, wxDefaultSize, wxDEFAULT_FRAME_STYLE, _T("id"));
     SetClientSize(wxSize(364, 600));
     Move(wxDefaultPosition);
+    SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_MENUTEXT));
     {
         wxIcon FrameIcon;
         FrameIcon.CopyFromBitmap(
@@ -18,7 +19,7 @@ RichMainFrame::RichMainFrame(wxWindow* parent, wxWindowID id, const wxPoint& pos
         SetIcon(FrameIcon);
     }
     ListViewStockQuote = new wxListCtrl(this, ID_LISTVIEW_STOCK_QUOTE, wxPoint(384, 48), wxSize(728, 600),
-                                        wxLC_REPORT | wxVSCROLL | wxHSCROLL | wxLC_VRULES, wxDefaultValidator,
+                                        wxLC_REPORT | wxLC_VRULES | wxVSCROLL | wxHSCROLL, wxDefaultValidator,
                                         _T("ID_LISTVIEW_STOCK_QUOTE"));
     wxFont ListViewStockQuoteFont(14, wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL, false,
                                   _T("微软雅黑"), wxFONTENCODING_DEFAULT);
@@ -70,13 +71,13 @@ void RichMainFrame::LoadStockMarketQuote() {
         SpiderShareListHexun* spiderKline = new SpiderShareListHexun(pStorage);
         spiderKline->Crawl();  // 当前线程同步爬取市场行情数据
         std::vector<Share> shares = pStorage->GetMarketAllShares();
-        long row =0;
+        long row = 0;
         for (Share& share : shares) {
-            ListViewStockQuote->SetItem(row,0,share.code);
-            ListViewStockQuote->SetItem(row,1,share.name);
-            ListViewStockQuote->SetItem(row,2,std::to_string(share.change_rate*100)+'%');
-            ListViewStockQuote->SetItem(row,3,std::to_string(share.price_now));
-            ListViewStockQuote->SetItem(row,4,std::to_string(share.turnover_rate*100)+'%');
+            ListViewStockQuote->SetItem(row, 0, share.code);
+            ListViewStockQuote->SetItem(row, 1, share.name);
+            ListViewStockQuote->SetItem(row, 2, std::to_string(share.change_rate * 100) + '%');
+            ListViewStockQuote->SetItem(row, 3, std::to_string(share.price_now));
+            ListViewStockQuote->SetItem(row, 4, std::to_string(share.turnover_rate * 100) + '%');
             row++;
         }
     }

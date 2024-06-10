@@ -4,6 +4,7 @@
 		<title>东方巴菲特333</title>
 		<icon stock_id="wxART_DEL_BOOKMARK" />
 		<size>364,600</size>
+		<bg>wxSYS_COLOUR_MENUTEXT</bg>
 		<pos_arg>1</pos_arg>
 		<size_arg>1</size_arg>
 		<object class="wxListView" name="ID_LISTVIEW_STOCK_QUOTE" subclass="wxListCtrl" variable="ListViewStockQuote" member="yes">

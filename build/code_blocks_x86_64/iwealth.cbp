@@ -146,12 +146,16 @@
 		<Unit filename="../../src/util/FileTool.cpp" />
 		<Unit filename="../../src/util/Global.cpp" />
 		<Unit filename="../../src/util/Timer.cpp" />
+		<Unit filename="../../src/ui/components/PanelStockQuota.cpp" />
+		<Unit filename="../../include/ui/components/PanelStockQuota.h" />
 		<Unit filename="iwealth.layout" />
+		<Unit filename="wxsmith/PanelStockQuota.wxs" />
 		<Extensions>
 			<wxsmith version="1">
 				<gui name="wxWidgets" src="..\..\src\ui\RichApplication.cpp" main="RichMainFrame" init_handlers="necessary" language="CPP" />
 				<resources>
 					<wxFrame wxs="../../src/ui/wxsmith/RichMainFrame.wxs" src="../../src/ui/RichMainFrame.cpp" hdr="../../include/ui/RichMainFrame.h" fwddecl="0" i18n="1" name="RichMainFrame" language="CPP" />
+					<wxPanel wxs="../../src/ui/wxsmith/PanelStockQuota.wxs" src="../../src/ui/PanelStockQuota.cpp" hdr="../../include/ui/PanelStockQuota.h" fwddecl="0" i18n="1" name="PanelStockQuota" language="CPP" />
 				</resources>
 			</wxsmith>
 		</Extensions>

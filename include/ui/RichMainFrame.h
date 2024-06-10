@@ -17,7 +17,7 @@
 
 #include <wx/listctrl.h>
 
-enum { ID_Hello = 1, ID_LISTVIEW_STOCK_QUOTE };
+enum { ID_Hello = 1,ID_LISTVIEW_STOCK_QUOTE};
 
 class RichMainFrame : public wxFrame {
    public:

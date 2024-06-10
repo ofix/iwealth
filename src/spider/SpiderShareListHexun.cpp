@@ -10,6 +10,7 @@
 #include "spider/SpiderShareListHexun.h"
 #include "stock/Stock.h"
 #include "stock/StockDataStorage.h"
+#include "wx/string.h"
 
 using json = nlohmann::json;
 
@@ -33,7 +34,8 @@ void SpiderShareListHexun::FetchMarketShares(int market) {
                          "&direction=0"
                          "&start=0"
                          "&number=10000"
-                         "&column=code,name,price,updownrate,LastClose,open,high,low,volume,priceweight,amount,exchangeratio,VibrationRatio,VolumeRatio";
+                         "&column=code,name,price,updownrate,LastClose,open,high,low,volume,priceweight,amount,"
+                         "exchangeratio,VibrationRatio,VolumeRatio";
     std::string data = Fetch(url_sh);
     ParseStockListData(data, kv.at(market));
 }
@@ -41,6 +43,7 @@ void SpiderShareListHexun::FetchMarketShares(int market) {
 void SpiderShareListHexun::ParseStockListData(std::string& data, Market market) {
     data = regex_replace(data, std::regex{R"(\()"}, "");
     data = regex_replace(data, std::regex{R"(\);)"}, "");
+    // std::cout << wxString::FromUTF8(data) << std::endl;
     json o = json::parse(data);
     const int count = o["Total"].template get<int>();
     json arr = o["Data"][0];
