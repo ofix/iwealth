@@ -2,6 +2,7 @@
 #define PANELSTOCKQUOTA_H
 
 //(*Headers(PanelStockQuota)
+#include <wx/listctrl.h>
 #include <wx/panel.h>
 //*)
 
@@ -13,11 +14,13 @@ class PanelStockQuota: public wxPanel
 		virtual ~PanelStockQuota();
 
 		//(*Declarations(PanelStockQuota)
+        wxListCtrl* m_listCtrlQuota;
 		//*)
 
 	protected:
 
 		//(*Identifiers(PanelStockQuota)
+        static const long ID_LISTCTRL_QUOTA;
 		//*)
 
 	private:
