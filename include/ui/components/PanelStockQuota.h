@@ -6,29 +6,30 @@
 #include <wx/panel.h>
 //*)
 
-class PanelStockQuota: public wxPanel
-{
-	public:
+class PanelStockQuota : public wxPanel {
+   public:
+    PanelStockQuota(wxWindow* parent,
+                    wxWindowID id = wxID_ANY,
+                    const wxPoint& pos = wxDefaultPosition,
+                    const wxSize& size = wxDefaultSize);
+    virtual ~PanelStockQuota();
 
-		PanelStockQuota(wxWindow* parent,wxWindowID id=wxID_ANY,const wxPoint& pos=wxDefaultPosition,const wxSize& size=wxDefaultSize);
-		virtual ~PanelStockQuota();
+    //(*Declarations(PanelStockQuota)
+    wxListCtrl* m_listCtrlQuota;
+    //*)
 
-		//(*Declarations(PanelStockQuota)
-        wxListCtrl* m_listCtrlQuota;
-		//*)
+    void LoadStockMarketQuote();  // 加载股票市场行情
 
-	protected:
+   protected:
+    //(*Identifiers(PanelStockQuota)
+    static const long ID_LISTCTRL_QUOTA;
+    //*)
 
-		//(*Identifiers(PanelStockQuota)
-        static const long ID_LISTCTRL_QUOTA;
-		//*)
+   private:
+    //(*Handlers(PanelStockQuota)
+    //*)
 
-	private:
-
-		//(*Handlers(PanelStockQuota)
-		//*)
-
-		DECLARE_EVENT_TABLE()
+    DECLARE_EVENT_TABLE()
 };
 
 #endif

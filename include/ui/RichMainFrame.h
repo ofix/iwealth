@@ -13,11 +13,10 @@
 #include <wx/wx.h>
 #endif
 
-#define CN(data) wxString::FromUTF8(data)
-
 #include <wx/listctrl.h>
+#include "ui/components/PanelStockQuota.h"
 
-enum { ID_Hello = 1,ID_LISTVIEW_STOCK_QUOTE};
+enum { ID_Hello = 1};
 
 class RichMainFrame : public wxFrame {
    public:
@@ -26,7 +25,11 @@ class RichMainFrame : public wxFrame {
                   const wxPoint& pos = wxDefaultPosition,
                   const wxSize& size = wxDefaultSize);
     virtual ~RichMainFrame();
-    void LoadStockMarketQuote();  // 加载股票市场行情
+
+   protected:
+        //(*Identifiers(RichMainFrame)
+        static const long ID_PANEL_STOCK_QUOTE;
+		//*)
 
    private:
     void OnHello(wxCommandEvent& event);
@@ -34,5 +37,5 @@ class RichMainFrame : public wxFrame {
     void OnAbout(wxCommandEvent& event);
 
    private:
-    wxListCtrl* ListViewStockQuote;
+    PanelStockQuota* m_panelStockQuota;
 };

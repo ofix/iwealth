@@ -3,8 +3,10 @@
 #include <wx/artprov.h>
 #include <wx/listctrl.h>
 #include <vector>
-#include "spider/SpiderShareListHexun.h"
-#include "ui/RichApplication.h"
+
+//(*IdInit(PanelStockQuota)
+const long RichMainFrame::ID_PANEL_STOCK_QUOTE = wxNewId();
+//*)
 
 RichMainFrame::RichMainFrame(wxWindow* parent, wxWindowID id, const wxPoint& pos, const wxSize& size) {
     //(*Initialize(RichMainFrame)
@@ -18,29 +20,7 @@ RichMainFrame::RichMainFrame(wxWindow* parent, wxWindowID id, const wxPoint& pos
             wxArtProvider::GetBitmap(wxART_MAKE_ART_ID_FROM_STR(_T("wxART_DEL_BOOKMARK")), wxART_FRAME_ICON));
         SetIcon(FrameIcon);
     }
-    ListViewStockQuote = new wxListCtrl(this, ID_LISTVIEW_STOCK_QUOTE, wxPoint(384, 48), wxSize(728, 600),
-                                        wxLC_REPORT | wxLC_VRULES | wxVSCROLL | wxHSCROLL, wxDefaultValidator,
-                                        _T("ID_LISTVIEW_STOCK_QUOTE"));
-    wxFont ListViewStockQuoteFont(14, wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL, false,
-                                  _T("微软雅黑"), wxFONTENCODING_DEFAULT);
-    ListViewStockQuote->SetFont(ListViewStockQuoteFont);
     //*)
-
-    /// 插入行情列表表头
-    std::vector<std::pair<wxString, int>> columnsStockQuote = {
-        {CN("代码"), 50}, {CN("名称"), 50}, {CN("涨幅"), 50}, {CN("现价"), 50}, {CN("换手"), 50}};
-
-    std::cout << "column size:" << columnsStockQuote.size() << std::endl;
-
-    size_t colIdx = 0;
-    for (std::pair<wxString, int>& item : columnsStockQuote) {
-        wxListItem col;
-        col.SetId(colIdx);
-        col.SetText(item.first);
-        col.SetWidth(item.second);
-        ListViewStockQuote->InsertColumn(colIdx++, col);
-    }
-    /////////////////////////////////////////////////
 
     wxMenu* menuFile = new wxMenu;
     menuFile->Append(ID_Hello, "&Hello...\tCtrl-H", "Help string shown in status bar for this menu item");
@@ -62,25 +42,9 @@ RichMainFrame::RichMainFrame(wxWindow* parent, wxWindowID id, const wxPoint& pos
     Bind(wxEVT_MENU, &RichMainFrame::OnHello, this, ID_Hello);
     Bind(wxEVT_MENU, &RichMainFrame::OnAbout, this, wxID_ABOUT);
     Bind(wxEVT_MENU, &RichMainFrame::OnExit, this, wxID_EXIT);
-    LoadStockMarketQuote();
-}
-
-void RichMainFrame::LoadStockMarketQuote() {
-    StockDataStorage* pStorage = static_cast<RichApplication*>(wxTheApp)->GetStockDataStorage();
-    if (pStorage) {
-        SpiderShareListHexun* spiderKline = new SpiderShareListHexun(pStorage);
-        spiderKline->Crawl();  // 当前线程同步爬取市场行情数据
-        std::vector<Share> shares = pStorage->GetMarketAllShares();
-        long row = 0;
-        for (Share& share : shares) {
-            ListViewStockQuote->SetItem(row, 0, share.code);
-            ListViewStockQuote->SetItem(row, 1, share.name);
-            ListViewStockQuote->SetItem(row, 2, std::to_string(share.change_rate * 100) + '%');
-            ListViewStockQuote->SetItem(row, 3, std::to_string(share.price_now));
-            ListViewStockQuote->SetItem(row, 4, std::to_string(share.turnover_rate * 100) + '%');
-            row++;
-        }
-    }
+    // 初始化主窗口面板
+    m_panelStockQuota = new PanelStockQuota(this, ID_PANEL_STOCK_QUOTE, wxPoint(384, 48), wxSize(728, 600));
+    m_panelStockQuota->LoadStockMarketQuote();
 }
 
 void RichMainFrame::OnExit(wxCommandEvent& event) {
