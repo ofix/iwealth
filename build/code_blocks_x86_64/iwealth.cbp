@@ -113,6 +113,7 @@
 		<Unit filename="../../include/stock/Stock.h" />
 		<Unit filename="../../include/stock/StockDataStorage.h" />
 		<Unit filename="../../include/ui/RichApplication.h" />
+		<Unit filename="../../include/ui/RichHelper.h" />
 		<Unit filename="../../include/ui/RichMainFrame.h" />
 		<Unit filename="../../include/ui/components/PanelStockQuota.h" />
 		<Unit filename="../../include/ui/components/RichKlineCtrl.h" />
