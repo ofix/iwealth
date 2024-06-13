@@ -28,9 +28,15 @@ PanelStockQuota::PanelStockQuota(wxWindow* parent, wxWindowID id, const wxPoint&
     m_listCtrlQuota->SetFont(ListCtrlQuoteFont);
     //*)
 
+    /// wxPanel 自适应 wxFrame
+    wxSizer* sizer = new wxBoxSizer(wxHORIZONTAL);
+    sizer->Add(m_listCtrlQuota, 1, wxEXPAND | wxALL, 0);
+    this->SetSizer(sizer);
+
     /// 插入行情列表表头
     std::vector<std::pair<wxString, int>> columnsStockQuote = {
-        {CN("代码"), 50}, {CN("名称"), 50}, {CN("涨幅"), 50}, {CN("现价"), 50}, {CN("换手"), 50}};
+        {CN("序号"), 56}, {CN("代码"), 120}, {CN("名称"), 140}, {CN("涨幅"), 100}, {CN("现价"), 100}, {CN("换手"), 100},
+    };
 
     size_t colIdx = 0;
     for (std::pair<wxString, int>& item : columnsStockQuote) {
@@ -56,11 +62,12 @@ void PanelStockQuota::LoadStockMarketQuote() {
         long row = 0;
         for (Share& share : shares) {
             m_listCtrlQuota->InsertItem(row, _T(""));  // 必须先插入行数据，然后插入表格数据
-            m_listCtrlQuota->SetItem(row, 0, CN(share.code));
-            m_listCtrlQuota->SetItem(row, 1, CN(share.name));
-            m_listCtrlQuota->SetItem(row, 2, CN(std::to_string(share.change_rate * 100) + '%'));
-            m_listCtrlQuota->SetItem(row, 3, CN(std::to_string(share.price_now)));
-            m_listCtrlQuota->SetItem(row, 4, CN(std::to_string(share.turnover_rate * 100) + '%'));
+            m_listCtrlQuota->SetItem(row, 0, std::to_string(row + 1));
+            m_listCtrlQuota->SetItem(row, 1, CN(share.code));
+            m_listCtrlQuota->SetItem(row, 2, CN(share.name));
+            m_listCtrlQuota->SetItem(row, 3, CN(convertDouble(share.change_rate) + '%'));
+            m_listCtrlQuota->SetItem(row, 4, CN(convertDouble(share.price_now)));
+            m_listCtrlQuota->SetItem(row, 5, CN(convertDouble(share.turnover_rate) + '%'));
             row++;
         }
     }

@@ -11,7 +11,7 @@ const long RichMainFrame::ID_PANEL_STOCK_QUOTE = wxNewId();
 RichMainFrame::RichMainFrame(wxWindow* parent, wxWindowID id, const wxPoint& pos, const wxSize& size) {
     //(*Initialize(RichMainFrame)
     Create(parent, id, _("东方巴菲特333"), wxDefaultPosition, wxDefaultSize, wxDEFAULT_FRAME_STYLE, _T("id"));
-    SetClientSize(wxSize(364, 600));
+    SetClientSize(wxSize(1240, 600));
     Move(wxDefaultPosition);
     SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_MENUTEXT));
     {
@@ -37,13 +37,13 @@ RichMainFrame::RichMainFrame(wxWindow* parent, wxWindowID id, const wxPoint& pos
     SetMenuBar(menuBar);
 
     CreateStatusBar();
-    SetStatusText("Welcome to wxWidgets!");
+    SetStatusText(_T("财富之眼"));
 
     Bind(wxEVT_MENU, &RichMainFrame::OnHello, this, ID_Hello);
     Bind(wxEVT_MENU, &RichMainFrame::OnAbout, this, wxID_ABOUT);
     Bind(wxEVT_MENU, &RichMainFrame::OnExit, this, wxID_EXIT);
     // 初始化主窗口面板
-    m_panelStockQuota = new PanelStockQuota(this, ID_PANEL_STOCK_QUOTE, wxPoint(384, 48), wxSize(728, 600));
+    m_panelStockQuota = new PanelStockQuota(this, ID_PANEL_STOCK_QUOTE, wxPoint(384, 48), wxSize(1240, 600));
     m_panelStockQuota->LoadStockMarketQuote();
 }
 
