@@ -45,6 +45,8 @@ RichMainFrame::RichMainFrame(wxWindow* parent, wxWindowID id, const wxPoint& pos
     // 初始化主窗口面板
     m_panelStockQuota = new PanelStockQuota(this, ID_PANEL_STOCK_QUOTE, wxPoint(384, 48), wxSize(1240, 600));
     m_panelStockQuota->LoadStockMarketQuote();
+
+    Maximize(); // 初始化最大化
 }
 
 void RichMainFrame::OnExit(wxCommandEvent& event) {

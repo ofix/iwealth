@@ -1,5 +1,6 @@
 #ifndef RICHHELPER_H
 #define RICHHELPER_H
+#include <string>
 
 #define CN(data) wxString::FromUTF8(data)
 
