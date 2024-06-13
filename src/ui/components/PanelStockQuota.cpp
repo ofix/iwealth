@@ -2,6 +2,7 @@
 #include "spider/SpiderShareListHexun.h"
 #include "ui/RichApplication.h"
 #include "ui/RichHelper.h"
+#include <wx/colour.h>
 
 //(*InternalHeaders(PanelStockQuota)
 #include <wx/intl.h>
@@ -32,6 +33,8 @@ PanelStockQuota::PanelStockQuota(wxWindow* parent, wxWindowID id, const wxPoint&
     wxSizer* sizer = new wxBoxSizer(wxHORIZONTAL);
     sizer->Add(m_listCtrlQuota, 1, wxEXPAND | wxALL, 0);
     this->SetSizer(sizer);
+    m_listCtrlQuota->SetBackgroundColour(wxColour( 0, 0, 0 ));
+    m_listCtrlQuota->SetForegroundColour(wxColour( 192, 192, 192 ));
 
     /// 插入行情列表表头
     std::vector<std::pair<wxString, int>> columnsStockQuote = {

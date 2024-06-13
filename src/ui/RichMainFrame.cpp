@@ -17,7 +17,7 @@ RichMainFrame::RichMainFrame(wxWindow* parent, wxWindowID id, const wxPoint& pos
     {
         wxIcon FrameIcon;
         FrameIcon.CopyFromBitmap(
-            wxArtProvider::GetBitmap(wxART_MAKE_ART_ID_FROM_STR(_T("wxART_DEL_BOOKMARK")), wxART_FRAME_ICON));
+            wxArtProvider::GetBitmap(wxART_MAKE_ART_ID_FROM_STR(_T("wxART_QUESTION")), wxART_FRAME_ICON));
         SetIcon(FrameIcon);
     }
     //*)

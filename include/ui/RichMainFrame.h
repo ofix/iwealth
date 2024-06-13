@@ -29,7 +29,7 @@ class RichMainFrame : public wxFrame {
    protected:
         //(*Identifiers(RichMainFrame)
         static const long ID_PANEL_STOCK_QUOTE;
-		//*)
+        //*)
 
    private:
     void OnHello(wxCommandEvent& event);
