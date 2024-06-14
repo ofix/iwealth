@@ -70,3 +70,7 @@ Share::Share(const Share& other)
         old_names.push_back(other.old_names[i]);
     }
 }
+
+bool Share::operator<(const Share& other) const {
+        return code<other.code;
+}

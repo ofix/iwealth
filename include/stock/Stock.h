@@ -76,6 +76,7 @@ struct Share {
     // 必须定义拷贝构造函数，否则使用std::vector.push_back 栈对象，程序会崩溃
     Share();
     Share(const Share& other);
+    bool operator<(const Share& other) const;
 };
 
 // K线绘制

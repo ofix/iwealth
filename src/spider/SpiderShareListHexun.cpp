@@ -14,22 +14,33 @@
 
 using json = nlohmann::json;
 
-SpiderShareListHexun::SpiderShareListHexun(StockDataStorage* storage) : Spider(storage) {}
+SpiderShareListHexun::SpiderShareListHexun(StockDataStorage* storage) : Spider(storage) {
+}
 
 SpiderShareListHexun::~SpiderShareListHexun() {}
 
 void SpiderShareListHexun::DoCrawl() {
     m_pStockStorage->m_market_shares.clear();
     m_pStockStorage->m_market_shares.reserve(6000);  // 避免内存频繁分配
+    m_unique_shares.clear();
     FetchMarketShares(1);                            // 沪市A股
     FetchMarketShares(2);                            // 深市A股
     FetchMarketShares(6);                            // 创业板
-    FetchMarketShares(1789);                         // 科创板
+    FetchMarketShares(1789);                     // 科创板
+    // 重新插入
+    m_pStockStorage->m_market_shares.insert(m_pStockStorage->m_market_shares.end(),m_unique_shares.begin(),m_unique_shares.end());
+    // 对股票涨幅进行排序
+    std::sort(m_pStockStorage->m_market_shares.begin(), m_pStockStorage->m_market_shares.end(), [](Share& a, Share& b) {
+        return a.change_rate > b.change_rate;
+    });
+    // 释放内存
+    m_unique_shares.clear();
 }
 
 void SpiderShareListHexun::FetchMarketShares(int market) {
     static std::map<int, Market> kv = {
-        {1, Market::ShangHai}, {2, Market::ShenZhen}, {6, Market::ChuangYeBan}, {1789, Market::KeChuangBan}};
+        {1, Market::ShangHai}, {2, Market::ShenZhen}, {6, Market::ChuangYeBan}, {1789, Market::KeChuangBan}
+    };
     std::string url = "https://stocksquote.hexun.com/a/sortlist";
     std::string url_sh = url + "?block=" + std::to_string(market) +
                          "&title=15"
@@ -66,7 +77,7 @@ void SpiderShareListHexun::ParseStockListData(std::string& data, Market market) 
         share.price_amplitude = (*it)[12].get<double>() / 100;  // 股价振幅
         share.qrr = (*it)[13].get<double>() / 100;              // 成交量比
         share.market = market;                                  // 股票市场
-        m_pStockStorage->m_market_shares.push_back(share);
+        m_unique_shares.insert(share);
     }
     m_pStockStorage->m_market_share_count.insert({market, count});
     m_pStockStorage->m_market_share_total += count;
