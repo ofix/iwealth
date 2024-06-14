@@ -74,15 +74,23 @@
 		<Unit filename="../../include/net/ConcurrentRequest.h" />
 		<Unit filename="../../include/net/Conn.h" />
 		<Unit filename="../../include/net/Request.h" />
+		<Unit filename="../../include/net/RequestStatistics.h" />
+		<Unit filename="../../include/search/ChinesePinYin.h" />
+		<Unit filename="../../include/search/LevelTree.hpp" />
 		<Unit filename="../../include/search/Trie.h" />
 		<Unit filename="../../include/spider/Spider.h" />
 		<Unit filename="../../include/spider/SpiderBasicInfoEastMoney.h" />
-		<Unit filename="../../include/spider/SpiderShareHistory.h" />
+		<Unit filename="../../include/spider/SpiderConceptListEastMoney.h" />
+		<Unit filename="../../include/spider/SpiderShareKline.h" />
+		<Unit filename="../../include/spider/SpiderShareKlineUrl.h" />
 		<Unit filename="../../include/spider/SpiderShareListHexun.h" />
+		<Unit filename="../../include/stock/HashProvinceShare.h" />
 		<Unit filename="../../include/stock/Stock.h" />
 		<Unit filename="../../include/stock/StockDataStorage.h" />
 		<Unit filename="../../include/ui/RichApplication.h" />
+		<Unit filename="../../include/ui/RichHelper.h" />
 		<Unit filename="../../include/ui/RichMainFrame.h" />
+		<Unit filename="../../include/ui/components/PanelStockQuota.h" />
 		<Unit filename="../../include/ui/components/RichKlineCtrl.h" />
 		<Unit filename="../../include/ui/components/RichKlineInfoCtrl.h" />
 		<Unit filename="../../include/ui/components/RichVolumeBarCtrl.h" />
@@ -91,31 +99,40 @@
 		<Unit filename="../../include/util/EasyLogger.h" />
 		<Unit filename="../../include/util/FileTool.h" />
 		<Unit filename="../../include/util/Global.h" />
+		<Unit filename="../../include/util/Timer.h" />
 		<Unit filename="../../src/net/ConcurrentRequest.cpp" />
 		<Unit filename="../../src/net/Request.cpp" />
+		<Unit filename="../../src/search/ChinesePinYin.cpp" />
 		<Unit filename="../../src/search/Trie.cpp" />
 		<Unit filename="../../src/spider/Spider.cpp" />
 		<Unit filename="../../src/spider/SpiderBasicInfoEastMoney.cpp" />
-		<Unit filename="../../src/spider/SpiderShareHistory.cpp" />
+		<Unit filename="../../src/spider/SpiderConceptListEastMoney.cpp" />
+		<Unit filename="../../src/spider/SpiderShareKline.cpp" />
 		<Unit filename="../../src/spider/SpiderShareListHexun.cpp" />
+		<Unit filename="../../src/stock/HashProvinceShare.cpp" />
 		<Unit filename="../../src/stock/Stock.cpp" />
 		<Unit filename="../../src/stock/StockDataStorage.cpp" />
 		<Unit filename="../../src/ui/RichApplication.cpp" />
+		<Unit filename="../../src/ui/RichHelper.cpp" />
 		<Unit filename="../../src/ui/RichMainFrame.cpp" />
+		<Unit filename="../../src/ui/components/PanelStockQuota.cpp" />
 		<Unit filename="../../src/ui/components/RichKlineCtrl.cpp" />
 		<Unit filename="../../src/ui/components/RichKlineInfoCtrl.cpp" />
 		<Unit filename="../../src/ui/components/RichVolumeBarCtrl.cpp" />
+		<Unit filename="../../src/ui/wxsmith/PanelStockQuota.wxs" />
 		<Unit filename="../../src/ui/wxsmith/RichMainFrame.wxs" />
 		<Unit filename="../../src/util/ConsoleTable.cpp" />
 		<Unit filename="../../src/util/EasyLogger.cpp" />
 		<Unit filename="../../src/util/FileTool.cpp" />
 		<Unit filename="../../src/util/Global.cpp" />
+		<Unit filename="../../src/util/Timer.cpp" />
 		<Unit filename="iwealth.layout" />
 		<Extensions>
 			<wxsmith version="1">
 				<gui name="wxWidgets" src="..\..\src\ui\RichApplication.cpp" main="RichMainFrame" init_handlers="necessary" language="CPP" />
 				<resources>
 					<wxFrame wxs="../../src/ui/wxsmith/RichMainFrame.wxs" src="../../src/ui/RichMainFrame.cpp" hdr="../../include/ui/RichMainFrame.h" fwddecl="0" i18n="1" name="RichMainFrame" language="CPP" />
+					<wxPanel wxs="../../src/ui/wxsmith/PanelStockQuota.wxs" src="../../src/ui/PanelStockQuota.cpp" hdr="../../include/ui/PanelStockQuota.h" fwddecl="0" i18n="1" name="PanelStockQuota" language="CPP" />
 				</resources>
 			</wxsmith>
 		</Extensions>
