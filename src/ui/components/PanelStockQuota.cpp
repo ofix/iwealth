@@ -31,14 +31,23 @@ PanelStockQuota::PanelStockQuota(wxWindow* parent, wxWindowID id, const wxPoint&
     wxSizer* sizer = new wxBoxSizer(wxHORIZONTAL);
     sizer->Add(m_gridCtrlQuota, 1, wxEXPAND | wxALL, 0);
     this->SetSizer(sizer);
-    m_gridCtrlQuota->SetDefaultCellBackgroundColour(wxColour(0, 0, 0));
+    wxColor background_clr(50, 50, 50);
+    m_gridCtrlQuota->SetDefaultCellBackgroundColour(background_clr);
     m_gridCtrlQuota->SetDefaultCellTextColour(wxColour(192, 192, 192));
     m_gridCtrlQuota->SetDefaultCellAlignment(wxALIGN_CENTER, wxALIGN_CENTER);
     m_gridCtrlQuota->DisableDragRowSize();    // 禁止拖拽改变行高
     m_gridCtrlQuota->EnableEditing(false);    // 禁止编辑
     m_gridCtrlQuota->EnableGridLines(false);  // 不划线
+    m_gridCtrlQuota->SetGridLineColour(background_clr);
     m_gridCtrlQuota->SetCellHighlightColour(wxColor(255, 255, 255, 0));
     m_gridCtrlQuota->SetCellHighlightPenWidth(0);
+    m_gridCtrlQuota->SetLabelBackgroundColour(background_clr);
+    m_gridCtrlQuota->SetLabelTextColour(wxColour(192, 192, 192));
+    m_gridCtrlQuota->SetRowLabelAlignment(wxALIGN_CENTRE, wxALIGN_CENTRE);
+    m_gridCtrlQuota->SetSelectionBackground(wxColor(100, 100, 100));
+    m_gridCtrlQuota->SetSelectionForeground(wxColor(219, 219, 3, 255));
+    m_gridCtrlQuota->HideRowLabels();
+    m_gridCtrlQuota->SetSortingColumn(3, false);
 
     /////////////////////////////////////////////////
     // StaticText1 = new wxStaticText(this, ID_STATICTEXT1, _("Label"), wxPoint(232,232), wxDefaultSize, 0,
@@ -58,7 +67,7 @@ void PanelStockQuota::LoadStockMarketQuote() {
             {CN("序号"), 56},  {CN("代码"), 120}, {CN("名称"), 140},
             {CN("涨幅"), 100}, {CN("现价"), 100}, {CN("换手"), 100},
         };
-        m_gridCtrlQuota->CreateGrid(shares.size() + 1, 6);
+        m_gridCtrlQuota->CreateGrid(shares.size() + 1, 6, wxGrid::wxGridSelectRows);
         int icol = 0;
         for (std::pair<wxString, int>& item : columnsStockQuote) {
             m_gridCtrlQuota->SetColSize(icol, item.second);
