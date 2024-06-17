@@ -4,7 +4,7 @@
 #include <map>
 #include <unordered_map>
 #include "nlohmann/json.hpp"
-#include "stock/HashProvinceShare.h"
+#include "stock/ShareCategory.h"
 #include "stock/Stock.h"
 
 class SpiderShareListHexun;
@@ -39,12 +39,15 @@ class StockDataStorage {
     uint16_t m_market_share_total;         // 市场所有股票之和
     std::string m_path_all_market_shares;  // 所有股票代号本地保存路径
     // 内存数据
-    std::vector<Share> m_market_shares;       // 所有股票
-    HashProvinceShare m_hash_province_share;  // 省份->[股票1,股票2] hash映射表
+    std::vector<Share> m_market_shares;  // 所有股票
     // 统计信息
     std::unordered_map<Market, int> m_market_share_count;  // 分市场股票数量统计
-    // 市场个股概念板块映射表
-    std::unordered_map<std::string, ShareConcept*> m_market_concepts;
+    // 概念->[股票1,股票2] hash映射表
+    ShareCategory m_category_concepts;
+    // 行业->[股票1,股票2] hash映射表
+    ShareCategory m_category_industries;
+    // 省份->[股票1,股票2] hash映射表
+    ShareCategory m_category_regions;
     // 市场个股前复权历史K线
     std::unordered_map<std::string, std::vector<uiKline>> m_day_klines_adjust;
     std::unordered_map<std::string, std::vector<uiKline>> m_week_klines_adjust;
@@ -62,6 +65,7 @@ class StockDataStorage {
     friend class SpiderShareHistory;          // 网易股票爬虫
     friend class SpiderConceptListEastMoney;  // 东方财富题材概念列表爬虫
     friend class SpiderShareKline;            // 百度财经股票历史K线数据爬虫
+    friend class SpiderShareCategory;         // 地域板块/概念板块/行业版块数据爬虫
 };
 
 #endif  // StockDataStorage_H

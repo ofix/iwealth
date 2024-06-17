@@ -23,7 +23,8 @@ SpiderConceptListEastMoney::SpiderConceptListEastMoney(StockDataStorage* storage
     m_debug = true;
 }
 
-SpiderConceptListEastMoney::~SpiderConceptListEastMoney() {}
+SpiderConceptListEastMoney::~SpiderConceptListEastMoney() {
+}
 
 void SpiderConceptListEastMoney::DoCrawl() {
     FetchConceptList();
@@ -45,14 +46,13 @@ std::string SpiderConceptListEastMoney::GetRequestUrl() {
 void SpiderConceptListEastMoney::ParseResponse(std::string& response) {
     json _response = json::parse(response);
     json arr = _response["data"]["diff"];
-    m_pStockStorage->m_market_concepts.clear();              // 清空概念个股映射表
-    m_pStockStorage->m_market_concepts.reserve(arr.size());  // 防止频繁和移动底层数组
+    m_pStockStorage->m_category_concepts.Clear();
     for (json::iterator it = arr.begin(); it != arr.end(); ++it) {
         std::string concept_name = (*it)["f14"];
         ShareConcept* pConcept = new ShareConcept();
         pConcept->name = concept_name;
         pConcept->shares = std::vector<Share*>();
-        m_pStockStorage->m_market_concepts[concept_name] = pConcept;
+        m_pStockStorage->m_category_concepts.Insert(concept_name, nullptr);
         if (m_debug) {
             std::cout << concept_name << ",";
         }

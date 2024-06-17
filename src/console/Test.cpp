@@ -2,6 +2,7 @@
 #include <vector>
 #include "search/LevelTree.hpp"
 #include "spider/SpiderConceptListEastMoney.h"
+#include "spider/SpiderShareCategory.h"
 #include "spider/SpiderShareKline.h"
 #include "stock/Stock.h"
 #include "stock/StockDataStorage.h"
@@ -54,13 +55,21 @@ void TestSpiderConceptListEastMoney() {
     spiderEastMoney->Crawl();
 }
 
-void UpdateProgress(uint32_t timer_id, void* args) {}
+void UpdateProgress(uint32_t timer_id, void* args) {
+}
 
 void TestSpiderShareKline() {
     StockDataStorage* m_pStockStorage = new StockDataStorage();
     m_pStockStorage->Init();
     SpiderShareKline* spiderKline = new SpiderShareKline(m_pStockStorage, true);
     spiderKline->Crawl(KlineType::Day);
+}
+
+void TestSpiderShareCategory() {
+    StockDataStorage* m_pStockStorage = new StockDataStorage();
+    m_pStockStorage->Init();
+    SpiderShareCategory* spiderShareLabel = new SpiderShareCategory(m_pStockStorage, true);
+    spiderShareLabel->Crawl();
 }
 
 void TestTimer() {
@@ -89,7 +98,8 @@ void TestTimer() {
 
 void KlineTest() {
     std::string error_kline =
-        "1483459200,2017-01-04,6.84,6.85,5320285,6.86,6.77,37188319.00,-0.02,-0.29,--,6.87,6.83,4333075,6.77,4819666,6."
+        "1483459200,2017-01-04,6.84,6.85,5320285,6.86,6.77,37188319.00,-0.02,-0.29,--,6.87,6.83,4333075,6.77,"
+        "4819666,6."
         "75,5817798";
     uiKline kline;
     bool result = SpiderShareKline::ParseKlineBaidu(error_kline, &kline);
@@ -103,5 +113,6 @@ int main(int argc, char* argv[]) {
     // TestTimer();
     // KlineTest();
     // TestSpiderShareKline();
+    TestSpiderShareCategory();
     std::cin.get();
 }
