@@ -189,7 +189,10 @@ void ConcurrentRequest::Run() {
                 curl_easy_getinfo(conn->easy_curl, CURLINFO_TOTAL_TIME, &conn->total_time);
                 //////// 请求统计 /////////
                 RequestStatistics* pStatistics = conn->statistics;
-                pStatistics->ongoing_requests -= 1;
+                if (pStatistics != nullptr) {
+                    pStatistics->ongoing_requests -= 1;
+                }
+
                 bool response_parse_error = false;
                 //////////////////////////
                 if ((conn->callback) && conn->http_code == 200) {
@@ -208,12 +211,18 @@ void ConcurrentRequest::Run() {
                     _CurlClose(conn);
                     //////// 请求统计 /////////
                     if (conn->http_code == 200 && !response_parse_error) {
-                        pStatistics->success_requests += 1;
+                        if (pStatistics != nullptr) {
+                            pStatistics->success_requests += 1;
+                        }
                     } else {
-                        pStatistics->failed_requests += 1;
+                        if (pStatistics != nullptr) {
+                            pStatistics->failed_requests += 1;
+                        }
                     }
-                    std::cout << GetThreadPrefix() << "success: " << pStatistics->success_requests
-                              << ", failed: " << pStatistics->failed_requests << std::endl;
+                    if (pStatistics != nullptr) {
+                        std::cout << GetThreadPrefix() << "success: " << pStatistics->success_requests
+                                  << ", failed: " << pStatistics->failed_requests << std::endl;
+                    }
                     //////////////////////////
                 } else {  // 如果复用，需要重置response
                     conn->response.clear();
@@ -256,7 +265,7 @@ void HttpConcurrentGet(const std::string& thread_name,
         pConn->callback = callback;
         pConn->extra = user_extra;
         pConn->debug = false;
-        pConn->statistics = static_cast<KlineCrawlExtra*>(user_extra)->statistics;
+        pConn->statistics = static_cast<CrawlExtra*>(user_extra)->statistics;
         connections.push_back(pConn);
     }
     request.AddConnectionList(connections);
@@ -283,7 +292,7 @@ void HttpConcurrentGet(const std::string& thread_name,
         pConn->callback = callback;
         pConn->extra = user_extra[i];
         pConn->debug = false;
-        pConn->statistics = static_cast<KlineCrawlExtra*>(user_extra[i])->statistics;
+        pConn->statistics = static_cast<CrawlExtra*>(user_extra[i])->statistics;
         connections.push_back(pConn);
         i++;
     }

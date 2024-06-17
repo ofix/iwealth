@@ -6,7 +6,7 @@
 
 class ShareCategory {
    public:
-    void Insert(std::string& category, Share* share);
+    bool Insert(std::string& category, Share* share);
     std::vector<Share*> Query(const std::string& category);
     void Clear();
 

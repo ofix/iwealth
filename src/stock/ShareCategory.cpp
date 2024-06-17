@@ -9,7 +9,10 @@
 
 #include "stock/ShareCategory.h"
 
-void ShareCategory::Insert(std::string& category, Share* share) {
+bool ShareCategory::Insert(std::string& category, Share* share) {
+    if (share == nullptr) {
+        return false;
+    }
     if (m_map.find(category) != m_map.end()) {
         m_map[category].push_back(share);
     } else {
@@ -17,6 +20,7 @@ void ShareCategory::Insert(std::string& category, Share* share) {
         shares.push_back(share);
         m_map[category] = shares;
     }
+    return true;
 }
 
 void ShareCategory::Clear() {

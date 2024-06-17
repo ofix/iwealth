@@ -18,11 +18,14 @@
 
 using json = nlohmann::json;
 
-SpiderShareKline::SpiderShareKline(StockDataStorage* storage) : Spider(storage) {}
+SpiderShareKline::SpiderShareKline(StockDataStorage* storage) : Spider(storage) {
+}
 
-SpiderShareKline::SpiderShareKline(StockDataStorage* storage, bool concurrent) : Spider(storage, concurrent) {}
+SpiderShareKline::SpiderShareKline(StockDataStorage* storage, bool concurrent) : Spider(storage, concurrent) {
+}
 
-SpiderShareKline::~SpiderShareKline() {}
+SpiderShareKline::~SpiderShareKline() {
+}
 
 void SpiderShareKline::Crawl(KlineType kline_type) {
     m_timeStart = std::chrono::high_resolution_clock::now();
@@ -382,7 +385,8 @@ void SpiderShareKline::MergeShareKlines(
     }
 }
 void SpiderShareKline::MergeShareKlines(std::unordered_map<std::string, std::vector<uiKline>>& klines,
-                                        std::unordered_map<std::string, std::vector<uiKline>>& target_klines) {}
+                                        std::unordered_map<std::string, std::vector<uiKline>>& target_klines) {
+}
 
 // 获取所有历史向量K线的数量，避免std::vector容器反复分配内存带来的性能损失
 size_t SpiderShareKline::GetKlineCount(const std::vector<std::vector<uiKline>>& multi_klines) {

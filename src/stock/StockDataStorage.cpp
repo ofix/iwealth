@@ -23,12 +23,19 @@ StockDataStorage::StockDataStorage() : m_market_shares(std::vector<Share>()) {
     m_path_share_brief = m_data_dir + DIRECTORY_SEPARATOR + "stock_brief.json";
 }
 
-StockDataStorage::~StockDataStorage() {}
+StockDataStorage::~StockDataStorage() {
+}
 
 void StockDataStorage::Init() {
     LoadStockAllShares();
 }
 
+Share* StockDataStorage::FindShare(std::string& share_code) {
+    if (m_code_share_map.find(share_code) != m_code_share_map.end()) {
+        return m_code_share_map[share_code];
+    }
+    return nullptr;
+}
 void StockDataStorage::LoadStockAllShares() {
     // 检查本地的股票代号文件是否存在,如果存在，检查文件时间是否超过24小时，如果是，同步信息
     if (FileTool::IsFileExists(m_path_share_brief)) {

@@ -20,6 +20,10 @@ class SpiderShareCategory : public Spider {
    protected:
     virtual void DoCrawl();
     void ParseCategories(std::string& data);
+    void FetchCategoryShares(nlohmann::json& categories, ShareCategoryType type);
+    std::string GetCategoryKey(std::string name);
+    void ConcurrentResponseCallback(conn_t* conn);
+    std::string GetCategoryTypeName(ShareCategoryType type);
 
    private:
 };

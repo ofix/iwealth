@@ -24,6 +24,7 @@ class StockDataStorage {
     bool CrawlStockKlinesHistoryData();  // 同步股票历史K线数据
     bool CrawlStockHistoryName();        // 同步股票曾用名
     bool SaveShareKLines(const KlineType kline_type);
+    Share* FindShare(std::string& share_code);
 
    protected:
     std::string ToJson(std::vector<Share>& shares);
@@ -40,6 +41,8 @@ class StockDataStorage {
     std::string m_path_all_market_shares;  // 所有股票代号本地保存路径
     // 内存数据
     std::vector<Share> m_market_shares;  // 所有股票
+    // 股票代号->股票指针
+    std::unordered_map<std::string, Share*> m_code_share_map;
     // 统计信息
     std::unordered_map<Market, int> m_market_share_count;  // 分市场股票数量统计
     // 概念->[股票1,股票2] hash映射表

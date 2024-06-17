@@ -34,6 +34,12 @@ enum class KlineProvider {
     EastMoney      // 东方财富
 };
 
+enum class ShareCategoryType {
+    Concept = 0,   // 概念板块
+    Industry = 1,  // 行业板块
+    Region = 2,    // 区域板块
+};
+
 struct Share;  // 前项声明
 struct ShareConcept {
     std::string name;
