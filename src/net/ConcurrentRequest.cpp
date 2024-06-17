@@ -4,14 +4,17 @@
 #include "util/EasyLogger.h"
 
 ConcurrentRequest::ConcurrentRequest(const std::string& thread_name, uint32_t concurrent_size)
-    : m_thread_name(thread_name), m_concurrent_size(concurrent_size) {}
+    : m_thread_name(thread_name), m_concurrent_size(concurrent_size) {
+}
 
 ConcurrentRequest::ConcurrentRequest(const std::string& thread_name,
                                      std::list<conn_t*>& connections,
                                      uint32_t concurrent_size)
-    : m_thread_name(thread_name), m_concurrent_size(concurrent_size), m_connections(connections) {}
+    : m_thread_name(thread_name), m_concurrent_size(concurrent_size), m_connections(connections) {
+}
 
-ConcurrentRequest::~ConcurrentRequest() {}
+ConcurrentRequest::~ConcurrentRequest() {
+}
 
 void ConcurrentRequest::AddConnection(conn_t* connection) {
     m_connections.push_back(connection);

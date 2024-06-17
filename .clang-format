@@ -1,4 +1,9 @@
 BasedOnStyle: Chromium
 IndentWidth: 4
 ColumnLimit: 120
+BinPackArguments: true
+AllowShortBlocksOnASingleLine: Never
+AllowShortFunctionsOnASingleLine: None
+AllowShortLambdasOnASingleLine: None
+AllowAllParametersOfDeclarationOnNextLine: false
 PointerAlignment: Left

@@ -157,7 +157,8 @@ foreach file : console_sources
 endforeach
 
 executable('iconsole',full_console_sources,
-            link_args : ['-pthread'],
+            cpp_args:cpp_args,
+            link_args : ldflags,
             include_directories : inc,
             dependencies : [third_party_dep])
 

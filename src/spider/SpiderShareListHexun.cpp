@@ -8,27 +8,31 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 #include "spider/SpiderShareListHexun.h"
+
+#include <wx/string.h>
+
 #include "stock/Stock.h"
 #include "stock/StockDataStorage.h"
-#include "wx/string.h"
 
 using json = nlohmann::json;
 
 SpiderShareListHexun::SpiderShareListHexun(StockDataStorage* storage) : Spider(storage) {
 }
 
-SpiderShareListHexun::~SpiderShareListHexun() {}
+SpiderShareListHexun::~SpiderShareListHexun() {
+}
 
 void SpiderShareListHexun::DoCrawl() {
     m_pStockStorage->m_market_shares.clear();
     m_pStockStorage->m_market_shares.reserve(6000);  // 避免内存频繁分配
     m_unique_shares.clear();
-    FetchMarketShares(1);                            // 沪市A股
-    FetchMarketShares(2);                            // 深市A股
-    FetchMarketShares(6);                            // 创业板
-    FetchMarketShares(1789);                     // 科创板
+    FetchMarketShares(1);     // 沪市A股
+    FetchMarketShares(2);     // 深市A股
+    FetchMarketShares(6);     // 创业板
+    FetchMarketShares(1789);  // 科创板
     // 重新插入
-    m_pStockStorage->m_market_shares.insert(m_pStockStorage->m_market_shares.end(),m_unique_shares.begin(),m_unique_shares.end());
+    m_pStockStorage->m_market_shares.insert(m_pStockStorage->m_market_shares.end(), m_unique_shares.begin(),
+                                            m_unique_shares.end());
     // 对股票涨幅进行排序
     std::sort(m_pStockStorage->m_market_shares.begin(), m_pStockStorage->m_market_shares.end(), [](Share& a, Share& b) {
         return a.change_rate > b.change_rate;
@@ -39,7 +43,10 @@ void SpiderShareListHexun::DoCrawl() {
 
 void SpiderShareListHexun::FetchMarketShares(int market) {
     static std::map<int, Market> kv = {
-        {1, Market::ShangHai}, {2, Market::ShenZhen}, {6, Market::ChuangYeBan}, {1789, Market::KeChuangBan}
+        {1, Market::ShangHai},
+        {2, Market::ShenZhen},
+        {6, Market::ChuangYeBan},
+        {1789, Market::KeChuangBan},
     };
     std::string url = "https://stocksquote.hexun.com/a/sortlist";
     std::string url_sh = url + "?block=" + std::to_string(market) +
