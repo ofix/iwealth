@@ -2,8 +2,9 @@
 #define PANELSTOCKQUOTA_H
 
 //(*Headers(PanelStockQuota)
-#include <wx/grid.h>
 #include <wx/panel.h>
+#include "ui/components/RichGrid.h"
+
 //*)
 
 class PanelStockQuota : public wxPanel {
@@ -15,7 +16,7 @@ class PanelStockQuota : public wxPanel {
     virtual ~PanelStockQuota();
 
     //(*Declarations(PanelStockQuota)
-    wxGrid* m_gridCtrlQuota;
+    RichGrid* m_gridCtrlQuota;
     //*)
 
     void LoadStockMarketQuote();  // 加载股票市场行情

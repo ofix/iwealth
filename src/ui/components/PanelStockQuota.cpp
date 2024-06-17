@@ -21,7 +21,7 @@ END_EVENT_TABLE()
 PanelStockQuota::PanelStockQuota(wxWindow* parent, wxWindowID id, const wxPoint& pos, const wxSize& size) {
     //(*Initialize(PanelStockQuota)
     Create(parent, id, pos, size, wxTAB_TRAVERSAL, _T("Panel_StockQuota"));
-    m_gridCtrlQuota = new wxGrid(this, ID_GRIDCTRL_QUOTA, wxPoint(0, 0), size);
+    m_gridCtrlQuota = new RichGrid(this, ID_GRIDCTRL_QUOTA, wxPoint(0, 0), size);
     wxFont quote_font(14, wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL, false, _T("微软雅黑"),
                       wxFONTENCODING_DEFAULT);
     m_gridCtrlQuota->SetFont(quote_font);
