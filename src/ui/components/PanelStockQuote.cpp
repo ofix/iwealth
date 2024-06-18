@@ -1,25 +1,25 @@
-#include "ui/components/PanelStockQuota.h"
+#include "ui/components/PanelStockQuote.h"
 #include <wx/colour.h>
 #include "spider/SpiderShareListHexun.h"
 #include "ui/RichApplication.h"
 #include "ui/RichHelper.h"
 
-//(*InternalHeaders(PanelStockQuota)
+//(*InternalHeaders(PanelStockQuote)
 #include <wx/intl.h>
 #include <wx/string.h>
 //*)
 
-//(*IdInit(PanelStockQuota)
-const long PanelStockQuota::ID_GRIDCTRL_QUOTA = wxNewId();
+//(*IdInit(PanelStockQuote)
+const long PanelStockQuote::ID_GRIDCTRL_QUOTA = wxNewId();
 //*)
 
-BEGIN_EVENT_TABLE(PanelStockQuota, wxPanel)
-//(*EventTable(PanelStockQuota)
+BEGIN_EVENT_TABLE(PanelStockQuote, wxPanel)
+//(*EventTable(PanelStockQuote)
 //*)
 END_EVENT_TABLE()
 
-PanelStockQuota::PanelStockQuota(wxWindow* parent, wxWindowID id, const wxPoint& pos, const wxSize& size) {
-    //(*Initialize(PanelStockQuota)
+PanelStockQuote::PanelStockQuote(wxWindow* parent, wxWindowID id, const wxPoint& pos, const wxSize& size) {
+    //(*Initialize(PanelStockQuote)
     Create(parent, id, pos, size, wxTAB_TRAVERSAL, _T("Panel_StockQuota"));
     m_gridCtrlQuota = new RichGrid(this, ID_GRIDCTRL_QUOTA, wxPoint(0, 0), size);
     wxFont quote_font(14, wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL, false, _T("微软雅黑"),
@@ -55,7 +55,7 @@ PanelStockQuota::PanelStockQuota(wxWindow* parent, wxWindowID id, const wxPoint&
 }
 
 // 加载市场当前行情并显示
-void PanelStockQuota::LoadStockMarketQuote() {
+void PanelStockQuote::LoadStockMarketQuote() {
     StockDataStorage* pStorage = static_cast<RichApplication*>(wxTheApp)->GetStockDataStorage();
     if (pStorage) {
         SpiderShareListHexun* spiderKline = new SpiderShareListHexun(pStorage);
@@ -96,7 +96,7 @@ void PanelStockQuota::LoadStockMarketQuote() {
     }
 }
 
-PanelStockQuota::~PanelStockQuota() {
-    //(*Destroy(PanelStockQuota)
+PanelStockQuote::~PanelStockQuote() {
+    //(*Destroy(PanelStockQuote)
     //*)
 }

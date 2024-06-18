@@ -14,9 +14,9 @@
 #endif
 
 #include <wx/listctrl.h>
-#include "ui/components/PanelStockQuota.h"
+#include "ui/components/PanelStockQuote.h"
 
-enum { ID_Hello = 1};
+enum { ID_Hello = 1 };
 
 class RichMainFrame : public wxFrame {
    public:
@@ -27,9 +27,9 @@ class RichMainFrame : public wxFrame {
     virtual ~RichMainFrame();
 
    protected:
-        //(*Identifiers(RichMainFrame)
-        static const long ID_PANEL_STOCK_QUOTE;
-        //*)
+    //(*Identifiers(RichMainFrame)
+    static const long ID_PANEL_STOCK_QUOTE;
+    //*)
 
    private:
     void OnHello(wxCommandEvent& event);
@@ -37,5 +37,5 @@ class RichMainFrame : public wxFrame {
     void OnAbout(wxCommandEvent& event);
 
    private:
-    PanelStockQuota* m_panelStockQuota;
+    PanelStockQuote* m_panelStockQuota;
 };

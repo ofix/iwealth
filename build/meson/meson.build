@@ -98,7 +98,7 @@ gui_sources = [
     'ui/RichApplication.cpp',
     'ui/RichMainFrame.cpp',
     'ui/RichHelper.cpp',
-    'ui/components/PanelStockQuota.cpp',
+    'ui/components/PanelStockQuote.cpp',
     'ui/components/RichKlineCtrl.cpp',
     'ui/components/RichKlineInfoCtrl.cpp',
     'ui/components/RichVolumeBarCtrl.cpp',

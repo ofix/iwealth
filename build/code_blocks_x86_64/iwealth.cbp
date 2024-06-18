@@ -115,7 +115,7 @@
 		<Unit filename="../../include/ui/RichApplication.h" />
 		<Unit filename="../../include/ui/RichHelper.h" />
 		<Unit filename="../../include/ui/RichMainFrame.h" />
-		<Unit filename="../../include/ui/components/PanelStockQuota.h" />
+		<Unit filename="../../include/ui/components/PanelStockQuote.h" />
 		<Unit filename="../../include/ui/components/RichKlineCtrl.h" />
 		<Unit filename="../../include/ui/components/RichKlineInfoCtrl.h" />
 		<Unit filename="../../include/ui/components/RichVolumeBarCtrl.h" />
@@ -140,11 +140,11 @@
 		<Unit filename="../../src/ui/RichApplication.cpp" />
 		<Unit filename="../../src/ui/RichHelper.cpp" />
 		<Unit filename="../../src/ui/RichMainFrame.cpp" />
-		<Unit filename="../../src/ui/components/PanelStockQuota.cpp" />
+		<Unit filename="../../src/ui/components/PanelStockQuote.cpp" />
 		<Unit filename="../../src/ui/components/RichKlineCtrl.cpp" />
 		<Unit filename="../../src/ui/components/RichKlineInfoCtrl.cpp" />
 		<Unit filename="../../src/ui/components/RichVolumeBarCtrl.cpp" />
-		<Unit filename="../../src/ui/wxsmith/PanelStockQuota.wxs" />
+		<Unit filename="../../src/ui/wxsmith/PanelStockQuote.wxs" />
 		<Unit filename="../../src/ui/wxsmith/RichMainFrame.wxs" />
 		<Unit filename="../../src/util/ConsoleTable.cpp" />
 		<Unit filename="../../src/util/EasyLogger.cpp" />
@@ -156,7 +156,7 @@
 				<gui name="wxWidgets" src="..\..\src\ui\RichApplication.cpp" main="RichMainFrame" init_handlers="necessary" language="CPP" />
 				<resources>
 					<wxFrame wxs="../../src/ui/wxsmith/RichMainFrame.wxs" src="../../src/ui/RichMainFrame.cpp" hdr="../../include/ui/RichMainFrame.h" fwddecl="0" i18n="1" name="RichMainFrame" language="CPP" />
-					<wxPanel wxs="../../src/ui/wxsmith/PanelStockQuota.wxs" src="../../src/ui/PanelStockQuota.cpp" hdr="../../include/ui/PanelStockQuota.h" fwddecl="0" i18n="1" name="PanelStockQuota" language="CPP" />
+					<wxPanel wxs="../../src/ui/wxsmith/PanelStockQuote.wxs" src="../../src/ui/PanelStockQuote.cpp" hdr="../../include/ui/PanelStockQuote.h" fwddecl="0" i18n="1" name="PanelStockQuote" language="CPP" />
 				</resources>
 			</wxsmith>
 		</Extensions>
