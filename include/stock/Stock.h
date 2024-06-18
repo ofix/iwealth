@@ -31,7 +31,8 @@ enum class KlineType {
 
 enum class KlineProvider {
     FinanceBaidu,  // 百度财经
-    EastMoney      // 东方财富
+    EastMoney,     // 东方财富
+    Hexun          // 和讯网
 };
 
 enum class ShareCategoryType {

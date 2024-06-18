@@ -16,7 +16,7 @@ class PanelStockQuote : public wxPanel {
     virtual ~PanelStockQuote();
 
     //(*Declarations(PanelStockQuote)
-    RichGrid* m_gridCtrlQuota;
+    RichGrid* m_gridCtrlQuote;
     //*)
 
     void LoadStockMarketQuote();  // 加载股票市场行情

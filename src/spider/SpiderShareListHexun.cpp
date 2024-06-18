@@ -11,25 +11,67 @@
 
 #include <wx/string.h>
 
+#include "net/ConcurrentRequest.h"
 #include "stock/Stock.h"
 #include "stock/StockDataStorage.h"
+#include "util/EasyLogger.h"
 
 using json = nlohmann::json;
 
 SpiderShareListHexun::SpiderShareListHexun(StockDataStorage* storage) : Spider(storage) {
+    m_concurrentMode = true;
 }
 
 SpiderShareListHexun::~SpiderShareListHexun() {
 }
 
 void SpiderShareListHexun::DoCrawl() {
+    if (this->IsConcurrentMode()) {
+        ConcurrentCrawl();
+    } else {
+        SingleCrawl();
+    }
+}
+
+void SpiderShareListHexun::ConcurrentCrawl() {
     m_pStockStorage->m_market_shares.clear();
     m_pStockStorage->m_market_shares.reserve(6000);  // 避免内存频繁分配
     m_unique_shares.clear();
-    FetchMarketShares(1);     // 沪市A股
-    FetchMarketShares(2);     // 深市A股
-    FetchMarketShares(6);     // 创业板
-    FetchMarketShares(1789);  // 科创板
+    std::list<std::string> urls;
+    std::vector<void*> user_data;
+    std::vector<int> market_code = {1, 2, 6, 1789};
+    for (int code : market_code) {
+        urls.push_back(GetFetchUrl(code));
+        RequestStatistics* pStatistics = new RequestStatistics();
+        if (!pStatistics) {
+            gLogger->log("[ConcurrentCrawl] allocate memory failed");
+            return;
+        }
+        pStatistics->provider = KlineProvider::Hexun;
+        pStatistics->request_count = 4;
+        HexunCrawlExtra* pExtra = new HexunCrawlExtra();
+        if (!pExtra) {
+            std::cout << "[error]: bad memory alloc CrawlExtra" << std::endl;
+            return;
+        }
+        pExtra->market = GetMarket(code);
+        pExtra->statistics = pStatistics;
+        user_data.push_back(static_cast<void*>(pExtra));
+    }
+
+    std::function<void(conn_t*)> callback =
+        std::bind(&SpiderShareListHexun::ConcurrentResponseCallback, this, std::placeholders::_1);
+    // 发送并发请求
+    HttpConcurrentGet("Hexun", urls, callback, user_data, 4);
+    RemoveRepeatShares();
+}
+
+void SpiderShareListHexun::ConcurrentResponseCallback(conn_t* conn) {
+    HexunCrawlExtra* pExtra = static_cast<HexunCrawlExtra*>(conn->extra);
+    ParseStockListData(conn->response, pExtra->market);
+}
+
+void SpiderShareListHexun::RemoveRepeatShares() {
     // 重新插入
     m_pStockStorage->m_market_shares.insert(m_pStockStorage->m_market_shares.end(), m_unique_shares.begin(),
                                             m_unique_shares.end());
@@ -41,13 +83,39 @@ void SpiderShareListHexun::DoCrawl() {
     m_unique_shares.clear();
 }
 
+void SpiderShareListHexun::SingleCrawl() {
+    m_pStockStorage->m_market_shares.clear();
+    m_pStockStorage->m_market_shares.reserve(6000);  // 避免内存频繁分配
+    m_unique_shares.clear();
+    FetchMarketShares(1);     // 沪市A股
+    FetchMarketShares(2);     // 深市A股
+    FetchMarketShares(6);     // 创业板
+    FetchMarketShares(1789);  // 科创板
+    RemoveRepeatShares();     // 移除重复的股票
+}
+
 void SpiderShareListHexun::FetchMarketShares(int market) {
+    std::string url = GetFetchUrl(market);
+    std::string data = Fetch(url);
+    ParseStockListData(data, GetMarket(market));
+}
+
+Market SpiderShareListHexun::GetMarket(int market) {
     static std::map<int, Market> kv = {
         {1, Market::ShangHai},
         {2, Market::ShenZhen},
         {6, Market::ChuangYeBan},
         {1789, Market::KeChuangBan},
     };
+    return kv.at(market);
+}
+
+/**
+ * @brief 获取抓取市场信息的URL
+ * @param market 和讯网市场请求参数
+ * @return URL
+ */
+std::string SpiderShareListHexun::GetFetchUrl(int market) {
     std::string url = "https://stocksquote.hexun.com/a/sortlist";
     std::string url_sh = url + "?block=" + std::to_string(market) +
                          "&title=15"
@@ -56,8 +124,7 @@ void SpiderShareListHexun::FetchMarketShares(int market) {
                          "&number=10000"
                          "&column=code,name,price,updownrate,LastClose,open,high,low,volume,priceweight,amount,"
                          "exchangeratio,VibrationRatio,VolumeRatio";
-    std::string data = Fetch(url_sh);
-    ParseStockListData(data, kv.at(market));
+    return url_sh;
 }
 
 void SpiderShareListHexun::ParseStockListData(std::string& data, Market market) {

@@ -4,6 +4,7 @@
 #include "spider/SpiderConceptListEastMoney.h"
 #include "spider/SpiderShareCategory.h"
 #include "spider/SpiderShareKline.h"
+#include "spider/SpiderShareListHexun.h"
 #include "stock/Stock.h"
 #include "stock/StockDataStorage.h"
 #include "util/Global.h"
@@ -72,6 +73,13 @@ void TestSpiderShareCategory() {
     spiderShareLabel->Crawl();
 }
 
+void TestSpiderShareHexun() {
+    StockDataStorage* m_pStockStorage = new StockDataStorage();
+    m_pStockStorage->Init();
+    SpiderShareListHexun* spiderHexun = new SpiderShareListHexun(m_pStockStorage);
+    spiderHexun->Crawl();
+}
+
 void TestTimer() {
     // 添加一次性定时器
     Timer::SetTimeout(2000, [](uint32_t timer_id, void* args) {
@@ -113,6 +121,6 @@ int main(int argc, char* argv[]) {
     // TestTimer();
     // KlineTest();
     // TestSpiderShareKline();
-    TestSpiderShareCategory();
+    TestSpiderShareHexun();
     std::cin.get();
 }

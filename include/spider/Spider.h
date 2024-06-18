@@ -17,6 +17,10 @@ struct KlineCrawlExtra : CrawlExtra {
                              // 下载完数据不能释放此指针指向的对象
 };
 
+struct HexunCrawlExtra : CrawlExtra {
+    Market market;  // 深交所/北交所/上交所
+};
+
 struct CategoryCrawlExtra : CrawlExtra {
     ShareCategoryType category_type;  // 板块类型(概念/行业/区域)
     std::string category_name;        // 板块名称

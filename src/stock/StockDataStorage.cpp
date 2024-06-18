@@ -31,11 +31,21 @@ void StockDataStorage::Init() {
 }
 
 Share* StockDataStorage::FindShare(std::string& share_code) {
-    if (m_code_share_map.find(share_code) != m_code_share_map.end()) {
-        return m_code_share_map[share_code];
+    if (m_code_share_hash.find(share_code) != m_code_share_hash.end()) {
+        return m_code_share_hash[share_code];
     }
     return nullptr;
 }
+
+/**
+ * @brief 将股票代码映射到Share*指针，方便程序快速查找
+ */
+void StockDataStorage::HashShares() {
+    for (Share& share : m_market_shares) {
+        m_code_share_hash[share.code] = &share;
+    }
+}
+
 void StockDataStorage::LoadStockAllShares() {
     // 检查本地的股票代号文件是否存在,如果存在，检查文件时间是否超过24小时，如果是，同步信息
     if (FileTool::IsFileExists(m_path_share_brief)) {
@@ -46,6 +56,10 @@ void StockDataStorage::LoadStockAllShares() {
         std::string json_shares = ToJson(m_market_shares);
         FileTool::SaveFile(m_path_share_brief, json_shares);
     }
+    if (m_market_shares.size() > 0) {
+        HashShares();
+    }
+
     // 查询股票的曾用名
     // SpiderBasicInfoEastMoney* spiderEastMoney = new SpiderBasicInfoEastMoney(this,
     // true); spiderEastMoney->SetCrawlRange(0, 30); spiderEastMoney->Crawl();

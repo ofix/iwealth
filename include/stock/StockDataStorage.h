@@ -30,6 +30,7 @@ class StockDataStorage {
     std::string ToJson(std::vector<Share>& shares);
     void LoadStockAllShares();
     bool LoadLocalJsonFile(std::string& path, std::vector<Share>& shares);
+    void HashShares();  // code->share 映射
 
    protected:
     bool SaveShareKlines(const std::string& dir_path,
@@ -42,7 +43,7 @@ class StockDataStorage {
     // 内存数据
     std::vector<Share> m_market_shares;  // 所有股票
     // 股票代号->股票指针
-    std::unordered_map<std::string, Share*> m_code_share_map;
+    std::unordered_map<std::string, Share*> m_code_share_hash;
     // 统计信息
     std::unordered_map<Market, int> m_market_share_count;  // 分市场股票数量统计
     // 概念->[股票1,股票2] hash映射表
