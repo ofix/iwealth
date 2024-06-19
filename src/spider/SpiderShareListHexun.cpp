@@ -40,15 +40,9 @@ void SpiderShareListHexun::ConcurrentCrawl() {
     std::list<std::string> urls;
     std::vector<void*> user_data;
     std::vector<int> market_code = {1, 2, 6, 1789};
+    RequestStatistics* pStatistics = NewRequestStatistics(4, DataProvider::Hexun);
     for (int code : market_code) {
         urls.push_back(GetFetchUrl(code));
-        RequestStatistics* pStatistics = new RequestStatistics();
-        if (!pStatistics) {
-            gLogger->log("[ConcurrentCrawl] allocate memory failed");
-            return;
-        }
-        pStatistics->provider = DataProvider::Hexun;
-        pStatistics->request_count = 4;
         HexunCrawlExtra* pExtra = new HexunCrawlExtra();
         if (!pExtra) {
             std::cout << "[error]: bad memory alloc CrawlExtra" << std::endl;
@@ -59,16 +53,22 @@ void SpiderShareListHexun::ConcurrentCrawl() {
         user_data.push_back(static_cast<void*>(pExtra));
     }
 
+    // 发送并发请求
     std::function<void(conn_t*)> callback =
         std::bind(&SpiderShareListHexun::ConcurrentResponseCallback, this, std::placeholders::_1);
-    // 发送并发请求
-    HttpConcurrentGet("Hexun", urls, callback, user_data, 4);
-    RemoveRepeatShares();
+
+    // 启动新线程进行并发请求
+    std::thread crawl_thread(
+        std::bind(static_cast<void (*)(const std::string&, const std::list<std::string>&, std::function<void(conn_t*)>&,
+                                       const std::vector<void*>&, uint32_t)>(HttpConcurrentGet),
+                  "Hexun", urls, callback, user_data, 4));
+    crawl_thread.detach();
 }
 
 void SpiderShareListHexun::ConcurrentResponseCallback(conn_t* conn) {
     HexunCrawlExtra* pExtra = static_cast<HexunCrawlExtra*>(conn->extra);
     ParseStockListData(conn->response, pExtra->market);
+    conn->reuse = false;
 }
 
 void SpiderShareListHexun::RemoveRepeatShares() {

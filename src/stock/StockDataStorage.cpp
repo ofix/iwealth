@@ -8,6 +8,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 #include "stock/StockDataStorage.h"
+#include "spider/Spider.h"
 #include "spider/SpiderBasicInfoEastMoney.h"
 #include "spider/SpiderShareCategory.h"
 #include "spider/SpiderShareKline.h"
@@ -46,6 +47,7 @@ void StockDataStorage::LoadStockAllShares() {
     // 检查本地的股票代号文件是否存在,如果存在，检查文件时间是否超过24小时，如果是，同步信息
     if (FileTool::IsFileExists(m_path_share_brief)) {
         LoadLocalJsonFile(m_path_share_brief, m_market_shares);
+        AsyncFetchShareQuoteData();  // 异步爬取行情数据
     } else {
         AsyncFetchShareQuoteData();  // 异步爬取行情数据
     }
@@ -164,15 +166,29 @@ void StockDataStorage::AsyncFetchShareQuoteData() {
     SpiderShareCategory* spiderCategory = new SpiderShareCategory(this);
     spiderCategory->Crawl();
 
-    uint32_t timer_id = Timer::SetInterval(1000, [=](uint32_t timer_id, void* args) {
-        if (spiderShareList->HasFinish() && spiderCategory->HasFinish()) {
-            this->SetFetchResultOk(FetchResult::QuoteData);
-            Timer::CancelTimer(timer_id);  // 取消定时器
-        } else {
-            std::cout << "spiderShareList::progress: " << spiderShareList->GetProgress()
-                      << ",spiderShareCategory::progress: " << spiderCategory->GetProgress() << std::endl;
-        }
-    });
+    std::function<void(uint32_t, void*)> timer_cb = [=](uint32_t timer_id, void* args) {
+        OnTimerFetchShareQuoteData(timer_id, args);
+    };
+    std::vector<Spider*>* pSpiders = new std::vector<Spider*>();
+    pSpiders->push_back(spiderShareList);
+    pSpiders->push_back(spiderCategory);
+    uint32_t timer_id = Timer::SetInterval(1000, timer_cb, 0, static_cast<void*>(pSpiders));
+}
+
+// std::vector可以保证数据持续可访问，std::queue容器pop一次就无法工作了
+void StockDataStorage::OnTimerFetchShareQuoteData(uint32_t timer_id, void* args) {
+    std::vector<Spider*>* pSpiders = static_cast<std::vector<Spider*>*>(args);
+    SpiderShareListHexun* spiderShareList = static_cast<SpiderShareListHexun*>((*pSpiders)[0]);
+    SpiderShareCategory* spiderCategory = static_cast<SpiderShareCategory*>((*pSpiders)[1]);
+    if (spiderShareList->HasFinish() && spiderCategory->HasFinish()) {
+        spiderShareList->RemoveRepeatShares();
+        SetFetchResultOk(FetchResult::QuoteData);
+        delete pSpiders;               // 删除容器指针
+        Timer::CancelTimer(timer_id);  // 取消定时器
+    } else {
+        std::cout << "spiderShareList::progress: " << spiderShareList->GetProgress()
+                  << ",spiderShareCategory::progress: " << spiderCategory->GetProgress() << std::endl;
+    }
 }
 
 void StockDataStorage::AsyncFetchShareOldNames() {

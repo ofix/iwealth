@@ -18,6 +18,7 @@
 #include "util/Timer.h"
 
 SpiderShareCategory::SpiderShareCategory(StockDataStorage* storage) : Spider(storage) {
+    m_concurrentMode = true;
 }
 
 SpiderShareCategory::SpiderShareCategory(StockDataStorage* storage, bool concurrent) : Spider(storage, concurrent) {

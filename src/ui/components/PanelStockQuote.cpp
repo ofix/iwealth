@@ -50,10 +50,12 @@ PanelStockQuote::PanelStockQuote(wxWindow* parent, wxWindowID id, const wxPoint&
     m_gridCtrlQuote->SetSortingColumn(3, false);
     /////////////////////////////////////////////////
     /// 插入行情列表表头
+
     std::vector<std::pair<wxString, int>> columnsStockQuote = {
         {CN("序号"), 56},  {CN("代码"), 120}, {CN("名称"), 140}, {CN("涨幅"), 100},
         {CN("现价"), 100}, {CN("换手"), 100}, {CN("行业"), 100}, {CN("地区"), 100},
     };
+    m_gridCtrlQuote->CreateGrid(30, columnsStockQuote.size(), wxGrid::wxGridSelectRows);
     int icol = 0;
     for (std::pair<wxString, int>& item : columnsStockQuote) {
         m_gridCtrlQuote->SetColSize(icol, item.second);
@@ -70,7 +72,7 @@ void PanelStockQuote::LoadStockMarketQuote() {
     StockDataStorage* pStorage = static_cast<RichApplication*>(wxTheApp)->GetStockDataStorage();
     if (pStorage->IsQuoteDataReady()) {
         std::vector<Share> shares = pStorage->GetMarketAllShares();
-        m_gridCtrlQuote->CreateGrid(shares.size() + 1, 6, wxGrid::wxGridSelectRows);
+
         long irow = 0;
         for (Share& share : shares) {
             m_gridCtrlQuote->SetCellValue(irow, 0, std::to_string(irow + 1));

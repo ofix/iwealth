@@ -13,13 +13,13 @@ class SpiderShareListHexun : public Spider {
     SpiderShareListHexun(StockDataStorage* storage);
     virtual ~SpiderShareListHexun();
     virtual void DoCrawl();
+    void RemoveRepeatShares();
 
    protected:
     void FetchMarketShares(int market);
     void ParseStockListData(std::string& data, Market market);
     void SingleCrawl();
     void ConcurrentCrawl();
-    void RemoveRepeatShares();
     void ConcurrentResponseCallback(conn_t* conn);
     std::string GetFetchUrl(int market);
     Market GetMarket(int market);

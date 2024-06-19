@@ -83,13 +83,17 @@ bool Spider::HasFinish() {
 }
 
 double Spider::GetProgress() {
-    uint32_t finsished = 0;
-    uint32_t total = 0;
+    if (m_statisticsList.size() == 0) {
+        return 0;
+    }
+    std::atomic<uint32_t> finished{0};
+    std::atomic<uint32_t> total{0};
     for (RequestStatistics* pStatistics : m_statisticsList) {
-        finsished += pStatistics->success_requests + pStatistics->failed_requests;
+        finished += pStatistics->success_requests + pStatistics->failed_requests;
         total += pStatistics->request_count;
     }
-    double progress = static_cast<double>(finsished) / total;
+    std::cout << "[RequestStatistics] finished: " << finished << " ,total: " << total << std::endl;
+    double progress = static_cast<double>(finished) / total;
     return progress;
 }
 

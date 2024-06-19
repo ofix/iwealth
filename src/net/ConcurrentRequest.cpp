@@ -221,7 +221,8 @@ void ConcurrentRequest::Run() {
                     }
                     if (pStatistics != nullptr) {
                         std::cout << GetThreadPrefix() << "success: " << pStatistics->success_requests
-                                  << ", failed: " << pStatistics->failed_requests << std::endl;
+                                  << ", failed: " << pStatistics->failed_requests
+                                  << ", total: " << pStatistics->request_count << std::endl;
                     }
                     //////////////////////////
                 } else {  // 如果复用，需要重置response

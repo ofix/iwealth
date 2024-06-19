@@ -57,6 +57,8 @@ class StockDataStorage {
     void AsyncFetchShareBusinessAnalysis();  // 爬取股票经营分析内容
     void AsyncFetchShareOldNames();          // 爬取股票曾用名
 
+    void OnTimerFetchShareQuoteData(uint32_t timer_id, void* args);
+
     std::string ToJson(std::vector<Share>& shares);
     void LoadStockAllShares();
     bool LoadLocalJsonFile(std::string& path, std::vector<Share>& shares);
