@@ -65,6 +65,11 @@ void SpiderShareCategory::ParseCategories(std::string& data) {
 void SpiderShareCategory::FetchCategoryShares(nlohmann::json& categories, ShareCategoryType type) {
     std::list<std::string> urls = {};
     std::vector<void*> user_data = {};
+
+    RequestStatistics* pStatistics = NewRequestStatistics(categories.size(), DataProvider::EastMoney);
+    if (pStatistics == nullptr) {
+        return;
+    }
     for (json::iterator it = categories.begin(); it != categories.end(); ++it) {
         std::string category_key = GetCategoryKey((*it)["key"]);
         std::string category_name = (*it)["title"];
@@ -82,13 +87,6 @@ void SpiderShareCategory::FetchCategoryShares(nlohmann::json& categories, ShareC
             category_key +  // 查询那个板块
             "&fields=f3,f12,f14";
         urls.push_back(url);
-        RequestStatistics* pStatistics = new RequestStatistics();
-        if (!pStatistics) {
-            gLogger->log("[ConcurrentCrawl] allocate memory failed");
-            return;
-        }
-        pStatistics->provider = KlineProvider::EastMoney;
-        pStatistics->request_count = categories.size();
         CategoryCrawlExtra* pExtra = new CategoryCrawlExtra();
         if (!pExtra) {
             std::cout << "[error]: bad memory alloc CategoryCrawlExtra" << std::endl;

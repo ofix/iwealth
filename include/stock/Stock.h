@@ -29,7 +29,7 @@ enum class KlineType {
     Year = 4      // 年K线
 };
 
-enum class KlineProvider {
+enum class DataProvider {
     FinanceBaidu,  // 百度财经
     EastMoney,     // 东方财富
     Hexun          // 和讯网

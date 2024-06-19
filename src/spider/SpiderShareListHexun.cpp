@@ -47,7 +47,7 @@ void SpiderShareListHexun::ConcurrentCrawl() {
             gLogger->log("[ConcurrentCrawl] allocate memory failed");
             return;
         }
-        pStatistics->provider = KlineProvider::Hexun;
+        pStatistics->provider = DataProvider::Hexun;
         pStatistics->request_count = 4;
         HexunCrawlExtra* pExtra = new HexunCrawlExtra();
         if (!pExtra) {

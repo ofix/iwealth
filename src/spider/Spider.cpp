@@ -11,6 +11,7 @@
 #include <mutex>
 #include "curl/curl.h"
 #include "stock/StockDataStorage.h"
+#include "util/EasyLogger.h"
 
 Spider::Spider(StockDataStorage* storage)
     : m_pStockStorage(storage),
@@ -20,7 +21,8 @@ Spider::Spider(StockDataStorage* storage)
       m_debug(false),
       m_timeStart(std::chrono::milliseconds(0)),
       m_timeEnd(std::chrono::milliseconds(0)),
-      m_timeConsume(0) {}
+      m_timeConsume(0) {
+}
 
 Spider::Spider(StockDataStorage* storage, bool concurrent)
     : m_pStockStorage(storage),
@@ -29,9 +31,11 @@ Spider::Spider(StockDataStorage* storage, bool concurrent)
       m_concurrentMode(concurrent),
       m_timeStart(std::chrono::milliseconds(0)),
       m_timeEnd(std::chrono::milliseconds(0)),
-      m_timeConsume(0) {}
+      m_timeConsume(0) {
+}
 
-Spider::~Spider() {}
+Spider::~Spider() {
+}
 
 void Spider::SetCrawlRange(size_t start_pos, size_t end_pos) {
     m_posStart = start_pos;
@@ -49,13 +53,17 @@ void Spider::Crawl() {
     m_timeConsume = std::chrono::duration_cast<std::chrono::milliseconds>(m_timeEnd - m_timeStart);
 }
 
-void Spider::DoCrawl() {}
+void Spider::DoCrawl() {
+}
 
-void Spider::ConcurrentResponseCallback(conn_t* conn) {}
+void Spider::ConcurrentResponseCallback(conn_t* conn) {
+}
 
-void Spider::Pause() {}
+void Spider::Pause() {
+}
 
-void Spider::Stop() {}
+void Spider::Stop() {
+}
 
 bool Spider::IsConcurrentMode() const {
     return this->m_concurrentMode;
@@ -94,6 +102,19 @@ void Spider::UpdateRequestStatistics() {
         std::lock_guard<std::mutex> lock(pStatistics->mutex);
         pStatistics->speed_list.push_back(pStatistics->real_time_speed);  // 将每秒的下载字节数压入数组
     }
+}
+
+// 一个线程对应一个请求统计
+RequestStatistics* Spider::NewRequestStatistics(uint32_t request_count, DataProvider provider) {
+    RequestStatistics* pStatistics = new RequestStatistics();
+    if (!pStatistics) {
+        gLogger->log("[ConcurrentCrawl] allocate memory failed");
+        return nullptr;
+    }
+    pStatistics->provider = provider;
+    pStatistics->request_count += request_count;
+    m_statisticsList.push_back(pStatistics);
+    return pStatistics;
 }
 
 std::string Spider::UrlEncode(const std::string& decoded) {

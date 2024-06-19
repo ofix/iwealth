@@ -22,7 +22,7 @@ class SpiderShareKline : public Spider {
     static bool ParseKlineEastMoney(const std::string& kline, uiKline* uiKline);
     void MergeShareKlines(const KlineType kline_type = KlineType::Day);
     size_t GetKlineCount(const std::vector<std::vector<uiKline>>& multi_klines);
-    std::string GetProviderName(KlineProvider provider) const;
+    std::string GetProviderName(DataProvider provider) const;
 
    protected:
     virtual void DoCrawl(KlineType type = KlineType::Day);
@@ -34,7 +34,7 @@ class SpiderShareKline : public Spider {
     void ConurrentCrawl(std::vector<KlineCrawlTask>& tasks, KlineType kline_type);
     // 百度财经
     std::string GetKlineTypeFinanceBaidu(const KlineType kline_type);
-    std::string GetKlineUrl(const KlineProvider provider,     // 供应商
+    std::string GetKlineUrl(const DataProvider provider,      // 供应商
                             const KlineType kline_type,       // K线类型
                             const std::string& share_code,    // 股票代码
                             const Market market,              // 股票市场

@@ -10,11 +10,11 @@ struct CrawlExtra {
 };
 
 struct KlineCrawlExtra : CrawlExtra {
-    KlineProvider provider;  // K线爬取网站标识
-    KlineType type;          // K线类型，日/周/月/季度/年K线
-    Market market;           // 深交所/北交所/上交所
-    Share* share;            // StockDataStorage::m_market_shares 元素，
-                             // 下载完数据不能释放此指针指向的对象
+    DataProvider provider;  // K线爬取网站标识
+    KlineType type;         // K线类型，日/周/月/季度/年K线
+    Market market;          // 深交所/北交所/上交所
+    Share* share;           // StockDataStorage::m_market_shares 元素，
+                            // 下载完数据不能释放此指针指向的对象
 };
 
 struct HexunCrawlExtra : CrawlExtra {
@@ -27,7 +27,7 @@ struct CategoryCrawlExtra : CrawlExtra {
 };
 
 struct KlineCrawlTask {
-    KlineProvider provider;
+    DataProvider provider;
     double priority;
 };
 
@@ -49,6 +49,7 @@ class Spider {
     static std::string UrlEncode(const std::string& decoded);
     static std::string UrlDecode(const std::string& encoded);
     void UpdateRequestStatistics();
+    RequestStatistics* NewRequestStatistics(uint32_t request_count, DataProvider provider = DataProvider::EastMoney);
 
    protected:
     virtual void DoCrawl();

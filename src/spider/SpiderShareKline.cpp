@@ -35,23 +35,23 @@ void SpiderShareKline::Crawl(KlineType kline_type) {
 void SpiderShareKline::DoCrawl(KlineType kline_type) {
     if (this->IsConcurrentMode()) {
         std::vector<KlineCrawlTask> tasks = {
-            {KlineProvider::FinanceBaidu, 0.5},
-            {KlineProvider::EastMoney, 0.5},
+            {DataProvider::FinanceBaidu, 0.5},
+            {DataProvider::EastMoney, 0.5},
         };
         ConurrentCrawl(tasks, kline_type);
     } else {
         std::vector<KlineCrawlTask> tasks = {
-            {KlineProvider::FinanceBaidu, 0.5},
-            {KlineProvider::EastMoney, 0.5},
+            {DataProvider::FinanceBaidu, 0.5},
+            {DataProvider::EastMoney, 0.5},
         };
         SingleCrawl(tasks, kline_type);
     }
 }
 
-std::string SpiderShareKline::GetProviderName(KlineProvider provider) const {
-    if (provider == KlineProvider::EastMoney) {
+std::string SpiderShareKline::GetProviderName(DataProvider provider) const {
+    if (provider == DataProvider::EastMoney) {
         return "EastMoney";
-    } else if (provider == KlineProvider::FinanceBaidu) {
+    } else if (provider == DataProvider::FinanceBaidu) {
         return "Baidu";
     }
     return "Unknown";
@@ -65,16 +65,12 @@ void SpiderShareKline::ConurrentCrawl(std::vector<KlineCrawlTask>& tasks, KlineT
         std::list<std::string> urls;
         std::vector<void*> user_data = {};
         priority += tasks[i].priority;
-        pos_end = std::round((11 /*shares.size()*/ - 1) * priority);
-        RequestStatistics* pStatistics = new RequestStatistics();
-        if (!pStatistics) {
-            gLogger->log("[ConcurrentCrawl] allocate memory failed");
+        pos_end = std::round((shares.size() - 1) * priority);
+        RequestStatistics* pStatistics = NewRequestStatistics(pos_end - pos_start + 1, tasks[i].provider);
+        if (pStatistics == nullptr) {
             return;
         }
-        pStatistics->provider = tasks[i].provider;
-        pStatistics->request_count = pos_end - pos_start + 1;
         std::string provider_name = GetProviderName(tasks[i].provider);
-        m_statisticsList.push_back(pStatistics);
         for (size_t j = pos_start; j <= pos_end; j++) {
             urls.push_back(GetKlineUrl(tasks[i].provider, kline_type, shares[j].code, shares[j].market));
             KlineCrawlExtra* pExtra = new KlineCrawlExtra();
@@ -166,13 +162,13 @@ std::string SpiderShareKline::GetKlineTypeFinanceBaidu(const KlineType kline_typ
     return "";
 }
 
-std::string SpiderShareKline::GetKlineUrl(const KlineProvider provider,   // 供应商
+std::string SpiderShareKline::GetKlineUrl(const DataProvider provider,    // 供应商
                                           const KlineType kline_type,     // K线类型
                                           const std::string& share_code,  // 股票代码
                                           const Market market,            // 股票市场
                                           const std::string& end_date     // 结束日期
 ) {
-    if (provider == KlineProvider::FinanceBaidu) {
+    if (provider == DataProvider::FinanceBaidu) {
         std::string extra = "";
         if (end_date != "") {
             extra = "&end_time=" + end_date + "&count=3000";
@@ -180,7 +176,7 @@ std::string SpiderShareKline::GetKlineUrl(const KlineProvider provider,   // 供
         std::string baidu_kline_type = GetKlineTypeFinanceBaidu(kline_type);
         std::string url = KLINE_URL_FINANCE_BAIDU(share_code, baidu_kline_type, extra);
         return url;
-    } else if (provider == KlineProvider::EastMoney) {
+    } else if (provider == DataProvider::EastMoney) {
         int market_code = GetEastMoneyMarketCode(market);
         int east_money_kline_type = GetKlineTypeEastMoney(kline_type);
         std::string url = KLINE_URL_EAST_MONEY(share_code, market_code, east_money_kline_type);
@@ -224,9 +220,9 @@ int SpiderShareKline::GetKlineTypeEastMoney(const KlineType kline_type) {
 std::vector<uiKline> SpiderShareKline::ParseResponse(conn_t* conn) {
     KlineCrawlExtra* pExtra = static_cast<KlineCrawlExtra*>(conn->extra);
     std::vector<uiKline> uiKlines = {};
-    if (pExtra->provider == KlineProvider::FinanceBaidu) {
+    if (pExtra->provider == DataProvider::FinanceBaidu) {
         ParseResponseFinanceBaidu(conn, uiKlines);
-    } else if (pExtra->provider == KlineProvider::EastMoney) {
+    } else if (pExtra->provider == DataProvider::EastMoney) {
         ParseResponseEastMoney(conn, uiKlines);
     }
     return uiKlines;
@@ -322,7 +318,7 @@ void SpiderShareKline::ParseResponseEastMoney(conn_t* conn, std::vector<uiKline>
 void SpiderShareKline::SingleResponseCallback(conn_t* conn) {
     KlineCrawlExtra* pExtra = static_cast<KlineCrawlExtra*>(conn->extra);
     std::vector<uiKline> multi_kline = ParseResponse(conn);
-    if (pExtra->provider == KlineProvider::FinanceBaidu) {
+    if (pExtra->provider == DataProvider::FinanceBaidu) {
         if (multi_kline.size() > 0) {
             std::string end_date = multi_kline[0].day;
             std::string share_code = pExtra->share->code;
@@ -339,7 +335,7 @@ void SpiderShareKline::SingleResponseCallback(conn_t* conn) {
 void SpiderShareKline::ConcurrentResponseCallback(conn_t* conn) {
     KlineCrawlExtra* pExtra = static_cast<KlineCrawlExtra*>(conn->extra);
     std::vector<uiKline> multi_kline = ParseResponse(conn);
-    if (pExtra->provider == KlineProvider::FinanceBaidu) {
+    if (pExtra->provider == DataProvider::FinanceBaidu) {
         if (multi_kline.size() > 0) {
             std::string end_date = multi_kline[0].day;
             std::string share_code = pExtra->share->code;

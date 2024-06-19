@@ -11,22 +11,52 @@ class SpiderShareListHexun;
 class SpiderBasicInfoEastMoney;
 class SpiderConceptListEastMoney;
 class SpiderShareKline;
+class SpiderShareCategory;
 class StockDataStorage {
    public:
+    enum class FetchResult {
+        QuoteData = 0,
+        Klines,
+        FinancialData,
+        BusinessAnalysis,
+        OldNames,
+    };
     StockDataStorage();
     virtual ~StockDataStorage();
     void Init();                          // 初始化操作
     uint16_t GetStockMarketShareCount();  // 获取市场股票数量
     uint16_t GetStockMarketShareCountByLocation(const std::string&& location);
-    void PrintAllShares(std::vector<Share>& all_shares);
     std::vector<Share> GetMarketAllShares();
     std::string GetStockDataSaveDir();
-    bool CrawlStockKlinesHistoryData();  // 同步股票历史K线数据
-    bool CrawlStockHistoryName();        // 同步股票曾用名
     bool SaveShareKLines(const KlineType kline_type);
     Share* FindShare(std::string& share_code);
 
+    void PrintAllShares(std::vector<Share>& all_shares);
+    inline bool IsQuoteDataReady() const {
+        return m_fetch_quote_data_ok;
+    };
+    inline bool IsShareKlinesReady() const {
+        return m_fetch_klines_ok;
+    };
+    inline bool IsShareFinancialDataReady() const {
+        return m_fetch_financial_data_ok;
+    };
+    inline bool IsShareBusinessAnalysisReady() const {
+        return m_fetch_business_analysis_ok;
+    };
+    inline bool IsShareOldNamesReady() const {
+        return m_fetch_old_name_ok;
+    };
+
+    void SetFetchResultOk(FetchResult result);
+
    protected:
+    void AsyncFetchShareQuoteData();         // 爬取行情数据
+    void AsyncFetchShareKlines();            // 爬取股票历史K线数据
+    void AsyncFetchShareFinancialData();     // 爬取股票年报数据
+    void AsyncFetchShareBusinessAnalysis();  // 爬取股票经营分析内容
+    void AsyncFetchShareOldNames();          // 爬取股票曾用名
+
     std::string ToJson(std::vector<Share>& shares);
     void LoadStockAllShares();
     bool LoadLocalJsonFile(std::string& path, std::vector<Share>& shares);
@@ -40,6 +70,14 @@ class StockDataStorage {
     std::string m_path_share_brief;        // 股票简称保存
     uint16_t m_market_share_total;         // 市场所有股票之和
     std::string m_path_all_market_shares;  // 所有股票代号本地保存路径
+    // 行情数据是否OK
+    bool m_inited;                      // 防止重复初始化
+    bool m_fetch_quote_data_ok;         // 行情数据是否爬取完成
+    bool m_fetch_klines_ok;             // 股票历史K线是否爬取完成
+    bool m_fetch_financial_data_ok;     // 股票年报数据是否爬取完成
+    bool m_fetch_business_analysis_ok;  // 股票经营分析数据是否爬取完成
+    bool m_fetch_old_name_ok;           // 股票历史名称是否爬取完成
+
     // 内存数据
     std::vector<Share> m_market_shares;  // 所有股票
     // 股票代号->股票指针

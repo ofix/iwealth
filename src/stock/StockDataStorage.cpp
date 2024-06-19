@@ -9,40 +9,36 @@
 
 #include "stock/StockDataStorage.h"
 #include "spider/SpiderBasicInfoEastMoney.h"
+#include "spider/SpiderShareCategory.h"
 #include "spider/SpiderShareKline.h"
 #include "spider/SpiderShareListHexun.h"
 #include "util/EasyLogger.h"
 #include "util/FileTool.h"
+#include "util/Timer.h"
 
 // #include <windows.h>
 
 using json = nlohmann::json;
 
-StockDataStorage::StockDataStorage() : m_market_shares(std::vector<Share>()) {
+StockDataStorage::StockDataStorage()
+    : m_inited(false),
+      m_fetch_quote_data_ok(false),
+      m_fetch_klines_ok(false),
+      m_fetch_financial_data_ok(false),
+      m_fetch_business_analysis_ok(false),
+      m_fetch_old_name_ok(false) {
     m_data_dir = FileTool::CurrentPath() + "data";
     m_path_share_brief = m_data_dir + DIRECTORY_SEPARATOR + "stock_brief.json";
+    Init();
 }
 
 StockDataStorage::~StockDataStorage() {
 }
 
 void StockDataStorage::Init() {
-    LoadStockAllShares();
-}
-
-Share* StockDataStorage::FindShare(std::string& share_code) {
-    if (m_code_share_hash.find(share_code) != m_code_share_hash.end()) {
-        return m_code_share_hash[share_code];
-    }
-    return nullptr;
-}
-
-/**
- * @brief 将股票代码映射到Share*指针，方便程序快速查找
- */
-void StockDataStorage::HashShares() {
-    for (Share& share : m_market_shares) {
-        m_code_share_hash[share.code] = &share;
+    if (!m_inited) {
+        m_inited = true;
+        LoadStockAllShares();
     }
 }
 
@@ -51,22 +47,8 @@ void StockDataStorage::LoadStockAllShares() {
     if (FileTool::IsFileExists(m_path_share_brief)) {
         LoadLocalJsonFile(m_path_share_brief, m_market_shares);
     } else {
-        SpiderShareListHexun* spiderHexun = new SpiderShareListHexun(this);
-        spiderHexun->Crawl();
-        std::string json_shares = ToJson(m_market_shares);
-        FileTool::SaveFile(m_path_share_brief, json_shares);
+        AsyncFetchShareQuoteData();  // 异步爬取行情数据
     }
-    if (m_market_shares.size() > 0) {
-        HashShares();
-    }
-
-    // 查询股票的曾用名
-    // SpiderBasicInfoEastMoney* spiderEastMoney = new SpiderBasicInfoEastMoney(this,
-    // true); spiderEastMoney->SetCrawlRange(0, 30); spiderEastMoney->Crawl();
-    // PrintAllShares(m_market_shares);
-
-    // Set console code page to UTF-8 so console known how to interpret string data
-    // SetConsoleOutputCP(936);
 }
 
 std::string StockDataStorage::ToJson(std::vector<Share>& shares) {
@@ -142,12 +124,67 @@ bool StockDataStorage::SaveShareKlines(const std::string& dir_path,
     return true;
 }
 
-bool StockDataStorage::CrawlStockHistoryName() {
-    return true;
+Share* StockDataStorage::FindShare(std::string& share_code) {
+    if (m_code_share_hash.find(share_code) != m_code_share_hash.end()) {
+        return m_code_share_hash[share_code];
+    }
+    return nullptr;
 }
 
-bool StockDataStorage::CrawlStockKlinesHistoryData() {
-    return true;
+/// @brief 将股票代码映射到Share*指针，方便程序快速查找
+void StockDataStorage::HashShares() {
+    for (Share& share : m_market_shares) {
+        m_code_share_hash[share.code] = &share;
+    }
+}
+
+void StockDataStorage::SetFetchResultOk(FetchResult result) {
+    if (result == FetchResult::QuoteData) {
+        m_fetch_quote_data_ok = true;
+        std::string json_shares = ToJson(m_market_shares);
+        FileTool::SaveFile(m_path_share_brief, json_shares);
+        if (m_market_shares.size() > 0) {
+            HashShares();
+        }
+        // 行情数据爬完以后再进行其他数据的爬取
+    } else if (result == FetchResult::Klines) {
+        m_fetch_klines_ok = true;
+    } else if (result == FetchResult::FinancialData) {
+        m_fetch_financial_data_ok = true;
+    } else if (result == FetchResult::BusinessAnalysis) {
+        m_fetch_business_analysis_ok = true;
+    } else if (result == FetchResult::OldNames) {
+        m_fetch_old_name_ok = true;
+    }
+}
+
+void StockDataStorage::AsyncFetchShareQuoteData() {
+    SpiderShareListHexun* spiderShareList = new SpiderShareListHexun(this);
+    spiderShareList->Crawl();  // 当前线程同步爬取市场行情数据
+    SpiderShareCategory* spiderCategory = new SpiderShareCategory(this);
+    spiderCategory->Crawl();
+
+    uint32_t timer_id = Timer::SetInterval(1000, [=](uint32_t timer_id, void* args) {
+        if (spiderShareList->HasFinish() && spiderCategory->HasFinish()) {
+            this->SetFetchResultOk(FetchResult::QuoteData);
+            Timer::CancelTimer(timer_id);  // 取消定时器
+        } else {
+            std::cout << "spiderShareList::progress: " << spiderShareList->GetProgress()
+                      << ",spiderShareCategory::progress: " << spiderCategory->GetProgress() << std::endl;
+        }
+    });
+}
+
+void StockDataStorage::AsyncFetchShareOldNames() {
+}
+
+void StockDataStorage::AsyncFetchShareKlines() {
+}
+
+void StockDataStorage::AsyncFetchShareFinancialData() {
+}
+
+void StockDataStorage::AsyncFetchShareBusinessAnalysis() {
 }
 
 std::vector<Share> StockDataStorage::GetMarketAllShares() {
