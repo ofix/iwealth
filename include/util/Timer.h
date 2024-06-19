@@ -134,10 +134,10 @@ class Timer {
     uint32_t m_timer_id;                  // 当前定时类，永远递增
     uint64_t m_tick;                      // 时间精度 100 ms
     std::atomic<uint32_t> m_timer_tasks;  // 定时器数量
-    std::mutex m_mutex;                   // 互斥锁
+    std::recursive_mutex m_mutex;         // 互斥锁
     std::thread m_timer_thread;
     std::unordered_map<uint32_t, TimerTask*> m_timer_map;  // 定时器map，方便快速删除定时器
     TimerTask* head[TIMER_WHEELS][TIMER_WHEEL_SLOTS];
     TimerTask* tail[TIMER_WHEELS][TIMER_WHEEL_SLOTS];
-    std::mutex link_list_mutex[TIMER_WHEELS][TIMER_WHEEL_SLOTS];
+    std::recursive_mutex link_list_mutex[TIMER_WHEELS][TIMER_WHEEL_SLOTS];
 };

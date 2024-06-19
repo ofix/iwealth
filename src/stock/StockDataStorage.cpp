@@ -164,7 +164,7 @@ void StockDataStorage::AsyncFetchShareQuoteData() {
     SpiderShareListHexun* spiderShareList = new SpiderShareListHexun(this);
     spiderShareList->Crawl();  // 当前线程同步爬取市场行情数据
     SpiderShareCategory* spiderCategory = new SpiderShareCategory(this);
-    spiderCategory->Crawl();
+    spiderCategory->Crawl(ShareCategoryType::Industry | ShareCategoryType::Region);
 
     std::function<void(uint32_t, void*)> timer_cb = [=](uint32_t timer_id, void* args) {
         OnTimerFetchShareQuoteData(timer_id, args);
@@ -183,7 +183,8 @@ void StockDataStorage::OnTimerFetchShareQuoteData(uint32_t timer_id, void* args)
     if (spiderShareList->HasFinish() && spiderCategory->HasFinish()) {
         spiderShareList->RemoveRepeatShares();
         SetFetchResultOk(FetchResult::QuoteData);
-        delete pSpiders;               // 删除容器指针
+        delete pSpiders;  // 删除容器指针
+        pSpiders = nullptr;
         Timer::CancelTimer(timer_id);  // 取消定时器
     } else {
         std::cout << "spiderShareList::progress: " << spiderShareList->GetProgress()

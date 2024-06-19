@@ -35,10 +35,10 @@ enum class DataProvider {
     Hexun          // 和讯网
 };
 
-enum class ShareCategoryType {
-    Concept = 0,   // 概念板块
-    Industry = 1,  // 行业板块
-    Region = 2,    // 区域板块
+enum ShareCategoryType {
+    Concept = 1,   // 概念板块
+    Industry = 2,  // 行业板块
+    Region = 4,    // 区域板块
 };
 
 struct Share;  // 前项声明

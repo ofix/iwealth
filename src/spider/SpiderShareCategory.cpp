@@ -27,20 +27,20 @@ SpiderShareCategory::SpiderShareCategory(StockDataStorage* storage, bool concurr
 SpiderShareCategory::~SpiderShareCategory() {
 }
 
-void SpiderShareCategory::Crawl() {
+void SpiderShareCategory::Crawl(int types) {
     m_timeStart = std::chrono::high_resolution_clock::now();
-    DoCrawl();
+    DoCrawl(types);
 }
 
 // 爬取 地域板块/概念板块/行业版块
 // https://quote.eastmoney.com/center
-void SpiderShareCategory::DoCrawl() {
+void SpiderShareCategory::DoCrawl(int types) {
     std::string url = "http://quote.eastmoney.com/center/api/sidemenu.json";
     std::string data = Fetch(url);
-    ParseCategories(data);
+    ParseCategories(data, types);
 }
 
-void SpiderShareCategory::ParseCategories(std::string& data) {
+void SpiderShareCategory::ParseCategories(std::string& data, int types) {
     json arr = json::parse(data);
     std::vector<std::string> share_industries;
     std::vector<std::string> share_concepts;
@@ -51,9 +51,15 @@ void SpiderShareCategory::ParseCategories(std::string& data) {
             json concepts = (*it)["next"][0]["next"];
             json regions = (*it)["next"][1]["next"];
             json industries = (*it)["next"][2]["next"];
-            FetchCategoryShares(concepts, ShareCategoryType::Concept);
-            FetchCategoryShares(industries, ShareCategoryType::Industry);
-            FetchCategoryShares(regions, ShareCategoryType::Region);
+            if (types & ShareCategoryType::Concept) {
+                FetchCategoryShares(concepts, ShareCategoryType::Concept);
+            }
+            if (types & ShareCategoryType::Industry) {
+                FetchCategoryShares(industries, ShareCategoryType::Industry);
+            }
+            if (types & ShareCategoryType::Region) {
+                FetchCategoryShares(regions, ShareCategoryType::Region);
+            }
             break;
         }
     }

@@ -16,19 +16,26 @@ void Timer::Schedule() {
     m_timer_thread.detach();
 }
 
-Callback::u::u() {}
+Callback::u::u() {
+}
 
-Callback::u::~u() {}
+Callback::u::~u() {
+}
 
-Callback::u::u(const std::function<void(uint32_t, void*)> cpp) : cpp(std::move(cpp)) {}
+Callback::u::u(const std::function<void(uint32_t, void*)> cpp) : cpp(std::move(cpp)) {
+}
 
-Callback::u::u(void (*c)(uint32_t, void*)) : c(c) {}
+Callback::u::u(void (*c)(uint32_t, void*)) : c(c) {
+}
 
-Callback::Callback() : style(CallbackStyle::c), func(nullptr) {}
+Callback::Callback() : style(CallbackStyle::c), func(nullptr) {
+}
 
-Callback::Callback(const std::function<void(uint32_t, void*)> cpp) : style(CallbackStyle::cpp), func(cpp) {}
+Callback::Callback(const std::function<void(uint32_t, void*)> cpp) : style(CallbackStyle::cpp), func(cpp) {
+}
 
-Callback::Callback(void (*c)(uint32_t, void*)) : style(CallbackStyle::c), func(c) {}
+Callback::Callback(void (*c)(uint32_t, void*)) : style(CallbackStyle::c), func(c) {
+}
 
 Callback::Callback(const Callback& other) {
     this->style = other.style;
@@ -51,12 +58,12 @@ Callback& Callback::operator=(const Callback& other) {
     return *this;
 }
 
-Callback::~Callback() {}
+Callback::~Callback() {
+}
 
 void Timer::Tick() {
     for (;;) {
         std::this_thread::sleep_for(std::chrono::milliseconds(TIMER_TICK_MS));
-
         uint8_t current_wheel_slot = this->m_tick & TIMER_MASK;
         uint8_t next_wheel_slot = current_wheel_slot;
         for (uint8_t i = 0; i < TIMER_WHEELS - 1 && next_wheel_slot == 0;
@@ -67,7 +74,7 @@ void Timer::Tick() {
         uint32_t timer_id = 0;
         TimerTask* pTimerTask = this->head[0][current_wheel_slot];
         TimerTask* next = nullptr;
-        std::lock_guard<std::mutex> lock(link_list_mutex[0][current_wheel_slot]);
+        std::lock_guard<std::recursive_mutex> lock(link_list_mutex[0][current_wheel_slot]);
         for (; pTimerTask != nullptr; pTimerTask = next) {
             next = pTimerTask->next;
             timer_id = pTimerTask->timer_id;
@@ -139,7 +146,7 @@ bool Timer::CancelTimer(uint32_t timer_id) {
 }
 
 bool Timer::InternalCancelTimer(uint32_t timer_id) {
-    std::lock_guard<std::mutex> lock(m_mutex);
+    std::lock_guard<std::recursive_mutex> lock(m_mutex);
     std::unordered_map<uint32_t, TimerTask*>::iterator it = m_timer_map.find(timer_id);
     if (it == m_timer_map.end()) {
         return false;
@@ -165,7 +172,7 @@ void Timer::CancelAllTimer() {
 }
 
 void Timer::InternalCancelAllTimer() {
-    std::lock_guard<std::mutex> lock(m_mutex);
+    std::lock_guard<std::recursive_mutex> lock(m_mutex);
     for (std::unordered_map<uint32_t, TimerTask*>::iterator it = m_timer_map.begin(); it != m_timer_map.end(); ++it) {
         it->second->canceled = true;
     }
@@ -315,7 +322,7 @@ void Timer::InternalAddTimerTask(TimerTask* pTimerTask) {
         }
     }
 
-    std::lock_guard<std::mutex> lock(link_list_mutex[wi][si]);
+    std::lock_guard<std::recursive_mutex> lock(link_list_mutex[wi][si]);
 
     if (tail[wi][si] == nullptr) {  // 空节点
         head[wi][si] = pTimerTask;
@@ -328,6 +335,8 @@ void Timer::InternalAddTimerTask(TimerTask* pTimerTask) {
         pTimerTask->prev = tail[wi][si];
         tail[wi][si] = pTimerTask;
     }
+    std::lock_guard<std::recursive_mutex> lock_map(m_mutex);
+    m_timer_map.insert({m_timer_id, pTimerTask});
 }
 
 // 将其他轮子上的任务列表添加到主轮上

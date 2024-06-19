@@ -92,7 +92,6 @@ double Spider::GetProgress() {
         finished += pStatistics->success_requests + pStatistics->failed_requests;
         total += pStatistics->request_count;
     }
-    std::cout << "[RequestStatistics] finished: " << finished << " ,total: " << total << std::endl;
     double progress = static_cast<double>(finished) / total;
     return progress;
 }
