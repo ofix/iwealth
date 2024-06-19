@@ -7,6 +7,8 @@
 #include "stock/ShareCategory.h"
 #include "stock/Stock.h"
 
+const int ID_QUOTE_DATA_READY = 100000;
+
 class SpiderShareListHexun;
 class SpiderBasicInfoEastMoney;
 class SpiderConceptListEastMoney;

@@ -38,7 +38,7 @@ enum class DataProvider {
 enum ShareCategoryType {
     Concept = 1,   // 概念板块
     Industry = 2,  // 行业板块
-    Region = 4,    // 区域板块
+    Province = 4,  // 区域板块
 };
 
 struct Share;  // 前项声明
@@ -75,6 +75,7 @@ struct Share {
     uint64_t total_capital;               // 总市值
     uint64_t trade_capital;               // 流通股本
     ShareIndustry* industry;              // 所处行业分类
+    std::string industry_name;            // 行业名称
     Market market;                        // 所在交易所
     std::string province;                 // 所在省份
     uint32_t employee_num;                // 员工数

@@ -72,8 +72,8 @@ void PanelStockQuote::LoadStockMarketQuote() {
     StockDataStorage* pStorage = static_cast<RichApplication*>(wxTheApp)->GetStockDataStorage();
     if (pStorage->IsQuoteDataReady()) {
         std::vector<Share> shares = pStorage->GetMarketAllShares();
-
         long irow = 0;
+        m_gridCtrlQuote->AppendRows(shares.size() - 30 + 1, false);
         for (Share& share : shares) {
             m_gridCtrlQuote->SetCellValue(irow, 0, std::to_string(irow + 1));
             m_gridCtrlQuote->SetCellValue(irow, 1, CN(share.code));
@@ -91,6 +91,7 @@ void PanelStockQuote::LoadStockMarketQuote() {
             irow++;
         }
     }
+    m_gridCtrlQuote->Refresh();
 }
 
 PanelStockQuote::~PanelStockQuote() {

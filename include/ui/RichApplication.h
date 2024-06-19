@@ -11,6 +11,7 @@
 #pragma once
 
 #include <wx/wxprec.h>
+#include "ui/RichMainFrame.h"
 
 #ifndef WX_PRECOMP
 #include <wx/wx.h>
@@ -22,7 +23,9 @@ class RichApplication : public wxApp {
    public:
     virtual bool OnInit();
     StockDataStorage* GetStockDataStorage();
+    RichMainFrame* GetMainFrame();
 
    private:
     StockDataStorage* m_pStockStorage;
+    RichMainFrame* m_pFrame;
 };

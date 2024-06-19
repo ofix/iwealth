@@ -22,32 +22,28 @@
 class wxUILocaleImpl;
 
 // Flags for wxUILocale::CompareStrings().
-enum
-{
-    wxCompare_CaseSensitive   = 0,
-    wxCompare_CaseInsensitive = 1
-};
+enum { wxCompare_CaseSensitive = 0, wxCompare_CaseInsensitive = 1 };
 
 // ----------------------------------------------------------------------------
 // wxLocaleIdent: allows to fully identify a locale under all platforms
 // ----------------------------------------------------------------------------
 
-class WXDLLIMPEXP_BASE wxLocaleIdent
-{
-public:
+class WXDLLIMPEXP_BASE wxLocaleIdent {
+   public:
     // Create the object from BCP 47-like language tag: the string must contain
     // at least the language part (2 or 3 ASCII letters) and may contain script
     // and region separated by dashes.
     static wxLocaleIdent FromTag(const wxString& tag);
 
     // Default ctor creates an empty, invalid identifier.
-    wxLocaleIdent() { }
+    wxLocaleIdent() {
+    }
 
     // Set language
     wxLocaleIdent& Language(const wxString& language);
 
     // Set region
-    wxLocaleIdent& Region(const wxString& region);
+    wxLocaleIdent& Province(const wxString& region);
 
     // Set script (not supported and ignored under Unix)
     wxLocaleIdent& Script(const wxString& script);
@@ -65,13 +61,27 @@ public:
     wxLocaleIdent& SortOrder(const wxString& sortorder);
 
     // Accessors for the individual fields.
-    const wxString& GetLanguage() const { return m_language; }
-    const wxString& GetRegion() const { return m_region; }
-    const wxString& GetScript() const { return m_script; }
-    const wxString& GetCharset() const { return m_charset; }
-    const wxString& GetModifier() const { return m_modifier; }
-    const wxString& GetExtension() const { return m_extension; }
-    const wxString& GetSortorder() const { return m_sortorder; }
+    const wxString& GetLanguage() const {
+        return m_language;
+    }
+    const wxString& GetRegion() const {
+        return m_region;
+    }
+    const wxString& GetScript() const {
+        return m_script;
+    }
+    const wxString& GetCharset() const {
+        return m_charset;
+    }
+    const wxString& GetModifier() const {
+        return m_modifier;
+    }
+    const wxString& GetExtension() const {
+        return m_extension;
+    }
+    const wxString& GetSortorder() const {
+        return m_sortorder;
+    }
 
     // Construct platform dependent name
     wxString GetName() const;
@@ -82,12 +92,11 @@ public:
     wxString GetTag(wxLocaleTagType tagType = wxLOCALE_TAGTYPE_DEFAULT) const;
 
     // Empty locale identifier is invalid. at least Language() must be called.
-    bool IsEmpty() const
-    {
+    bool IsEmpty() const {
         return m_language.empty();
     }
 
-private:
+   private:
     wxString m_tag;
 
     wxString m_language;
@@ -103,9 +112,8 @@ private:
 // wxUILocale allows to use the default UI locale and get information about it
 // ----------------------------------------------------------------------------
 
-class WXDLLIMPEXP_BASE wxUILocale
-{
-public:
+class WXDLLIMPEXP_BASE wxUILocale {
+   public:
     // Configure the UI to use the default user locale.
     static bool UseDefault();
 
@@ -119,8 +127,7 @@ public:
     static const wxUILocale& GetCurrent();
 
     // A helper just to avoid writing wxUILocale(wxLocaleIdent::FromTag(...)).
-    static wxUILocale FromTag(const wxString& tag)
-    {
+    static wxUILocale FromTag(const wxString& tag) {
         return wxUILocale(wxLocaleIdent::FromTag(tag));
     }
 
@@ -142,8 +149,7 @@ public:
     wxLocaleIdent GetLocaleId() const;
 
     // Query the locale for the specified information.
-    wxString GetInfo(wxLocaleInfo index,
-                     wxLocaleCategory cat = wxLOCALE_CAT_DEFAULT) const;
+    wxString GetInfo(wxLocaleInfo index, wxLocaleCategory cat = wxLOCALE_CAT_DEFAULT) const;
 
     // Query the locale for the specified localized name.
     wxString GetLocalizedName(wxLocaleName name, wxLocaleForm form) const;
@@ -152,22 +158,19 @@ public:
     wxLayoutDirection GetLayoutDirection() const;
 
     // Compares two strings in the order defined by this locale.
-    int CompareStrings(const wxString& lhs, const wxString& rhs,
-                       int flags = wxCompare_CaseSensitive) const;
+    int CompareStrings(const wxString& lhs, const wxString& rhs, int flags = wxCompare_CaseSensitive) const;
 
 #if wxUSE_DATETIME
 #if wxABI_VERSION >= 30203
     // Get the full (default) or abbreviated localized month name
     // returns empty string on error
-    wxString GetMonthName(wxDateTime::Month month,
-                          wxDateTime::NameFlags flags = wxDateTime::Name_Full) const;
+    wxString GetMonthName(wxDateTime::Month month, wxDateTime::NameFlags flags = wxDateTime::Name_Full) const;
 
     // Get the full (default) or abbreviated localized weekday name
     // returns empty string on error
-    wxString GetWeekDayName(wxDateTime::WeekDay weekday,
-                            wxDateTime::NameFlags flags = wxDateTime::Name_Full) const;
-#endif // wxABI_VERSION >= 3.2.3
-#endif // wxUSE_DATETIME
+    wxString GetWeekDayName(wxDateTime::WeekDay weekday, wxDateTime::NameFlags flags = wxDateTime::Name_Full) const;
+#endif  // wxABI_VERSION >= 3.2.3
+#endif  // wxUSE_DATETIME
 
     // Note that this class is not supposed to be used polymorphically, hence
     // its dtor is not virtual.
@@ -177,7 +180,7 @@ public:
     // Return the locale ID representing the default system locale, which would
     // be set is UseDefault() is called.
     static wxLocaleIdent GetSystemLocaleId();
-#endif // wxABI_VERSION >= 3.2.2
+#endif  // wxABI_VERSION >= 3.2.2
 
     // Try to get user's (or OS's) preferred language setting.
     // Return wxLANGUAGE_UNKNOWN if the language-guessing algorithm failed
@@ -242,10 +245,11 @@ public:
     static wxString GetScriptAliasFromName(const wxString& scriptName);
     static wxString GetScriptNameFromAlias(const wxString& scriptAlias);
 
-private:
+   private:
     // This ctor is private and exists only for implementation reasons.
     // It takes ownership of the provided pointer.
-    explicit wxUILocale(wxUILocaleImpl* impl = NULL) : m_impl(impl) { }
+    explicit wxUILocale(wxUILocaleImpl* impl = NULL) : m_impl(impl) {
+    }
 
     // Creates the global tables of languages and scripts called by CreateLanguagesDB
     static void InitLanguagesDB();
@@ -255,18 +259,16 @@ private:
     wxUILocaleImpl* m_impl;
 };
 
-inline wxString wxGetUIDateFormat()
-{
+inline wxString wxGetUIDateFormat() {
     return wxUILocale::GetCurrent().GetInfo(wxLOCALE_SHORT_DATE_FMT);
 }
 
-#else // !wxUSE_INTL
+#else  // !wxUSE_INTL
 
-inline wxString wxGetUIDateFormat()
-{
+inline wxString wxGetUIDateFormat() {
     return wxString(wxS("%x"));
 }
 
-#endif // wxUSE_INTL/!wxUSE_INTL
+#endif  // wxUSE_INTL/!wxUSE_INTL
 
-#endif // _WX_UILOCALE_H_
+#endif  // _WX_UILOCALE_H_

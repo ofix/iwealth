@@ -17,12 +17,16 @@ bool RichApplication::OnInit() {
     bool wxsOK = true;
     wxInitAllImageHandlers();
     if (wxsOK) {
-        RichMainFrame* Frame = new RichMainFrame(NULL, wxID_ANY);
-        Frame->Show();
-        SetTopWindow(Frame);
+        m_pFrame = new RichMainFrame(NULL, wxID_ANY);
+        m_pFrame->Show();
+        SetTopWindow(m_pFrame);
     }
     //*)
     return true;
+}
+
+RichMainFrame* RichApplication::GetMainFrame() {
+    return m_pFrame;
 }
 
 StockDataStorage* RichApplication::GetStockDataStorage() {

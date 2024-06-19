@@ -34,8 +34,6 @@ void SpiderShareListHexun::DoCrawl() {
 }
 
 void SpiderShareListHexun::ConcurrentCrawl() {
-    m_pStockStorage->m_market_shares.clear();
-    m_pStockStorage->m_market_shares.reserve(6000);  // 避免内存频繁分配
     m_unique_shares.clear();
     std::list<std::string> urls;
     std::vector<void*> user_data;
@@ -71,7 +69,9 @@ void SpiderShareListHexun::ConcurrentResponseCallback(conn_t* conn) {
     conn->reuse = false;
 }
 
-void SpiderShareListHexun::RemoveRepeatShares() {
+void SpiderShareListHexun::SaveShareListToDataStorage() {
+    m_pStockStorage->m_market_shares.clear();
+    m_pStockStorage->m_market_shares.reserve(6000);  // 避免内存频繁分配
     // 重新插入
     m_pStockStorage->m_market_shares.insert(m_pStockStorage->m_market_shares.end(), m_unique_shares.begin(),
                                             m_unique_shares.end());
@@ -87,11 +87,11 @@ void SpiderShareListHexun::SingleCrawl() {
     m_pStockStorage->m_market_shares.clear();
     m_pStockStorage->m_market_shares.reserve(6000);  // 避免内存频繁分配
     m_unique_shares.clear();
-    FetchMarketShares(1);     // 沪市A股
-    FetchMarketShares(2);     // 深市A股
-    FetchMarketShares(6);     // 创业板
-    FetchMarketShares(1789);  // 科创板
-    RemoveRepeatShares();     // 移除重复的股票
+    FetchMarketShares(1);          // 沪市A股
+    FetchMarketShares(2);          // 深市A股
+    FetchMarketShares(6);          // 创业板
+    FetchMarketShares(1789);       // 科创板
+    SaveShareListToDataStorage();  // 移除重复的股票
 }
 
 void SpiderShareListHexun::FetchMarketShares(int market) {

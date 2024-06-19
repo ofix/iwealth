@@ -57,8 +57,8 @@ void SpiderShareCategory::ParseCategories(std::string& data, int types) {
             if (types & ShareCategoryType::Industry) {
                 FetchCategoryShares(industries, ShareCategoryType::Industry);
             }
-            if (types & ShareCategoryType::Region) {
-                FetchCategoryShares(regions, ShareCategoryType::Region);
+            if (types & ShareCategoryType::Province) {
+                FetchCategoryShares(regions, ShareCategoryType::Province);
             }
             break;
         }
@@ -121,8 +121,8 @@ std::string SpiderShareCategory::GetCategoryTypeName(ShareCategoryType type) {
         return "Concept";
     } else if (type == ShareCategoryType::Industry) {
         return "Industry";
-    } else if (type == ShareCategoryType::Region) {
-        return "Region";
+    } else if (type == ShareCategoryType::Province) {
+        return "Province";
     }
 }
 
@@ -137,7 +137,7 @@ void SpiderShareCategory::ConcurrentResponseCallback(conn_t* conn) {
         share_category = &m_pStockStorage->m_category_concepts;
     } else if (pExtra->category_type == ShareCategoryType::Industry) {
         share_category = &m_pStockStorage->m_category_industries;
-    } else if (pExtra->category_type == ShareCategoryType::Region) {
+    } else if (pExtra->category_type == ShareCategoryType::Province) {
         share_category = &m_pStockStorage->m_category_regions;
     }
     for (json::iterator it = shares.begin(); it != shares.end(); ++it) {
@@ -145,6 +145,13 @@ void SpiderShareCategory::ConcurrentResponseCallback(conn_t* conn) {
         std::string share_name = (*it)["f14"];
         Share* pShare = m_pStockStorage->FindShare(share_code);
         share_category->Insert(category_name, pShare);
+        if (pShare) {
+            if (pExtra->category_type == ShareCategoryType::Province) {
+                pShare->province == category_name;
+            } else if (pExtra->category_type == ShareCategoryType::Industry) {
+                pShare->industry_name = category_name;
+            }
+        }
     }
     conn->reuse = false;  // 不需要复用
 }

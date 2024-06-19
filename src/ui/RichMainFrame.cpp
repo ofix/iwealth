@@ -3,10 +3,16 @@
 #include <wx/artprov.h>
 #include <wx/listctrl.h>
 #include <vector>
+#include "stock/StockDataStorage.h"
 
 //(*IdInit(PanelStockQuote)
 const long RichMainFrame::ID_PANEL_STOCK_QUOTE = wxNewId();
 //*)
+
+// catch the event from the thread
+BEGIN_EVENT_TABLE(RichMainFrame, wxFrame)
+EVT_THREAD(ID_QUOTE_DATA_READY, RichMainFrame::OnStorageDataReady)
+END_EVENT_TABLE()
 
 RichMainFrame::RichMainFrame(wxWindow* parent, wxWindowID id, const wxPoint& pos, const wxSize& size) {
     //(*Initialize(RichMainFrame)
@@ -49,6 +55,14 @@ RichMainFrame::RichMainFrame(wxWindow* parent, wxWindowID id, const wxPoint& pos
     Maximize();  // 初始化最大化
 }
 
+// 监听异步子线程消息
+void RichMainFrame::OnStorageDataReady(wxThreadEvent& event) {
+    wxString data = event.GetString();
+    std::cout << "thread event data: " << event.GetString() << std::endl;
+    if (data == "Quote") {
+        m_panelStockQuota->LoadStockMarketQuote();
+    }
+}
 void RichMainFrame::OnExit(wxCommandEvent& event) {
     Close(true);
 }

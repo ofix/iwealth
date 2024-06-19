@@ -15,7 +15,7 @@ class SpiderShareCategory : public Spider {
     SpiderShareCategory(StockDataStorage* storage);
     SpiderShareCategory(StockDataStorage* storage, bool concurrent);
     virtual ~SpiderShareCategory();
-    void Crawl(int types = ShareCategoryType::Industry | ShareCategoryType::Region | ShareCategoryType::Concept);
+    void Crawl(int types = ShareCategoryType::Industry | ShareCategoryType::Province | ShareCategoryType::Concept);
 
    protected:
     virtual void DoCrawl(int types);

@@ -13,7 +13,7 @@ class SpiderShareListHexun : public Spider {
     SpiderShareListHexun(StockDataStorage* storage);
     virtual ~SpiderShareListHexun();
     virtual void DoCrawl();
-    void RemoveRepeatShares();
+    void SaveShareListToDataStorage();
 
    protected:
     void FetchMarketShares(int market);

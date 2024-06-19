@@ -8,16 +8,16 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 #include "stock/StockDataStorage.h"
+#include <wx/wx.h>
 #include "spider/Spider.h"
 #include "spider/SpiderBasicInfoEastMoney.h"
 #include "spider/SpiderShareCategory.h"
 #include "spider/SpiderShareKline.h"
 #include "spider/SpiderShareListHexun.h"
+#include "ui/RichApplication.h"
 #include "util/EasyLogger.h"
 #include "util/FileTool.h"
 #include "util/Timer.h"
-
-// #include <windows.h>
 
 using json = nlohmann::json;
 
@@ -143,11 +143,15 @@ void StockDataStorage::HashShares() {
 void StockDataStorage::SetFetchResultOk(FetchResult result) {
     if (result == FetchResult::QuoteData) {
         m_fetch_quote_data_ok = true;
-        std::string json_shares = ToJson(m_market_shares);
-        FileTool::SaveFile(m_path_share_brief, json_shares);
-        if (m_market_shares.size() > 0) {
-            HashShares();
-        }
+        // std::string json_shares = ToJson(m_market_shares);
+        // FileTool::SaveFile(m_path_share_brief, json_shares);
+        // if (m_market_shares.size() > 0) {
+        //     HashShares();
+        // }
+        // 发送消息给UI主线程显示行情数据]
+        wxThreadEvent event(wxEVT_COMMAND_THREAD, ID_QUOTE_DATA_READY);
+        event.SetString("Quote");
+        static_cast<RichApplication*>(wxTheApp)->GetMainFrame()->GetEventHandler()->AddPendingEvent(event);
         // 行情数据爬完以后再进行其他数据的爬取
     } else if (result == FetchResult::Klines) {
         m_fetch_klines_ok = true;
@@ -164,7 +168,7 @@ void StockDataStorage::AsyncFetchShareQuoteData() {
     SpiderShareListHexun* spiderShareList = new SpiderShareListHexun(this);
     spiderShareList->Crawl();  // 当前线程同步爬取市场行情数据
     SpiderShareCategory* spiderCategory = new SpiderShareCategory(this);
-    spiderCategory->Crawl(ShareCategoryType::Industry | ShareCategoryType::Region);
+    spiderCategory->Crawl(ShareCategoryType::Industry | ShareCategoryType::Province);
 
     std::function<void(uint32_t, void*)> timer_cb = [=](uint32_t timer_id, void* args) {
         OnTimerFetchShareQuoteData(timer_id, args);
@@ -181,7 +185,7 @@ void StockDataStorage::OnTimerFetchShareQuoteData(uint32_t timer_id, void* args)
     SpiderShareListHexun* spiderShareList = static_cast<SpiderShareListHexun*>((*pSpiders)[0]);
     SpiderShareCategory* spiderCategory = static_cast<SpiderShareCategory*>((*pSpiders)[1]);
     if (spiderShareList->HasFinish() && spiderCategory->HasFinish()) {
-        spiderShareList->RemoveRepeatShares();
+        // spiderShareList->SaveShareListToDataStorage();
         SetFetchResultOk(FetchResult::QuoteData);
         delete pSpiders;  // 删除容器指针
         pSpiders = nullptr;

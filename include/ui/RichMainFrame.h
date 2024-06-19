@@ -35,7 +35,10 @@ class RichMainFrame : public wxFrame {
     void OnHello(wxCommandEvent& event);
     void OnExit(wxCommandEvent& event);
     void OnAbout(wxCommandEvent& event);
+    // this is called when the event from the thread is received
+    void OnStorageDataReady(wxThreadEvent& evt);
 
    private:
     PanelStockQuote* m_panelStockQuota;
+    DECLARE_EVENT_TABLE()
 };
