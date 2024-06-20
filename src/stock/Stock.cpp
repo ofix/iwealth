@@ -17,6 +17,7 @@ Share::Share()
       change_rate(0.0),
       volume(0),
       amount(0),
+      price_yesterday_close(0.0),
       price_now(0.0),
       price_max(0.0),
       price_min(0.0),
@@ -36,7 +37,9 @@ Share::Share()
       total_capital(0),
       trade_capital(0),
       industry(nullptr),
-      market(Market::ShangHai) {
+      industry_name(""),
+      market(Market::ShangHai),
+      province("") {
 }
 
 Share::Share(const Share& other)
@@ -47,6 +50,7 @@ Share::Share(const Share& other)
       change_rate(other.change_rate),
       volume(other.volume),
       amount(other.amount),
+      price_yesterday_close(other.price_yesterday_close),
       price_now(other.price_now),
       price_max(other.price_max),
       price_min(other.price_min),
@@ -66,7 +70,9 @@ Share::Share(const Share& other)
       total_capital(other.total_capital),
       trade_capital(other.trade_capital),
       industry(other.industry),
-      market(other.market) {
+      industry_name(other.industry_name),
+      market(other.market),
+      province(other.province) {
     for (size_t i = 0; i < other.old_names.size(); i++) {
         old_names.push_back(other.old_names[i]);
     }

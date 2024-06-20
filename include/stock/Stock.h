@@ -56,6 +56,7 @@ struct Share {
     double change_rate;                   // 涨跌幅度
     uint64_t volume;                      // 成交量
     uint64_t amount;                      // 成交额
+    double price_yesterday_close;         // 昨天收盘价
     double price_now;                     // 最新价
     double price_max;                     // 最高价
     double price_min;                     // 最低价

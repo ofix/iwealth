@@ -52,8 +52,9 @@ PanelStockQuote::PanelStockQuote(wxWindow* parent, wxWindowID id, const wxPoint&
     /// 插入行情列表表头
 
     std::vector<std::pair<wxString, int>> columnsStockQuote = {
-        {CN("序号"), 56},  {CN("代码"), 120}, {CN("名称"), 140}, {CN("涨幅"), 100},
-        {CN("现价"), 100}, {CN("换手"), 100}, {CN("行业"), 100}, {CN("地区"), 100},
+        {CN("序号"), 56},    {CN("代码"), 120}, {CN("名称"), 140}, {CN("涨幅"), 100}, {CN("现价"), 100},
+        {CN("昨收"), 100},   {CN("今开"), 100}, {CN("最高"), 100}, {CN("最低"), 100}, {CN("成交额"), 140},
+        {CN("成交量"), 140}, {CN("换手"), 100}, {CN("量比"), 100}, {CN("行业"), 100}, {CN("省份"), 100},
     };
     m_gridCtrlQuote->CreateGrid(30, columnsStockQuote.size(), wxGrid::wxGridSelectRows);
     int icol = 0;
@@ -74,19 +75,45 @@ void PanelStockQuote::LoadStockMarketQuote() {
         std::vector<Share> shares = pStorage->GetMarketAllShares();
         long irow = 0;
         m_gridCtrlQuote->AppendRows(shares.size() - 30 + 1, false);
+        wxColor clr_green(57, 227, 101);
+        wxColor clr_red(255, 0, 0);
         for (Share& share : shares) {
-            m_gridCtrlQuote->SetCellValue(irow, 0, std::to_string(irow + 1));
-            m_gridCtrlQuote->SetCellValue(irow, 1, CN(share.code));
-            m_gridCtrlQuote->SetCellValue(irow, 2, CN(share.name));
-            m_gridCtrlQuote->SetCellValue(irow, 3, CN(convertDouble(share.change_rate) + '%'));
-            m_gridCtrlQuote->SetCellValue(irow, 4, CN(convertDouble(share.price_now)));
-            m_gridCtrlQuote->SetCellValue(irow, 5, CN(convertDouble(share.turnover_rate) + '%'));
+            m_gridCtrlQuote->SetCellValue(irow, 0, std::to_string(irow + 1));                        // 序号
+            m_gridCtrlQuote->SetCellValue(irow, 1, CN(share.code));                                  // 股票代码
+            m_gridCtrlQuote->SetCellValue(irow, 2, CN(share.name));                                  // 股票名称
+            m_gridCtrlQuote->SetCellValue(irow, 3, CN(convertDouble(share.change_rate) + '%'));      // 涨幅
+            m_gridCtrlQuote->SetCellValue(irow, 4, CN(convertDouble(share.price_now)));              // 当前价
+            m_gridCtrlQuote->SetCellValue(irow, 5, CN(convertDouble(share.price_yesterday_close)));  // 昨天收盘价
+            m_gridCtrlQuote->SetCellValue(irow, 6, CN(convertDouble(share.price_open)));             // 开盘价
+            m_gridCtrlQuote->SetCellValue(irow, 7, CN(convertDouble(share.price_max)));              // 最高价
+            m_gridCtrlQuote->SetCellValue(irow, 8, CN(convertDouble(share.price_min)));              // 最低价
+            m_gridCtrlQuote->SetCellValue(irow, 9, CN(std::to_string(share.amount)));                // 成交额
+            m_gridCtrlQuote->SetCellValue(irow, 10, CN(std::to_string(share.volume)));               // 成交量
+            m_gridCtrlQuote->SetCellValue(irow, 11, CN(convertDouble(share.turnover_rate) + '%'));   // 换手率
+            m_gridCtrlQuote->SetCellValue(irow, 12, CN(convertDouble(share.qrr)));                   // 量比
+            m_gridCtrlQuote->SetCellValue(irow, 13, CN(share.industry_name));                        // 行业
+            m_gridCtrlQuote->SetCellValue(irow, 14, CN(share.province));                             // 省份
             if (share.change_rate > 0) {
-                m_gridCtrlQuote->SetCellTextColour(irow, 3, wxColour(255, 0, 0));
-                m_gridCtrlQuote->SetCellTextColour(irow, 4, wxColour(255, 0, 0));
-            } else {
-                m_gridCtrlQuote->SetCellTextColour(irow, 3, wxColour(57, 227, 101));
-                m_gridCtrlQuote->SetCellTextColour(irow, 4, wxColour(57, 227, 101));
+                m_gridCtrlQuote->SetCellTextColour(irow, 3, clr_red);
+                m_gridCtrlQuote->SetCellTextColour(irow, 4, clr_red);
+            } else if (share.change_rate < 0) {
+                m_gridCtrlQuote->SetCellTextColour(irow, 3, clr_green);
+                m_gridCtrlQuote->SetCellTextColour(irow, 4, clr_green);
+            }
+            if (share.price_open > share.price_yesterday_close) {
+                m_gridCtrlQuote->SetCellTextColour(irow, 6, clr_red);
+            } else if (share.price_open < share.price_yesterday_close) {
+                m_gridCtrlQuote->SetCellTextColour(irow, 6, clr_green);
+            }
+            if (share.price_max > share.price_yesterday_close) {
+                m_gridCtrlQuote->SetCellTextColour(irow, 7, clr_red);
+            } else if (share.price_max < share.price_yesterday_close) {
+                m_gridCtrlQuote->SetCellTextColour(irow, 7, clr_green);
+            }
+            if (share.price_min > share.price_yesterday_close) {
+                m_gridCtrlQuote->SetCellTextColour(irow, 8, clr_red);
+            } else if (share.price_min < share.price_yesterday_close) {
+                m_gridCtrlQuote->SetCellTextColour(irow, 8, clr_green);
             }
             irow++;
         }

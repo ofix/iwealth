@@ -51,6 +51,7 @@ void StockDataStorage::LoadStockAllShares() {
         HashShares();                                             // 步骤2 share_code -> Share* 映射
         RestoreShareCategoryProvince();                           // 步骤3 恢复 m_category_provinces
         RestoreShareCategoryIndustry();                           // 步骤4 恢复 m_category_industries
+        m_fetch_quote_data_ok = true;                             // 立即显示行情列表
     } else {
         // 检查当前时间，如果时间是早晨9:00 ~ 9:30 之间，停止爬取，因为行情数据被重新初始化了
         if (between_time_period("09:00", "09:30")) {
@@ -113,22 +114,24 @@ std::string StockDataStorage::DumpQuoteData(std::vector<Share>& shares) {
     json result = json::array();
     for (Share share : shares) {
         json o = json::object();
-        o["code"] = share.code;                        // 股票代码
-        o["name"] = share.name;                        // 股票名称
-        o["market"] = static_cast<int>(share.market);  // 股票市场
-        o["price_now"] = share.price_now;              // 当前价
-        o["price_min"] = share.price_min;              // 最低价
-        o["price_max"] = share.price_max;              // 最高价
-        o["price_open"] = share.price_open;            // 开盘价
-        o["price_close"] = share.price_close;          // 收盘价
-        o["price_amplitude"] = share.price_amplitude;  // 股价振幅
-        o["change_amount"] = share.change_amount;      // 涨跌额
-        o["change_rate"] = share.change_rate;          // 涨跌幅度
-        o["volume"] = share.volume;                    // 成交量
-        o["amount"] = share.amount;                    // 成交额
-        o["turnover_rate"] = share.turnover_rate;      // 换手率
-        o["industry_name"] = share.industry_name;      // 行业名称
-        o["province"] = share.province;                // 所属省份
+        o["code"] = share.code;                                    // 股票代码
+        o["name"] = share.name;                                    // 股票名称
+        o["market"] = static_cast<int>(share.market);              // 股票市场
+        o["price_yesterday_close"] = share.price_yesterday_close;  // 昨天收盘价
+        o["price_now"] = share.price_now;                          // 当前价
+        o["price_min"] = share.price_min;                          // 最低价
+        o["price_max"] = share.price_max;                          // 最高价
+        o["price_open"] = share.price_open;                        // 开盘价
+        o["price_close"] = share.price_close;                      // 收盘价
+        o["price_amplitude"] = share.price_amplitude;              // 股价振幅
+        o["change_amount"] = share.change_amount;                  // 涨跌额
+        o["change_rate"] = share.change_rate;                      // 涨跌幅度
+        o["volume"] = share.volume;                                // 成交量
+        o["amount"] = share.amount;                                // 成交额
+        o["turnover_rate"] = share.turnover_rate;                  // 换手率
+        o["qrr"] = share.qrr;                                      // 量比
+        o["industry_name"] = share.industry_name;                  // 行业名称
+        o["province"] = share.province;                            // 所属省份
         result.push_back(o);
     }
     std::string data = result.dump(4);
@@ -141,23 +144,24 @@ bool StockDataStorage::LoadLocalQuoteData(std::string& path, std::vector<Share>&
         json arr = json::parse(json_data);
         for (auto& item : arr) {
             Share share;
-            share.code = item["code"].template get<std::string>();                    // 股票代码
-            share.name = item["name"].template get<std::string>();                    // 股票名称
-            share.market = static_cast<Market>(item["market"].template get<int>());   // 股票市场
-            share.price_now = item["price_now"].template get<double>();               // 当前价
-            share.price_min = item["price_min"].template get<double>();               // 最低价
-            share.price_max = item["price_max"].template get<double>();               // 最高价
-            share.price_open = item["price_open"].template get<double>();             // 开盘价
-            share.price_close = item["price_close"].template get<double>();           // 收盘价
-            share.price_amplitude = item["price_amplitude"].template get<double>();   // 股价振幅
-            share.change_amount = item["change_amout"].template get<double>();        // 涨跌额
-            share.change_rate = item["change_rate"].template get<double>();           // 涨跌幅度
-            share.volume = item["volume"].template get<uint64_t>();                   // 成交量
-            share.amount = item["amount"].template get<uint64_t>();                   // 成交额
-            share.turnover_rate = item["turnover_rate"].template get<double>();       // 换手率
-            share.industry_name = item["industry_name"].template get<std::string>();  // 行业名称
-            share.province = item["province"].template get<std::string>();            // 所属省份
-            share.qrr = item["qrr"].template get<double>();                           // 量比
+            share.code = item["code"].template get<std::string>();                               // 股票代码
+            share.name = item["name"].template get<std::string>();                               // 股票名称
+            share.market = static_cast<Market>(item["market"].template get<int>());              // 股票市场
+            share.price_yesterday_close = item["price_yesterday_close"].template get<double>();  // 昨天收盘价
+            share.price_now = item["price_now"].template get<double>();                          // 当前价
+            share.price_min = item["price_min"].template get<double>();                          // 最低价
+            share.price_max = item["price_max"].template get<double>();                          // 最高价
+            share.price_open = item["price_open"].template get<double>();                        // 开盘价
+            share.price_close = item["price_close"].template get<double>();                      // 收盘价
+            share.price_amplitude = item["price_amplitude"].template get<double>();              // 股价振幅
+            share.change_amount = item["change_amount"].template get<double>();                  // 涨跌额
+            share.change_rate = item["change_rate"].template get<double>();                      // 涨跌幅度
+            share.volume = item["volume"].template get<uint64_t>();                              // 成交量
+            share.amount = item["amount"].template get<uint64_t>();                              // 成交额
+            share.turnover_rate = item["turnover_rate"].template get<double>();                  // 换手率
+            share.qrr = item["qrr"].template get<double>();                                      // 量比
+            share.industry_name = item["industry_name"].template get<std::string>();             // 行业名称
+            share.province = item["province"].template get<std::string>();                       // 所属省份
             shares.push_back(share);
         }
     } catch (std::exception& e) {
@@ -213,12 +217,6 @@ bool StockDataStorage::SaveShareKlines(const std::string& dir_path,
 void StockDataStorage::SetFetchResultOk(FetchResult result) {
     if (result == FetchResult::QuoteData) {
         m_fetch_quote_data_ok = true;
-        // std::string json_shares = DumpQuoteData(m_market_shares);
-        // FileTool::SaveFile(m_path_share_quote, json_shares);
-        // if (m_market_shares.size() > 0) {
-        //     HashShares();
-        // }
-
 #ifdef IWEALTH
         // 发送消息给UI主线程显示行情数据]
         wxThreadEvent event(wxEVT_COMMAND_THREAD, ID_QUOTE_DATA_READY);
@@ -258,12 +256,16 @@ void StockDataStorage::OnTimerFetchShareQuoteData(uint32_t timer_id, void* args)
     SpiderShareListHexun* spiderQuote = static_cast<SpiderShareListHexun*>((*pSpiders)[0]);
     SpiderShareCategory* spiderCategory = static_cast<SpiderShareCategory*>((*pSpiders)[1]);
     if (spiderQuote->HasFinish() && spiderCategory->HasFinish()) {
-        spiderQuote->SaveShareListToDataStorage();
-        HashShares();
-        spiderCategory->BuildShareCategoryProvinces();
-        spiderCategory->BuildShareCategoryIndustries();
-        SetFetchResultOk(FetchResult::QuoteData);
-        delete pSpiders;  // 删除容器指针
+        spiderQuote->SaveShareListToDataStorage();                 // 保存股票列表
+        HashShares();                                              // share_code->Share* 映射
+        spiderCategory->BuildShareCategoryProvinces();             // 填充股票省份信息
+        spiderCategory->BuildShareCategoryIndustries();            // 填充股票行业信息
+        std::string json_shares = DumpQuoteData(m_market_shares);  // 序列化股票
+        FileTool::SaveFile(m_path_share_quote, json_shares);       // 保存股票列表到文件
+        SetFetchResultOk(FetchResult::QuoteData);                  // 通知ui线程刷新页面
+        delete spiderQuote;                                        // 删除爬虫指针
+        delete spiderCategory;                                     // 删除爬虫指针
+        delete pSpiders;                                           // 删除容器指针
         pSpiders = nullptr;
         Timer::CancelTimer(timer_id);  // 取消定时器
     } else {

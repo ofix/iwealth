@@ -136,18 +136,18 @@ void SpiderShareCategory::ConcurrentResponseCallback(conn_t* conn) {
     json response = json::parse(conn->response);
     json shares = response["data"]["diff"];
     std::string category_name = pExtra->category_name;
-    std::unordered_map<std::string, std::vector<std::string>> hash_map;
+    std::unordered_map<std::string, std::vector<std::string>>* hash_map;
     if (pExtra->category_type == ShareCategoryType::Concept) {
-        hash_map = m_concepts;
+        hash_map = &m_concepts;
     } else if (pExtra->category_type == ShareCategoryType::Industry) {
-        hash_map = m_industries;
+        hash_map = &m_industries;
     } else if (pExtra->category_type == ShareCategoryType::Province) {
-        hash_map = m_provinces;
+        hash_map = &m_provinces;
     }
     for (json::iterator it = shares.begin(); it != shares.end(); ++it) {
         std::string share_code = (*it)["f12"];
         // std::string share_name = (*it)["f14"];
-        InsertCategory(hash_map, category_name, share_code);
+        InsertCategory(*hash_map, category_name, share_code);
     }
     conn->reuse = false;  // 不需要复用
 }
@@ -156,8 +156,10 @@ void SpiderShareCategory::BuildShareCategoryProvinces() {
     for (auto& province : m_provinces) {
         for (auto& share_code : province.second) {
             Share* pShare = m_pStockStorage->FindShare(share_code);
-            m_pStockStorage->m_category_provinces.Insert(province.first, pShare);
-            pShare->province = province.first;
+            if (pShare != nullptr) {  // 可能不包含北交所的一些垃圾股票
+                m_pStockStorage->m_category_provinces.Insert(province.first, pShare);
+                pShare->province = province.first;
+            }
         }
     }
 }
@@ -166,8 +168,10 @@ void SpiderShareCategory::BuildShareCategoryIndustries() {
     for (auto& industry : m_industries) {
         for (auto& share_code : industry.second) {
             Share* pShare = m_pStockStorage->FindShare(share_code);
-            m_pStockStorage->m_category_industries.Insert(industry.first, pShare);
-            pShare->industry_name = industry.first;
+            if (pShare != nullptr) {  // 可能不包含北交所的一些垃圾股票
+                m_pStockStorage->m_category_industries.Insert(industry.first, pShare);
+                pShare->industry_name = industry.first;
+            }
         }
     }
 }

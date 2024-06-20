@@ -181,6 +181,7 @@ void ConcurrentRequest::Run() {
         int still_alive = 1;
         curl_multi_perform(cm, &still_alive);
         conn_t* conn;
+        bool finished = false;
         while ((msg = curl_multi_info_read(cm, &msgs_left)) != NULL) {
             if (msg->msg == CURLMSG_DONE) {
                 CURL* easy_curl = msg->easy_handle;
@@ -230,12 +231,13 @@ void ConcurrentRequest::Run() {
                     AddConnection(conn);  // 再次发送子请求
                 }
                 AddNewRequest(cm);
+                finished = (pStatistics->success_requests + pStatistics->failed_requests) >= pStatistics->request_count;
             } else {
                 std::cerr << GetThreadPrefix() << "E:CURLMsg " << msg->msg << std::endl;
             }
         }
         // 检查是否有进行中的请求
-        if (still_alive) {
+        if (still_alive || !finished) {
             curl_multi_wait(cm, NULL, 0, 1000, NULL);
         } else {
             if (!conn->reuse) {
