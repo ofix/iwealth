@@ -15,6 +15,7 @@
 #include "spider/SpiderShareKline.h"
 #include "spider/SpiderShareListHexun.h"
 #include "ui/RichApplication.h"
+#include "util/DateTime.h"
 #include "util/EasyLogger.h"
 #include "util/FileTool.h"
 #include "util/Timer.h"
@@ -29,7 +30,7 @@ StockDataStorage::StockDataStorage()
       m_fetch_business_analysis_ok(false),
       m_fetch_old_name_ok(false) {
     m_data_dir = FileTool::CurrentPath() + "data";
-    m_path_share_brief = m_data_dir + DIRECTORY_SEPARATOR + "stock_brief.json";
+    m_path_share_quote = m_data_dir + DIRECTORY_SEPARATOR + "stock_quote.json";
     Init();
 }
 
@@ -45,36 +46,81 @@ void StockDataStorage::Init() {
 
 void StockDataStorage::LoadStockAllShares() {
     // 检查本地的股票代号文件是否存在,如果存在，检查文件时间是否超过24小时，如果是，同步信息
-    if (FileTool::IsFileExists(m_path_share_brief)) {
-        LoadLocalJsonFile(m_path_share_brief, m_market_shares);
-        AsyncFetchShareQuoteData();  // 异步爬取行情数据
+    if (FileTool::IsFileExists(m_path_share_quote)) {
+        LoadLocalQuoteData(m_path_share_quote, m_market_shares);
     } else {
+        // 检查当前时间，如果时间是早晨9:00 ~ 9:30 之间，停止爬取，因为行情数据被重新初始化了
+        if (!between_time_period("09:00", "09:30")) {
+            std::string current_time = now("%Y-%m-%d %H:%M:%S");
+            std::string future_time = now("%Y-%m-%d ") + "09:30:00";
+            int wait_seconds = diff_seconds(current_time, future_time);
+            std::function<void(uint32_t, void*)> timer_cb = [=](uint32_t timer_id, void* args) {
+                OnTimeout(timer_id, args);
+            };
+            char* opt = "FetchQuote";
+            uint32_t timer_id = Timer::SetTimeout(wait_seconds, timer_cb, static_cast<void*>(opt));
+        } else {
+            AsyncFetchShareQuoteData();  // 异步爬取行情数据
+        }
+    }
+}
+
+void StockDataStorage::OnTimeout(uint32_t timer_id, void* args) {
+    char* opt = static_cast<char*>(args);
+    if (strcmp(opt, "FetchQuote") == 0) {
         AsyncFetchShareQuoteData();  // 异步爬取行情数据
     }
 }
 
-std::string StockDataStorage::ToJson(std::vector<Share>& shares) {
+std::string StockDataStorage::DumpQuoteData(std::vector<Share>& shares) {
     json result = json::array();
     for (Share share : shares) {
         json o = json::object();
-        o["code"] = share.code;
-        o["name"] = share.name;
-        o["market"] = static_cast<int>(share.market);
+        o["code"] = share.code;                        // 股票代码
+        o["name"] = share.name;                        // 股票名称
+        o["market"] = static_cast<int>(share.market);  // 股票市场
+        o["price_now"] = share.price_now;              // 当前价
+        o["price_min"] = share.price_min;              // 最低价
+        o["price_max"] = share.price_max;              // 最高价
+        o["price_open"] = share.price_open;            // 开盘价
+        o["price_close"] = share.price_close;          // 收盘价
+        o["price_amplitude"] = share.price_amplitude;  // 股价振幅
+        o["change_amount"] = share.change_amount;      // 涨跌额
+        o["change_rate"] = share.change_rate;          // 涨跌幅度
+        o["volume"] = share.volume;                    // 成交量
+        o["amount"] = share.amount;                    // 成交额
+        o["turnover_rate"] = share.turnover_rate;      // 换手率
+        o["industry_name"] = share.industry_name;      // 行业名称
+        o["province"] = share.province;                // 所属省份
         result.push_back(o);
     }
     std::string data = result.dump(4);
     return data;
 }
 
-bool StockDataStorage::LoadLocalJsonFile(std::string& path, std::vector<Share>& shares) {
+bool StockDataStorage::LoadLocalQuoteData(std::string& path, std::vector<Share>& shares) {
     try {
         std::string json_data = FileTool::LoadFile(path);
         json arr = json::parse(json_data);
         for (auto& item : arr) {
             Share share;
-            share.code = item["code"].template get<std::string>();
-            share.name = item["name"].template get<std::string>();
-            share.market = static_cast<Market>(item["market"].template get<int>());
+            share.code = item["code"].template get<std::string>();                    // 股票代码
+            share.name = item["name"].template get<std::string>();                    // 股票名称
+            share.market = static_cast<Market>(item["market"].template get<int>());   // 股票市场
+            share.price_now = item["price_now"].template get<double>();               // 当前价
+            share.price_min = item["price_min"].template get<double>();               // 最低价
+            share.price_max = item["price_max"].template get<double>();               // 最高价
+            share.price_open = item["price_open"].template get<double>();             // 开盘价
+            share.price_close = item["price_close"].template get<double>();           // 收盘价
+            share.price_amplitude = item["price_amplitude"].template get<double>();   // 股价振幅
+            share.change_amount = item["change_amout"].template get<double>();        // 涨跌额
+            share.change_rate = item["change_rate"].template get<double>();           // 涨跌幅度
+            share.volume = item["volume"].template get<uint64_t>();                   // 成交量
+            share.amount = item["amount"].template get<uint64_t>();                   // 成交额
+            share.turnover_rate = item["turnover_rate"].template get<double>();       // 换手率
+            share.industry_name = item["industry_name"].template get<std::string>();  // 行业名称
+            share.province = item["province"].template get<std::string>();            // 所属省份
+            share.qrr = item["qrr"].template get<double>();                           // 量比
             shares.push_back(share);
         }
     } catch (std::exception& e) {
@@ -143,16 +189,19 @@ void StockDataStorage::HashShares() {
 void StockDataStorage::SetFetchResultOk(FetchResult result) {
     if (result == FetchResult::QuoteData) {
         m_fetch_quote_data_ok = true;
-        // std::string json_shares = ToJson(m_market_shares);
-        // FileTool::SaveFile(m_path_share_brief, json_shares);
+        // std::string json_shares = DumpQuoteData(m_market_shares);
+        // FileTool::SaveFile(m_path_share_quote, json_shares);
         // if (m_market_shares.size() > 0) {
         //     HashShares();
         // }
+
+#ifdef IWEALTH
         // 发送消息给UI主线程显示行情数据]
         wxThreadEvent event(wxEVT_COMMAND_THREAD, ID_QUOTE_DATA_READY);
         event.SetString("Quote");
         static_cast<RichApplication*>(wxTheApp)->GetMainFrame()->GetEventHandler()->AddPendingEvent(event);
-        // 行情数据爬完以后再进行其他数据的爬取
+#endif
+        // 如果需要，行情数据爬完以后再进行其他数据的爬取
     } else if (result == FetchResult::Klines) {
         m_fetch_klines_ok = true;
     } else if (result == FetchResult::FinancialData) {
@@ -213,6 +262,6 @@ std::vector<Share> StockDataStorage::GetMarketAllShares() {
 }
 
 void StockDataStorage::PrintAllShares(std::vector<Share>& all_shares) {
-    std::string data = ToJson(all_shares);
+    std::string data = DumpQuoteData(all_shares);
     gLogger->log("%s", data.c_str());
 }

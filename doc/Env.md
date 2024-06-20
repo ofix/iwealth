@@ -122,7 +122,7 @@ class SpiderShareListHexun : public Spider {
 ### 函数没有返回值导致 Ilegal Instruction 错误
 
 ```cpp
-bool StockDataStorage::LoadLocalJsonFile(std::string& path, std::vector<Share>& shares) {
+bool StockDataStorage::LoadLocalQuoteData(std::string& path, std::vector<Share>& shares) {
     try {
         std::string json_data = FileTool::LoadFile(path);
         json arr = json::parse(json_data);

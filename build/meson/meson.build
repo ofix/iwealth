@@ -116,6 +116,7 @@ gui_sources = [
     'net/ConcurrentRequest.cpp',
     'search/Trie.cpp',
     'util/Timer.cpp',
+    'util/DateTime.cpp',
     'util/ConsoleTable.cpp',
     'util/EasyLogger.cpp',
     'util/FileTool.cpp',
@@ -128,8 +129,10 @@ foreach file : gui_sources
     full_gui_sources += files(full_path)
 endforeach
 
+ui_cpp_args = cpp_args
+ui_cpp_args += ['-DIWEALTH']
 executable('iwealth', full_gui_sources,
-            cpp_args:cpp_args,
+            cpp_args:ui_cpp_args,
             link_args : ldflags,
             include_directories : inc,
             dependencies : [third_party_dep])
@@ -150,6 +153,7 @@ console_sources = [
     'net/ConcurrentRequest.cpp',
     'search/Trie.cpp',
     'util/Timer.cpp',
+    'util/DateTime.cpp',
     'util/ConsoleTable.cpp',
     'util/EasyLogger.cpp',
     'util/FileTool.cpp',
@@ -161,11 +165,11 @@ foreach file : console_sources
     full_console_sources += files(full_path)
 endforeach
 
-# executable('iconsole',full_console_sources,
-#             cpp_args:cpp_args,
-#             link_args : ldflags,
-#             include_directories : inc,
-#             dependencies : [third_party_dep])
+executable('iconsole',full_console_sources,
+            cpp_args:cpp_args,
+            link_args : ldflags,
+            include_directories : inc,
+            dependencies : [third_party_dep])
 
 
 

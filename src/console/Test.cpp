@@ -7,6 +7,7 @@
 #include "spider/SpiderShareListHexun.h"
 #include "stock/Stock.h"
 #include "stock/StockDataStorage.h"
+#include "util/DateTime.h"
 #include "util/Global.h"
 #include "util/Timer.h"
 
@@ -116,11 +117,33 @@ void KlineTest() {
     }
 }
 
+void TestDateTime() {
+    bool result = between_time_period("09:00", "10:36");
+    std::cout << "between_time_period " << result << std::endl;
+    std::string year = now("%Y");
+    std::string month = now("%Y-%m");
+    std::string day = now("%Y-%m-%d");
+    std::string hour = now("%Y-%m-%d %H");
+    std::string minute = now("%Y-%m-%d %H:%M");
+    std::string second = now("%Y-%m-%d %H:%M:%S");
+    std::cout << "  year = " << year << std::endl;
+    std::cout << " month = " << month << std::endl;
+    std::cout << "   day = " << day << std::endl;
+    std::cout << "  hour = " << hour << std::endl;
+    std::cout << "minute = " << minute << std::endl;
+    std::cout << "second = " << second << std::endl;
+    std::string start_time = second;
+    std::string end_time = now("%Y-%m-%d ") + "10:35:00";
+    std::cout << start_time << "-" << end_time << " diff " << diff_seconds(start_time, end_time) << " seconds"
+              << std::endl;
+}
+
 int main(int argc, char* argv[]) {
     // TestSpiderConceptListEastMoney();
     // TestTimer();
     // KlineTest();
     // TestSpiderShareKline();
-    TestSpiderShareHexun();
+    // TestSpiderShareHexun();
+    TestDateTime();
     std::cin.get();
 }

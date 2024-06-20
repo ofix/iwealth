@@ -59,11 +59,12 @@ class StockDataStorage {
     void AsyncFetchShareBusinessAnalysis();  // 爬取股票经营分析内容
     void AsyncFetchShareOldNames();          // 爬取股票曾用名
 
+    void OnTimeout(uint32_t timer_id, void* args);
     void OnTimerFetchShareQuoteData(uint32_t timer_id, void* args);
 
-    std::string ToJson(std::vector<Share>& shares);
+    std::string DumpQuoteData(std::vector<Share>& shares);
     void LoadStockAllShares();
-    bool LoadLocalJsonFile(std::string& path, std::vector<Share>& shares);
+    bool LoadLocalQuoteData(std::string& path, std::vector<Share>& shares);
     void HashShares();  // code->share 映射
 
    protected:
@@ -71,7 +72,7 @@ class StockDataStorage {
                          const std::unordered_map<std::string, std::vector<uiKline>>& klines);
     // 数据存储
     std::string m_data_dir;                // 数据保存根目录
-    std::string m_path_share_brief;        // 股票简称保存
+    std::string m_path_share_quote;        // 股票简称保存
     uint16_t m_market_share_total;         // 市场所有股票之和
     std::string m_path_all_market_shares;  // 所有股票代号本地保存路径
     // 行情数据是否OK
