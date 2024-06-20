@@ -16,8 +16,6 @@
 #include <wx/listctrl.h>
 #include "ui/components/PanelStockQuote.h"
 
-enum { ID_Hello = 1 };
-
 class RichMainFrame : public wxFrame {
    public:
     RichMainFrame(wxWindow* parent,
@@ -32,7 +30,6 @@ class RichMainFrame : public wxFrame {
     //*)
 
    private:
-    void OnHello(wxCommandEvent& event);
     void OnExit(wxCommandEvent& event);
     void OnAbout(wxCommandEvent& event);
     // this is called when the event from the thread is received

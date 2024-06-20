@@ -11,11 +11,8 @@
 #include "ui/components/RichKlineInfoCtrl.h"
 #include "ui/components/RichKlineCtrl.h"
 
-RichKlineInfoCtrl::RichKlineInfoCtrl(RichKlineCtrl* pKlineCtrl,
-                                     long x,
-                                     long y,
-                                     long w,
-                                     long h) {
+RichKlineInfoCtrl::RichKlineInfoCtrl(RichKlineCtrl* pKlineCtrl, wxWindowID id, const wxPoint& pos, const wxSize& size)
+    : wxControl(nullptr, id, pos, size), m_pKlineCtrl(pKlineCtrl) {
     // ctor
 }
 
@@ -97,15 +94,16 @@ std::string RichKlineInfoCtrl::FormatDay(std::string date) {
     return year + "\r\n" + month + day;
 }
 
-std::string RichKlineInfoCtrl::GetWeek(std::string date) {
-    std::string strYear = date.substr(0, 4);
-    std::string strMonth = date.substr(5, 2);
-    std::string strDay = date.substr(8, 2);
-    long year, month, day;
+std::string RichKlineInfoCtrl::GetWeek(std::string /*date*/) {
+    // std::string strYear = date.substr(0, 4);
+    // std::string strMonth = date.substr(5, 2);
+    // std::string strDay = date.substr(8, 2);
+    // long year, month, day;
     // strYear.ToLong(&year);
     // strMonth.ToLong(&month);
     // strDay.ToLong(&day);
-    return CalcWeek(year, month, day);
+    return "";
+    // return CalcWeek(year, month, day);
 }
 
 //通过日期判断是星期几可以通过基姆拉尔森计算公式算出
@@ -114,9 +112,7 @@ std::string RichKlineInfoCtrl::CalcWeek(int year, int month, int day) {
         month += 12;
         year--;
     }
-    int week = (day + 2 * month + 3 * (month + 1) / 5 + year + year / 4 - year / 100 +
-                year / 400) %
-               7;
+    int week = (day + 2 * month + 3 * (month + 1) / 5 + year + year / 4 - year / 100 + year / 400) % 7;
     switch (week) {
         case 0:
             return "星期一";

@@ -47,25 +47,62 @@ void StockDataStorage::Init() {
 void StockDataStorage::LoadStockAllShares() {
     // 检查本地的股票代号文件是否存在,如果存在，检查文件时间是否超过24小时，如果是，同步信息
     if (FileTool::IsFileExists(m_path_share_quote)) {
-        LoadLocalQuoteData(m_path_share_quote, m_market_shares);
+        LoadLocalQuoteData(m_path_share_quote, m_market_shares);  // 步骤1. 恢复 m_market_shares 数据
+        HashShares();                                             // 步骤2 share_code -> Share* 映射
+        RestoreShareCategoryProvince();                           // 步骤3 恢复 m_category_provinces
+        RestoreShareCategoryIndustry();                           // 步骤4 恢复 m_category_industries
     } else {
         // 检查当前时间，如果时间是早晨9:00 ~ 9:30 之间，停止爬取，因为行情数据被重新初始化了
-        if (!between_time_period("09:00", "09:30")) {
+        if (between_time_period("09:00", "09:30")) {
             std::string current_time = now("%Y-%m-%d %H:%M:%S");
             std::string future_time = now("%Y-%m-%d ") + "09:30:00";
             int wait_seconds = diff_seconds(current_time, future_time);
             std::function<void(uint32_t, void*)> timer_cb = [=](uint32_t timer_id, void* args) {
                 OnTimeout(timer_id, args);
             };
-            char* opt = "FetchQuote";
-            uint32_t timer_id = Timer::SetTimeout(wait_seconds, timer_cb, static_cast<void*>(opt));
+            const char* opt = "FetchQuote";
+            Timer::SetTimeout(wait_seconds, timer_cb, static_cast<void*>(const_cast<char*>(opt)));
         } else {
             AsyncFetchShareQuoteData();  // 异步爬取行情数据
         }
     }
 }
 
-void StockDataStorage::OnTimeout(uint32_t timer_id, void* args) {
+// 从本地行情数据中恢复 省份->[股票1,股票2] province -> [Share*,Share*]的映射
+void StockDataStorage::RestoreShareCategoryProvince() {
+    m_category_provinces.Clear();
+    for (Share& share : m_market_shares) {
+        m_category_provinces.Insert(share.province, &share);
+    }
+}
+
+// 从本地行情数据中恢复 行业->[股票1,股票2] industry_name -> [Share*,Share*]的映射
+void StockDataStorage::RestoreShareCategoryIndustry() {
+    m_category_industries.Clear();
+    for (Share& share : m_market_shares) {
+        m_category_industries.Insert(share.industry_name, &share);
+    }
+}
+
+// 从本地行情数据中恢复 概念->[股票1,股票2] concept -> [Share*,Share*]的映射
+void StockDataStorage::RestoreShareCategoryConcepts() {
+}
+
+Share* StockDataStorage::FindShare(std::string& share_code) {
+    if (m_code_share_hash.find(share_code) != m_code_share_hash.end()) {
+        return m_code_share_hash[share_code];
+    }
+    return nullptr;
+}
+
+/// @brief 将股票代码映射到Share*指针，方便程序快速查找
+void StockDataStorage::HashShares() {
+    for (Share& share : m_market_shares) {
+        m_code_share_hash[share.code] = &share;
+    }
+}
+
+void StockDataStorage::OnTimeout(uint32_t /*timer_id*/, void* args) {
     char* opt = static_cast<char*>(args);
     if (strcmp(opt, "FetchQuote") == 0) {
         AsyncFetchShareQuoteData();  // 异步爬取行情数据
@@ -145,6 +182,7 @@ bool StockDataStorage::SaveShareKLines(const KlineType kline_type) {
         dir_path += "year";
         return SaveShareKlines(dir_path, m_year_klines_adjust);
     }
+    return false;
 }
 
 bool StockDataStorage::SaveShareKlines(const std::string& dir_path,
@@ -170,20 +208,6 @@ bool StockDataStorage::SaveShareKlines(const std::string& dir_path,
         FileTool::SaveFile(file_path, lines);
     }
     return true;
-}
-
-Share* StockDataStorage::FindShare(std::string& share_code) {
-    if (m_code_share_hash.find(share_code) != m_code_share_hash.end()) {
-        return m_code_share_hash[share_code];
-    }
-    return nullptr;
-}
-
-/// @brief 将股票代码映射到Share*指针，方便程序快速查找
-void StockDataStorage::HashShares() {
-    for (Share& share : m_market_shares) {
-        m_code_share_hash[share.code] = &share;
-    }
 }
 
 void StockDataStorage::SetFetchResultOk(FetchResult result) {
@@ -225,22 +249,25 @@ void StockDataStorage::AsyncFetchShareQuoteData() {
     std::vector<Spider*>* pSpiders = new std::vector<Spider*>();
     pSpiders->push_back(spiderShareList);
     pSpiders->push_back(spiderCategory);
-    uint32_t timer_id = Timer::SetInterval(1000, timer_cb, 0, static_cast<void*>(pSpiders));
+    Timer::SetInterval(1000, timer_cb, 0, static_cast<void*>(pSpiders));
 }
 
 // std::vector可以保证数据持续可访问，std::queue容器pop一次就无法工作了
 void StockDataStorage::OnTimerFetchShareQuoteData(uint32_t timer_id, void* args) {
     std::vector<Spider*>* pSpiders = static_cast<std::vector<Spider*>*>(args);
-    SpiderShareListHexun* spiderShareList = static_cast<SpiderShareListHexun*>((*pSpiders)[0]);
+    SpiderShareListHexun* spiderQuote = static_cast<SpiderShareListHexun*>((*pSpiders)[0]);
     SpiderShareCategory* spiderCategory = static_cast<SpiderShareCategory*>((*pSpiders)[1]);
-    if (spiderShareList->HasFinish() && spiderCategory->HasFinish()) {
-        // spiderShareList->SaveShareListToDataStorage();
+    if (spiderQuote->HasFinish() && spiderCategory->HasFinish()) {
+        spiderQuote->SaveShareListToDataStorage();
+        HashShares();
+        spiderCategory->BuildShareCategoryProvinces();
+        spiderCategory->BuildShareCategoryIndustries();
         SetFetchResultOk(FetchResult::QuoteData);
         delete pSpiders;  // 删除容器指针
         pSpiders = nullptr;
         Timer::CancelTimer(timer_id);  // 取消定时器
     } else {
-        std::cout << "spiderShareList::progress: " << spiderShareList->GetProgress()
+        std::cout << "spiderShareList::progress: " << spiderQuote->GetProgress()
                   << ",spiderShareCategory::progress: " << spiderCategory->GetProgress() << std::endl;
     }
 }

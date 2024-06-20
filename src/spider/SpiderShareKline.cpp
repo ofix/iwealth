@@ -108,7 +108,7 @@ void SpiderShareKline::ConurrentCrawl(std::vector<KlineCrawlTask>& tasks, KlineT
     }
 }
 
-void SpiderShareKline::OnRequestTimer(uint32_t timer_id, void* args) {
+void SpiderShareKline::OnRequestTimer(uint32_t timer_id, void* /*args*/) {
     this->UpdateRequestStatistics();
     std::cout << "kline sync progress: " << GetProgress() << std::endl;
     // 取消周期性定时任务
@@ -182,6 +182,7 @@ std::string SpiderShareKline::GetKlineUrl(const DataProvider provider,    // 供
         std::string url = KLINE_URL_EAST_MONEY(share_code, market_code, east_money_kline_type);
         return url;
     }
+    return "";
 }
 
 /////////////////// 东方财富 ///////////////////
@@ -380,8 +381,8 @@ void SpiderShareKline::MergeShareKlines(
         target_klines.insert({share_code, history_kline});
     }
 }
-void SpiderShareKline::MergeShareKlines(std::unordered_map<std::string, std::vector<uiKline>>& klines,
-                                        std::unordered_map<std::string, std::vector<uiKline>>& target_klines) {
+void SpiderShareKline::MergeShareKlines(std::unordered_map<std::string, std::vector<uiKline>>& /*klines*/,
+                                        std::unordered_map<std::string, std::vector<uiKline>>& /*target_klines*/) {
 }
 
 // 获取所有历史向量K线的数量，避免std::vector容器反复分配内存带来的性能损失

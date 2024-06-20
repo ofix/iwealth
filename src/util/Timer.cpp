@@ -71,13 +71,11 @@ void Timer::Tick() {
             next_wheel_slot = (this->m_tick >> ((i + 1) * TIMER_WHEEL_SLOT_BITS)) & TIMER_MASK;
             MoveTimerTaskToTickWheel(i + 1, next_wheel_slot);
         }
-        uint32_t timer_id = 0;
         TimerTask* pTimerTask = this->head[0][current_wheel_slot];
         TimerTask* next = nullptr;
         std::lock_guard<std::recursive_mutex> lock(link_list_mutex[0][current_wheel_slot]);
         for (; pTimerTask != nullptr; pTimerTask = next) {
             next = pTimerTask->next;
-            timer_id = pTimerTask->timer_id;
             if (!pTimerTask->canceled) {
                 if (pTimerTask->callback.style == CallbackStyle::c) {
                     pTimerTask->callback.func.c(pTimerTask->timer_id, pTimerTask->args);

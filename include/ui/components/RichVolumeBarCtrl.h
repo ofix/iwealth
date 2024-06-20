@@ -1,19 +1,19 @@
 #ifndef RICHVOLUMEBAR_H
 #define RICHVOLUMEBAR_H
 
+#include <wx/control.h>
 #include <wx/dcclient.h>
 #include <vector>
 #include "stock/Stock.h"
 
 class RichKlineCtrl;
-class RichVolumeBarCtrl {
+class RichVolumeBarCtrl : public wxControl {
    public:
 #define GUARD(x, y) ((x) < (y) ? (y) : (x))
     RichVolumeBarCtrl(RichKlineCtrl* pKlineCtrl,
-                      long x = 0,
-                      long y = 0,
-                      long w = 0,
-                      long h = 0);
+                      wxWindowID id,
+                      const wxPoint& pos = wxDefaultPosition,
+                      const wxSize& size = wxDefaultSize);
     virtual ~RichVolumeBarCtrl();
     void OnDraw(wxDC* pDC);
 

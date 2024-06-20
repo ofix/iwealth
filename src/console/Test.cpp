@@ -57,9 +57,6 @@ void TestSpiderConceptListEastMoney() {
     spiderEastMoney->Crawl();
 }
 
-void UpdateProgress(uint32_t timer_id, void* args) {
-}
-
 void TestSpiderShareKline() {
     StockDataStorage* m_pStockStorage = new StockDataStorage();
     m_pStockStorage->Init();
@@ -83,18 +80,18 @@ void TestSpiderShareHexun() {
 
 void TestTimer() {
     // 添加一次性定时器
-    Timer::SetTimeout(2000, [](uint32_t timer_id, void* args) {
+    Timer::SetTimeout(2000, [](uint32_t timer_id, void* /*args*/) {
         std::cout << "Timer[" << timer_id << "], timeout: 2s, task count: " << Timer::GetTaskCount() << std::endl;
-        Timer::SetTimeout(1000, [](uint32_t timer_id, void* args) {
+        Timer::SetTimeout(1000, [](uint32_t timer_id, void* /*args*/) {
             std::cout << "Timer[" << timer_id << "], timeout: 3s, task count: " << Timer::GetTaskCount() << std::endl;
         });
-        Timer::SetTimeout(2000, [](uint32_t timer_id, void* args) {
+        Timer::SetTimeout(2000, [](uint32_t timer_id, void* /*args*/) {
             std::cout << "Timer[" << timer_id << "], timeout: 4s, task count: " << Timer::GetTaskCount() << std::endl;
         });
     });
 
     // 添加周期性定时器
-    Timer::SetInterval(1000, [](uint32_t timer_id, void* args) {
+    Timer::SetInterval(1000, [](uint32_t timer_id, void* /*args*/) {
         std::cout << "Timer[" << timer_id << "], interval: 1s, task count: " << Timer::GetTaskCount() << std::endl;
         static int loop = 0;
         loop += 1;
@@ -138,7 +135,7 @@ void TestDateTime() {
               << std::endl;
 }
 
-int main(int argc, char* argv[]) {
+int main(int /*argc*/, char** /*argv*/) {
     // TestSpiderConceptListEastMoney();
     // TestTimer();
     // KlineTest();

@@ -11,11 +11,9 @@
 #include "ui/components/RichVolumeBarCtrl.h"
 #include "ui/components/RichKlineCtrl.h"
 
-RichVolumeBarCtrl::RichVolumeBarCtrl(RichKlineCtrl* pKlineCtrl,
-                                     long x,
-                                     long y,
-                                     long w,
-                                     long h) {}
+RichVolumeBarCtrl::RichVolumeBarCtrl(RichKlineCtrl* pKlineCtrl, wxWindowID id, const wxPoint& pos, const wxSize& size)
+    : wxControl(nullptr, id, pos, size), m_pKlineCtrl(pKlineCtrl) {
+}
 
 RichVolumeBarCtrl::~RichVolumeBarCtrl() {
     // dtor
@@ -30,16 +28,13 @@ void RichVolumeBarCtrl::OnDraw(wxDC* pDC) {
     // get canvas height
     double max_volume = GetMaxVolumeInRange();
     // calc single volume bar width
-    long w =
-        (long)(m_pKlineCtrl->GetInnerWidth() / (klineRng.end - klineRng.begin) - span);
+    long w = (long)(m_pKlineCtrl->GetInnerWidth() / (klineRng.end - klineRng.begin) - span);
     w = GUARD(w, 1);
     std::vector<uiKline>::const_iterator it;
     int i = 0;
-    for (it = klines.begin() + klineRng.begin; it != klines.begin() + klineRng.end;
-         ++it, ++i) {
+    for (it = klines.begin() + klineRng.begin; it != klines.begin() + klineRng.end; ++it, ++i) {
         // make sure i must be double or result would be error!
-        double x =
-            (double)i / (klineRng.end - klineRng.begin) * m_pKlineCtrl->GetInnerWidth();
+        double x = (double)i / (klineRng.end - klineRng.begin) * m_pKlineCtrl->GetInnerWidth();
         double y = yVolumeBar + (1.0 - it->trade_volume / max_volume) * hVolumeBar;
         double h = it->trade_volume / max_volume * hVolumeBar;
         pDC->SetPen(*wxTRANSPARENT_PEN);
@@ -57,8 +52,7 @@ double RichVolumeBarCtrl::GetMaxVolumeInRange() {
     std::vector<uiKline>::const_iterator it;
     std::vector<uiKline>& klines = m_pKlineCtrl->m_klines;
     uiKlineRange& klineRng = m_pKlineCtrl->m_klineRng;
-    for (it = klines.begin() + klineRng.begin; it != klines.begin() + klineRng.end;
-         ++it) {
+    for (it = klines.begin() + klineRng.begin; it != klines.begin() + klineRng.end; ++it) {
         if (it->trade_volume >= max) {
             max = it->trade_volume;
         }

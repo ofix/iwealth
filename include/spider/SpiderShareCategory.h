@@ -16,6 +16,9 @@ class SpiderShareCategory : public Spider {
     SpiderShareCategory(StockDataStorage* storage, bool concurrent);
     virtual ~SpiderShareCategory();
     void Crawl(int types = ShareCategoryType::Industry | ShareCategoryType::Province | ShareCategoryType::Concept);
+    void BuildShareCategoryProvinces();
+    void BuildShareCategoryIndustries();
+    void BuildShareCategoryConcepts();
 
    protected:
     virtual void DoCrawl(int types);
@@ -24,6 +27,12 @@ class SpiderShareCategory : public Spider {
     std::string GetCategoryKey(std::string name);
     void ConcurrentResponseCallback(conn_t* conn);
     std::string GetCategoryTypeName(ShareCategoryType type);
+    void InsertCategory(std::unordered_map<std::string, std::vector<std::string>>& hash_map,
+                        std::string& category_name,
+                        std::string& share_code);
 
    private:
+    std::unordered_map<std::string, std::vector<std::string>> m_industries;
+    std::unordered_map<std::string, std::vector<std::string>> m_provinces;
+    std::unordered_map<std::string, std::vector<std::string>> m_concepts;
 };

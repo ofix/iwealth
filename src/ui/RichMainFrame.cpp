@@ -14,7 +14,7 @@ BEGIN_EVENT_TABLE(RichMainFrame, wxFrame)
 EVT_THREAD(ID_QUOTE_DATA_READY, RichMainFrame::OnStorageDataReady)
 END_EVENT_TABLE()
 
-RichMainFrame::RichMainFrame(wxWindow* parent, wxWindowID id, const wxPoint& pos, const wxSize& size) {
+RichMainFrame::RichMainFrame(wxWindow* parent, wxWindowID id, const wxPoint& /*point*/, const wxSize& /*size*/) {
     //(*Initialize(RichMainFrame)
     Create(parent, id, _("东方巴菲特"), wxDefaultPosition, wxDefaultSize, wxDEFAULT_FRAME_STYLE, _T("id"));
     SetClientSize(wxSize(364, 600));
@@ -29,8 +29,6 @@ RichMainFrame::RichMainFrame(wxWindow* parent, wxWindowID id, const wxPoint& pos
     //*)
 
     wxMenu* menuFile = new wxMenu;
-    menuFile->Append(ID_Hello, "&Hello...\tCtrl-H", "Help string shown in status bar for this menu item");
-    menuFile->AppendSeparator();
     menuFile->Append(wxID_EXIT);
 
     wxMenu* menuHelp = new wxMenu;
@@ -45,7 +43,6 @@ RichMainFrame::RichMainFrame(wxWindow* parent, wxWindowID id, const wxPoint& pos
     CreateStatusBar();
     SetStatusText(_T("财富之眼"));
 
-    Bind(wxEVT_MENU, &RichMainFrame::OnHello, this, ID_Hello);
     Bind(wxEVT_MENU, &RichMainFrame::OnAbout, this, wxID_ABOUT);
     Bind(wxEVT_MENU, &RichMainFrame::OnExit, this, wxID_EXIT);
     // 初始化主窗口面板
@@ -63,16 +60,12 @@ void RichMainFrame::OnStorageDataReady(wxThreadEvent& event) {
         m_panelStockQuota->LoadStockMarketQuote();
     }
 }
-void RichMainFrame::OnExit(wxCommandEvent& event) {
+void RichMainFrame::OnExit(wxCommandEvent& /*event*/) {
     Close(true);
 }
 
-void RichMainFrame::OnAbout(wxCommandEvent& event) {
-    wxMessageBox("This is a wxWidgets Hello World example", "About Hello World", wxOK | wxICON_INFORMATION);
-}
-
-void RichMainFrame::OnHello(wxCommandEvent& event) {
-    wxLogMessage("Hello world from wxWidgets!");
+void RichMainFrame::OnAbout(wxCommandEvent& /*event*/) {
+    wxMessageBox("财富之眼\n作者:宋华彪", "About iWealth", wxOK | wxICON_INFORMATION);
 }
 
 RichMainFrame::~RichMainFrame() {

@@ -56,7 +56,7 @@ void Spider::Crawl() {
 void Spider::DoCrawl() {
 }
 
-void Spider::ConcurrentResponseCallback(conn_t* conn) {
+void Spider::ConcurrentResponseCallback(conn_t* /*conn*/) {
 }
 
 void Spider::Pause() {

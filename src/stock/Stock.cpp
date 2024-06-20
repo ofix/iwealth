@@ -36,7 +36,8 @@ Share::Share()
       total_capital(0),
       trade_capital(0),
       industry(nullptr),
-      market(Market::ShangHai) {}
+      market(Market::ShangHai) {
+}
 
 Share::Share(const Share& other)
     : id(other.id),
@@ -72,5 +73,5 @@ Share::Share(const Share& other)
 }
 
 bool Share::operator<(const Share& other) const {
-        return code<other.code;
+    return code < other.code;
 }

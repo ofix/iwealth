@@ -98,7 +98,7 @@ std::string FileTool::LoadFile(const std::string& file_path) {
     return "";
 }
 
-std::vector<std::string> FileTool::LoadDir(const std::string& path, const std::string& file_suffix) {
+std::vector<std::string> FileTool::LoadDir(const std::string& /*path*/, const std::string& /*file_suffix*/) {
     std::vector<std::string> result;
     return result;
 }

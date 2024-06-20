@@ -51,14 +51,17 @@ void SpiderShareCategory::ParseCategories(std::string& data, int types) {
             json concepts = (*it)["next"][0]["next"];
             json regions = (*it)["next"][1]["next"];
             json industries = (*it)["next"][2]["next"];
-            if (types & ShareCategoryType::Concept) {
-                FetchCategoryShares(concepts, ShareCategoryType::Concept);
+            if (types & ShareCategoryType::Province) {
+                m_provinces.clear();
+                FetchCategoryShares(regions, ShareCategoryType::Province);
             }
             if (types & ShareCategoryType::Industry) {
+                m_industries.clear();
                 FetchCategoryShares(industries, ShareCategoryType::Industry);
             }
-            if (types & ShareCategoryType::Province) {
-                FetchCategoryShares(regions, ShareCategoryType::Province);
+            if (types & ShareCategoryType::Concept) {
+                m_concepts.clear();
+                FetchCategoryShares(concepts, ShareCategoryType::Concept);
             }
             break;
         }
@@ -124,6 +127,7 @@ std::string SpiderShareCategory::GetCategoryTypeName(ShareCategoryType type) {
     } else if (type == ShareCategoryType::Province) {
         return "Province";
     }
+    return "Unknown";
 }
 
 // 此成员函数通常在分离的线程中运行
@@ -132,31 +136,58 @@ void SpiderShareCategory::ConcurrentResponseCallback(conn_t* conn) {
     json response = json::parse(conn->response);
     json shares = response["data"]["diff"];
     std::string category_name = pExtra->category_name;
-    ShareCategory* share_category = nullptr;
+    std::unordered_map<std::string, std::vector<std::string>> hash_map;
     if (pExtra->category_type == ShareCategoryType::Concept) {
-        share_category = &m_pStockStorage->m_category_concepts;
+        hash_map = m_concepts;
     } else if (pExtra->category_type == ShareCategoryType::Industry) {
-        share_category = &m_pStockStorage->m_category_industries;
+        hash_map = m_industries;
     } else if (pExtra->category_type == ShareCategoryType::Province) {
-        share_category = &m_pStockStorage->m_category_regions;
+        hash_map = m_provinces;
     }
     for (json::iterator it = shares.begin(); it != shares.end(); ++it) {
         std::string share_code = (*it)["f12"];
-        std::string share_name = (*it)["f14"];
-        Share* pShare = m_pStockStorage->FindShare(share_code);
-        share_category->Insert(category_name, pShare);
-        if (pShare) {
-            if (pExtra->category_type == ShareCategoryType::Province) {
-                pShare->province == category_name;
-            } else if (pExtra->category_type == ShareCategoryType::Industry) {
-                pShare->industry_name = category_name;
-            }
-        }
+        // std::string share_name = (*it)["f14"];
+        InsertCategory(hash_map, category_name, share_code);
     }
     conn->reuse = false;  // 不需要复用
+}
+
+void SpiderShareCategory::BuildShareCategoryProvinces() {
+    for (auto& province : m_provinces) {
+        for (auto& share_code : province.second) {
+            Share* pShare = m_pStockStorage->FindShare(share_code);
+            m_pStockStorage->m_category_provinces.Insert(province.first, pShare);
+            pShare->province = province.first;
+        }
+    }
+}
+
+void SpiderShareCategory::BuildShareCategoryIndustries() {
+    for (auto& industry : m_industries) {
+        for (auto& share_code : industry.second) {
+            Share* pShare = m_pStockStorage->FindShare(share_code);
+            m_pStockStorage->m_category_industries.Insert(industry.first, pShare);
+            pShare->industry_name = industry.first;
+        }
+    }
+}
+
+void SpiderShareCategory::BuildShareCategoryConcepts() {
 }
 
 std::string SpiderShareCategory::GetCategoryKey(std::string name) {
     std::size_t found = name.find_last_of(".");
     return name.substr(found + 1);
+}
+
+void SpiderShareCategory::InsertCategory(std::unordered_map<std::string, std::vector<std::string>>& hash_map,
+                                         std::string& category_name,
+                                         std::string& share_code) {
+    if (hash_map.find(category_name) != hash_map.end()) {
+        hash_map[category_name].push_back(share_code);
+    } else {
+        std::vector<std::string> shares;
+        shares.push_back(share_code);
+        hash_map[category_name] = shares;
+    }
 }

@@ -160,7 +160,7 @@ void fixSmithPluginGeneratedFiles() {
     deleteOldSmithFiles(generated_source_files);
 }
 
-int main(int argc, char* argv[]) {
+int main(int /*argc*/, char** /*argv*/) {
     fixSmithPluginGeneratedFiles();
     return 0;
 }

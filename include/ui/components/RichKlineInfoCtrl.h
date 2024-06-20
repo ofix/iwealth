@@ -1,19 +1,19 @@
 #ifndef RICHKLINEINFOCTRL_H
 #define RICHKLINEINFOCTRL_H
 
+#include <wx/control.h>
 #include <wx/datetime.h>
 #include <wx/dcclient.h>
 #include <string>
 #include "stock/Stock.h"
 
 class RichKlineCtrl;
-class RichKlineInfoCtrl {
+class RichKlineInfoCtrl : public wxControl {
    public:
     RichKlineInfoCtrl(RichKlineCtrl* pKlineCtrl,
-                      long x = 0,
-                      long y = 0,
-                      long w = 0,
-                      long h = 0);
+                      wxWindowID id,
+                      const wxPoint& pos = wxDefaultPosition,
+                      const wxSize& size = wxDefaultSize);
     virtual ~RichKlineInfoCtrl();
     void OnDraw(wxDC* pDC);
     uiKline GetCurrentKlineInfo();

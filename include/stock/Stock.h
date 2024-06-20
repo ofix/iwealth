@@ -83,6 +83,7 @@ struct Share {
     std::vector<ShareConcept*> concepts;  // 所属概念板块
     // 必须定义拷贝构造函数，否则使用std::vector.push_back 栈对象，程序会崩溃
     Share();
+    Share& operator=(const Share&) = default;
     Share(const Share& other);
     bool operator<(const Share& other) const;
 };

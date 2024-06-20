@@ -9,7 +9,7 @@
 
 #include "stock/ShareCategory.h"
 
-bool ShareCategory::Insert(std::string& category, Share* share) {
+bool ShareCategory::Insert(const std::string& category, Share* share) {
     if (share == nullptr) {
         return false;
     }

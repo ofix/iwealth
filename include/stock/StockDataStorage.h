@@ -65,7 +65,10 @@ class StockDataStorage {
     std::string DumpQuoteData(std::vector<Share>& shares);
     void LoadStockAllShares();
     bool LoadLocalQuoteData(std::string& path, std::vector<Share>& shares);
-    void HashShares();  // code->share 映射
+    void HashShares();  // code->Share* 映射
+    void RestoreShareCategoryProvince();
+    void RestoreShareCategoryIndustry();
+    void RestoreShareCategoryConcepts();
 
    protected:
     bool SaveShareKlines(const std::string& dir_path,
@@ -94,7 +97,7 @@ class StockDataStorage {
     // 行业->[股票1,股票2] hash映射表
     ShareCategory m_category_industries;
     // 省份->[股票1,股票2] hash映射表
-    ShareCategory m_category_regions;
+    ShareCategory m_category_provinces;
     // 市场个股前复权历史K线
     std::unordered_map<std::string, std::vector<uiKline>> m_day_klines_adjust;
     std::unordered_map<std::string, std::vector<uiKline>> m_week_klines_adjust;

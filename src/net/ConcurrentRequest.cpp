@@ -40,7 +40,7 @@ size_t ConcurrentRequest::_CurlOnResponseBodyRecv(void* ptr, size_t size, size_t
 }
 
 // libCurl设置HTTPS请求响应头回调函数
-size_t ConcurrentRequest::_CurlOnResponseHeaderRecv(void* ptr, size_t size, size_t nmemb, void* data) {
+size_t ConcurrentRequest::_CurlOnResponseHeaderRecv(void* /*ptr*/, size_t size, size_t nmemb, void* /*data*/) {
     size_t recv_size = size * nmemb;
     return recv_size;
 }
