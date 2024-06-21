@@ -46,3 +46,46 @@ long long diff_seconds(const std::string& start_time, const std::string& end_tim
 
     return std::chrono::duration_cast<std::chrono::seconds>(tp2 - tp1).count();
 }
+
+// 获取最近交易日交易日期
+std::string get_nearest_trade_day() {
+    time_t now = std::time(nullptr);
+    struct tm* local_time = localtime(&now);
+
+    while (local_time->tm_wday == 0 || local_time->tm_wday == 6) {  // 排除周日和周六
+        now -= 24 * 60 * 60;
+        local_time = localtime(&now);
+    }
+
+    char buf[20];
+    strftime(buf, sizeof(buf), "%Y-%m-%d", local_time);
+    return std::string(buf);
+}
+/// @brief 比较时间大小，格式 YYYY-mm-dd HH:mm:ss 标准格式
+/// @return 0: time1 == time2
+///        -1: time1  < time2
+///         1: time1  > time2
+int compare_time(const std::string& time1, const std::string& time2) {
+    std::tm tm1, tm2;
+
+    if (!strptime(time1.c_str(), "%Y-%m-%d %H:%M:%S", &tm1) || !strptime(time2.c_str(), "%Y-%m-%d %H:%M:%S", &tm2)) {
+        return -1;
+    }
+
+    // 比较年、月、日、时、分、秒
+    if (tm1.tm_year != tm2.tm_year) {
+        return tm1.tm_year - tm2.tm_year;
+    } else if (tm1.tm_mon != tm2.tm_mon) {
+        return tm1.tm_mon - tm2.tm_mon;
+    } else if (tm1.tm_mday != tm2.tm_mday) {
+        return tm1.tm_mday - tm2.tm_mday;
+    } else if (tm1.tm_hour != tm2.tm_hour) {
+        return tm1.tm_hour - tm2.tm_hour;
+    } else if (tm1.tm_min != tm2.tm_min) {
+        return tm1.tm_min - tm2.tm_min;
+    } else if (tm1.tm_sec != tm2.tm_sec) {
+        return tm1.tm_sec - tm2.tm_sec;
+    } else {
+        return 0;
+    }
+}

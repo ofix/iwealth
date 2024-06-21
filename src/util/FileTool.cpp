@@ -63,6 +63,43 @@ std::string FileTool::CurrentPath() {
     return path;
 }
 
+// 获取文件修改时间，支持跨平台
+std::string FileTool::GetFileModifiedTime(const std::string& path) {
+#ifdef _WIN32
+    HANDLE hFile =
+        CreateFileA(path.c_str(), GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+    if (hFile == INVALID_HANDLE_VALUE) {
+        return "";
+    }
+
+    FILETIME modified_time;
+    if (!GetFileTime(hFile, NULL, NULL, &modified_time)) {
+        CloseHandle(hFile);
+        return "";
+    }
+
+    SYSTEMTIME system_time;
+    FileTimeToSystemTime(&modified_time, &system_time);
+
+    char buffer[80];
+    sprintf(buffer, "%04d-%02d-%02d %02d:%02d:%02d", system_time.wYear, system_time.wMonth, system_time.wDay,
+            system_time.wHour, system_time.wMinute, system_time.wSecond);
+
+    CloseHandle(hFile);
+
+    return std::string(buffer);
+#else
+    struct stat buf;
+    if (stat(path.c_str(), &buf) == 0) {
+        struct tm* modified_time = localtime(&buf.st_mtime);
+        char buffer[80];
+        strftime(buffer, sizeof(buffer), "%Y-%m-%d %H:%M:%S", modified_time);
+        return std::string(buffer);
+    }
+    return "";
+#endif
+}
+
 std::string FileTool::ParentDir(char* path) {
     int len = strlen(path) - 1;
     for (int i = len; i > 0; i--) {

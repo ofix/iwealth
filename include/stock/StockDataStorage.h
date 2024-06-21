@@ -51,13 +51,14 @@ class StockDataStorage {
     };
 
     void SetFetchResultOk(FetchResult result);
+    bool IsLocalQuoteDataExpired();
 
    protected:
     void AsyncFetchShareQuoteData();         // 爬取行情数据
     void AsyncFetchShareKlines();            // 爬取股票历史K线数据
     void AsyncFetchShareFinancialData();     // 爬取股票年报数据
     void AsyncFetchShareBusinessAnalysis();  // 爬取股票经营分析内容
-    void AsyncFetchShareOldNames();          // 爬取股票曾用名
+    void AsyncFetchShareBasicInfo();         // 爬取股票[曾用名/员工数等基本信息]
 
     void OnTimeout(uint32_t timer_id, void* args);
     void OnTimerFetchShareQuoteData(uint32_t timer_id, void* args);

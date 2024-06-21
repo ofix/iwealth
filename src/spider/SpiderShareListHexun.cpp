@@ -76,9 +76,10 @@ void SpiderShareListHexun::SaveShareListToDataStorage() {
     m_pStockStorage->m_market_shares.insert(m_pStockStorage->m_market_shares.end(), m_unique_shares.begin(),
                                             m_unique_shares.end());
     // 对股票涨幅进行排序
-    std::sort(m_pStockStorage->m_market_shares.begin(), m_pStockStorage->m_market_shares.end(), [](Share& a, Share& b) {
-        return a.change_rate > b.change_rate;
-    });
+    std::stable_sort(m_pStockStorage->m_market_shares.begin(), m_pStockStorage->m_market_shares.end(),
+                     [](Share a, Share b) {
+                         return a.change_rate > b.change_rate;
+                     });
     // 释放内存
     m_unique_shares.clear();
 }

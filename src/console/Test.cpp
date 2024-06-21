@@ -8,6 +8,7 @@
 #include "stock/Stock.h"
 #include "stock/StockDataStorage.h"
 #include "util/DateTime.h"
+#include "util/FileTool.h"
 #include "util/Global.h"
 #include "util/Timer.h"
 
@@ -135,12 +136,19 @@ void TestDateTime() {
               << std::endl;
 }
 
+void TestFile() {
+    std::string file_path = FileTool::CurrentPath() + "data" + DIRECTORY_SEPARATOR + "stock_quote.json";
+    std::string modified_time = FileTool::GetFileModifiedTime(file_path);
+    std::cout << "file modifed time = " + modified_time << std::endl;
+}
+
 int main(int /*argc*/, char** /*argv*/) {
     // TestSpiderConceptListEastMoney();
     // TestTimer();
     // KlineTest();
     // TestSpiderShareKline();
     // TestSpiderShareHexun();
-    TestDateTime();
+    // TestDateTime();
+    TestFile();
     std::cin.get();
 }

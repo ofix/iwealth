@@ -12,6 +12,7 @@ class FileTool {
     static std::string CurrentPath();
     static std::string ParentDir(char* path);
     static std::string ParentDir(const std::string& path);
+    static std::string GetFileModifiedTime(const std::string& path);
     static bool MakeDirs(const std::string& path);
     static std::vector<std::string> LoadDir(const std::string& path, const std::string& file_suffix);
     static char GetPathSeparator();

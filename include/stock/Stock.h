@@ -47,6 +47,47 @@ struct ShareConcept {
     std::vector<Share*> shares;
 };
 
+struct ShareBonus {
+    uint64_t value;    // 分红金额
+    std::string plan;  // 分红方案
+    std::string date;  // 分红日期
+};
+
+struct ShareCapital {
+    uint64_t total;    // 总市值
+    uint64_t trade;    // 流通股本
+    std::string date;  // 股本变化时间
+};
+
+struct ShareHolder {
+    uint32_t count;    // 股东人数
+    std::string date;  // 股东人数公告日期
+};
+
+struct Top10ShareHolder {
+    std::string name;         // 股东名称
+    uint64_t share_quantity;  // 持股数量
+};
+
+struct ShareInvestmentFund {
+    std::string name;         // 投资机构名称
+    uint64_t share_quantity;  // 持股数量
+};
+
+struct ShareBasicInfo {
+    std::string company_name;                                 // 公司名称
+    std::string ipo_date;                                     // 首发上市日期
+    std::string core_bussiness;                               // 主营业务
+    std::vector<ShareBonus> history_bonus;                    // 历史分红方案
+    uint64_t total_bonus;                                     // 上市总分红金额
+    uint64_t total_fund;                                      // 上市总融资金额
+    std::vector<ShareCapital> capital_change_history;         // 股本变化历史
+    std::vector<ShareHolder> holder_change_history;           // 股东人数变化历史
+    Top10ShareHolder top10_share_holders[10];                 // 10大股东
+    Top10ShareHolder top10_trade_share_holders[10];           // 10大流通股东
+    std::vector<ShareInvestmentFund> share_investment_funds;  // 投资机构
+};
+
 struct Share {
     int id;                               // 序号
     std::string code;                     // 股票代号
@@ -82,9 +123,10 @@ struct Share {
     uint32_t employee_num;                // 员工数
     uint64_t register_capital;            // 注册资本
     std::vector<ShareConcept*> concepts;  // 所属概念板块
+    ShareBasicInfo* ptr_basic_info;       // 股票基本信息
     // 必须定义拷贝构造函数，否则使用std::vector.push_back 栈对象，程序会崩溃
     Share();
-    Share& operator=(const Share&) = default;
+    Share& operator=(const Share& other);
     Share(const Share& other);
     bool operator<(const Share& other) const;
 };

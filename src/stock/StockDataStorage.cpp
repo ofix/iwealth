@@ -45,8 +45,8 @@ void StockDataStorage::Init() {
 }
 
 void StockDataStorage::LoadStockAllShares() {
-    // 检查本地的股票代号文件是否存在,如果存在，检查文件时间是否超过24小时，如果是，同步信息
-    if (FileTool::IsFileExists(m_path_share_quote)) {
+    // 检查本地的股票代号文件是否存在
+    if (FileTool::IsFileExists(m_path_share_quote) && !IsLocalQuoteDataExpired()) {
         LoadLocalQuoteData(m_path_share_quote, m_market_shares);  // 步骤1. 恢复 m_market_shares 数据
         HashShares();                                             // 步骤2 share_code -> Share* 映射
         RestoreShareCategoryProvince();                           // 步骤3 恢复 m_category_provinces
@@ -67,6 +67,20 @@ void StockDataStorage::LoadStockAllShares() {
             AsyncFetchShareQuoteData();  // 异步爬取行情数据
         }
     }
+}
+
+/// @brief 检查本地行情数据是否过期
+bool StockDataStorage::IsLocalQuoteDataExpired() {
+    // 获取最近交易日
+    std::string nearest_trade_day = get_nearest_trade_day();
+    std::string nearest_trade_close_time = nearest_trade_day + " 15:00:00";
+    // 获取本地行情数据文件修改时间
+    std::string local_quote_file_modified_time = FileTool::GetFileModifiedTime(m_path_share_quote);
+    // 检查文件修改时间是否 > 最近交易日收盘时间
+    if (compare_time(local_quote_file_modified_time, nearest_trade_close_time) > 0) {
+        return false;
+    }
+    return true;
 }
 
 // 从本地行情数据中恢复 省份->[股票1,股票2] province -> [Share*,Share*]的映射
@@ -268,13 +282,16 @@ void StockDataStorage::OnTimerFetchShareQuoteData(uint32_t timer_id, void* args)
         delete pSpiders;                                           // 删除容器指针
         pSpiders = nullptr;
         Timer::CancelTimer(timer_id);  // 取消定时器
+        // 所有股票下载完后，开始爬取股票基本信息，包括(员工数/曾用名/主营业务/分红融资额/分红送转/总股本//增减持/官方网站/等等)
     } else {
         std::cout << "spiderShareList::progress: " << spiderQuote->GetProgress()
                   << ",spiderShareCategory::progress: " << spiderCategory->GetProgress() << std::endl;
     }
 }
 
-void StockDataStorage::AsyncFetchShareOldNames() {
+void StockDataStorage::AsyncFetchShareBasicInfo() {
+    SpiderBasicInfoEastMoney* pSpiderBasicInfo = new SpiderBasicInfoEastMoney(this, true);
+    pSpiderBasicInfo->Crawl();
 }
 
 void StockDataStorage::AsyncFetchShareKlines() {
