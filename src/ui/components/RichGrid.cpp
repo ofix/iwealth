@@ -14,6 +14,7 @@
 #include "wx/valtext.h"
 #endif
 
+#include <wx/settings.h>
 #include "wx/dcbuffer.h"
 #include "wx/hashset.h"
 #include "wx/headerctrl.h"

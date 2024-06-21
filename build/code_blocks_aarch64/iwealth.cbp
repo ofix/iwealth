@@ -13,6 +13,7 @@
 				<Option compiler="gcc" />
 				<Compiler>
 					<Add option="-g" />
+					<Add option="-DIWEALTH" />
 				</Compiler>
 				<Linker>
 					<LinkerExe value="CppCompiler" />
@@ -36,6 +37,7 @@
 			<Add option="-Wall" />
 			<Add option="-std=gnu++17" />
 			<Add option="-Og" />
+			<Add option="-DIWEALTH" />
 			<Add option="-DWX_PRECOMP" />
 			<Add option="-DWXUSINGDLL" />
 			<Add option="-D__WXGTK3__" />
@@ -81,6 +83,7 @@
 		<Unit filename="../../include/spider/Spider.h" />
 		<Unit filename="../../include/spider/SpiderBasicInfoEastMoney.h" />
 		<Unit filename="../../include/spider/SpiderConceptListEastMoney.h" />
+		<Unit filename="../../include/spider/SpiderShareCategory.h" />
 		<Unit filename="../../include/spider/SpiderShareKline.h" />
 		<Unit filename="../../include/spider/SpiderShareKlineUrl.h" />
 		<Unit filename="../../include/spider/SpiderShareListHexun.h" />
@@ -91,11 +94,13 @@
 		<Unit filename="../../include/ui/RichHelper.h" />
 		<Unit filename="../../include/ui/RichMainFrame.h" />
 		<Unit filename="../../include/ui/components/PanelStockQuote.h" />
+		<Unit filename="../../include/ui/components/RichGrid.h" />
 		<Unit filename="../../include/ui/components/RichKlineCtrl.h" />
 		<Unit filename="../../include/ui/components/RichKlineInfoCtrl.h" />
 		<Unit filename="../../include/ui/components/RichVolumeBarCtrl.h" />
 		<Unit filename="../../include/util/Color.h" />
 		<Unit filename="../../include/util/ConsoleTable.h" />
+		<Unit filename="../../include/util/DateTime.h" />
 		<Unit filename="../../include/util/EasyLogger.h" />
 		<Unit filename="../../include/util/FileTool.h" />
 		<Unit filename="../../include/util/Global.h" />
@@ -107,6 +112,7 @@
 		<Unit filename="../../src/spider/Spider.cpp" />
 		<Unit filename="../../src/spider/SpiderBasicInfoEastMoney.cpp" />
 		<Unit filename="../../src/spider/SpiderConceptListEastMoney.cpp" />
+		<Unit filename="../../src/spider/SpiderShareCategory.cpp" />
 		<Unit filename="../../src/spider/SpiderShareKline.cpp" />
 		<Unit filename="../../src/spider/SpiderShareListHexun.cpp" />
 		<Unit filename="../../src/stock/ShareCategory.cpp" />
@@ -116,12 +122,14 @@
 		<Unit filename="../../src/ui/RichHelper.cpp" />
 		<Unit filename="../../src/ui/RichMainFrame.cpp" />
 		<Unit filename="../../src/ui/components/PanelStockQuote.cpp" />
+		<Unit filename="../../src/ui/components/RichGrid.cpp" />
 		<Unit filename="../../src/ui/components/RichKlineCtrl.cpp" />
 		<Unit filename="../../src/ui/components/RichKlineInfoCtrl.cpp" />
 		<Unit filename="../../src/ui/components/RichVolumeBarCtrl.cpp" />
 		<Unit filename="../../src/ui/wxsmith/PanelStockQuote.wxs" />
 		<Unit filename="../../src/ui/wxsmith/RichMainFrame.wxs" />
 		<Unit filename="../../src/util/ConsoleTable.cpp" />
+		<Unit filename="../../src/util/DateTime.cpp" />
 		<Unit filename="../../src/util/EasyLogger.cpp" />
 		<Unit filename="../../src/util/FileTool.cpp" />
 		<Unit filename="../../src/util/Global.cpp" />

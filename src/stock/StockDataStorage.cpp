@@ -53,8 +53,8 @@ void StockDataStorage::LoadStockAllShares() {
         RestoreShareCategoryIndustry();                           // 步骤4 恢复 m_category_industries
         m_fetch_quote_data_ok = true;                             // 立即显示行情列表
     } else {
-        // 检查当前时间，如果时间是早晨9:00 ~ 9:30 之间，停止爬取，因为行情数据被重新初始化了
-        if (between_time_period("09:00", "09:30")) {
+        // 检查当前时间，如果时间是早晨09:00:00 ~ 09:29:59 之间，停止爬取，因为行情数据被重新初始化了
+        if (between_time_period("09:00", "09:29")) {
             std::string current_time = now("%Y-%m-%d %H:%M:%S");
             std::string future_time = now("%Y-%m-%d ") + "09:30:00";
             int wait_seconds = diff_seconds(current_time, future_time);
@@ -62,7 +62,7 @@ void StockDataStorage::LoadStockAllShares() {
                 OnTimeout(timer_id, args);
             };
             const char* opt = "FetchQuote";
-            Timer::SetTimeout(wait_seconds, timer_cb, static_cast<void*>(const_cast<char*>(opt)));
+            Timer::SetTimeout(wait_seconds * 1000, timer_cb, static_cast<void*>(const_cast<char*>(opt)));
         } else {
             AsyncFetchShareQuoteData();  // 异步爬取行情数据
         }
