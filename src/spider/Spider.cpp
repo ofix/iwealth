@@ -18,6 +18,7 @@ Spider::Spider(StockDataStorage* storage)
       m_posStart(0),
       m_posEnd(0),
       m_concurrentMode(false),
+      m_synchronize(false),
       m_debug(false),
       m_timeStart(std::chrono::milliseconds(0)),
       m_timeEnd(std::chrono::milliseconds(0)),
@@ -29,6 +30,7 @@ Spider::Spider(StockDataStorage* storage, bool concurrent)
       m_posStart(0),
       m_posEnd(0),
       m_concurrentMode(concurrent),
+      m_synchronize(false),
       m_timeStart(std::chrono::milliseconds(0)),
       m_timeEnd(std::chrono::milliseconds(0)),
       m_timeConsume(0) {
@@ -47,6 +49,15 @@ std::string Spider::Fetch(const std::string& url, int http_version) {
 }
 
 void Spider::Crawl() {
+    m_synchronize = false;
+    m_timeStart = std::chrono::high_resolution_clock::now();
+    DoCrawl();
+    m_timeEnd = std::chrono::high_resolution_clock::now();
+    m_timeConsume = std::chrono::duration_cast<std::chrono::milliseconds>(m_timeEnd - m_timeStart);
+}
+
+void Spider::CrawlSync() {
+    m_synchronize = true;
     m_timeStart = std::chrono::high_resolution_clock::now();
     DoCrawl();
     m_timeEnd = std::chrono::high_resolution_clock::now();

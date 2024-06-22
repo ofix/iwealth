@@ -1,6 +1,6 @@
 #include "ui/components/PanelStockQuote.h"
 #include <wx/colour.h>
-#include "spider/SpiderShareListHexun.h"
+#include "spider/SpiderShareQuote.h"
 #include "ui/RichApplication.h"
 #include "ui/RichHelper.h"
 

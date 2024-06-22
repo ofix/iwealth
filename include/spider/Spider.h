@@ -17,7 +17,7 @@ struct KlineCrawlExtra : CrawlExtra {
                             // 下载完数据不能释放此指针指向的对象
 };
 
-struct HexunCrawlExtra : CrawlExtra {
+struct QuoteCrawlExtra : CrawlExtra {
     Market market;  // 深交所/北交所/上交所
 };
 
@@ -38,7 +38,8 @@ class Spider {
     Spider(StockDataStorage* storage, bool concurrent);
     std::string Fetch(const std::string& url, int http_version = CURL_HTTP_VERSION_1_1);
     virtual ~Spider();
-    void Crawl();
+    void Crawl();      // 异步爬取
+    void CrawlSync();  // 同步爬取
     void Stop();
     void Pause();
     void SetCrawlRange(size_t start_pos, size_t end_pos);
@@ -60,6 +61,7 @@ class Spider {
     size_t m_posStart;                                           // 股票爬取的起始下标
     size_t m_posEnd;                                             // 股票爬取的结束下标
     bool m_concurrentMode;                                       // 是否是并发请求模式
+    bool m_synchronize;                                          // 是否是同步爬虫
     bool m_debug;                                                // 是否打印爬虫调试信息
     std::chrono::high_resolution_clock::time_point m_timeStart;  // 爬取起始时间
     std::chrono::high_resolution_clock::time_point m_timeEnd;    // 爬取结束时间

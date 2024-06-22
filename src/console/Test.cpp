@@ -4,7 +4,7 @@
 #include "spider/SpiderConceptListEastMoney.h"
 #include "spider/SpiderShareCategory.h"
 #include "spider/SpiderShareKline.h"
-#include "spider/SpiderShareListHexun.h"
+#include "spider/SpiderShareQuote.h"
 #include "stock/Stock.h"
 #include "stock/StockDataStorage.h"
 #include "util/DateTime.h"
@@ -14,8 +14,8 @@
 
 template <typename N, typename L>
 void InsertTree(const std::string& str, LevelTree<N, L>& tree) {
-    std::vector<std::string> result = split(str, ',');
-    std::vector<std::string> non_leaf_path = split(result[0], '-');
+    std::vector<std::string> result = split(str, ",");
+    std::vector<std::string> non_leaf_path = split(result[0], "-");
 
     std::string share_name = result[result.size() - 1];
 
@@ -26,8 +26,8 @@ void InsertTree(const std::string& str, LevelTree<N, L>& tree) {
 }
 
 std::vector<std::string> GetNonLeafTreeNode(const std::string& str) {
-    std::vector<std::string> result = split(str, ',');
-    std::vector<std::string> non_leaf_path = split(result[0], '-');
+    std::vector<std::string> result = split(str, ",");
+    std::vector<std::string> non_leaf_path = split(result[0], "-");
     return non_leaf_path;
 }
 
@@ -75,7 +75,7 @@ void TestSpiderShareCategory() {
 void TestSpiderShareHexun() {
     StockDataStorage* m_pStockStorage = new StockDataStorage();
     m_pStockStorage->Init();
-    SpiderShareListHexun* spiderHexun = new SpiderShareListHexun(m_pStockStorage);
+    SpiderShareQuote* spiderHexun = new SpiderShareQuote(m_pStockStorage);
     spiderHexun->Crawl();
 }
 

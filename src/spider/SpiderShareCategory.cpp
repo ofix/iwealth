@@ -17,49 +17,38 @@
 #include "util/Global.h"
 #include "util/Timer.h"
 
-SpiderShareCategory::SpiderShareCategory(StockDataStorage* storage) : Spider(storage) {
-    m_concurrentMode = true;
-}
-
-SpiderShareCategory::SpiderShareCategory(StockDataStorage* storage, bool concurrent) : Spider(storage, concurrent) {
+SpiderShareCategory::SpiderShareCategory(StockDataStorage* storage, int types, bool concurrent)
+    : Spider(storage, concurrent), m_types(types) {
 }
 
 SpiderShareCategory::~SpiderShareCategory() {
 }
 
-void SpiderShareCategory::Crawl(int types) {
-    m_timeStart = std::chrono::high_resolution_clock::now();
-    DoCrawl(types);
-}
-
 // 爬取 地域板块/概念板块/行业版块
 // https://quote.eastmoney.com/center
-void SpiderShareCategory::DoCrawl(int types) {
+void SpiderShareCategory::DoCrawl() {
     std::string url = "http://quote.eastmoney.com/center/api/sidemenu.json";
     std::string data = Fetch(url);
-    ParseCategories(data, types);
+    ParseCategories(data);
 }
 
-void SpiderShareCategory::ParseCategories(std::string& data, int types) {
+void SpiderShareCategory::ParseCategories(std::string& data) {
     json arr = json::parse(data);
-    std::vector<std::string> share_industries;
-    std::vector<std::string> share_concepts;
-    std::vector<std::string> share_regions;
     for (json::iterator it = arr.begin(); it != arr.end(); ++it) {
         std::string key = (*it)["key"];
         if (key == "hsbroad") {
             json concepts = (*it)["next"][0]["next"];
-            json regions = (*it)["next"][1]["next"];
+            json provinces = (*it)["next"][1]["next"];
             json industries = (*it)["next"][2]["next"];
-            if (types & ShareCategoryType::Province) {
+            if (m_types & ShareCategoryType::Province) {
                 m_provinces.clear();
-                FetchCategoryShares(regions, ShareCategoryType::Province);
+                FetchCategoryShares(provinces, ShareCategoryType::Province);
             }
-            if (types & ShareCategoryType::Industry) {
+            if (m_types & ShareCategoryType::Industry) {
                 m_industries.clear();
                 FetchCategoryShares(industries, ShareCategoryType::Industry);
             }
-            if (types & ShareCategoryType::Concept) {
+            if (m_types & ShareCategoryType::Concept) {
                 m_concepts.clear();
                 FetchCategoryShares(concepts, ShareCategoryType::Concept);
             }
@@ -110,13 +99,17 @@ void SpiderShareCategory::FetchCategoryShares(nlohmann::json& categories, ShareC
     // 发送并发请求
     std::function<void(conn_t*)> callback =
         std::bind(&SpiderShareCategory::ConcurrentResponseCallback, this, std::placeholders::_1);
-    // 启动新线程进行并发请求
     std::string thread_name = "EastMoney::" + GetCategoryTypeName(type);
-    std::thread crawl_thread(
-        std::bind(static_cast<void (*)(const std::string&, const std::list<std::string>&, std::function<void(conn_t*)>&,
-                                       const std::vector<void*>&, uint32_t)>(HttpConcurrentGet),
-                  thread_name, urls, callback, user_data, 3));
-    crawl_thread.detach();
+    if (m_synchronize) {
+        HttpConcurrentGet(thread_name, urls, callback, user_data, 3);
+    } else {
+        // 启动新线程进行并发请求
+        std::thread crawl_thread(std::bind(
+            static_cast<void (*)(const std::string&, const std::list<std::string>&, std::function<void(conn_t*)>&,
+                                 const std::vector<void*>&, uint32_t)>(HttpConcurrentGet),
+            thread_name, urls, callback, user_data, 3));
+        crawl_thread.detach();
+    }
 }
 
 std::string SpiderShareCategory::GetCategoryTypeName(ShareCategoryType type) {

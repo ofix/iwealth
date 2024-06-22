@@ -8,10 +8,10 @@
 #include "stock/Stock.h"
 
 class StockDataStorage;
-class SpiderShareListHexun : public Spider {
+class SpiderShareQuote : public Spider {
    public:
-    SpiderShareListHexun(StockDataStorage* storage);
-    virtual ~SpiderShareListHexun();
+    SpiderShareQuote(StockDataStorage* storage);
+    virtual ~SpiderShareQuote();
     virtual void DoCrawl();
     void SaveShareListToDataStorage();
 

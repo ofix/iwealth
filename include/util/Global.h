@@ -23,7 +23,7 @@ typedef struct _cell_size {
 
 std::string exec(const char* cmd);
 std::string now();
-std::vector<std::string> split(const std::string& str, const char& delimiter = '\n');
+std::vector<std::string> split(const std::string& str, const std::string& delimiter = "\n");
 bool end_with(const std::string& origin, const std::string& target);
 void trim(std::string& str);
 void ltrim(std::string& str);
@@ -42,10 +42,7 @@ void padding_right(std::string& str, uint16_t size, const char needle = ' ');
 std::string current_execute_path();
 
 std::string repeat_chars(char ch, int count);
-void fill_chars(std::string& str,
-                const char needle,
-                size_t width,
-                const std::string direction = "left");
+void fill_chars(std::string& str, const char needle, size_t width, const std::string direction = "left");
 
 // 16进制转10进制模板函数
 template <typename T>

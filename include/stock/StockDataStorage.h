@@ -9,11 +9,12 @@
 
 const int ID_QUOTE_DATA_READY = 100000;
 
-class SpiderShareListHexun;
+class SpiderShareQuote;
 class SpiderBasicInfoEastMoney;
 class SpiderConceptListEastMoney;
 class SpiderShareKline;
 class SpiderShareCategory;
+class Spider;
 class StockDataStorage {
    public:
     enum class FetchResult {
@@ -22,6 +23,13 @@ class StockDataStorage {
         FinancialData,
         BusinessAnalysis,
         OldNames,
+    };
+    enum class SpiderType {
+        Quote,             // 行情数据爬虫
+        Industry,          // 行业板块爬虫
+        Province,          // 地区板块爬虫
+        Concept,           // 概念板块爬虫
+        IndustryProvince,  // 行业|地区板块联合爬虫
     };
     StockDataStorage();
     virtual ~StockDataStorage();
@@ -52,13 +60,15 @@ class StockDataStorage {
 
     void SetFetchResultOk(FetchResult result);
     bool IsLocalQuoteDataExpired();
+    Spider* GetSpider(SpiderType type);
 
    protected:
-    void AsyncFetchShareQuoteData();         // 爬取行情数据
-    void AsyncFetchShareKlines();            // 爬取股票历史K线数据
-    void AsyncFetchShareFinancialData();     // 爬取股票年报数据
-    void AsyncFetchShareBusinessAnalysis();  // 爬取股票经营分析内容
-    void AsyncFetchShareBasicInfo();         // 爬取股票[曾用名/员工数等基本信息]
+    void FetchQuoteIndustryProvinceAsync();  // 爬取行情数据+板块数据
+    void FetchQuoteSync();                   // 爬取行情数据
+    void FetchKlineAsync();                  // 爬取股票历史K线数据
+    void FetchFinancialAsync();              // 爬取股票年报数据
+    void FetchBusinessAnalysisAsync();       // 爬取股票经营分析内容
+    void FetchBasicInfoAsync();              // 爬取股票[曾用名/员工数等基本信息]
 
     void OnTimeout(uint32_t timer_id, void* args);
     void OnTimerFetchShareQuoteData(uint32_t timer_id, void* args);
@@ -67,8 +77,8 @@ class StockDataStorage {
     void LoadStockAllShares();
     bool LoadLocalQuoteData(std::string& path, std::vector<Share>& shares);
     void HashShares();  // code->Share* 映射
-    void RestoreShareCategoryProvince();
-    void RestoreShareCategoryIndustry();
+    void LoadLocalCategoryProvince();
+    void LoadLocalCategoryIndustry();
     void RestoreShareCategoryConcepts();
 
    protected:
@@ -76,7 +86,11 @@ class StockDataStorage {
                          const std::unordered_map<std::string, std::vector<uiKline>>& klines);
     // 数据存储
     std::string m_data_dir;                // 数据保存根目录
-    std::string m_path_share_quote;        // 股票简称保存
+    std::string m_path_share_quote;        // 股票行情数据文件路径
+    std::string m_path_category_province;  // 股票省份数据文件路径
+    std::string m_path_category_industry;  // 股票行业数据文件路径
+    std::string m_path_category_concept;   // 股票概念数据文件路径
+
     uint16_t m_market_share_total;         // 市场所有股票之和
     std::string m_path_all_market_shares;  // 所有股票代号本地保存路径
     // 行情数据是否OK
@@ -111,7 +125,7 @@ class StockDataStorage {
     std::unordered_map<std::string, std::vector<uiKline>> m_year_klines;
 
     // 爬虫友元类，减少数据拷贝
-    friend class SpiderShareListHexun;        // 和讯网股票爬虫
+    friend class SpiderShareQuote;            // 和讯网股票爬虫
     friend class SpiderBasicInfoEastMoney;    // 东方财富股票爬虫
     friend class SpiderShareHistory;          // 网易股票爬虫
     friend class SpiderConceptListEastMoney;  // 东方财富题材概念列表爬虫

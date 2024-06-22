@@ -36,7 +36,7 @@ void copyFile(const std::string& src_path, const std::string& dest_path) {
 
 // 过滤指定后缀的目录
 std::vector<wxString> getFilterFiles(const wxString& dir_path, const std::string& file_suffix) {
-    std::vector<std::string> suffix_list = split(file_suffix, ',');
+    std::vector<std::string> suffix_list = split(file_suffix, ",");
     std::unordered_map<std::string, bool> suffix_map;
     for (const std::string& suffix : suffix_list) {
         suffix_map.insert({suffix, true});

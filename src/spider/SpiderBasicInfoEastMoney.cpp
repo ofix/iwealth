@@ -15,12 +15,15 @@
 
 using json = nlohmann::json;
 
-SpiderBasicInfoEastMoney::SpiderBasicInfoEastMoney(StockDataStorage* storage) : Spider(storage) {}
+SpiderBasicInfoEastMoney::SpiderBasicInfoEastMoney(StockDataStorage* storage) : Spider(storage) {
+}
 
 SpiderBasicInfoEastMoney::SpiderBasicInfoEastMoney(StockDataStorage* storage, bool concurrent)
-    : Spider(storage, concurrent) {}
+    : Spider(storage, concurrent) {
+}
 
-SpiderBasicInfoEastMoney::~SpiderBasicInfoEastMoney() {}
+SpiderBasicInfoEastMoney::~SpiderBasicInfoEastMoney() {
+}
 
 void SpiderBasicInfoEastMoney::DoCrawl() {
     if (this->IsConcurrentMode()) {
@@ -72,7 +75,7 @@ void SpiderBasicInfoEastMoney::ParseResponse(std::string& response, Share& share
     json o = _response["result"]["data"][0];
     if (!o["FORMERNAME"].is_null()) {
         std::string old_names = o["FORMERNAME"].template get<std::string>();
-        share.old_names = split(old_names, ',');
+        share.old_names = split(old_names, ",");
     }
     share.province = o["PROVINCE"];                                                       // 公司所属省份
     share.employee_num = o["EMP_NUM"];                                                    // 公司员工数量

@@ -108,7 +108,7 @@
 		<Unit filename="../../include/spider/SpiderConceptListEastMoney.h" />
 		<Unit filename="../../include/spider/SpiderShareKline.h" />
 		<Unit filename="../../include/spider/SpiderShareKlineUrl.h" />
-		<Unit filename="../../include/spider/SpiderShareListHexun.h" />
+		<Unit filename="../../include/spider/SpiderShareQuote.h" />
 		<Unit filename="../../include/stock/ShareCategory.h" />
 		<Unit filename="../../include/stock/Stock.h" />
 		<Unit filename="../../include/stock/StockDataStorage.h" />
@@ -133,7 +133,7 @@
 		<Unit filename="../../src/spider/SpiderBasicInfoEastMoney.cpp" />
 		<Unit filename="../../src/spider/SpiderConceptListEastMoney.cpp" />
 		<Unit filename="../../src/spider/SpiderShareKline.cpp" />
-		<Unit filename="../../src/spider/SpiderShareListHexun.cpp" />
+		<Unit filename="../../src/spider/SpiderShareQuote.cpp" />
 		<Unit filename="../../src/stock/ShareCategory.cpp" />
 		<Unit filename="../../src/stock/Stock.cpp" />
 		<Unit filename="../../src/stock/StockDataStorage.cpp" />

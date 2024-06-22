@@ -37,29 +37,16 @@ std::string now() {
  * @param separator 分割字符
  * @author songhuabiao@greatwall.com.cn
  */
-std::vector<std::string> split(const std::string& str, const char& delimiter) {
-    // std::smatch matches;
-    // std::string origin = str;
-    // std::regex rule{delimiter};
-    // std::vector<std::string> result;
-    // bool found = false;
-    // while (std::regex_search(origin, matches, rule)) {
-    //     found = true;
-    //     result.push_back(matches.prefix().str());
-    //     origin = matches.suffix();
-    // }
-    // if (!found) {
-    //     result.push_back(str);
-    // }
-    // return result;
-
+std::vector<std::string> split(const std::string& str, const std::string& delimiter) {
     std::vector<std::string> parts;
-    std::stringstream ss(str);
-    std::string part;
+    size_t start = 0;
+    size_t end = 0;
 
-    while (std::getline(ss, part, delimiter)) {
-        parts.push_back(part);
+    while ((end = str.find(delimiter, start)) != std::string::npos) {
+        parts.push_back(str.substr(start, end - start));
+        start = end + delimiter.length();
     }
+    parts.push_back(str.substr(start));
 
     return parts;
 }
@@ -82,7 +69,9 @@ void ltrim(std::string& str) {
  */
 void rtrim(std::string& str) {
     str.erase(std::find_if(str.rbegin(), str.rend(),
-                           [](unsigned char ch) { return !std::isspace(ch); })
+                           [](unsigned char ch) {
+                               return !std::isspace(ch);
+                           })
                   .base(),
               str.end());
 }
@@ -144,10 +133,7 @@ void padding_right(std::string& str, uint16_t size, const char needle) {
     str.insert(str.length(), size - str.length(), needle);
 }
 
-void fill_chars(std::string& str,
-                const char needle,
-                size_t width,
-                const std::string direction) {
+void fill_chars(std::string& str, const char needle, size_t width, const std::string direction) {
     size_t n = width - str.length();
     if (n > 0) {
         std::string spaces = repeat_chars(needle, n);

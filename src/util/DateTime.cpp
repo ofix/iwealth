@@ -4,6 +4,27 @@
 #include <iomanip>
 #include <iostream>
 
+/// @brief windows不存在strptime函数
+/// @param s 日期字符串
+/// @param f 日期格式化字符串
+/// @param tm struct tm日期结构指针
+/// @return 格式化好的日期字符串
+extern "C" char* strptime(const char* s, const char* f, struct tm* tm) {
+    // Isn't the C++ standard lib nice? std::get_time is defined such that its
+    // format parameters are the exact same as strptime. Of course, we have to
+    // create a string stream first, and imbue it with the current C locale, and
+    // we also have to make sure we return the right things if it fails, or
+    // if it succeeds, but this is still far simpler an implementation than any
+    // of the versions in any of the C standard libraries.
+    std::istringstream input(s);
+    input.imbue(std::locale(setlocale(LC_ALL, nullptr)));
+    input >> std::get_time(tm, f);
+    if (input.fail()) {
+        return nullptr;
+    }
+    return (char*)(s + input.tellg());
+}
+
 /**
  * @param start_time 开始时间，格式要求 "09:00" 这种形式
  * @param end_time   结束时间，格式要求 "09:30" 这种形式

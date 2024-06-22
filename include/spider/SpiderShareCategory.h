@@ -12,18 +12,16 @@ using json = nlohmann::json;
 class StockDataStorage;
 class SpiderShareCategory : public Spider {
    public:
-    SpiderShareCategory(StockDataStorage* storage);
-    SpiderShareCategory(StockDataStorage* storage, bool concurrent);
+    SpiderShareCategory(StockDataStorage* storage, int types = ShareCategoryType::Province, bool concurrent = true);
     virtual ~SpiderShareCategory();
-    void Crawl(int types = ShareCategoryType::Industry | ShareCategoryType::Province | ShareCategoryType::Concept);
     void BuildShareCategoryProvinces();
     void BuildShareCategoryIndustries();
     void BuildShareCategoryConcepts();
 
    protected:
-    virtual void DoCrawl(int types);
-    void ParseCategories(std::string& data, int types);
+    virtual void DoCrawl();
     void FetchCategoryShares(nlohmann::json& categories, ShareCategoryType type);
+    void ParseCategories(std::string& data);
     std::string GetCategoryKey(std::string name);
     void ConcurrentResponseCallback(conn_t* conn);
     std::string GetCategoryTypeName(ShareCategoryType type);
@@ -35,4 +33,5 @@ class SpiderShareCategory : public Spider {
     std::unordered_map<std::string, std::vector<std::string>> m_industries;
     std::unordered_map<std::string, std::vector<std::string>> m_provinces;
     std::unordered_map<std::string, std::vector<std::string>> m_concepts;
+    int m_types;  // 爬取的板块种类
 };

@@ -98,13 +98,13 @@ make install
 
 ```cpp
 // share_data_center.h
-class SpiderShareListHexun;
+class SpiderShareQuote;
 class ShareDataCenter{
 
 }
 // share_list_spider_hexun.h
 class ShareDataCenter;
-class SpiderShareListHexun : public Spider {
+class SpiderShareQuote : public Spider {
 }
 
 // share_data_center.cpp

@@ -7,7 +7,7 @@
 // Licence:     GNU GENERAL PUBLIC LICENSE, Version 3
 ///////////////////////////////////////////////////////////////////////////////
 
-#include "spider/SpiderShareListHexun.h"
+#include "spider/SpiderShareQuote.h"
 
 #include <wx/string.h>
 
@@ -18,14 +18,14 @@
 
 using json = nlohmann::json;
 
-SpiderShareListHexun::SpiderShareListHexun(StockDataStorage* storage) : Spider(storage) {
+SpiderShareQuote::SpiderShareQuote(StockDataStorage* storage) : Spider(storage) {
     m_concurrentMode = true;
 }
 
-SpiderShareListHexun::~SpiderShareListHexun() {
+SpiderShareQuote::~SpiderShareQuote() {
 }
 
-void SpiderShareListHexun::DoCrawl() {
+void SpiderShareQuote::DoCrawl() {
     if (this->IsConcurrentMode()) {
         ConcurrentCrawl();
     } else {
@@ -33,7 +33,7 @@ void SpiderShareListHexun::DoCrawl() {
     }
 }
 
-void SpiderShareListHexun::ConcurrentCrawl() {
+void SpiderShareQuote::ConcurrentCrawl() {
     m_unique_shares.clear();
     std::list<std::string> urls;
     std::vector<void*> user_data;
@@ -41,7 +41,7 @@ void SpiderShareListHexun::ConcurrentCrawl() {
     RequestStatistics* pStatistics = NewRequestStatistics(4, DataProvider::Hexun);
     for (int code : market_code) {
         urls.push_back(GetFetchUrl(code));
-        HexunCrawlExtra* pExtra = new HexunCrawlExtra();
+        QuoteCrawlExtra* pExtra = new QuoteCrawlExtra();
         if (!pExtra) {
             std::cout << "[error]: bad memory alloc CrawlExtra" << std::endl;
             return;
@@ -53,23 +53,26 @@ void SpiderShareListHexun::ConcurrentCrawl() {
 
     // 发送并发请求
     std::function<void(conn_t*)> callback =
-        std::bind(&SpiderShareListHexun::ConcurrentResponseCallback, this, std::placeholders::_1);
-
-    // 启动新线程进行并发请求
-    std::thread crawl_thread(
-        std::bind(static_cast<void (*)(const std::string&, const std::list<std::string>&, std::function<void(conn_t*)>&,
-                                       const std::vector<void*>&, uint32_t)>(HttpConcurrentGet),
-                  "Hexun", urls, callback, user_data, 4));
-    crawl_thread.detach();
+        std::bind(&SpiderShareQuote::ConcurrentResponseCallback, this, std::placeholders::_1);
+    if (m_synchronize) {
+        HttpConcurrentGet("Hexun", urls, callback, user_data, 4);
+    } else {
+        // 启动新线程进行并发请求
+        std::thread crawl_thread(std::bind(
+            static_cast<void (*)(const std::string&, const std::list<std::string>&, std::function<void(conn_t*)>&,
+                                 const std::vector<void*>&, uint32_t)>(HttpConcurrentGet),
+            "Hexun", urls, callback, user_data, 4));
+        crawl_thread.detach();
+    }
 }
 
-void SpiderShareListHexun::ConcurrentResponseCallback(conn_t* conn) {
-    HexunCrawlExtra* pExtra = static_cast<HexunCrawlExtra*>(conn->extra);
+void SpiderShareQuote::ConcurrentResponseCallback(conn_t* conn) {
+    QuoteCrawlExtra* pExtra = static_cast<QuoteCrawlExtra*>(conn->extra);
     ParseStockListData(conn->response, pExtra->market);
     conn->reuse = false;
 }
 
-void SpiderShareListHexun::SaveShareListToDataStorage() {
+void SpiderShareQuote::SaveShareListToDataStorage() {
     m_pStockStorage->m_market_shares.clear();
     m_pStockStorage->m_market_shares.reserve(6000);  // 避免内存频繁分配
     // 重新插入
@@ -84,7 +87,7 @@ void SpiderShareListHexun::SaveShareListToDataStorage() {
     m_unique_shares.clear();
 }
 
-void SpiderShareListHexun::SingleCrawl() {
+void SpiderShareQuote::SingleCrawl() {
     m_pStockStorage->m_market_shares.clear();
     m_pStockStorage->m_market_shares.reserve(6000);  // 避免内存频繁分配
     m_unique_shares.clear();
@@ -95,13 +98,13 @@ void SpiderShareListHexun::SingleCrawl() {
     SaveShareListToDataStorage();  // 移除重复的股票
 }
 
-void SpiderShareListHexun::FetchMarketShares(int market) {
+void SpiderShareQuote::FetchMarketShares(int market) {
     std::string url = GetFetchUrl(market);
     std::string data = Fetch(url);
     ParseStockListData(data, GetMarket(market));
 }
 
-Market SpiderShareListHexun::GetMarket(int market) {
+Market SpiderShareQuote::GetMarket(int market) {
     static std::map<int, Market> kv = {
         {1, Market::ShangHai},
         {2, Market::ShenZhen},
@@ -116,7 +119,7 @@ Market SpiderShareListHexun::GetMarket(int market) {
  * @param market 和讯网市场请求参数
  * @return URL
  */
-std::string SpiderShareListHexun::GetFetchUrl(int market) {
+std::string SpiderShareQuote::GetFetchUrl(int market) {
     std::string url = "https://stocksquote.hexun.com/a/sortlist";
     std::string url_sh = url + "?block=" + std::to_string(market) +
                          "&title=15"
@@ -128,7 +131,7 @@ std::string SpiderShareListHexun::GetFetchUrl(int market) {
     return url_sh;
 }
 
-void SpiderShareListHexun::ParseStockListData(std::string& data, Market market) {
+void SpiderShareQuote::ParseStockListData(std::string& data, Market market) {
     data = regex_replace(data, std::regex{R"(\()"}, "");
     data = regex_replace(data, std::regex{R"(\);)"}, "");
     // std::cout << wxString::FromUTF8(data) << std::endl;

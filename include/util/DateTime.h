@@ -3,6 +3,7 @@
 
 #include <string>
 
+extern "C" char* strptime(const char* s, const char* f, struct tm* tm);
 // 检查当前时间是否在指定时间范围
 bool between_time_period(const std::string& start_time, const std::string& end_time);
 // 获取当前时间字符串，支持格式化

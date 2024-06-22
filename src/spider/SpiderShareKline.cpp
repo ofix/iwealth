@@ -245,7 +245,7 @@ bool SpiderShareKline::IsNaN(const std::string& data) {
 
 bool SpiderShareKline::ParseKlineBaidu(const std::string& kline, uiKline* uiKline) {
     try {
-        std::vector<std::string> fields = split(kline, ',');
+        std::vector<std::string> fields = split(kline, ",");
         uiKline->day = fields[1];                                                // 时间
         uiKline->price_open = std::stod(fields[2]);                              // 开盘价
         uiKline->price_close = std::stod(fields[3]);                             // 收盘价
@@ -266,7 +266,7 @@ bool SpiderShareKline::ParseKlineBaidu(const std::string& kline, uiKline* uiKlin
 
 bool SpiderShareKline::ParseKlineEastMoney(const std::string& kline, uiKline* uiKline) {
     try {
-        std::vector<std::string> fields = split(kline, ',');
+        std::vector<std::string> fields = split(kline, ",");
         uiKline->day = fields[0];                                                // 时间
         uiKline->price_open = std::stod(fields[1]);                              // 开盘价
         uiKline->price_close = std::stod(fields[2]);                             // 收盘价
@@ -291,7 +291,7 @@ void SpiderShareKline::ParseResponseFinanceBaidu(conn_t* conn, std::vector<uiKli
     json _response = json::parse(conn->response);
     std::string data = _response["Result"]["newMarketData"]["marketData"];
     if (data != "") {
-        std::vector<std::string> klines = split(data, ';');
+        std::vector<std::string> klines = split(data, ";");
         for (size_t i = 0; i < klines.size(); i++) {
             uiKline kline;
             if (ParseKlineBaidu(klines[i], &kline)) {
