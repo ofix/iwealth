@@ -63,23 +63,28 @@ class StockDataStorage {
     Spider* GetSpider(SpiderType type);
 
    protected:
-    void FetchQuoteIndustryProvinceAsync();  // 爬取行情数据+板块数据
-    void FetchQuoteSync();                   // 爬取行情数据
-    void FetchKlineAsync();                  // 爬取股票历史K线数据
-    void FetchFinancialAsync();              // 爬取股票年报数据
-    void FetchBusinessAnalysisAsync();       // 爬取股票经营分析内容
-    void FetchBasicInfoAsync();              // 爬取股票[曾用名/员工数等基本信息]
+    void FetchQuoteIndustryProvince();  // 爬取行情数据+板块数据
+    void FetchQuoteSync();              // 爬取行情数据
+    void FetchKline();                  // 爬取股票历史K线数据
+    void FetchFinancial();              // 爬取股票年报数据
+    void FetchBusinessAnalysis();       // 爬取股票经营分析内容
+    void FetchBasicInfo();              // 爬取股票[曾用名/员工数等基本信息]
+
+    std::string DumpQuoteData(std::vector<Share>& shares);
+    void SaveQuote();  // 保存行情数据到本地文件
+    void SaveCategory(ShareCategoryType type,
+                      std::unordered_map<std::string, std::vector<std::string>>* categories);  // 保存板块信息到本地文件
+
+    bool LoadLocalFileQuote(std::string& path, std::vector<Share>& shares);  // 加载本地行情数据文件
+    void LoadLocalFileCategory(ShareCategoryType type,
+                               const std::string& file_path,
+                               ShareCategory& share_categories);  // 加载本地板块->股票映射文件
+    void LoadLocalFileShare();  // 加载本地 日K线/周K线/月K线/季度K线/年K线文件
 
     void OnTimeout(uint32_t timer_id, void* args);
     void OnTimerFetchShareQuoteData(uint32_t timer_id, void* args);
 
-    std::string DumpQuoteData(std::vector<Share>& shares);
-    void LoadStockAllShares();
-    bool LoadLocalQuoteData(std::string& path, std::vector<Share>& shares);
     void HashShares();  // code->Share* 映射
-    void LoadLocalCategoryProvince();
-    void LoadLocalCategoryIndustry();
-    void RestoreShareCategoryConcepts();
 
    protected:
     bool SaveShareKlines(const std::string& dir_path,
@@ -93,6 +98,7 @@ class StockDataStorage {
 
     uint16_t m_market_share_total;         // 市场所有股票之和
     std::string m_path_all_market_shares;  // 所有股票代号本地保存路径
+
     // 行情数据是否OK
     bool m_inited;                      // 防止重复初始化
     bool m_fetch_quote_data_ok;         // 行情数据是否爬取完成
@@ -105,8 +111,6 @@ class StockDataStorage {
     std::vector<Share> m_market_shares;  // 所有股票
     // 股票代号->股票指针
     std::unordered_map<std::string, Share*> m_code_share_hash;
-    // 统计信息
-    std::unordered_map<Market, int> m_market_share_count;  // 分市场股票数量统计
     // 概念->[股票1,股票2] hash映射表
     ShareCategory m_category_concepts;
     // 行业->[股票1,股票2] hash映射表
@@ -124,6 +128,8 @@ class StockDataStorage {
     std::unordered_map<std::string, std::vector<uiKline>> m_month_klines;
     std::unordered_map<std::string, std::vector<uiKline>> m_year_klines;
 
+    // 统计信息
+    std::unordered_map<Market, int> m_market_share_count;  // 分市场股票数量统计
     // 爬虫友元类，减少数据拷贝
     friend class SpiderShareQuote;            // 和讯网股票爬虫
     friend class SpiderBasicInfoEastMoney;    // 东方财富股票爬虫

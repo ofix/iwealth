@@ -17,6 +17,7 @@ class SpiderShareCategory : public Spider {
     void BuildShareCategoryProvinces();
     void BuildShareCategoryIndustries();
     void BuildShareCategoryConcepts();
+    std::unordered_map<std::string, std::vector<std::string>>* GetCategory(ShareCategoryType type);
 
    protected:
     virtual void DoCrawl();

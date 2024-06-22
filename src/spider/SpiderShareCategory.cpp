@@ -172,6 +172,16 @@ void SpiderShareCategory::BuildShareCategoryIndustries() {
 void SpiderShareCategory::BuildShareCategoryConcepts() {
 }
 
+std::unordered_map<std::string, std::vector<std::string>>* SpiderShareCategory::GetCategory(ShareCategoryType type) {
+    if (type == ShareCategoryType::Province) {
+        return &m_provinces;
+    } else if (type == ShareCategoryType::Industry) {
+        return &m_industries;
+    } else if (type == ShareCategoryType::Concept) {
+        return &m_concepts;
+    }
+}
+
 std::string SpiderShareCategory::GetCategoryKey(std::string name) {
     std::size_t found = name.find_last_of(".");
     return name.substr(found + 1);
