@@ -13,7 +13,6 @@ Share::Share()
     : id(0),
       code(""),
       name(""),
-      old_names(std::vector<std::string>()),
       change_amount(0.0),
       change_rate(0.0),
       volume(0),
@@ -75,9 +74,6 @@ Share& Share::operator=(const Share& other) {
     this->industry_name = other.industry_name;
     this->market = other.market;
     this->province = other.province;
-    for (size_t i = 0; i < other.old_names.size(); i++) {
-        old_names.push_back(other.old_names[i]);
-    }
     if (other.ptr_basic_info != nullptr) {
         ptr_basic_info->capital_change_history = other.ptr_basic_info->capital_change_history;
         ptr_basic_info->company_name = other.ptr_basic_info->company_name;
@@ -131,9 +127,6 @@ Share::Share(const Share& other)
       industry_name(other.industry_name),
       market(other.market),
       province(other.province) {
-    for (size_t i = 0; i < other.old_names.size(); i++) {
-        old_names.push_back(other.old_names[i]);
-    }
     if (other.ptr_basic_info != nullptr) {
         ptr_basic_info->capital_change_history = other.ptr_basic_info->capital_change_history;
         ptr_basic_info->company_name = other.ptr_basic_info->company_name;

@@ -10,7 +10,7 @@
 #include "stock/StockDataStorage.h"
 #include <wx/wx.h>
 #include "spider/Spider.h"
-#include "spider/SpiderBasicInfoEastMoney.h"
+#include "spider/SpiderShareBasicInfo.h"
 #include "spider/SpiderShareCategory.h"
 #include "spider/SpiderShareKline.h"
 #include "spider/SpiderShareQuote.h"
@@ -183,7 +183,7 @@ void StockDataStorage::FetchQuoteSync() {
 }
 
 void StockDataStorage::FetchBasicInfo() {
-    SpiderBasicInfoEastMoney* pSpiderBasicInfo = new SpiderBasicInfoEastMoney(this, true);
+    SpiderShareBasicInfo* pSpiderBasicInfo = new SpiderShareBasicInfo(this, true);
     pSpiderBasicInfo->Crawl();
 }
 

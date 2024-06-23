@@ -1,6 +1,7 @@
 #include <string>
 #include <vector>
 #include "search/LevelTree.hpp"
+#include "search/Trie.h"
 #include "spider/SpiderConceptListEastMoney.h"
 #include "spider/SpiderShareCategory.h"
 #include "spider/SpiderShareKline.h"
@@ -142,6 +143,20 @@ void TestFile() {
     std::cout << "file modifed time = " + modified_time << std::endl;
 }
 
+void TestTrie() {
+    Trie trie;
+    trie.insert("上海莱士", "002252");
+    trie.insert("SHLS", "002252");
+    trie.insert("上海新阳", "300236");
+    trie.insert("SHXY", "300236");
+    trie.insert("TTSW", "600161");
+    trie.insert("天坛生物", "600161");
+    std::vector<std::string> shares = trie.listPrefixWith("T");
+    for (auto& share : shares) {
+        std::cout << share << std::endl;
+    }
+}
+
 int main(int /*argc*/, char** /*argv*/) {
     // TestSpiderConceptListEastMoney();
     // TestTimer();
@@ -149,6 +164,7 @@ int main(int /*argc*/, char** /*argv*/) {
     // TestSpiderShareKline();
     // TestSpiderShareHexun();
     // TestDateTime();
-    TestFile();
+    // TestFile();
+    TestTrie();
     std::cin.get();
 }

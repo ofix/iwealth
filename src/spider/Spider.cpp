@@ -16,7 +16,7 @@
 Spider::Spider(StockDataStorage* storage)
     : m_pStockStorage(storage),
       m_posStart(0),
-      m_posEnd(0),
+      m_posEnd(-1),
       m_concurrentMode(false),
       m_synchronize(false),
       m_debug(false),
@@ -28,7 +28,7 @@ Spider::Spider(StockDataStorage* storage)
 Spider::Spider(StockDataStorage* storage, bool concurrent)
     : m_pStockStorage(storage),
       m_posStart(0),
-      m_posEnd(0),
+      m_posEnd(-1),
       m_concurrentMode(concurrent),
       m_synchronize(false),
       m_timeStart(std::chrono::milliseconds(0)),

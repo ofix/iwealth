@@ -88,11 +88,15 @@ struct ShareBasicInfo {
     std::vector<ShareInvestmentFund> share_investment_funds;  // 投资机构
 };
 
+// struct ShareBasicInfoEastMoney {
+//     std::string company_name;
+//     std::vector
+// }
+
 struct Share {
     int id;                               // 序号
     std::string code;                     // 股票代号
     std::string name;                     // 股票名称
-    std::vector<std::string> old_names;   // 股票曾用名称
     double change_amount;                 // 涨跌额
     double change_rate;                   // 涨跌幅度
     uint64_t volume;                      // 成交量

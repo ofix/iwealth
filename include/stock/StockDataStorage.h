@@ -4,13 +4,14 @@
 #include <map>
 #include <unordered_map>
 #include "nlohmann/json.hpp"
+#include "search/Trie.h"
 #include "stock/ShareCategory.h"
 #include "stock/Stock.h"
 
 const int ID_QUOTE_DATA_READY = 100000;
 
 class SpiderShareQuote;
-class SpiderBasicInfoEastMoney;
+class SpiderShareBasicInfo;
 class SpiderConceptListEastMoney;
 class SpiderShareKline;
 class SpiderShareCategory;
@@ -98,6 +99,7 @@ class StockDataStorage {
 
     uint16_t m_market_share_total;         // 市场所有股票之和
     std::string m_path_all_market_shares;  // 所有股票代号本地保存路径
+    Trie m_trie;                           // 股票[简称/曾用名]->关系映射
 
     // 行情数据是否OK
     bool m_inited;                      // 防止重复初始化
@@ -132,7 +134,7 @@ class StockDataStorage {
     std::unordered_map<Market, int> m_market_share_count;  // 分市场股票数量统计
     // 爬虫友元类，减少数据拷贝
     friend class SpiderShareQuote;            // 和讯网股票爬虫
-    friend class SpiderBasicInfoEastMoney;    // 东方财富股票爬虫
+    friend class SpiderShareBasicInfo;        // 东方财富股票爬虫
     friend class SpiderShareHistory;          // 网易股票爬虫
     friend class SpiderConceptListEastMoney;  // 东方财富题材概念列表爬虫
     friend class SpiderShareKline;            // 百度财经股票历史K线数据爬虫
