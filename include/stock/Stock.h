@@ -75,23 +75,30 @@ struct ShareInvestmentFund {
 };
 
 struct ShareBasicInfo {
-    std::string company_name;                                 // 公司名称
-    std::string ipo_date;                                     // 首发上市日期
-    std::string core_bussiness;                               // 主营业务
     std::vector<ShareBonus> history_bonus;                    // 历史分红方案
     uint64_t total_bonus;                                     // 上市总分红金额
     uint64_t total_fund;                                      // 上市总融资金额
     std::vector<ShareCapital> capital_change_history;         // 股本变化历史
     std::vector<ShareHolder> holder_change_history;           // 股东人数变化历史
+    std::vector<ShareInvestmentFund> share_investment_funds;  // 投资机构
     Top10ShareHolder top10_share_holders[10];                 // 10大股东
     Top10ShareHolder top10_trade_share_holders[10];           // 10大流通股东
-    std::vector<ShareInvestmentFund> share_investment_funds;  // 投资机构
 };
 
-// struct ShareBasicInfoEastMoney {
-//     std::string company_name;
-//     std::vector
-// }
+struct ShareBriefInfo {
+    std::string company_name;        // 公司名称
+    std::string old_names;           // 公司曾用名
+    std::string company_website;     // 公司网址
+    std::string registered_address;  // 注册地址
+    int staff_num;                   // 雇员人数
+    double registered_capital;       // 注册资本
+    std::string law_office;          // 律师事务所
+    std::string accounting_office;   // 会计事务所
+    std::string ceo;                 // 公司董事长
+    std::string board_secretary;     // 董秘
+    std::string office_address;      // 办公地址
+    std::string company_profile;     // 公司简介
+};
 
 struct Share {
     int id;                               // 序号
@@ -124,9 +131,10 @@ struct Share {
     std::string industry_name;            // 行业名称
     Market market;                        // 所在交易所
     std::string province;                 // 所在省份
-    uint32_t employee_num;                // 员工数
+    uint32_t staff_num;                   // 员工数
     uint64_t register_capital;            // 注册资本
     std::vector<ShareConcept*> concepts;  // 所属概念板块
+    ShareBriefInfo* ptr_brief_info;       // 公司简要信息
     ShareBasicInfo* ptr_basic_info;       // 股票基本信息
     // 必须定义拷贝构造函数，否则使用std::vector.push_back 栈对象，程序会崩溃
     Share();

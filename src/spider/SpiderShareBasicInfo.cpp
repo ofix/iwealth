@@ -39,7 +39,7 @@ void SpiderShareBasicInfo::DoCrawl() {
 void SpiderShareBasicInfo::FetchBasicInfo(Share& share) {
     std::string url = GetRequestUrl(share);
     std::string data = Fetch(url);
-    ParseResponse(data, share);
+    ParseResponse(data, &share);
 }
 
 std::string SpiderShareBasicInfo::GetRequestUrl(const Share& share) {
@@ -84,13 +84,26 @@ uint8_t SpiderShareBasicInfo::GetIndustryLevel(const std::string& industry_name)
 void SpiderShareBasicInfo::ConcurrentFetchBasicInfo() {
     std::vector<Share> shares = m_pStockStorage->m_market_shares;
     std::list<std::string> urls;
+    std::vector<void*> user_data = {};
+    RequestStatistics* pStatistics = NewRequestStatistics(shares.size(), DataProvider::EastMoney);
+    if (pStatistics == nullptr) {
+        return;
+    }
     for (size_t i = 0; i <= shares.size(); i++) {
-        urls.push_back(GetRequestUrl(shares[i]));
+        urls.emplace_back(GetRequestUrl(shares[i]));
+        BasicInfoCrawlExtra* pExtra = new BasicInfoCrawlExtra();
+        if (!pExtra) {
+            std::cout << "[error]: bad memory alloc BasicInfoCrawlExtra" << std::endl;
+            return;
+        }
+        pExtra->share = &shares[i];
+        pExtra->statistics = pStatistics;
+        user_data.push_back(static_cast<void*>(pExtra));
     }
     std::function<void(conn_t*)> callback =
         std::bind(&SpiderShareBasicInfo::ConcurrentResponseCallback, this, std::placeholders::_1);
     try {
-        HttpConcurrentGet("EastMoney", urls, callback, static_cast<void*>(&shares), 3);
+        HttpConcurrentGet("EastMoney::BasicInfo", urls, callback, user_data, 3);
     } catch (std::exception& e) {
         std::cerr << e.what() << std::endl;
     }
@@ -98,26 +111,39 @@ void SpiderShareBasicInfo::ConcurrentFetchBasicInfo() {
 
 void SpiderShareBasicInfo::ConcurrentResponseCallback(conn_t* conn) {
     try {
-        Share share;
-        ParseResponse(conn->response, share);
+        BasicInfoCrawlExtra* pExtra = static_cast<BasicInfoCrawlExtra*>(conn->extra);
+        ParseResponse(conn->response, pExtra->share);
     } catch (std::exception& e) {
         std::cout << e.what() << " ,exception occurs in " << __func__ << std::endl;
     }
 }
 
-void SpiderShareBasicInfo::ParseResponse(std::string& response, Share& share) {
+void SpiderShareBasicInfo::ParseResponse(std::string& response, Share* pShare) {
     json _response = json::parse(response);
     json o = _response["result"]["data"][0];
     if (!o["FORMERNAME"].is_null()) {
-        std::string old_names = o["FORMERNAME"].template get<std::string>();
-        // share.old_names = split(old_names, ",");
+        std::string former_name = o["FORMERNAME"].template get<std::string>();
+        std::vector<std::string> old_names = split(former_name, ",");
+        for (auto& old_name : old_names) {
+            m_pStockStorage->InsertShareNameToTrie(old_name, pShare->code);
+        }
     }
-    share.province = o["PROVINCE"];                                                       // 公司所属省份
-    share.employee_num = o["EMP_NUM"];                                                    // 公司员工数量
-    share.register_capital = o["REG_CAPITAL"];                                            // 公司注册资本
-    ShareIndustry* pIndustry = new ShareIndustry();                                       // 公司所处行业
-    pIndustry->source = 1;                                                                // 行业来源
-    pIndustry->name = o["INDUSTRYCSRC1"];                                                 // 行业名称
-    pIndustry->level = GetIndustryLevel(o["INDUSTRYCSRC1"].template get<std::string>());  // 所处行业等级
-    share.industry = pIndustry;
+    m_pStockStorage->InsertShareNameToTrie(pShare->name, pShare->code);
+    // 保存信息到文件
+    pShare->staff_num = o["EMP_NUM"];             // 公司员工数量
+    pShare->register_capital = o["REG_CAPITAL"];  // 公司注册资本
+    ShareBriefInfo* pBriefInfo = new ShareBriefInfo();
+    pBriefInfo->company_name = o["ORG_NAME"];
+    pBriefInfo->old_names = !o["FORMERNAME"].is_null() ? o["FORMERNAME"] : "";
+    pBriefInfo->company_website = o["ORG_WEB"];
+    pBriefInfo->registered_address = o["REG_ADDRESS"];
+    pBriefInfo->staff_num = o["EMP_NUM"];
+    pBriefInfo->registered_capital = o["REG_CAPITAL"];
+    pBriefInfo->law_office = o["LAW_FIRM"];
+    pBriefInfo->accounting_office = o["ACCOUNTFIRM_NAME"];
+    pBriefInfo->ceo = o["CHAIRMAN"];
+    pBriefInfo->board_secretary = o["SECRETARY"];
+    pBriefInfo->office_address = o["ADDRESS"];
+    pBriefInfo->company_profile = o["ORG_PROFILE"];
+    pShare->ptr_brief_info = pBriefInfo;
 }

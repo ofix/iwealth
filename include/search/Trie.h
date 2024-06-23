@@ -40,12 +40,13 @@ class Trie {
     void remove(const std::string& word);
     void removePrefixWith(const std::string& word);
     std::vector<std::string> listPrefixWith(const std::string& word);
-    std::vector<std::string> list();
+    std::unordered_map<std::string, std::vector<std::string>> list();
     int maxDepth();
     int wordCount();
 
    private:
     void insertWord(node* n, std::string word, std::vector<std::string>* words);
+    void insertWord(node* n, std::string word, std::unordered_map<std::string, std::vector<std::string>>* pMap);
     void maxDepth(node*, int*);
     void wordCount(node*, int*);
     node* root;

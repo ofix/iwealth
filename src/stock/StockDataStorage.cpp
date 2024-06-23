@@ -9,6 +9,7 @@
 
 #include "stock/StockDataStorage.h"
 #include <wx/wx.h>
+#include "search/ChinesePinYin.h"
 #include "spider/Spider.h"
 #include "spider/SpiderShareBasicInfo.h"
 #include "spider/SpiderShareCategory.h"
@@ -34,6 +35,7 @@ StockDataStorage::StockDataStorage()
     m_path_category_province = m_data_dir + "stock_province.csv";
     m_path_category_industry = m_data_dir + "stock_industry.csv";
     m_path_category_concept = m_data_dir + "stock_concept.csv";
+    m_path_share_names = m_data_dir + "stock_share_names.rch";
     Init();
 }
 
@@ -119,20 +121,6 @@ void StockDataStorage::LoadLocalFileCategory(ShareCategoryType type,
                 }
             }
         }
-    }
-}
-
-Share* StockDataStorage::FindShare(std::string& share_code) {
-    if (m_code_share_hash.find(share_code) != m_code_share_hash.end()) {
-        return m_code_share_hash[share_code];
-    }
-    return nullptr;
-}
-
-/// @brief 将股票代码映射到Share*指针，方便程序快速查找
-void StockDataStorage::HashShares() {
-    for (Share& share : m_market_shares) {
-        m_code_share_hash[share.code] = &share;
     }
 }
 
@@ -256,39 +244,78 @@ void StockDataStorage::SaveCategory(ShareCategoryType type,
     FileTool::SaveFile(path, lines);
 }
 
-std::vector<Share> StockDataStorage::GetMarketAllShares() {
-    return m_market_shares;
+Share* StockDataStorage::FindShare(std::string& share_code) {
+    if (m_code_share_hash.find(share_code) != m_code_share_hash.end()) {
+        return m_code_share_hash[share_code];
+    }
+    return nullptr;
 }
 
-bool StockDataStorage::LoadLocalFileQuote(std::string& path, std::vector<Share>& shares) {
-    try {
-        std::string json_data = FileTool::LoadFile(path);
-        json arr = json::parse(json_data);
-        for (auto& item : arr) {
-            Share share;
-            share.code = item["code"].template get<std::string>();                               // 股票代码
-            share.name = item["name"].template get<std::string>();                               // 股票名称
-            share.market = static_cast<Market>(item["market"].template get<int>());              // 股票市场
-            share.price_yesterday_close = item["price_yesterday_close"].template get<double>();  // 昨天收盘价
-            share.price_now = item["price_now"].template get<double>();                          // 当前价
-            share.price_min = item["price_min"].template get<double>();                          // 最低价
-            share.price_max = item["price_max"].template get<double>();                          // 最高价
-            share.price_open = item["price_open"].template get<double>();                        // 开盘价
-            share.price_close = item["price_close"].template get<double>();                      // 收盘价
-            share.price_amplitude = item["price_amplitude"].template get<double>();              // 股价振幅
-            share.change_amount = item["change_amount"].template get<double>();                  // 涨跌额
-            share.change_rate = item["change_rate"].template get<double>();                      // 涨跌幅度
-            share.volume = item["volume"].template get<uint64_t>();                              // 成交量
-            share.amount = item["amount"].template get<uint64_t>();                              // 成交额
-            share.turnover_rate = item["turnover_rate"].template get<double>();                  // 换手率
-            share.qrr = item["qrr"].template get<double>();                                      // 量比
-            shares.push_back(share);
-        }
-    } catch (std::exception& e) {
-        std::cout << e.what() << std::endl;
-        return false;
+/// @brief 将股票代码映射到Share*指针，方便程序快速查找
+void StockDataStorage::HashShares() {
+    for (Share& share : m_market_shares) {
+        m_code_share_hash[share.code] = &share;
     }
-    return true;
+}
+
+/// @brief 根据用户输入的前缀字符返回对应的股票指针列表
+std::vector<Share*> StockDataStorage::SearchShares(const std::string& prefix) {
+    std::vector<std::string> share_codes = m_trie.listPrefixWith(prefix);
+    std::vector<Share*> result;
+    for (auto& share_code : share_codes) {
+        Share* pShare = FindShare(share_code);
+        if (pShare) {
+            result.emplace_back(pShare);
+        }
+    }
+    return result;
+}
+
+/// @brief 将股票名称插入Trie树，方便快速搜索股票
+/// @param share_name 股票名称（曾用名)
+/// @param share_code 股票代码
+void StockDataStorage::InsertShareNameToTrie(const std::string& share_name, const std::string& share_code) {
+    m_trie.insert(share_name, share_code);
+    // 获取拼音，然后插入
+    std::string share_name_pinyin = ChinesePinYin::GetFirstLetters(share_name);
+    m_trie.insert(share_name_pinyin, share_code);
+}
+
+/// @brief 保存股票代号=>股票名称，股票曾用名，股票拼音到文件
+/// @return
+bool StockDataStorage::SaveShareNames() {
+    std::unordered_map<std::string, std::vector<std::string>> names = m_trie.list();
+    std::string lines = "";
+    for (auto& share_names : names) {
+        std::string line = share_names.first + ",";    // 股票代号
+        for (auto& share_name : share_names.second) {  // 股票曾用名|拼音
+            line += share_name + "|";
+        }
+        // 去掉最后多余的 "|"
+        if (!line.empty()) {
+            line.pop_back();
+        }
+        line += "\n";
+        lines += line;
+    }
+    return FileTool::SaveFile(m_path_share_names, lines);
+}
+
+// 加载本地股票曾用名和名称
+void StockDataStorage::LoadLocalFileShareNames() {
+    std::string lines = FileTool::LoadFile(m_path_share_names);
+    std::vector<std::string> shares = split(lines, "\n");
+    for (auto& share : shares) {
+        if (share.length() < 10) {
+            break;
+        }
+        std::vector<std::string> map = split(share, ",");
+        std::string share_code = map[0];
+        std::vector<std::string> share_names = split(map[1], "|");
+        for (auto& share_name : share_names) {
+            InsertShareNameToTrie(share_name, share_code);
+        }
+    }
 }
 
 bool StockDataStorage::SaveShareKLines(const KlineType kline_type) {
@@ -330,6 +357,41 @@ bool StockDataStorage::SaveShareKlines(const std::string& dir_path,
             lines += line;
         }
         FileTool::SaveFile(file_path, lines);
+    }
+    return true;
+}
+
+std::vector<Share> StockDataStorage::GetMarketAllShares() {
+    return m_market_shares;
+}
+
+bool StockDataStorage::LoadLocalFileQuote(std::string& path, std::vector<Share>& shares) {
+    try {
+        std::string json_data = FileTool::LoadFile(path);
+        json arr = json::parse(json_data);
+        for (auto& item : arr) {
+            Share share;
+            share.code = item["code"].template get<std::string>();                               // 股票代码
+            share.name = item["name"].template get<std::string>();                               // 股票名称
+            share.market = static_cast<Market>(item["market"].template get<int>());              // 股票市场
+            share.price_yesterday_close = item["price_yesterday_close"].template get<double>();  // 昨天收盘价
+            share.price_now = item["price_now"].template get<double>();                          // 当前价
+            share.price_min = item["price_min"].template get<double>();                          // 最低价
+            share.price_max = item["price_max"].template get<double>();                          // 最高价
+            share.price_open = item["price_open"].template get<double>();                        // 开盘价
+            share.price_close = item["price_close"].template get<double>();                      // 收盘价
+            share.price_amplitude = item["price_amplitude"].template get<double>();              // 股价振幅
+            share.change_amount = item["change_amount"].template get<double>();                  // 涨跌额
+            share.change_rate = item["change_rate"].template get<double>();                      // 涨跌幅度
+            share.volume = item["volume"].template get<uint64_t>();                              // 成交量
+            share.amount = item["amount"].template get<uint64_t>();                              // 成交额
+            share.turnover_rate = item["turnover_rate"].template get<double>();                  // 换手率
+            share.qrr = item["qrr"].template get<double>();                                      // 量比
+            shares.push_back(share);
+        }
+    } catch (std::exception& e) {
+        std::cout << e.what() << std::endl;
+        return false;
     }
     return true;
 }

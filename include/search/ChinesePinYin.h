@@ -5,7 +5,7 @@
 
 class ChinesePinYin {
    public:
-    std::string GetFirstLetters(const std::string& chinese);
+    static std::string GetFirstLetters(const std::string& chinese);
 };
 
 #endif  // ChinesePinYin_H

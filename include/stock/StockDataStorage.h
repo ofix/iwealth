@@ -39,6 +39,9 @@ class StockDataStorage {
     uint16_t GetStockMarketShareCountByLocation(const std::string&& location);
     std::vector<Share> GetMarketAllShares();
     std::string GetStockDataSaveDir();
+    void InsertShareNameToTrie(const std::string& share_name, const std::string& share_code);  // 插入股票
+    std::vector<Share*> SearchShares(const std::string& prefix);
+    bool SaveShareNames();  // 保存股票曾用名和名称到文件
     bool SaveShareKLines(const KlineType kline_type);
     Share* FindShare(std::string& share_code);
 
@@ -80,7 +83,8 @@ class StockDataStorage {
     void LoadLocalFileCategory(ShareCategoryType type,
                                const std::string& file_path,
                                ShareCategory& share_categories);  // 加载本地板块->股票映射文件
-    void LoadLocalFileShare();  // 加载本地 日K线/周K线/月K线/季度K线/年K线文件
+    void LoadLocalFileShare();       // 加载本地 日K线/周K线/月K线/季度K线/年K线文件
+    void LoadLocalFileShareNames();  // 加载本地股票曾用名和名称
 
     void OnTimeout(uint32_t timer_id, void* args);
     void OnTimerFetchShareQuoteData(uint32_t timer_id, void* args);
@@ -96,6 +100,7 @@ class StockDataStorage {
     std::string m_path_category_province;  // 股票省份数据文件路径
     std::string m_path_category_industry;  // 股票行业数据文件路径
     std::string m_path_category_concept;   // 股票概念数据文件路径
+    std::string m_path_share_names;        // 股票曾用名数据文件路径
 
     uint16_t m_market_share_total;         // 市场所有股票之和
     std::string m_path_all_market_shares;  // 所有股票代号本地保存路径

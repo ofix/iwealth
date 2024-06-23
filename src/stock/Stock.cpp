@@ -40,6 +40,7 @@ Share::Share()
       industry_name(""),
       market(Market::ShangHai),
       province(""),
+      ptr_brief_info(nullptr),
       ptr_basic_info(nullptr) {
 }
 
@@ -74,13 +75,28 @@ Share& Share::operator=(const Share& other) {
     this->industry_name = other.industry_name;
     this->market = other.market;
     this->province = other.province;
+    if (other.ptr_brief_info != nullptr) {
+        ptr_brief_info->company_name = other.ptr_brief_info->company_name;
+        ptr_brief_info->old_names = other.ptr_brief_info->old_names;
+        ptr_brief_info->company_website = other.ptr_brief_info->company_website;
+        ptr_brief_info->registered_address = other.ptr_brief_info->registered_address;
+        ptr_brief_info->staff_num = other.ptr_brief_info->staff_num;
+        ptr_brief_info->registered_capital = other.ptr_brief_info->registered_capital;  // 注册资本
+        ptr_brief_info->law_office = other.ptr_brief_info->law_office;                  // 律师事务所
+        ptr_brief_info->accounting_office = other.ptr_brief_info->accounting_office;    // 会计事务所
+        ptr_brief_info->ceo = other.ptr_brief_info->ceo;                                // 公司董事长
+        ptr_brief_info->board_secretary = other.ptr_brief_info->board_secretary;        // 董秘
+        ptr_brief_info->office_address = other.ptr_brief_info->office_address;          // 办公地址
+        ptr_brief_info->company_profile = other.ptr_brief_info->company_profile;        // 公司简介
+    } else {
+        ptr_brief_info = nullptr;
+    }
     if (other.ptr_basic_info != nullptr) {
-        ptr_basic_info->capital_change_history = other.ptr_basic_info->capital_change_history;
-        ptr_basic_info->company_name = other.ptr_basic_info->company_name;
-        ptr_basic_info->core_bussiness = other.ptr_basic_info->core_bussiness;
         ptr_basic_info->history_bonus = other.ptr_basic_info->history_bonus;
+        ptr_basic_info->total_bonus = other.ptr_basic_info->total_bonus;
+        ptr_basic_info->total_fund = other.ptr_basic_info->total_fund;
+        ptr_basic_info->capital_change_history = other.ptr_basic_info->capital_change_history;
         ptr_basic_info->holder_change_history = other.ptr_basic_info->holder_change_history;
-        ptr_basic_info->ipo_date = other.ptr_basic_info->ipo_date;
         ptr_basic_info->share_investment_funds = other.ptr_basic_info->share_investment_funds;
         for (int i = 0; i < 10; i++) {
             ptr_basic_info->top10_share_holders[i] = other.ptr_basic_info->top10_share_holders[i];
@@ -88,8 +104,6 @@ Share& Share::operator=(const Share& other) {
         for (int i = 0; i < 10; i++) {
             ptr_basic_info->top10_trade_share_holders[i] = other.ptr_basic_info->top10_trade_share_holders[i];
         }
-        ptr_basic_info->total_bonus = other.ptr_basic_info->total_bonus;
-        ptr_basic_info->total_fund = other.ptr_basic_info->total_fund;
     } else {
         ptr_basic_info = nullptr;  // 必须赋初值，否则std::sort会拿到野指针
     }
@@ -127,13 +141,28 @@ Share::Share(const Share& other)
       industry_name(other.industry_name),
       market(other.market),
       province(other.province) {
+    if (other.ptr_brief_info != nullptr) {
+        ptr_brief_info->company_name = other.ptr_brief_info->company_name;
+        ptr_brief_info->old_names = other.ptr_brief_info->old_names;
+        ptr_brief_info->company_website = other.ptr_brief_info->company_website;
+        ptr_brief_info->registered_address = other.ptr_brief_info->registered_address;
+        ptr_brief_info->staff_num = other.ptr_brief_info->staff_num;
+        ptr_brief_info->registered_capital = other.ptr_brief_info->registered_capital;  // 注册资本
+        ptr_brief_info->law_office = other.ptr_brief_info->law_office;                  // 律师事务所
+        ptr_brief_info->accounting_office = other.ptr_brief_info->accounting_office;    // 会计事务所
+        ptr_brief_info->ceo = other.ptr_brief_info->ceo;                                // 公司董事长
+        ptr_brief_info->board_secretary = other.ptr_brief_info->board_secretary;        // 董秘
+        ptr_brief_info->office_address = other.ptr_brief_info->office_address;          // 办公地址
+        ptr_brief_info->company_profile = other.ptr_brief_info->company_profile;        // 公司简介
+    } else {
+        ptr_brief_info = nullptr;
+    }
     if (other.ptr_basic_info != nullptr) {
-        ptr_basic_info->capital_change_history = other.ptr_basic_info->capital_change_history;
-        ptr_basic_info->company_name = other.ptr_basic_info->company_name;
-        ptr_basic_info->core_bussiness = other.ptr_basic_info->core_bussiness;
         ptr_basic_info->history_bonus = other.ptr_basic_info->history_bonus;
+        ptr_basic_info->total_bonus = other.ptr_basic_info->total_bonus;
+        ptr_basic_info->total_fund = other.ptr_basic_info->total_fund;
+        ptr_basic_info->capital_change_history = other.ptr_basic_info->capital_change_history;
         ptr_basic_info->holder_change_history = other.ptr_basic_info->holder_change_history;
-        ptr_basic_info->ipo_date = other.ptr_basic_info->ipo_date;
         ptr_basic_info->share_investment_funds = other.ptr_basic_info->share_investment_funds;
         for (int i = 0; i < 10; i++) {
             ptr_basic_info->top10_share_holders[i] = other.ptr_basic_info->top10_share_holders[i];
@@ -141,8 +170,6 @@ Share::Share(const Share& other)
         for (int i = 0; i < 10; i++) {
             ptr_basic_info->top10_trade_share_holders[i] = other.ptr_basic_info->top10_trade_share_holders[i];
         }
-        ptr_basic_info->total_bonus = other.ptr_basic_info->total_bonus;
-        ptr_basic_info->total_fund = other.ptr_basic_info->total_fund;
     } else {
         ptr_basic_info = nullptr;  // 必须赋初值，否则std::sort会拿到野指针
     }

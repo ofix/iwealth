@@ -20,5 +20,5 @@ class SpiderShareBasicInfo : public Spider {
     void FetchBasicInfo(Share& share);
     void ConcurrentFetchBasicInfo();
     std::string GetRequestUrl(const Share& share);
-    void ParseResponse(std::string& response, Share& share);
+    void ParseResponse(std::string& response, Share* pShare);
 };

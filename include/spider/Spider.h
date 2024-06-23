@@ -21,6 +21,10 @@ struct QuoteCrawlExtra : CrawlExtra {
     Market market;  // 深交所/北交所/上交所
 };
 
+struct BasicInfoCrawlExtra : CrawlExtra {
+    Share* share;  //
+};
+
 struct CategoryCrawlExtra : CrawlExtra {
     ShareCategoryType category_type;  // 板块类型(概念/行业/区域)
     std::string category_name;        // 板块名称

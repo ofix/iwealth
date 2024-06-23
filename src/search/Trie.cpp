@@ -92,10 +92,25 @@ void Trie::removePrefixWith(const string& word) {
 
 void Trie::insertWord(node* n, std::string word, std::vector<std::string>* list) {
     if (n->is_word) {
-        list->push_back(n->share_code);  // 返回股票代码
+        list->emplace_back(n->share_code);  // 返回股票代码
     }
     for (std::pair<std::string, node*> pair : n->child) {
         insertWord(pair.second, word + pair.first, list);
+    }
+}
+
+void Trie::insertWord(node* n, std::string word, std::unordered_map<std::string, std::vector<std::string>>* pMap) {
+    if (n->is_word) {
+        if (pMap->find(n->share_code) != pMap->end()) {
+            (*pMap)[n->share_code].emplace_back(word);
+        } else {
+            std::vector<std::string> names;
+            names.emplace_back(word);
+            (*pMap)[n->share_code] = names;
+        }
+    }
+    for (std::pair<std::string, node*> pair : n->child) {
+        insertWord(pair.second, word + pair.first, pMap);
     }
 }
 
@@ -114,8 +129,8 @@ vector<string> Trie::listPrefixWith(const string& word) {
     return list;
 }
 
-vector<string> Trie::list() {
-    vector<string> list;
+std::unordered_map<std::string, std::vector<std::string>> Trie::list() {
+    std::unordered_map<std::string, std::vector<std::string>> list;
     insertWord(root, "", &list);
     return list;
 }
