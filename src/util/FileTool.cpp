@@ -73,13 +73,15 @@ std::string FileTool::GetFileModifiedTime(const std::string& path) {
     }
 
     FILETIME modified_time;
+    FILETIME local_modified_time;
     if (!GetFileTime(hFile, NULL, NULL, &modified_time)) {
         CloseHandle(hFile);
         return "";
     }
 
     SYSTEMTIME system_time;
-    FileTimeToSystemTime(&modified_time, &system_time);
+    FileTimeToLocalFileTime(&modified_time, &local_modified_time);
+    FileTimeToSystemTime(&local_modified_time, &system_time);
 
     char buffer[80];
     sprintf(buffer, "%04d-%02d-%02d %02d:%02d:%02d", system_time.wYear, system_time.wMonth, system_time.wDay,

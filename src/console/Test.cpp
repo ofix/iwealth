@@ -164,6 +164,15 @@ void TestTrie() {
 }
 
 void TestChinesePinYin() {
+    std::vector<std::string> share_names = {
+        "上海莱士",
+        "小商品城",
+        "*ST商城",
+    };
+    for (auto& share_name : share_names) {
+        std::string pingyin = ChinesePinYin::GetFirstLetters(share_name);
+        std::cout << share_name << " -> " << pingyin << std::endl;
+    }
 }
 
 int main(int /*argc*/, char** /*argv*/) {
@@ -174,6 +183,7 @@ int main(int /*argc*/, char** /*argv*/) {
     // TestSpiderShareHexun();
     // TestDateTime();
     // TestFile();
-    TestTrie();
+    // TestTrie();
+    TestChinesePinYin();
     std::cin.get();
 }
