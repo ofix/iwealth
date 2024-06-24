@@ -52,6 +52,26 @@ std::vector<std::string> split(const std::string& str, const std::string& delimi
 }
 
 /**
+ * @brief 字符串数组拼接指定字符串
+ * @param arr 字符串数组
+ * @param delimiter 拼接字符串
+ * @return std::string
+ */
+std::string join(const std::vector<std::string>& arr, const std::string& delimiter) {
+    std::string result;
+    for (const auto& str : arr) {
+        result += str;
+        result += delimiter;
+    }
+    // 去掉最后多余的分隔符
+    for (size_t i = 0; i < delimiter.size(); i++) {
+        result.pop_back();
+    }
+
+    return result;
+}
+
+/**
  * @todo 移除字符串左边的空白字符(\r\n\t\s)，修改原始字符串
  * @param str 原始字符串
  * @author songhuabiao@greatwall.com.cn

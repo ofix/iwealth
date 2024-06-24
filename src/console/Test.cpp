@@ -1,5 +1,6 @@
 #include <string>
 #include <vector>
+#include "search/ChinesePinYin.h"
 #include "search/LevelTree.hpp"
 #include "search/Trie.h"
 #include "spider/SpiderConceptListEastMoney.h"
@@ -155,6 +156,14 @@ void TestTrie() {
     for (auto& share : shares) {
         std::cout << share << std::endl;
     }
+    std::unordered_map<std::string, std::vector<std::string>> result = trie.list();
+    for (auto& share : result) {
+        std::cout << "[" << share.first << "] = ";
+        std::cout << join(share.second, ",") << std::endl;
+    }
+}
+
+void TestChinesePinYin() {
 }
 
 int main(int /*argc*/, char** /*argv*/) {

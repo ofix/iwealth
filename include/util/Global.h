@@ -24,6 +24,7 @@ typedef struct _cell_size {
 std::string exec(const char* cmd);
 std::string now();
 std::vector<std::string> split(const std::string& str, const std::string& delimiter = "\n");
+std::string join(const std::vector<std::string>& arr, const std::string& delimiter = ",");
 bool end_with(const std::string& origin, const std::string& target);
 void trim(std::string& str);
 void ltrim(std::string& str);
