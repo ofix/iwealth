@@ -7,5 +7,6 @@
 		<bg>wxSYS_COLOUR_MENUTEXT</bg>
 		<pos_arg>1</pos_arg>
 		<size_arg>1</size_arg>
+		<style>wxDEFAULT_FRAME_STYLE|wxWANTS_CHARS</style>
 	</object>
 </wxsmith>

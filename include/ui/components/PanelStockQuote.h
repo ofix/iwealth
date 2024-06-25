@@ -15,6 +15,8 @@ class PanelStockQuote : public wxPanel {
                     const wxSize& size = wxDefaultSize);
     virtual ~PanelStockQuote();
 
+    RichGrid* GetGridCtrl();
+
     //(*Declarations(PanelStockQuote)
     RichGrid* m_gridCtrlQuote;
     //*)

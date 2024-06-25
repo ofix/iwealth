@@ -16,7 +16,8 @@ END_EVENT_TABLE()
 
 RichMainFrame::RichMainFrame(wxWindow* parent, wxWindowID id, const wxPoint& /*point*/, const wxSize& /*size*/) {
     //(*Initialize(RichMainFrame)
-    Create(parent, id, _("东方巴菲特"), wxDefaultPosition, wxDefaultSize, wxDEFAULT_FRAME_STYLE, _T("id"));
+    Create(parent, id, _("东方巴菲特"), wxDefaultPosition, wxDefaultSize, wxDEFAULT_FRAME_STYLE | wxWANTS_CHARS,
+           _T("id"));
     SetClientSize(wxSize(364, 600));
     Move(wxDefaultPosition);
     SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_MENUTEXT));
@@ -46,11 +47,22 @@ RichMainFrame::RichMainFrame(wxWindow* parent, wxWindowID id, const wxPoint& /*p
     Bind(wxEVT_MENU, &RichMainFrame::OnAbout, this, wxID_ABOUT);
     Bind(wxEVT_MENU, &RichMainFrame::OnExit, this, wxID_EXIT);
     // 初始化主窗口面板
-    m_panelStockQuota = new PanelStockQuote(this, ID_PANEL_STOCK_QUOTE, wxPoint(384, 48), wxSize(1240, 600));
-    m_panelStockQuota->LoadStockMarketQuote();
-    m_panelStockQuota->Show();
+    m_panelStockQuote = new PanelStockQuote(this, ID_PANEL_STOCK_QUOTE, wxPoint(384, 48), wxSize(1240, 600));
+    m_panelStockQuote->LoadStockMarketQuote();
+    m_panelStockQuote->Show();
+    m_panelStockQuote->GetGridCtrl()->Bind(wxEVT_CHAR, &RichMainFrame::OnChar, this);
 
     Maximize();  // 初始化最大化
+}
+
+// 处理按键按下事件
+void RichMainFrame::OnChar(wxKeyEvent& event) {
+    int key = event.GetKeyCode();
+    wxString keyword = wxString(key);
+    if (key) {
+        std::cout << keyword.c_str() << std::endl;
+    }
+    event.Skip();
 }
 
 // 监听异步子线程消息
@@ -58,7 +70,7 @@ void RichMainFrame::OnStorageDataReady(wxThreadEvent& event) {
     wxString data = event.GetString();
     std::cout << "thread event data: " << event.GetString() << std::endl;
     if (data == "Quote") {
-        m_panelStockQuota->LoadStockMarketQuote();
+        m_panelStockQuote->LoadStockMarketQuote();
     }
 }
 void RichMainFrame::OnExit(wxCommandEvent& /*event*/) {

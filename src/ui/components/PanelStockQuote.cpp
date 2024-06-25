@@ -20,7 +20,7 @@ END_EVENT_TABLE()
 
 PanelStockQuote::PanelStockQuote(wxWindow* parent, wxWindowID id, const wxPoint& pos, const wxSize& size) {
     //(*Initialize(PanelStockQuote)
-    Create(parent, id, pos, size, wxTAB_TRAVERSAL, _T("Panel_StockQuote"));
+    Create(parent, id, pos, size, wxTAB_TRAVERSAL | wxWANTS_CHARS, _T("Panel_StockQuote"));
     m_gridCtrlQuote = new RichGrid(this, ID_GRIDCTRL_QUOTA, wxPoint(0, 0), size);
     wxFont quote_font(14, wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL, false, _T("微软雅黑"),
                       wxFONTENCODING_DEFAULT);
@@ -66,6 +66,10 @@ PanelStockQuote::PanelStockQuote(wxWindow* parent, wxWindowID id, const wxPoint&
     }
     // StaticText1 = new wxStaticText(this, ID_STATICTEXT1, _("Label"), wxPoint(232,232), wxDefaultSize, 0,
     // _T("ID_STATICTEXT1"));
+}
+
+RichGrid* PanelStockQuote::GetGridCtrl() {
+    return m_gridCtrlQuote;
 }
 
 // 加载市场当前行情并显示

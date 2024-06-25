@@ -38,7 +38,7 @@
 
 namespace {
 
-//#define DEBUG_ATTR_CACHE
+// #define DEBUG_ATTR_CACHE
 #ifdef DEBUG_ATTR_CACHE
 static size_t gs_nAttrCacheHits = 0;
 static size_t gs_nAttrCacheMisses = 0;

@@ -23,6 +23,7 @@ class RichMainFrame : public wxFrame {
                   const wxPoint& pos = wxDefaultPosition,
                   const wxSize& size = wxDefaultSize);
     virtual ~RichMainFrame();
+    virtual void OnChar(wxKeyEvent& event);
 
    protected:
     //(*Identifiers(RichMainFrame)
@@ -36,6 +37,6 @@ class RichMainFrame : public wxFrame {
     void OnStorageDataReady(wxThreadEvent& evt);
 
    private:
-    PanelStockQuote* m_panelStockQuota;
+    PanelStockQuote* m_panelStockQuote;
     DECLARE_EVENT_TABLE()
 };
