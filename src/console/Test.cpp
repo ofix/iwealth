@@ -170,8 +170,18 @@ void TestChinesePinYin() {
         "*ST商城",
     };
     for (auto& share_name : share_names) {
-        std::string pingyin = ChinesePinYin::GetFirstLetters(share_name);
-        std::cout << share_name << " -> " << pingyin << std::endl;
+        std::cout << share_name << " -> ";
+        std::vector<std::string> pinyin = ChinesePinYin::GetFirstLetters(share_name);
+        for (auto& py : pinyin) {
+            std::cout << py << ",";
+        }
+        std::cout << std::endl;
+        std::cout << share_name << " -> ";
+        std::vector<std::string> full_pinyin = ChinesePinYin::GetLetters(share_name);
+        for (auto& py : full_pinyin) {
+            std::cout << py << ",";
+        }
+        std::cout << std::endl;
     }
 }
 

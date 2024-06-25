@@ -7,12 +7,12 @@
 
 class ChinesePinYin {
    public:
-    static std::string GetFirstLetters(const std::string& chinese);
+    static std::vector<std::string> GetFirstLetters(const std::string& chinese);
+    static std::vector<std::string> GetLetters(const std::string& chinese);
 
    private:
     static bool LoadPinYinDictionary(const std::string& dict_path);
-    static bool m_inited = false;
-    static std::unordered_map<std::string, std::vector<std::string>> m_pinyin_dict;
+    static std::unordered_map<std::string, std::vector<std::string>> pinyin_dict;
 };
 
 #endif  // ChinesePinYin_H

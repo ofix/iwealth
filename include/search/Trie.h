@@ -4,19 +4,19 @@
 #include <unordered_map>
 #include <vector>
 
-#define NEXT_UTF8_CHAR(i, word)            \
-    int wsize = 1;                         \
-    if ((word[i] & 0xf8) == 0xf0) {        \
-        wsize = 4;                         \
-    } else if ((word[i] & 0xf0) == 0xe0) { \
-        wsize = 3;                         \
-    } else if ((word[i] & 0xe0) == 0xc0) { \
-        wsize = 2;                         \
-    }                                      \
-    if ((i + wsize) > word.length()) {     \
-        wsize = 1;                         \
-    }                                      \
-    std::string c = word.substr(i, wsize); \
+#define NEXT_UTF8_CHAR(i, word, letter)         \
+    int wsize = 1;                              \
+    if ((word[i] & 0xf8) == 0xf0) {             \
+        wsize = 4;                              \
+    } else if ((word[i] & 0xf0) == 0xe0) {      \
+        wsize = 3;                              \
+    } else if ((word[i] & 0xe0) == 0xc0) {      \
+        wsize = 2;                              \
+    }                                           \
+    if ((i + wsize) > word.length()) {          \
+        wsize = 1;                              \
+    }                                           \
+    std::string letter = word.substr(i, wsize); \
     i += wsize;
 
 class Trie {

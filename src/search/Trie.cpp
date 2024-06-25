@@ -38,11 +38,11 @@ void Trie::build(const std::vector<std::pair<std::string, std::string>>& words) 
 void Trie::insert(const std::string& word, const std::string& share_code) {
     node* n = root;
     for (size_t i = 0; i < word.length();) {  // utf-8字符串
-        NEXT_UTF8_CHAR(i, word)
-        if (n->child.find(c) == n->child.end()) {  // 没有找到对应的字符
-            n->child[c] = new node(n->depth + 1);
+        NEXT_UTF8_CHAR(i, word, character)
+        if (n->child.find(character) == n->child.end()) {  // 没有找到对应的字符
+            n->child[character] = new node(n->depth + 1);
         }
-        n = n->child[c];
+        n = n->child[character];
     }
     n->is_word = true;
     n->share_code = share_code;
@@ -51,11 +51,11 @@ void Trie::insert(const std::string& word, const std::string& share_code) {
 bool Trie::search(const string& word) {
     node* n = root;
     for (size_t i = 0; i < word.length();) {  // utf-8字符串
-        NEXT_UTF8_CHAR(i, word)
-        if (n->child.find(c) == n->child.end()) {
+        NEXT_UTF8_CHAR(i, word, character)
+        if (n->child.find(character) == n->child.end()) {
             return false;
         }
-        n = n->child[c];
+        n = n->child[character];
     }
     return n->is_word;
 }
@@ -63,11 +63,11 @@ bool Trie::search(const string& word) {
 void Trie::remove(const string& word) {
     node* n = root;
     for (size_t i = 0; i < word.length();) {  // utf-8字符串
-        NEXT_UTF8_CHAR(i, word)
-        if (n->child.find(c) == n->child.end()) {
+        NEXT_UTF8_CHAR(i, word, character)
+        if (n->child.find(character) == n->child.end()) {
             return;
         }
-        n = n->child[c];
+        n = n->child[character];
     }
     n->is_word = false;
 }
@@ -75,11 +75,11 @@ void Trie::remove(const string& word) {
 void Trie::removePrefixWith(const string& word) {
     node* n = root;
     for (size_t i = 0; i < word.length();) {  // utf-8字符串
-        NEXT_UTF8_CHAR(i, word)
-        if (n->child.find(c) == n->child.end()) {
+        NEXT_UTF8_CHAR(i, word, character)
+        if (n->child.find(character) == n->child.end()) {
             return;
         }
-        n = n->child[c];
+        n = n->child[character];
     }
 
     for (std::pair<std::string, node*> pair : n->child) {
@@ -118,11 +118,11 @@ vector<string> Trie::listPrefixWith(const string& word) {
     node* n = root;
     vector<string> list;
     for (size_t i = 0; i < word.length();) {  // utf-8字符串
-        NEXT_UTF8_CHAR(i, word)
-        if (n->child.find(c) == n->child.end()) {
+        NEXT_UTF8_CHAR(i, word, character)
+        if (n->child.find(character) == n->child.end()) {
             return list;
         }
-        n = n->child[c];
+        n = n->child[character];
     }
 
     insertWord(n, word, &list);
