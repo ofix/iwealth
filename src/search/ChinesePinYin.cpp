@@ -55,20 +55,20 @@ std::vector<std::string> ChinesePinYin::GetFirstLetters(const std::string& chine
             std::vector<std::string> multi_pinyin = pinyin_dict[letter];
             if (letters.empty()) {
                 for (const std::string& py : multi_pinyin) {
-                    letters.push_back(py.substr(0, 1));
+                    letters.emplace_back(py.substr(0, 1));
                 }
             } else {
                 std::vector<std::string> new_letters;
                 for (const std::string& py : letters) {
                     for (const std::string& py_new : multi_pinyin) {
-                        new_letters.push_back(py + py_new.substr(0, 1));
+                        new_letters.emplace_back(py + py_new.substr(0, 1));
                     }
                 }
                 letters = new_letters;
             }
         } else {
             if (letters.empty()) {
-                letters.push_back(letter);
+                letters.emplace_back(letter);
             } else {
                 for (std::string& py : letters) {
                     py += letter;
@@ -77,6 +77,15 @@ std::vector<std::string> ChinesePinYin::GetFirstLetters(const std::string& chine
         }
     }
     return letters;
+}
+
+static std::vector<std::string> ToCharList(const std::string& chinese) {
+    std::vector<std::string> list = {};
+    for (size_t i = 0; i < chinese.length();) {
+        NEXT_UTF8_CHAR(i, chinese, letter);
+        list.emplace_back(letter);
+    }
+    return list;
 }
 
 bool ChinesePinYin::LoadPinYinDictionary(const std::string& dict_path) {

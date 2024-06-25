@@ -165,13 +165,13 @@ void fill_chars(std::string& str, const char needle, size_t width, const std::st
     }
 }
 
-std::string to_upper_case(const std::string& str) {
+std::string to_uppercase(const std::string& str) {
     std::string result = str;
     std::transform(result.begin(), result.end(), result.begin(), ::toupper);
     return result;
 }
 
-std::string to_lower_case(const std::string& str) {
+std::string to_lowercase(const std::string& str) {
     std::string result = str;
     std::transform(result.begin(), result.end(), result.begin(), ::tolower);
     return result;
