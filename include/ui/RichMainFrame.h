@@ -24,7 +24,14 @@ class RichMainFrame : public wxFrame {
                   const wxPoint& pos = wxDefaultPosition,
                   const wxSize& size = wxDefaultSize);
     virtual ~RichMainFrame();
-    virtual void OnChar(wxKeyEvent& event);
+    void OnClose(wxCloseEvent& event);
+    void OnIconize(wxIconizeEvent& event);
+    void OnMaximize(wxMaximizeEvent& event);
+    void OnChar(wxKeyEvent& event);
+    void OnKeyDown(wxKeyEvent& event);
+    void OnGridCellLeftClick(wxGridEvent& event);
+    void OnGridCellLeftDblClick(wxGridEvent& event);
+    void AdjustDlgShareSearchPostion();
 
    protected:
     //(*Identifiers(RichMainFrame)
@@ -36,7 +43,7 @@ class RichMainFrame : public wxFrame {
     void OnExit(wxCommandEvent& event);
     void OnAbout(wxCommandEvent& event);
     // this is called when the event from the thread is received
-    void OnStorageDataReady(wxThreadEvent& evt);
+    void OnStorageDataReady(wxThreadEvent& event);
 
    private:
     PanelStockQuote* m_panelStockQuote;

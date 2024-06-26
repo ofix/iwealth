@@ -48,17 +48,48 @@ RichMainFrame::RichMainFrame(wxWindow* parent, wxWindowID id, const wxPoint& /*p
 
     Bind(wxEVT_MENU, &RichMainFrame::OnAbout, this, wxID_ABOUT);
     Bind(wxEVT_MENU, &RichMainFrame::OnExit, this, wxID_EXIT);
+    Bind(wxEVT_CLOSE_WINDOW, &RichMainFrame::OnClose, this);
+    Bind(wxEVT_ICONIZE, &RichMainFrame::OnIconize, this);
+    Bind(wxEVT_MAXIMIZE, &RichMainFrame::OnMaximize, this);
     // 初始化主窗口面板
     m_panelStockQuote = new PanelStockQuote(this, ID_PANEL_STOCK_QUOTE, wxPoint(384, 48), wxSize(1240, 600));
     m_panelStockQuote->LoadStockMarketQuote();
     m_panelStockQuote->Show();
     m_panelStockQuote->GetGridCtrl()->Bind(wxEVT_CHAR, &RichMainFrame::OnChar, this);
+    m_panelStockQuote->GetGridCtrl()->Bind(wxEVT_GRID_CELL_LEFT_CLICK, &RichMainFrame::OnGridCellLeftClick, this);
+    m_panelStockQuote->GetGridCtrl()->Bind(wxEVT_GRID_CELL_LEFT_DCLICK, &RichMainFrame::OnGridCellLeftDblClick, this);
+    m_panelStockQuote->GetGridCtrl()->Bind(wxEVT_KEY_DOWN, &RichMainFrame::OnKeyDown, this);
 
     m_dlgShareSearch = new DialogShareSearch(this, ID_DIALOG_SHARE_SEARCH, _T("股票精灵"));
     m_dlgShareSearch->ReLayout(wxSize(320, 320));
     m_dlgShareSearch->Show(false);  // 默认隐藏
 
     Maximize();  // 初始化最大化
+}
+
+void RichMainFrame::OnClose(wxCloseEvent& /*event*/) {
+    m_dlgShareSearch->Destroy();
+}
+
+void RichMainFrame::OnIconize(wxIconizeEvent& /*event*/) {
+    if (m_dlgShareSearch->IsShown()) {
+        m_dlgShareSearch->Show(false);
+    }
+}
+
+void RichMainFrame::OnMaximize(wxMaximizeEvent& /*event*/) {
+    if (m_dlgShareSearch->IsShown()) {
+        m_dlgShareSearch->Show(false);
+    }
+}
+
+// 全局处理 Alt+Tab 按键消息
+void RichMainFrame::OnKeyDown(wxKeyEvent& event) {
+    if (event.GetKeyCode() == WXK_TAB && event.AltDown()) {
+        std::cout << " alt+tab 被按下了" << std::endl;
+    } else {
+        event.Skip();
+    }
 }
 
 // 处理按键按下事件
@@ -68,17 +99,40 @@ void RichMainFrame::OnChar(wxKeyEvent& event) {
         wxChar key = event.GetUnicodeKey();
         wxString character(key);
         std::string keyword = character.ToStdString();
-        wxSize frame_size = this->GetSize();
-        wxSize popup_size = m_dlgShareSearch->GetSize();
-        wxPoint pt;
-        std::cout << "[Grid] " << event.GetKeyCode() << std::endl;
-
-        pt.x = frame_size.GetWidth() - popup_size.GetWidth() - 210;
-        pt.y = frame_size.GetHeight() - popup_size.GetHeight() - 110;
-        m_dlgShareSearch->SetPosition(pt);
         m_dlgShareSearch->SetKeyword(keyword);
+        AdjustDlgShareSearchPostion();
         m_dlgShareSearch->Show();
     }
+}
+
+void RichMainFrame::AdjustDlgShareSearchPostion() {
+    // 获取主窗口相对桌面的偏移位置
+    wxPoint offsetScreen = this->GetScreenPosition();
+    // 获取主窗口界面大小
+    wxSize frame_size = this->GetSize();
+    // 获取股票搜索对话框大小
+    wxSize dlg_size = m_dlgShareSearch->GetSize();
+    // 获取横向滚动条高度
+    int horizontalScrollbarHeight = wxSystemSettings::GetMetric(wxSYS_HSCROLL_Y);
+    // 获取和纵向滚动条宽度
+    int verticalScrollbarWidth = wxSystemSettings::GetMetric(wxSYS_VSCROLL_X);
+    wxPoint pt;
+    pt.x = frame_size.x - dlg_size.x + offsetScreen.x - horizontalScrollbarHeight - 4;
+    pt.y = frame_size.y - dlg_size.y + offsetScreen.y - verticalScrollbarWidth - 6;
+    m_dlgShareSearch->SetPosition(pt);
+}
+
+// 监听GridCtrl鼠标左键按下事件
+void RichMainFrame::OnGridCellLeftClick(wxGridEvent& /*event*/) {
+    if (m_dlgShareSearch) {
+        m_dlgShareSearch->Show(false);
+    }
+}
+
+// 双击股票行情，显示日K线图
+void RichMainFrame::OnGridCellLeftDblClick(wxGridEvent& event) {
+    int iRow = event.GetRow();
+    wxString share_code = m_panelStockQuote->GetGridCtrl()->GetCellValue(iRow, 1);
 }
 
 // 监听异步子线程消息

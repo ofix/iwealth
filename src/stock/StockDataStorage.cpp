@@ -307,6 +307,8 @@ std::vector<Share*> StockDataStorage::SearchShares(const std::string& prefix) {
 void StockDataStorage::InsertShareNameToTrie(const std::string& share_name, const std::string& share_code) {
     // 插入汉字
     m_trie.insert(share_name, share_code);
+    // 插入股票代码
+    m_trie.insert(share_code, share_code);
     // 插入拼音
     std::vector<std::string> share_name_pinyin = ChinesePinYin::GetFirstLetters(share_name);
     for (auto& pinyin : share_name_pinyin) {

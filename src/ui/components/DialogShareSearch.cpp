@@ -30,7 +30,7 @@ DialogShareSearch::DialogShareSearch(wxWindow* parent,
     Create(parent, id, title, pos, size, style, name);
     //*)
     m_textctrl_keyword =
-        new wxTextCtrl(this, ID_TEXTCTRL_KEYWORD, "", wxPoint(5, 5), wxSize(200, 32), wxTE_PROCESS_ENTER | wxHSCROLL);
+        new wxTextCtrl(this, ID_TEXTCTRL_KEYWORD, "", wxPoint(5, 5), wxSize(200, 32), wxTE_PROCESS_ENTER);
     m_listctrl_sharelist =
         new wxListCtrl(this, ID_LISTCTRL_SHARELIST, wxPoint(5, 48), wxSize(200, 148), wxLC_REPORT | wxLC_SINGLE_SEL);
     m_listctrl_sharelist->InsertColumn(0, CN("代码"));
@@ -67,16 +67,14 @@ void DialogShareSearch::SetShareList(const std::vector<Share*>& shares) {
 }
 
 void DialogShareSearch::SetKeyword(const std::string& keyword) {
-    m_keyword += keyword;
-    m_textctrl_keyword->SetValue(m_keyword);
-    m_textctrl_keyword->SetFocusFromKbd();
-    m_textctrl_keyword->SetFocus();
+    m_textctrl_keyword->SetValue(keyword);
+    m_textctrl_keyword->SetInsertionPointEnd();  // 移动光标到输入字符串末尾
+    Raise();                                     // 将搜索窗口置于最顶部
 }
 
 void DialogShareSearch::OnSearchShare(wxCommandEvent& event) {
     wxString input = m_textctrl_keyword->GetValue();
     std::string keyword = input.ToStdString();
-    std::cout << "search: " << keyword << std::endl;
     StockDataStorage* pStorage = static_cast<RichApplication*>(wxTheApp)->GetStockDataStorage();
     std::vector<Share*> shares = pStorage->SearchShares(keyword);
     SetShareList(shares);
