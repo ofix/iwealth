@@ -21,7 +21,7 @@ struct QuoteCrawlExtra : CrawlExtra {
     Market market;  // 深交所/北交所/上交所
 };
 
-struct BasicInfoCrawlExtra : CrawlExtra {
+struct BriefInfoCrawlExtra : CrawlExtra {
     Share* share;  //
 };
 

@@ -99,13 +99,13 @@ gui_sources = [
     'ui/RichMainFrame.cpp',
     'ui/RichHelper.cpp',
     'ui/components/PanelStockQuote.cpp',
-    'ui/components/PanelShareSearch.cpp',
+    'ui/components/PopupWndShareSearch.cpp',
     'ui/components/RichKlineCtrl.cpp',
     'ui/components/RichKlineInfoCtrl.cpp',
     'ui/components/RichVolumeBarCtrl.cpp',
     'ui/components/RichGrid.cpp',
     'stock/StockDataStorage.cpp',
-    'spider/SpiderShareBasicInfo.cpp',
+    'spider/SpiderShareBriefInfo.cpp',
     'spider/SpiderConceptListEastMoney.cpp',
     'spider/SpiderShareQuote.cpp',
     'spider/SpiderShareKline.cpp',
@@ -132,7 +132,7 @@ foreach file : gui_sources
 endforeach
 
 ui_cpp_args = cpp_args
-ui_cpp_args += ['-DIWEALTH']
+ui_cpp_args += ['-DIWEALTH','-DDEBUG']
 executable('iwealth', full_gui_sources,
             cpp_args:ui_cpp_args,
             link_args : ldflags,
@@ -143,7 +143,7 @@ console_sources = [
     'console/Test.cpp',
     'stock/Stock.cpp',
     'stock/StockDataStorage.cpp',
-    'spider/SpiderShareBasicInfo.cpp',
+    'spider/SpiderShareBriefInfo.cpp',
     'spider/SpiderConceptListEastMoney.cpp',
     'spider/SpiderShareQuote.cpp',
     'spider/SpiderShareKline.cpp',

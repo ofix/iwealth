@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////////////
-// Name:        iwealth/src/spider/SpiderShareBasicInfo.cpp
+// Name:        iwealth/src/spider/SpiderShareBriefInfo.cpp
 // Purpose:     crawl He Xun website's stock list information
 // Author:      songhuabiao
 // Created:     2024-05-15 10:58

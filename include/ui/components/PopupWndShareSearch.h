@@ -1,34 +1,39 @@
 #ifndef SHARESEARCHPANEL_H
 #define SHARESEARCHPANEL_H
 
-//(*Headers(PanelShareSearch)
+//(*Headers(PopupWndShareSearch)
 #include <wx/listctrl.h>
-#include <wx/panel.h>
+#include <wx/popupwin.h>
 #include <wx/textctrl.h>
 //*)
 #include <vector>
 #include "stock/Stock.h"
 
-class PanelShareSearch : public wxPanel {
+class PopupWndShareSearch : public wxPopupWindow {
    public:
-    PanelShareSearch(wxWindow* parent, wxWindowID id = wxID_ANY);
-    virtual ~PanelShareSearch();
+    PopupWndShareSearch(wxWindow* parent, int flags = wxBORDER_NONE);
+    virtual ~PopupWndShareSearch();
     void SetKeyword(const std::string& keyword);
     void SetShareList(const std::vector<Share*>& shares);
+    void ReLayout(const wxSize& size);
+    // 搜索股票
+    void OnSearchShare(wxCommandEvent& event);
+    // 退出搜索
+    void OnExitSearchShare(wxCommandEvent& event);
 
-    //(*Declarations(PanelShareSearch)
+    //(*Declarations(PopupWndShareSearch)
     static const long ID_TEXTCTRL_KEYWORD;
     static const long ID_LISTCTRL_SHARELIST;
     //*)
 
    protected:
-    //(*Identifiers(PanelShareSearch)
+    //(*Identifiers(PopupWndShareSearch)
     //*)
     wxListCtrl* m_listctrl_sharelist;
     wxTextCtrl* m_textctrl_keyword;
 
    private:
-    //(*Handlers(PanelShareSearch)
+    //(*Handlers(PopupWndShareSearch)
     //*)
     std::vector<Share*> m_shares;
     std::string m_keyword;

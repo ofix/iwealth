@@ -11,7 +11,7 @@
 #include <wx/wx.h>
 #include "search/ChinesePinYin.h"
 #include "spider/Spider.h"
-#include "spider/SpiderShareBasicInfo.h"
+#include "spider/SpiderShareBriefInfo.h"
 #include "spider/SpiderShareCategory.h"
 #include "spider/SpiderShareKline.h"
 #include "spider/SpiderShareQuote.h"
@@ -35,7 +35,8 @@ StockDataStorage::StockDataStorage()
     m_path_category_province = m_data_dir + "stock_province.csv";
     m_path_category_industry = m_data_dir + "stock_industry.csv";
     m_path_category_concept = m_data_dir + "stock_concept.csv";
-    m_path_share_names = m_data_dir + "stock_share_names.rch";
+    m_path_share_names = m_data_dir + "stock_share_names.csv";
+    m_path_brief_dir = m_data_dir + "brief" + DIRECTORY_SEPARATOR;
     Init();
 }
 
@@ -64,17 +65,21 @@ bool StockDataStorage::IsLocalQuoteDataExpired() {
 }
 
 void StockDataStorage::LoadLocalFileShare() {
-    // 检查本地的股票代号文件是否存在
-    if (FileTool::IsFileExists(m_path_share_quote)) {
-        if (IsLocalQuoteDataExpired()) {
-            FetchQuoteSync();  // 如果本地行情数据过时了，同步更新行情数据
+    // 检查 股票行情文件/概念板块映射文件/行业板块映射文件/股票曾用名映射文件 是否存在
+    if (FileTool::IsFileExists(m_path_share_quote) && FileTool::IsFileExists(m_path_category_province) &&
+        FileTool::IsFileExists(m_path_category_industry) && FileTool::IsFileExists(m_path_share_names)) {
+#ifndef DEBUG  // 调试模式下，避免频繁下载行情数据
+        if (IsLocalQuoteDataExpired() && !between_time_period("09:00", "09:29")) {
+            FetchQuoteSync();  // 如果本地行情数据过时了且时间段不在 09:00~09:29，则同步更新行情数据
         }
+#endif
         LoadLocalFileQuote(m_path_share_quote, m_market_shares);  // 步骤1. 恢复 m_market_shares 数据
         HashShares();                                             // 步骤2 share_code -> Share* 映射
         LoadLocalFileCategory(ShareCategoryType::Province, m_path_category_province,
                               m_category_provinces);  // 步骤3 恢复 m_category_provinces
         LoadLocalFileCategory(ShareCategoryType::Industry, m_path_category_industry,
                               m_category_industries);  // 步骤4 恢复 m_category_industries
+        LoadLocalFileShareNames();                     // 步骤5 恢复 m_trie
         m_fetch_quote_data_ok = true;                  // 立即显示行情列表标记
     } else {
         // 检查当前时间，如果时间是早晨09:00:00 ~ 09:29:59 之间，停止爬取，因为行情数据被重新初始化了，
@@ -89,7 +94,7 @@ void StockDataStorage::LoadLocalFileShare() {
             const char* opt = "FetchQuote";
             Timer::SetTimeout(wait_seconds * 1000, timer_cb, static_cast<void*>(const_cast<char*>(opt)));
         } else {
-            FetchQuoteIndustryProvince();  // 异步爬取当前行情/行业板块/地域板块信息
+            FetchQuoteIndustryProvince();  // 异步爬取当前行情/行业板块/地域板块/股票基本信息
         }
     }
 }
@@ -141,6 +146,9 @@ Spider* StockDataStorage::GetSpider(SpiderType type) {
         case SpiderType::IndustryProvince: {
             return new SpiderShareCategory(this, ShareCategoryType::Industry | ShareCategoryType::Province);
         }
+        case SpiderType::BriefInfo: {
+            return new SpiderShareBriefInfo(this);
+        }
         default:
             return nullptr;
     }
@@ -170,9 +178,9 @@ void StockDataStorage::FetchQuoteSync() {
     SaveQuote();                                // 保存行情信息
 }
 
-void StockDataStorage::FetchBasicInfo() {
-    SpiderShareBasicInfo* pSpiderBasicInfo = new SpiderShareBasicInfo(this, true);
-    pSpiderBasicInfo->Crawl();
+void StockDataStorage::FetchBriefInfo() {
+    SpiderShareBriefInfo* pSpiderBriefInfo = new SpiderShareBriefInfo(this, true);
+    pSpiderBriefInfo->Crawl();
 }
 
 void StockDataStorage::FetchKline() {
@@ -242,6 +250,25 @@ void StockDataStorage::SaveCategory(ShareCategoryType type,
         lines += line;
     }
     FileTool::SaveFile(path, lines);
+}
+
+bool StockDataStorage::SaveShareBriefInfo(ShareBriefInfo* pBriefInfo, const std::string& share_code) {
+    std::string file_path = m_path_brief_dir + "brief_" + share_code + ".json";
+    json o = json::object();
+    o["ceo"] = pBriefInfo->ceo;                                // ceo
+    o["accounting_office"] = pBriefInfo->accounting_office;    // 会计事务所
+    o["board_secretary"] = pBriefInfo->board_secretary;        // 董事会秘书
+    o["company_name"] = pBriefInfo->company_name;              // 公司名称
+    o["company_profile"] = pBriefInfo->company_profile;        // 公司简介
+    o["company_website"] = pBriefInfo->company_website;        // 公司网站
+    o["law_office"] = pBriefInfo->law_office;                  // 律师事务所
+    o["office_address"] = pBriefInfo->office_address;          // 办公地址
+    o["old_names"] = pBriefInfo->old_names;                    // 旧名称
+    o["registered_address"] = pBriefInfo->registered_address;  // 注册地址
+    o["registered_capital"] = pBriefInfo->registered_capital;  // 注册资本
+    o["staff_num"] = pBriefInfo->staff_num;                    // 员工数量
+    std::string data = o.dump(4);
+    return FileTool::SaveFile(file_path, data);
 }
 
 Share* StockDataStorage::FindShare(std::string& share_code) {
@@ -442,10 +469,16 @@ void StockDataStorage::OnTimerFetchShareQuoteData(uint32_t timer_id, void* args)
         SaveQuote();
         SaveCategory(ShareCategoryType::Industry, spiderCategory->GetCategory(ShareCategoryType::Industry));
         SaveCategory(ShareCategoryType::Province, spiderCategory->GetCategory(ShareCategoryType::Province));
+        // 缓存股票名称和拼音，方便快速搜索
+        for (auto& share : m_market_shares) {
+            InsertShareNameToTrie(share.name, share.code);
+        }
+        FetchBriefInfo();                          // 异步启动公司基本信息爬虫
         SetFetchResultOk(FetchResult::QuoteData);  // 通知ui线程刷新页面
         delete spiderQuote;                        // 删除爬虫指针
         delete spiderCategory;                     // 删除爬虫指针
         delete pSpiders;                           // 删除容器指针
+
         pSpiders = nullptr;
         Timer::CancelTimer(timer_id);  // 取消定时器
         // 所有股票下载完后，开始爬取股票基本信息，包括(员工数/曾用名/主营业务/分红融资额/分红送转/总股本//增减持/官方网站/等等)

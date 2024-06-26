@@ -84,7 +84,7 @@
 		<Unit filename="../../include/search/Trie.h" />
 		<Unit filename="../../include/spider/Spider.h" />
 		<Unit filename="../../include/spider/SpiderConceptListEastMoney.h" />
-		<Unit filename="../../include/spider/SpiderShareBasicInfo.h" />
+		<Unit filename="../../include/spider/SpiderShareBriefInfo.h" />
 		<Unit filename="../../include/spider/SpiderShareCategory.h" />
 		<Unit filename="../../include/spider/SpiderShareKline.h" />
 		<Unit filename="../../include/spider/SpiderShareKlineUrl.h" />
@@ -100,7 +100,7 @@
 		<Unit filename="../../include/ui/components/RichKlineCtrl.h" />
 		<Unit filename="../../include/ui/components/RichKlineInfoCtrl.h" />
 		<Unit filename="../../include/ui/components/RichVolumeBarCtrl.h" />
-		<Unit filename="../../include/ui/components/PanelShareSearch.h" />
+		<Unit filename="../../include/ui/components/PopupWndShareSearch.h" />
 		<Unit filename="../../include/util/Color.h" />
 		<Unit filename="../../include/util/ConsoleTable.h" />
 		<Unit filename="../../include/util/DateTime.h" />
@@ -115,7 +115,7 @@
 		<Unit filename="../../src/search/Trie.cpp" />
 		<Unit filename="../../src/spider/Spider.cpp" />
 		<Unit filename="../../src/spider/SpiderConceptListEastMoney.cpp" />
-		<Unit filename="../../src/spider/SpiderShareBasicInfo.cpp" />
+		<Unit filename="../../src/spider/SpiderShareBriefInfo.cpp" />
 		<Unit filename="../../src/spider/SpiderShareCategory.cpp" />
 		<Unit filename="../../src/spider/SpiderShareKline.cpp" />
 		<Unit filename="../../src/spider/SpiderShareQuote.cpp" />
@@ -130,10 +130,10 @@
 		<Unit filename="../../src/ui/components/RichKlineCtrl.cpp" />
 		<Unit filename="../../src/ui/components/RichKlineInfoCtrl.cpp" />
 		<Unit filename="../../src/ui/components/RichVolumeBarCtrl.cpp" />
-		<Unit filename="../../src/ui/components/PanelShareSearch.cpp" />
+		<Unit filename="../../src/ui/components/PopupWndShareSearch.cpp" />
 		<Unit filename="../../src/ui/wxsmith/PanelStockQuote.wxs" />
 		<Unit filename="../../src/ui/wxsmith/RichMainFrame.wxs" />
-		<Unit filename="../../src/ui/wxsmith/PanelShareSearch.wxs" />
+		<Unit filename="../../src/ui/wxsmith/PopupWndShareSearch.wxs" />
 		<Unit filename="../../src/util/ConsoleTable.cpp" />
 		<Unit filename="../../src/util/DateTime.cpp" />
 		<Unit filename="../../src/util/EasyLogger.cpp" />
@@ -147,7 +147,7 @@
 				<resources>
 					<wxFrame wxs="../../src/ui/wxsmith/RichMainFrame.wxs" src="../../src/ui/RichMainFrame.cpp" hdr="../../include/ui/RichMainFrame.h" fwddecl="0" i18n="1" name="RichMainFrame" language="CPP" />
 					<wxPanel wxs="../../src/ui/wxsmith/PanelStockQuote.wxs" src="../../src/ui/PanelStockQuote.cpp" hdr="../../include/ui/PanelStockQuote.h" fwddecl="0" i18n="1" name="PanelStockQuote" language="CPP" />
-					<wxPanel wxs="../../src/ui/wxsmith/PanelShareSearch.wxs" src="../../src/ui/PanelShareSearch.cpp" hdr="../../include/ui/PanelShareSearch.h" fwddecl="0" i18n="1" name="PanelShareSearch" language="CPP" />
+					<wxPanel wxs="../../src/ui/wxsmith/PopupWndShareSearch.wxs" src="../../src/ui/PopupWndShareSearch.cpp" hdr="../../include/ui/PopupWndShareSearch.h" fwddecl="0" i18n="1" name="PopupWndShareSearch" language="CPP" />
 				</resources>
 			</wxsmith>
 		</Extensions>

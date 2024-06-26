@@ -1,4 +1,6 @@
 #include "util/Global.h"
+#include <codecvt>
+#include <locale>
 
 /**
  * @todo 通过管道调用系统命令并获取命令执行输出结果

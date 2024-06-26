@@ -70,11 +70,11 @@ void TestSpiderShareKline() {
 void TestSpiderShareCategory() {
     StockDataStorage* m_pStockStorage = new StockDataStorage();
     m_pStockStorage->Init();
-    SpiderShareCategory* spiderShareLabel = new SpiderShareCategory(m_pStockStorage, true);
-    spiderShareLabel->Crawl();
+    SpiderShareCategory* spiderShareCategory = new SpiderShareCategory(m_pStockStorage, true);
+    spiderShareCategory->Crawl();
 }
 
-void TestSpiderShareHexun() {
+void TestSpiderQuote() {
     StockDataStorage* m_pStockStorage = new StockDataStorage();
     m_pStockStorage->Init();
     SpiderShareQuote* spiderHexun = new SpiderShareQuote(m_pStockStorage);
@@ -190,7 +190,7 @@ int main(int /*argc*/, char** /*argv*/) {
     // TestTimer();
     // KlineTest();
     // TestSpiderShareKline();
-    // TestSpiderShareHexun();
+    // TestSpiderQuote();
     // TestDateTime();
     // TestFile();
     // TestTrie();

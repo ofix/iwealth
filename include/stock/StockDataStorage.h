@@ -11,7 +11,7 @@
 const int ID_QUOTE_DATA_READY = 100000;
 
 class SpiderShareQuote;
-class SpiderShareBasicInfo;
+class SpiderShareBriefInfo;
 class SpiderConceptListEastMoney;
 class SpiderShareKline;
 class SpiderShareCategory;
@@ -31,6 +31,7 @@ class StockDataStorage {
         Province,          // 地区板块爬虫
         Concept,           // 概念板块爬虫
         IndustryProvince,  // 行业|地区板块联合爬虫
+        BriefInfo,         // 股票基本信息(曾用名)爬虫
     };
     StockDataStorage();
     virtual ~StockDataStorage();
@@ -42,6 +43,7 @@ class StockDataStorage {
     void InsertShareNameToTrie(const std::string& share_name, const std::string& share_code);  // 插入股票
     std::vector<Share*> SearchShares(const std::string& prefix);
     bool SaveShareNames();  // 保存股票曾用名和名称到文件
+    bool SaveShareBriefInfo(ShareBriefInfo* pBriefInfo, const std::string& share_code);
     bool SaveShareKLines(const KlineType kline_type);
     Share* FindShare(std::string& share_code);
 
@@ -72,7 +74,7 @@ class StockDataStorage {
     void FetchKline();                  // 爬取股票历史K线数据
     void FetchFinancial();              // 爬取股票年报数据
     void FetchBusinessAnalysis();       // 爬取股票经营分析内容
-    void FetchBasicInfo();              // 爬取股票[曾用名/员工数等基本信息]
+    void FetchBriefInfo();              // 爬取股票[曾用名/员工数等基本信息]
 
     std::string DumpQuoteData(std::vector<Share>& shares);
     void SaveQuote();  // 保存行情数据到本地文件
@@ -101,6 +103,7 @@ class StockDataStorage {
     std::string m_path_category_industry;  // 股票行业数据文件路径
     std::string m_path_category_concept;   // 股票概念数据文件路径
     std::string m_path_share_names;        // 股票曾用名数据文件路径
+    std::string m_path_brief_dir;          // 股票简要信息文件根目录
 
     uint16_t m_market_share_total;         // 市场所有股票之和
     std::string m_path_all_market_shares;  // 所有股票代号本地保存路径
@@ -139,7 +142,7 @@ class StockDataStorage {
     std::unordered_map<Market, int> m_market_share_count;  // 分市场股票数量统计
     // 爬虫友元类，减少数据拷贝
     friend class SpiderShareQuote;            // 和讯网股票爬虫
-    friend class SpiderShareBasicInfo;        // 东方财富股票爬虫
+    friend class SpiderShareBriefInfo;        // 东方财富股票爬虫
     friend class SpiderShareHistory;          // 网易股票爬虫
     friend class SpiderConceptListEastMoney;  // 东方财富题材概念列表爬虫
     friend class SpiderShareKline;            // 百度财经股票历史K线数据爬虫

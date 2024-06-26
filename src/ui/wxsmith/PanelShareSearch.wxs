@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <wxsmith>
-	<object class="wxPanel" name="PanelShareSearch">
+	<object class="wxPanel" name="PopupWndShareSearch">
 		<size>274,365</size>
 		<object class="wxTextCtrl" name="ID_TEXTCTRL_KEYWORD" variable="m_textctrl_keyword" member="yes">
 			<value>请输入</value>

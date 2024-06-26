@@ -15,6 +15,7 @@
 
 #include <wx/listctrl.h>
 #include "ui/components/PanelStockQuote.h"
+#include "ui/components/PopupWndShareSearch.h"
 
 class RichMainFrame : public wxFrame {
    public:
@@ -29,6 +30,7 @@ class RichMainFrame : public wxFrame {
     //(*Identifiers(RichMainFrame)
     //*)
     static const long ID_PANEL_STOCK_QUOTE;
+    static const long ID_POPUP_WND_SHARE_SEARCH;
 
    private:
     void OnExit(wxCommandEvent& event);
@@ -38,5 +40,6 @@ class RichMainFrame : public wxFrame {
 
    private:
     PanelStockQuote* m_panelStockQuote;
+    PopupWndShareSearch* m_popupWndShareSearch;
     DECLARE_EVENT_TABLE()
 };

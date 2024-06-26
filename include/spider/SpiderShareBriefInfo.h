@@ -7,18 +7,19 @@
 #include "stock/Stock.h"
 
 class StockDataStorage;
-class SpiderShareBasicInfo : public Spider {
+class SpiderShareBriefInfo : public Spider {
    public:
-    SpiderShareBasicInfo(StockDataStorage* storage);
-    SpiderShareBasicInfo(StockDataStorage* storage, bool concurrent);
-    virtual ~SpiderShareBasicInfo();
+    SpiderShareBriefInfo(StockDataStorage* storage);
+    SpiderShareBriefInfo(StockDataStorage* storage, bool concurrent);
+    virtual ~SpiderShareBriefInfo();
     uint8_t GetIndustryLevel(const std::string& industry_name);
 
    protected:
     virtual void DoCrawl();
     virtual void ConcurrentResponseCallback(conn_t* conn);
-    void FetchBasicInfo(Share& share);
-    void ConcurrentFetchBasicInfo();
+    void FetchBriefInfo(Share& share);
+    void ConcurrentFetchBriefInfo();
+    void OnTimerFetchBriefInfo(uint32_t timer_id, void* args);
     std::string GetRequestUrl(const Share& share);
     void ParseResponse(std::string& response, Share* pShare);
 };
