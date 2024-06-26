@@ -9,7 +9,7 @@
 //(*IdInit(PanelStockQuote)
 const long RichMainFrame::ID_PANEL_STOCK_QUOTE = wxNewId();
 //*)
-const long RichMainFrame::ID_POPUP_WND_SHARE_SEARCH = wxNewId();
+const long RichMainFrame::ID_DIALOG_SHARE_SEARCH = wxNewId();
 
 // catch the event from the thread
 BEGIN_EVENT_TABLE(RichMainFrame, wxFrame)
@@ -54,26 +54,31 @@ RichMainFrame::RichMainFrame(wxWindow* parent, wxWindowID id, const wxPoint& /*p
     m_panelStockQuote->Show();
     m_panelStockQuote->GetGridCtrl()->Bind(wxEVT_CHAR, &RichMainFrame::OnChar, this);
 
-    m_popupWndShareSearch = new PopupWndShareSearch(this, ID_POPUP_WND_SHARE_SEARCH);
-    m_popupWndShareSearch->ReLayout(wxSize(320, 320));
-    m_popupWndShareSearch->Show(false);  // 默认隐藏
+    m_dlgShareSearch = new DialogShareSearch(this, ID_DIALOG_SHARE_SEARCH, _T("股票精灵"));
+    m_dlgShareSearch->ReLayout(wxSize(320, 320));
+    m_dlgShareSearch->Show(false);  // 默认隐藏
 
     Maximize();  // 初始化最大化
 }
 
 // 处理按键按下事件
 void RichMainFrame::OnChar(wxKeyEvent& event) {
-    wxChar key = event.GetUnicodeKey();
-    wxString character(key);
-    std::string keyword = character.ToStdString();
-    wxSize frame_size = this->GetSize();
-    wxSize popup_size = m_popupWndShareSearch->GetSize();
-    wxPoint pt;
-    pt.x = frame_size.GetWidth() - popup_size.GetWidth() - 210;
-    pt.y = frame_size.GetHeight() - popup_size.GetHeight() - 110;
-    m_popupWndShareSearch->SetPosition(pt);
-    m_popupWndShareSearch->SetKeyword(keyword);
-    m_popupWndShareSearch->Show();
+    int keycode = event.GetKeyCode();
+    if (keycode != 8) {
+        wxChar key = event.GetUnicodeKey();
+        wxString character(key);
+        std::string keyword = character.ToStdString();
+        wxSize frame_size = this->GetSize();
+        wxSize popup_size = m_dlgShareSearch->GetSize();
+        wxPoint pt;
+        std::cout << "[Grid] " << event.GetKeyCode() << std::endl;
+
+        pt.x = frame_size.GetWidth() - popup_size.GetWidth() - 210;
+        pt.y = frame_size.GetHeight() - popup_size.GetHeight() - 110;
+        m_dlgShareSearch->SetPosition(pt);
+        m_dlgShareSearch->SetKeyword(keyword);
+        m_dlgShareSearch->Show();
+    }
 }
 
 // 监听异步子线程消息

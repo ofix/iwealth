@@ -116,7 +116,10 @@ void Trie::insertWord(node* n, std::string word, std::unordered_map<std::string,
 
 vector<string> Trie::listPrefixWith(const string& word) {
     node* n = root;
-    vector<string> list;
+    vector<string> list = {};
+    if (word.length() == 0) {
+        return list;
+    }
     for (size_t i = 0; i < word.length();) {  // utf-8字符串
         NEXT_UTF8_CHAR(i, word, character)
         if (n->child.find(character) == n->child.end()) {

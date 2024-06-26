@@ -122,8 +122,10 @@ void SpiderShareBriefInfo::ConcurrentFetchBriefInfo() {
 void SpiderShareBriefInfo::OnTimerFetchBriefInfo(uint32_t timer_id, void* args) {
     if (this->HasFinish()) {
         m_pStockStorage->SaveShareNames();
+        Timer::CancelTimer(timer_id);
+        delete this;  // 要求 SpiderShareBriefInfo 必须堆中创建的
     } else {
-        std::cout << "SpiderShareBriefInfo::progress: " << GetProgress() << std::endl;
+        std::cout << "[BriefInfo]::progress: " << this->GetProgress() << std::endl;
     }
 }
 
@@ -152,17 +154,17 @@ void SpiderShareBriefInfo::ParseResponse(std::string& response, Share* pShare) {
     pShare->register_capital = o["REG_CAPITAL"];  // 公司注册资本
     ShareBriefInfo* pBriefInfo = new ShareBriefInfo();
     pBriefInfo->company_name = o["ORG_NAME"];
-    pBriefInfo->old_names = !o["FORMERNAME"].is_null() ? o["FORMERNAME"] : "";
-    pBriefInfo->company_website = o["ORG_WEB"];
-    pBriefInfo->registered_address = o["REG_ADDRESS"];
+    pBriefInfo->old_names = o["FORMERNAME"].is_null() ? "" : o["FORMERNAME"];
+    pBriefInfo->company_website = o["ORG_WEB"].is_null() ? "" : o["ORG_WEB"];
+    pBriefInfo->registered_address = o["REG_ADDRESS"].is_null() ? "" : o["REG_ADDRESS"];
     pBriefInfo->staff_num = o["EMP_NUM"];
-    pBriefInfo->registered_capital = o["REG_CAPITAL"];
-    pBriefInfo->law_office = o["LAW_FIRM"];
-    pBriefInfo->accounting_office = o["ACCOUNTFIRM_NAME"];
-    pBriefInfo->ceo = o["CHAIRMAN"];
-    pBriefInfo->board_secretary = o["SECRETARY"];
-    pBriefInfo->office_address = o["ADDRESS"];
-    pBriefInfo->company_profile = o["ORG_PROFILE"];
+    pBriefInfo->registered_capital = o["REG_CAPITAL"].is_null() ? "" : o["REG_CAPITAL"];
+    pBriefInfo->law_office = o["LAW_FIRM"].is_null() ? "" : o["LAW_FIRM"];
+    pBriefInfo->accounting_office = o["ACCOUNTFIRM_NAME"].is_null() ? "" : o["ACCOUNTFIRM_NAME"];
+    pBriefInfo->ceo = o["CHAIRMAN"].is_null() ? "" : o["CHAIRMAN"];
+    pBriefInfo->board_secretary = o["SECRETARY"].is_null() ? "" : o["SECRETARY"];
+    pBriefInfo->office_address = o["ADDRESS"].is_null() ? "" : o["ADDRESS"];
+    pBriefInfo->company_profile = o["ORG_PROFILE"].is_null() ? "" : o["ORG_PROFILE"];
     pShare->ptr_brief_info = pBriefInfo;
     m_pStockStorage->SaveShareBriefInfo(pBriefInfo, pShare->code);
 }

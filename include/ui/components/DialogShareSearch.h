@@ -1,18 +1,24 @@
 #ifndef SHARESEARCHPANEL_H
 #define SHARESEARCHPANEL_H
 
-//(*Headers(PopupWndShareSearch)
+//(*Headers(DialogShareSearch)
+#include <wx/dialog.h>
 #include <wx/listctrl.h>
-#include <wx/popupwin.h>
 #include <wx/textctrl.h>
 //*)
 #include <vector>
 #include "stock/Stock.h"
 
-class PopupWndShareSearch : public wxPopupWindow {
+class DialogShareSearch : public wxDialog {
    public:
-    PopupWndShareSearch(wxWindow* parent, int flags = wxBORDER_NONE);
-    virtual ~PopupWndShareSearch();
+    DialogShareSearch(wxWindow* parent,
+                      wxWindowID id,
+                      const wxString& title,
+                      const wxPoint& pos = wxDefaultPosition,
+                      const wxSize& size = wxDefaultSize,
+                      long style = wxDEFAULT_DIALOG_STYLE,
+                      const wxString& name = wxDialogNameStr);
+    virtual ~DialogShareSearch();
     void SetKeyword(const std::string& keyword);
     void SetShareList(const std::vector<Share*>& shares);
     void ReLayout(const wxSize& size);
@@ -21,19 +27,19 @@ class PopupWndShareSearch : public wxPopupWindow {
     // 退出搜索
     void OnExitSearchShare(wxCommandEvent& event);
 
-    //(*Declarations(PopupWndShareSearch)
+    //(*Declarations(DialogShareSearch)
     static const long ID_TEXTCTRL_KEYWORD;
     static const long ID_LISTCTRL_SHARELIST;
     //*)
 
    protected:
-    //(*Identifiers(PopupWndShareSearch)
+    //(*Identifiers(DialogShareSearch)
     //*)
     wxListCtrl* m_listctrl_sharelist;
     wxTextCtrl* m_textctrl_keyword;
 
    private:
-    //(*Handlers(PopupWndShareSearch)
+    //(*Handlers(DialogShareSearch)
     //*)
     std::vector<Share*> m_shares;
     std::string m_keyword;

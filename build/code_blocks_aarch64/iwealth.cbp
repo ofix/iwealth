@@ -100,7 +100,7 @@
 		<Unit filename="../../include/ui/components/RichKlineCtrl.h" />
 		<Unit filename="../../include/ui/components/RichKlineInfoCtrl.h" />
 		<Unit filename="../../include/ui/components/RichVolumeBarCtrl.h" />
-		<Unit filename="../../include/ui/components/PopupWndShareSearch.h" />
+		<Unit filename="../../include/ui/components/DialogShareSearch.h" />
 		<Unit filename="../../include/util/Color.h" />
 		<Unit filename="../../include/util/ConsoleTable.h" />
 		<Unit filename="../../include/util/DateTime.h" />
@@ -130,10 +130,10 @@
 		<Unit filename="../../src/ui/components/RichKlineCtrl.cpp" />
 		<Unit filename="../../src/ui/components/RichKlineInfoCtrl.cpp" />
 		<Unit filename="../../src/ui/components/RichVolumeBarCtrl.cpp" />
-		<Unit filename="../../src/ui/components/PopupWndShareSearch.cpp" />
+		<Unit filename="../../src/ui/components/DialogShareSearch.cpp" />
 		<Unit filename="../../src/ui/wxsmith/PanelStockQuote.wxs" />
 		<Unit filename="../../src/ui/wxsmith/RichMainFrame.wxs" />
-		<Unit filename="../../src/ui/wxsmith/PopupWndShareSearch.wxs" />
+		<Unit filename="../../src/ui/wxsmith/DialogShareSearch.wxs" />
 		<Unit filename="../../src/util/ConsoleTable.cpp" />
 		<Unit filename="../../src/util/DateTime.cpp" />
 		<Unit filename="../../src/util/EasyLogger.cpp" />
@@ -147,7 +147,7 @@
 				<resources>
 					<wxFrame wxs="../../src/ui/wxsmith/RichMainFrame.wxs" src="../../src/ui/RichMainFrame.cpp" hdr="../../include/ui/RichMainFrame.h" fwddecl="0" i18n="1" name="RichMainFrame" language="CPP" />
 					<wxPanel wxs="../../src/ui/wxsmith/PanelStockQuote.wxs" src="../../src/ui/PanelStockQuote.cpp" hdr="../../include/ui/PanelStockQuote.h" fwddecl="0" i18n="1" name="PanelStockQuote" language="CPP" />
-					<wxPanel wxs="../../src/ui/wxsmith/PopupWndShareSearch.wxs" src="../../src/ui/PopupWndShareSearch.cpp" hdr="../../include/ui/PopupWndShareSearch.h" fwddecl="0" i18n="1" name="PopupWndShareSearch" language="CPP" />
+					<wxPanel wxs="../../src/ui/wxsmith/DialogShareSearch.wxs" src="../../src/ui/DialogShareSearch.cpp" hdr="../../include/ui/DialogShareSearch.h" fwddecl="0" i18n="1" name="DialogShareSearch" language="CPP" />
 				</resources>
 			</wxsmith>
 		</Extensions>

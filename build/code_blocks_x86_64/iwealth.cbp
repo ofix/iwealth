@@ -116,7 +116,7 @@
 		<Unit filename="../../include/ui/RichApplication.h" />
 		<Unit filename="../../include/ui/RichHelper.h" />
 		<Unit filename="../../include/ui/RichMainFrame.h" />
-		<Unit filename="../../include/ui/components/PopupWndShareSearch.h" />
+		<Unit filename="../../include/ui/components/DialogShareSearch.h" />
 		<Unit filename="../../include/ui/components/PanelStockQuote.h" />
 		<Unit filename="../../include/ui/components/RichGrid.h" />
 		<Unit filename="../../include/ui/components/RichKlineCtrl.h" />
@@ -146,13 +146,13 @@
 		<Unit filename="../../src/ui/RichApplication.cpp" />
 		<Unit filename="../../src/ui/RichHelper.cpp" />
 		<Unit filename="../../src/ui/RichMainFrame.cpp" />
-		<Unit filename="../../src/ui/components/PopupWndShareSearch.cpp" />
+		<Unit filename="../../src/ui/components/DialogShareSearch.cpp" />
 		<Unit filename="../../src/ui/components/PanelStockQuote.cpp" />
 		<Unit filename="../../src/ui/components/RichGrid.cpp" />
 		<Unit filename="../../src/ui/components/RichKlineCtrl.cpp" />
 		<Unit filename="../../src/ui/components/RichKlineInfoCtrl.cpp" />
 		<Unit filename="../../src/ui/components/RichVolumeBarCtrl.cpp" />
-		<Unit filename="../../src/ui/wxsmith/PopupWndShareSearch.wxs" />
+		<Unit filename="../../src/ui/wxsmith/DialogShareSearch.wxs" />
 		<Unit filename="../../src/ui/wxsmith/PanelStockQuota.wxs" />
 		<Unit filename="../../src/ui/wxsmith/PanelStockQuote.wxs" />
 		<Unit filename="../../src/ui/wxsmith/RichMainFrame.wxs" />

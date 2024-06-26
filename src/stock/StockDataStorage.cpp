@@ -67,7 +67,7 @@ bool StockDataStorage::IsLocalQuoteDataExpired() {
 void StockDataStorage::LoadLocalFileShare() {
     // 检查 股票行情文件/概念板块映射文件/行业板块映射文件/股票曾用名映射文件 是否存在
     if (FileTool::IsFileExists(m_path_share_quote) && FileTool::IsFileExists(m_path_category_province) &&
-        FileTool::IsFileExists(m_path_category_industry) && FileTool::IsFileExists(m_path_share_names)) {
+        FileTool::IsFileExists(m_path_category_industry)) {
 #ifndef DEBUG  // 调试模式下，避免频繁下载行情数据
         if (IsLocalQuoteDataExpired() && !between_time_period("09:00", "09:29")) {
             FetchQuoteSync();  // 如果本地行情数据过时了且时间段不在 09:00~09:29，则同步更新行情数据
@@ -79,8 +79,11 @@ void StockDataStorage::LoadLocalFileShare() {
                               m_category_provinces);  // 步骤3 恢复 m_category_provinces
         LoadLocalFileCategory(ShareCategoryType::Industry, m_path_category_industry,
                               m_category_industries);  // 步骤4 恢复 m_category_industries
-        LoadLocalFileShareNames();                     // 步骤5 恢复 m_trie
-        m_fetch_quote_data_ok = true;                  // 立即显示行情列表标记
+        for (auto& share : m_market_shares) {
+            InsertShareNameToTrie(share.name, share.code);
+        }
+        // LoadLocalFileShareNames();                     // 步骤5 恢复 m_trie
+        m_fetch_quote_data_ok = true;  // 立即显示行情列表标记
     } else {
         // 检查当前时间，如果时间是早晨09:00:00 ~ 09:29:59 之间，停止爬取，因为行情数据被重新初始化了，
         // 这个时候抓取的数据有可能是错误的, 可以显示其他的信息提示用户
