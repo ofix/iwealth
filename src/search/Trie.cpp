@@ -1,6 +1,8 @@
 
 #include "search/Trie.h"
+#include <set>
 
+using std::set;
 using std::string;
 using std::unordered_map;
 using std::vector;
@@ -129,7 +131,10 @@ vector<string> Trie::listPrefixWith(const string& word) {
     }
 
     insertWord(n, word, &list);
-    return list;
+    // 股票代码有可能有重复的
+    std::set<std::string> unique_set(list.begin(), list.end());
+    std::vector<std::string> unique_vec(unique_set.begin(), unique_set.end());
+    return unique_vec;
 }
 
 std::unordered_map<std::string, std::vector<std::string>> Trie::list() {
