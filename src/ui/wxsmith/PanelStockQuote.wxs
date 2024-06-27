@@ -1,7 +1,13 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <wxsmith>
 	<object class="wxPanel" name="PanelStockQuote">
-		<size>210,299</size>
 		<id_arg>0</id_arg>
+		<size>639,566</size>
+		<pos_arg>1</pos_arg>
+		<size_arg>1</size_arg>
+		<object class="wxListCtrl" name="ID_LISTCTRL_QUOTE" variable="m_listCtrlQuote" member="yes">
+			<pos>0,0</pos>
+			<size>640,568</size>
+		</object>
 	</object>
 </wxsmith>

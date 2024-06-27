@@ -2,6 +2,7 @@
 #include <wx/app.h>
 #include <wx/artprov.h>
 #include <wx/listctrl.h>
+#include <wx/platinfo.h>
 #include <vector>
 #include "stock/StockDataStorage.h"
 #include "util/Global.h"
@@ -60,8 +61,10 @@ RichMainFrame::RichMainFrame(wxWindow* parent, wxWindowID id, const wxPoint& /*p
     m_panelStockQuote->GetGridCtrl()->Bind(wxEVT_GRID_CELL_LEFT_DCLICK, &RichMainFrame::OnGridCellLeftDblClick, this);
     m_panelStockQuote->GetGridCtrl()->Bind(wxEVT_KEY_DOWN, &RichMainFrame::OnKeyDown, this);
 
-    m_dlgShareSearch = new DialogShareSearch(this, ID_DIALOG_SHARE_SEARCH, _T("股票精灵"));
-    m_dlgShareSearch->ReLayout(wxSize(320, 320));
+    m_dlgShareSearch =
+        new DialogShareSearch(this, ID_DIALOG_SHARE_SEARCH, _T("股票精灵"), wxDefaultPosition, wxDefaultSize,
+                              wxDEFAULT_DIALOG_STYLE & ~(wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER));  // 移除默认标题栏
+    m_dlgShareSearch->ReLayout(wxSize(320, 380));
     m_dlgShareSearch->Show(false);  // 默认隐藏
 
     Maximize();  // 初始化最大化
@@ -112,13 +115,24 @@ void RichMainFrame::AdjustDlgShareSearchPostion() {
     wxSize frame_size = this->GetSize();
     // 获取股票搜索对话框大小
     wxSize dlg_size = m_dlgShareSearch->GetSize();
-    // 获取横向滚动条高度
-    int horizontalScrollbarHeight = wxSystemSettings::GetMetric(wxSYS_HSCROLL_Y);
-    // 获取和纵向滚动条宽度
-    int verticalScrollbarWidth = wxSystemSettings::GetMetric(wxSYS_VSCROLL_X);
+    // // 获取横向滚动条高度
+    // int horizontalScrollbarHeight = wxSystemSettings::GetMetric(wxSYS_HSCROLL_Y);
+    // // 获取和纵向滚动条宽度
+    // int verticalScrollbarWidth = wxSystemSettings::GetMetric(wxSYS_VSCROLL_X);
+    // 根据平台进行补偿
+    wxString platform = wxPlatformId::GetCurrent();
+    int verticalScrollbarWidth = 0;
+    int horizontalScrollbarHeight = 0;
+    if (platform == "msw") {
+        horizontalScrollbarHeight = 10;
+        verticalScrollbarWidth = 16;
+    } else if (platform == "unix") {
+        horizontalScrollbarHeight = 0;
+        verticalScrollbarWidth = 66;
+    }
     wxPoint pt;
-    pt.x = frame_size.x - dlg_size.x + offsetScreen.x - horizontalScrollbarHeight - 4;
-    pt.y = frame_size.y - dlg_size.y + offsetScreen.y - verticalScrollbarWidth - 6;
+    pt.x = frame_size.x - dlg_size.x + offsetScreen.x - horizontalScrollbarHeight;
+    pt.y = frame_size.y - dlg_size.y + offsetScreen.y - verticalScrollbarWidth;
     m_dlgShareSearch->SetPosition(pt);
 }
 

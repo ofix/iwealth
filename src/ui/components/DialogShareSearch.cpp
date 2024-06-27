@@ -12,6 +12,8 @@
 //(*IdInit(DialogShareSearch)
 const long DialogShareSearch::ID_TEXTCTRL_KEYWORD = wxNewId();
 const long DialogShareSearch::ID_LISTCTRL_SHARELIST = wxNewId();
+const long DialogShareSearch::ID_STATICTEXT_TITLE = wxNewId();
+const long DialogShareSearch::ID_BITMAPBUTTON_CLOSE = wxNewId();
 //*)
 
 BEGIN_EVENT_TABLE(DialogShareSearch, wxDialog)
@@ -29,10 +31,19 @@ DialogShareSearch::DialogShareSearch(wxWindow* parent,
     //(*Initialize(DialogShareSearch)
     Create(parent, id, title, pos, size, style, name);
     //*)
+    // 自定义标题栏标题
+    m_statictext_title = new wxStaticText(this, ID_STATICTEXT_TITLE, _T("按键精灵"), wxPoint(5, 5), wxDefaultSize);
+    // 自定义右侧关闭按钮
+    m_bitmapbutton_close = wxBitmapButton::NewCloseButton(this, ID_BITMAPBUTTON_CLOSE);
+    m_bitmapbutton_close->SetPosition(wxPoint(255, 5));
+    m_bitmapbutton_close->Bind(wxEVT_BUTTON, &DialogShareSearch::OnExitSearchShare, this);
+
+    // 搜索关键字
     m_textctrl_keyword =
-        new wxTextCtrl(this, ID_TEXTCTRL_KEYWORD, "", wxPoint(5, 5), wxSize(200, 32), wxTE_PROCESS_ENTER);
-    m_listctrl_sharelist =
-        new wxListCtrl(this, ID_LISTCTRL_SHARELIST, wxPoint(5, 48), wxSize(200, 148), wxLC_REPORT | wxLC_SINGLE_SEL);
+        new wxTextCtrl(this, ID_TEXTCTRL_KEYWORD, "", wxPoint(5, 32), wxSize(200, 32), wxTE_PROCESS_ENTER);
+    // 列表框
+    m_listctrl_sharelist = new wxListCtrl(this, ID_LISTCTRL_SHARELIST, wxPoint(5, 75), wxSize(200, 148),
+                                          wxLC_REPORT | wxLC_SINGLE_SEL | wxLC_NO_HEADER);
     m_listctrl_sharelist->InsertColumn(0, CN("代码"));
     m_listctrl_sharelist->InsertColumn(1, CN("名称"));
     m_listctrl_sharelist->InsertColumn(2, CN("市场"));
@@ -42,6 +53,7 @@ DialogShareSearch::DialogShareSearch(wxWindow* parent,
 
 void DialogShareSearch::ReLayout(const wxSize& size) {
     this->SetSize(size);
+    m_bitmapbutton_close->SetPosition(wxPoint(size.x - 25, 5));
     wxSize size_textctrl;
     size_textctrl.SetWidth(size.GetWidth() - 10);
     size_textctrl.SetHeight(32);
@@ -49,7 +61,7 @@ void DialogShareSearch::ReLayout(const wxSize& size) {
 
     wxSize size_listctrl;
     size_listctrl.SetWidth(size.GetHeight() - 10);
-    size_listctrl.SetHeight(280);
+    size_listctrl.SetHeight(300);
     m_listctrl_sharelist->SetSize(size_listctrl);
 }
 
@@ -68,6 +80,7 @@ void DialogShareSearch::SetShareList(const std::vector<Share*>& shares) {
 
 void DialogShareSearch::SetKeyword(const std::string& keyword) {
     m_textctrl_keyword->SetValue(keyword);
+    m_textctrl_keyword->SetFocus();
     m_textctrl_keyword->SetInsertionPointEnd();  // 移动光标到输入字符串末尾
     Raise();                                     // 将搜索窗口置于最顶部
 }

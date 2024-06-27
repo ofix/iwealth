@@ -2,9 +2,12 @@
 #define SHARESEARCHPANEL_H
 
 //(*Headers(DialogShareSearch)
+#include <wx/bmpbuttn.h>
 #include <wx/dialog.h>
 #include <wx/listctrl.h>
+#include <wx/stattext.h>
 #include <wx/textctrl.h>
+
 //*)
 #include <vector>
 #include "stock/Stock.h"
@@ -30,6 +33,8 @@ class DialogShareSearch : public wxDialog {
     //(*Declarations(DialogShareSearch)
     static const long ID_TEXTCTRL_KEYWORD;
     static const long ID_LISTCTRL_SHARELIST;
+    static const long ID_STATICTEXT_TITLE;
+    static const long ID_BITMAPBUTTON_CLOSE;
     //*)
 
    protected:
@@ -37,6 +42,8 @@ class DialogShareSearch : public wxDialog {
     //*)
     wxListCtrl* m_listctrl_sharelist;
     wxTextCtrl* m_textctrl_keyword;
+    wxStaticText* m_statictext_title;
+    wxBitmapButton* m_bitmapbutton_close;
 
    private:
     //(*Handlers(DialogShareSearch)
