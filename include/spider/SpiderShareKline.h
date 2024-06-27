@@ -32,6 +32,7 @@ class SpiderShareKline : public Spider {
                           std::unordered_map<std::string, std::vector<uiKline>>& target_klines);
     void SingleCrawl(std::vector<KlineCrawlTask>& tasks, KlineType kline_type);
     void ConurrentCrawl(std::vector<KlineCrawlTask>& tasks, KlineType kline_type);
+    std::vector<uiKline> CrawlSync(Share* pShare, KlineType kline_type);
     // 百度财经
     std::string GetKlineTypeFinanceBaidu(const KlineType kline_type);
     std::string GetKlineUrl(const DataProvider provider,      // 供应商

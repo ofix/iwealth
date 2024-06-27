@@ -3,6 +3,7 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
+#include "util/Global.h"
 
 #define NEXT_UTF8_CHAR(i, word, letter)         \
     int wsize = 1;                              \
@@ -17,6 +18,9 @@
         wsize = 1;                              \
     }                                           \
     std::string letter = word.substr(i, wsize); \
+    if (wsize == 1) {                           \
+        letter = to_lowercase(letter);          \
+    }                                           \
     i += wsize;
 
 class Trie {

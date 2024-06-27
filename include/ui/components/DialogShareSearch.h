@@ -48,7 +48,6 @@ class DialogShareSearch : public wxDialog {
    private:
     //(*Handlers(DialogShareSearch)
     //*)
-    std::vector<Share*> m_shares;
 
     DECLARE_EVENT_TABLE()
 };

@@ -143,11 +143,12 @@ void SpiderShareQuote::ParseStockListData(std::string& data, Market market) {
         Share share;
         share.code = (*it)[0].get<std::string>();        // 股票代号
         std::string name = (*it)[1].get<std::string>();  // 股票名称需要去重中间的空格，比如万 科A
-        share.name = std::erase(std::remove_if(name.begin(), name.end(),
-                                               [](char c) {
-                                                   return c == ' ';
-                                               }),
-                                name.end());
+        name.erase(std::remove_if(name.begin(), name.end(),
+                                  [](char c) {
+                                      return c == ' ';
+                                  }),
+                   name.end());
+        share.name = name;
         int factor = (*it)[9].get<double>();                            // 成交额
         share.price_yesterday_close = (*it)[4].get<double>() / factor;  // 昨天收盘价
         share.price_now = (*it)[2].get<double>() / factor;              // 最新价

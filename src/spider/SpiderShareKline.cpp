@@ -32,6 +32,31 @@ void SpiderShareKline::Crawl(KlineType kline_type) {
     DoCrawl(kline_type);
 }
 
+std::vector<uiKline> SpiderShareKline::CrawlSync(Share* pShare, KlineType kline_type) {
+    std::vector<DataProvider> providers = {
+        DataProvider::FinanceBaidu,
+        DataProvider::EastMoney,
+    };
+    std::vector<DataProvider> data_providers;
+    int iProvider = rand_int(0, providers.size() - 1);
+    DataProvider provider = providers[iProvider];
+    std::list<std::string> urls;
+    std::vector<void*> user_data;
+    urls.push_back(GetKlineUrl(provider, kline_type, pShare->code, pShare->market));
+    KlineCrawlExtra* pExtra = new KlineCrawlExtra();
+    pExtra->provider = provider;
+    pExtra->type = kline_type;
+    pExtra->market = pShare->market;
+    pExtra->share = pShare;
+    user_data.push_back(static_cast<void*>(pExtra));
+    std::function<void(conn_t*)> callback =
+        std::bind(&SpiderShareKline::SingleResponseCallback, this, std::placeholders::_1);
+    HttpBatchGet(urls, callback, user_data, CURL_HTTP_VERSION_2_0);
+    std::unordered_map<std::string, std::vector<uiKline>> uiKlines;
+    MergeShareKlines(m_concurrent_day_klines_adjust, uiKlines);
+    return uiKlines[pShare->code];
+}
+
 void SpiderShareKline::DoCrawl(KlineType kline_type) {
     if (this->IsConcurrentMode()) {
         std::vector<KlineCrawlTask> tasks = {

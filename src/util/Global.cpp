@@ -1,6 +1,7 @@
 #include "util/Global.h"
 #include <codecvt>
 #include <locale>
+#include <random>
 
 /**
  * @todo 通过管道调用系统命令并获取命令执行输出结果
@@ -155,6 +156,19 @@ void padding_right(std::string& str, uint16_t size, const char needle) {
     str.insert(str.length(), size - str.length(), needle);
 }
 
+/**
+ * @brief 随机范围内的整数
+ * @param min 最小整数范围
+ * @param max 最大整数范围
+ * @return int
+ */
+int rand_int(int min, int max) {
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_int_distribution<> dis(min, max);
+    return dis(gen);
+}
+
 void fill_chars(std::string& str, const char needle, size_t width, const std::string direction) {
     size_t n = width - str.length();
     if (n > 0) {
@@ -174,8 +188,13 @@ std::string to_uppercase(const std::string& str) {
 }
 
 std::string to_lowercase(const std::string& str) {
-    std::string result = str;
-    std::transform(result.begin(), result.end(), result.begin(), ::tolower);
+    // std::string result = str;
+    // std::transform(result.begin(), result.end(), result.begin(), ::tolower);
+    // return result;
+    std::string result;
+    for (char c : str) {
+        result += std::tolower(c);
+    }
     return result;
 }
 

@@ -41,6 +41,7 @@ void padding_left(std::string& str, uint16_t size, const char needle = ' ');
 void padding_right(std::string& str, uint16_t size, const char needle = ' ');
 // 获取当前可执行文件所在目录
 std::string current_execute_path();
+int rand_int(int min, int max);
 
 std::string repeat_chars(char ch, int count);
 void fill_chars(std::string& str, const char needle, size_t width, const std::string direction = "left");

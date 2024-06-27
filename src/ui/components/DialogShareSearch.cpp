@@ -49,35 +49,39 @@ DialogShareSearch::DialogShareSearch(wxWindow* parent,
     m_listctrl_sharelist = new wxListCtrl(this, ID_LISTCTRL_SHARELIST, wxPoint(5, 75), wxSize(200, 148),
                                           wxLC_REPORT | wxLC_SINGLE_SEL | wxLC_NO_HEADER);
     m_listctrl_sharelist->InsertColumn(0, CN("代码"), 0, 90);
-    m_listctrl_sharelist->InsertColumn(1, CN("名称"), 0, 110);
+    m_listctrl_sharelist->InsertColumn(1, CN("名称"), 0, 100);
     m_listctrl_sharelist->InsertColumn(2, CN("市场"), 0, 90);
     m_listctrl_sharelist->SetFont(RichApplication::GetDefaultFont(12));
 }
 
 void DialogShareSearch::ReLayout(const wxSize& size) {
     this->SetSize(size);
-    m_bitmapbutton_close->SetPosition(wxPoint(size.x - 25, 5));
+    m_bitmapbutton_close->SetPosition(wxPoint(size.x - 20, 5));
     wxSize size_textctrl;
     size_textctrl.SetWidth(size.GetWidth() - 10);
     size_textctrl.SetHeight(32);
     m_textctrl_keyword->SetSize(size_textctrl);
 
     wxSize size_listctrl;
-    size_listctrl.SetWidth(size.GetHeight() - 10);
+    size_listctrl.SetWidth(size.GetWidth() - 10);
     size_listctrl.SetHeight(300);
     m_listctrl_sharelist->SetSize(size_listctrl);
 }
 
 void DialogShareSearch::SetShareList(const std::vector<Share*>& shares) {
-    m_shares = shares;
     m_listctrl_sharelist->DeleteAllItems();
     long row = 0;
-    for (auto& pShare : m_shares) {
+    for (auto& pShare : shares) {
         m_listctrl_sharelist->InsertItem(row, _T(""));  // 必须先插入行数据，然后插入表格数据
         m_listctrl_sharelist->SetItem(row, 0, CN(pShare->code));
         m_listctrl_sharelist->SetItem(row, 1, CN(pShare->name));
         m_listctrl_sharelist->SetItem(row, 2, CN(MARKET_NAME(pShare->market)));
         row++;
+    }
+    if (shares.size() > 0) {
+        // m_listctrl_sharelist->SetItemState(0, wxLIST_STATE_SELECTED, wxLIST_STATE_SELECTED);
+        m_listctrl_sharelist->SetItemBackgroundColour(0, wxColor(201, 201, 237));
+        m_listctrl_sharelist->SetItemTextColour(0, wxColor(52, 52, 227));
     }
 }
 
