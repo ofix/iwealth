@@ -14,6 +14,7 @@ class ChinesePinYin {
 
    private:
     static bool LoadPinYinDictionary(const std::string& dict_path);
+    static std::vector<std::string> RemoveRepeats(std::vector<std::string>& letters);
     static std::unordered_map<std::string, std::vector<std::string>> pinyin_dict;
 };
 

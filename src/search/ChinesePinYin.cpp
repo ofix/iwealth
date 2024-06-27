@@ -1,6 +1,7 @@
 #include "search/ChinesePinYin.h"
 #include <fstream>
 #include <iostream>
+#include <set>
 #include "search/Trie.h"
 #include "util/FileTool.h"
 #include "util/Global.h"
@@ -40,7 +41,13 @@ std::vector<std::string> ChinesePinYin::GetLetters(const std::string& chinese) {
             }
         }
     }
-    return letters;
+    return RemoveRepeats(letters);
+}
+
+std::vector<std::string> ChinesePinYin::RemoveRepeats(std::vector<std::string>& letters) {
+    std::set<std::string> unique_set(letters.begin(), letters.end());
+    std::vector<std::string> unique_vec(unique_set.begin(), unique_set.end());
+    return unique_vec;
 }
 
 std::vector<std::string> ChinesePinYin::GetFirstLetters(const std::string& chinese) {
@@ -76,7 +83,7 @@ std::vector<std::string> ChinesePinYin::GetFirstLetters(const std::string& chine
             }
         }
     }
-    return letters;
+    return RemoveRepeats(letters);
 }
 
 static std::vector<std::string> ToCharList(const std::string& chinese) {

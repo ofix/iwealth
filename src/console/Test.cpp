@@ -165,8 +165,8 @@ void TestTrie() {
 
 void TestChinesePinYin() {
     std::vector<std::string> share_names = {
-        "上海莱士",
-        "小商品城",
+        "东安动力",
+        "东阿阿胶",
         "*ST商城",
     };
     for (auto& share_name : share_names) {
