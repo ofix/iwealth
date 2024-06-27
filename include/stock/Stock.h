@@ -168,9 +168,9 @@ struct uiKline {
 
 inline std::string MARKET_NAME(Market market) {
     if (market == Market::ShangHai) {
-        return "沪市";
+        return "上海A股";
     } else if (market == Market::ShenZhen) {
-        return "深市";
+        return "深圳A股";
     } else if (market == Market::ChuangYeBan) {
         return "创业板";
     } else if (market == Market::KeChuangBan) {

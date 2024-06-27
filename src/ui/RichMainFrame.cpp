@@ -61,10 +61,10 @@ RichMainFrame::RichMainFrame(wxWindow* parent, wxWindowID id, const wxPoint& /*p
     m_panelStockQuote->GetGridCtrl()->Bind(wxEVT_GRID_CELL_LEFT_DCLICK, &RichMainFrame::OnGridCellLeftDblClick, this);
     m_panelStockQuote->GetGridCtrl()->Bind(wxEVT_KEY_DOWN, &RichMainFrame::OnKeyDown, this);
 
-    m_dlgShareSearch =
-        new DialogShareSearch(this, ID_DIALOG_SHARE_SEARCH, _T("股票精灵"), wxDefaultPosition, wxDefaultSize,
-                              wxDEFAULT_DIALOG_STYLE & ~(wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER));  // 移除默认标题栏
-    m_dlgShareSearch->ReLayout(wxSize(320, 380));
+    m_dlgShareSearch = new DialogShareSearch(
+        this, ID_DIALOG_SHARE_SEARCH, _T("股票精灵"), wxDefaultPosition, wxDefaultSize,
+        (wxDEFAULT_DIALOG_STYLE & ~(wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER)) | wxBORDER_NONE);  // 移除默认标题栏
+    m_dlgShareSearch->ReLayout(wxSize(290, 380));
     m_dlgShareSearch->Show(false);  // 默认隐藏
 
     Maximize();  // 初始化最大化
@@ -124,8 +124,8 @@ void RichMainFrame::AdjustDlgShareSearchPostion() {
     int verticalScrollbarWidth = 0;
     int horizontalScrollbarHeight = 0;
     if (platform == "msw") {
-        horizontalScrollbarHeight = 10;
-        verticalScrollbarWidth = 16;
+        horizontalScrollbarHeight = 23;
+        verticalScrollbarWidth = 32;
     } else if (platform == "unix") {
         horizontalScrollbarHeight = 0;
         verticalScrollbarWidth = 66;

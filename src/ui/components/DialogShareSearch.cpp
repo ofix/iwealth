@@ -33,6 +33,7 @@ DialogShareSearch::DialogShareSearch(wxWindow* parent,
     //*)
     // 自定义标题栏标题
     m_statictext_title = new wxStaticText(this, ID_STATICTEXT_TITLE, _T("按键精灵"), wxPoint(5, 5), wxDefaultSize);
+    m_statictext_title->SetFont(RichApplication::GetDefaultFont(12));
     // 自定义右侧关闭按钮
     m_bitmapbutton_close = wxBitmapButton::NewCloseButton(this, ID_BITMAPBUTTON_CLOSE);
     m_bitmapbutton_close->SetPosition(wxPoint(255, 5));
@@ -41,14 +42,16 @@ DialogShareSearch::DialogShareSearch(wxWindow* parent,
     // 搜索关键字
     m_textctrl_keyword =
         new wxTextCtrl(this, ID_TEXTCTRL_KEYWORD, "", wxPoint(5, 32), wxSize(200, 32), wxTE_PROCESS_ENTER);
+    m_textctrl_keyword->Bind(wxEVT_TEXT, &DialogShareSearch::OnSearchShare, this);
+    m_textctrl_keyword->Bind(wxEVT_TEXT_ENTER, &DialogShareSearch::OnExitSearchShare, this);
+    m_textctrl_keyword->SetFont(RichApplication::GetDefaultFont(11));
     // 列表框
     m_listctrl_sharelist = new wxListCtrl(this, ID_LISTCTRL_SHARELIST, wxPoint(5, 75), wxSize(200, 148),
                                           wxLC_REPORT | wxLC_SINGLE_SEL | wxLC_NO_HEADER);
-    m_listctrl_sharelist->InsertColumn(0, CN("代码"));
-    m_listctrl_sharelist->InsertColumn(1, CN("名称"));
-    m_listctrl_sharelist->InsertColumn(2, CN("市场"));
-    m_textctrl_keyword->Bind(wxEVT_TEXT, &DialogShareSearch::OnSearchShare, this);
-    m_textctrl_keyword->Bind(wxEVT_TEXT_ENTER, &DialogShareSearch::OnExitSearchShare, this);
+    m_listctrl_sharelist->InsertColumn(0, CN("代码"), 0, 90);
+    m_listctrl_sharelist->InsertColumn(1, CN("名称"), 0, 110);
+    m_listctrl_sharelist->InsertColumn(2, CN("市场"), 0, 90);
+    m_listctrl_sharelist->SetFont(RichApplication::GetDefaultFont(12));
 }
 
 void DialogShareSearch::ReLayout(const wxSize& size) {

@@ -153,7 +153,6 @@
 		<Unit filename="../../src/ui/components/RichKlineInfoCtrl.cpp" />
 		<Unit filename="../../src/ui/components/RichVolumeBarCtrl.cpp" />
 		<Unit filename="../../src/ui/wxsmith/DialogShareSearch.wxs" />
-		<Unit filename="../../src/ui/wxsmith/PanelStockQuota.wxs" />
 		<Unit filename="../../src/ui/wxsmith/PanelStockQuote.wxs" />
 		<Unit filename="../../src/ui/wxsmith/RichMainFrame.wxs" />
 		<Unit filename="../../src/util/ConsoleTable.cpp" />
@@ -168,6 +167,7 @@
 				<resources>
 					<wxFrame wxs="../../src/ui/wxsmith/RichMainFrame.wxs" src="../../src/ui/RichMainFrame.cpp" hdr="../../include/ui/RichMainFrame.h" fwddecl="0" i18n="1" name="RichMainFrame" language="CPP" />
 					<wxPanel wxs="../../src/ui/wxsmith/PanelStockQuote.wxs" src="../../src/ui/PanelStockQuote.cpp" hdr="../../include/ui/PanelStockQuote.h" fwddecl="0" i18n="1" name="PanelStockQuote" language="CPP" />
+					<wxDialog wxs="../../src/ui/wxsmith/DialogShareSearch.wxs" src="../../src/ui/DialogShareSearch.cpp" hdr="../../include/ui/DialogShareSearch.h" fwddecl="0" i18n="1" name="DialogShareSearch" language="CPP" />
 				</resources>
 			</wxsmith>
 		</Extensions>

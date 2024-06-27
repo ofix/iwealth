@@ -25,6 +25,12 @@ bool RichApplication::OnInit() {
     return true;
 }
 
+wxFont RichApplication::GetDefaultFont(int font_size) {
+    wxFont defaultFont(font_size, wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL, false, _T("微软雅黑"),
+                       wxFONTENCODING_DEFAULT);
+    return defaultFont;
+}
+
 RichMainFrame* RichApplication::GetMainFrame() {
     return m_pFrame;
 }

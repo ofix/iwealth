@@ -24,6 +24,7 @@ class RichApplication : public wxApp {
     virtual bool OnInit();
     StockDataStorage* GetStockDataStorage();
     RichMainFrame* GetMainFrame();
+    static wxFont GetDefaultFont(int font_size = 12);
 
    private:
     StockDataStorage* m_pStockStorage;

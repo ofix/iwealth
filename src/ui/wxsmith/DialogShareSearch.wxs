@@ -2,10 +2,26 @@
 <wxsmith>
 	<object class="wxDialog" name="DialogShareSearch">
 		<size>274,365</size>
+		<font>
+			<size>12</size>
+			<style>normal</style>
+			<weight>normal</weight>
+			<underlined>0</underlined>
+			<family>swiss</family>
+			<face>微软雅黑</face>
+		</font>
 		<object class="wxTextCtrl" name="ID_TEXTCTRL_KEYWORD" variable="m_textctrl_keyword" member="yes">
 			<value>请输入</value>
 			<pos>16,80</pos>
 			<size>240,32</size>
+			<font>
+				<size>12</size>
+				<style>normal</style>
+				<weight>normal</weight>
+				<underlined>0</underlined>
+				<family>swiss</family>
+				<face>微软雅黑</face>
+			</font>
 		</object>
 		<object class="wxListCtrl" name="ID_LISTCTRL_SHARE_LIST" variable="m_listctrl_sharelist" member="yes">
 			<pos>16,128</pos>
@@ -15,11 +31,6 @@
 			<label>按键精灵</label>
 			<pos>16,16</pos>
 			<size>64,23</size>
-		</object>
-		<object class="wxBitmapButton" name="ID_BITMAPBUTTON_CLOSE" variable="m_closeBtn" member="yes">
-			<bitmap stock_id="wxART_ERROR" />
-			<pos>232,8</pos>
-			<size>32,32</size>
 		</object>
 	</object>
 </wxsmith>
