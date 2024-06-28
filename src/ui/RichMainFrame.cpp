@@ -70,20 +70,23 @@ RichMainFrame::RichMainFrame(wxWindow* parent, wxWindowID id, const wxPoint& /*p
     Maximize();  // 初始化最大化
 }
 
-void RichMainFrame::OnClose(wxCloseEvent& /*event*/) {
+void RichMainFrame::OnClose(wxCloseEvent& event) {
     m_dlgShareSearch->Destroy();
+    event.Skip();
 }
 
-void RichMainFrame::OnIconize(wxIconizeEvent& /*event*/) {
+void RichMainFrame::OnIconize(wxIconizeEvent& event) {
     if (m_dlgShareSearch->IsShown()) {
         m_dlgShareSearch->Show(false);
     }
+    event.Skip();
 }
 
-void RichMainFrame::OnMaximize(wxMaximizeEvent& /*event*/) {
+void RichMainFrame::OnMaximize(wxMaximizeEvent& event) {
     if (m_dlgShareSearch->IsShown()) {
         m_dlgShareSearch->Show(false);
     }
+    event.Skip();
 }
 
 // 全局处理 Alt+Tab 按键消息
@@ -137,16 +140,18 @@ void RichMainFrame::AdjustDlgShareSearchPostion() {
 }
 
 // 监听GridCtrl鼠标左键按下事件
-void RichMainFrame::OnGridCellLeftClick(wxGridEvent& /*event*/) {
+void RichMainFrame::OnGridCellLeftClick(wxGridEvent& event) {
     if (m_dlgShareSearch) {
         m_dlgShareSearch->Show(false);
     }
+    event.Skip();
 }
 
 // 双击股票行情，显示日K线图
 void RichMainFrame::OnGridCellLeftDblClick(wxGridEvent& event) {
     int iRow = event.GetRow();
     wxString share_code = m_panelStockQuote->GetGridCtrl()->GetCellValue(iRow, 1);
+    event.Skip();
 }
 
 // 监听异步子线程消息
@@ -157,8 +162,8 @@ void RichMainFrame::OnStorageDataReady(wxThreadEvent& event) {
         m_panelStockQuote->LoadStockMarketQuote();
     }
 }
-void RichMainFrame::OnExit(wxCommandEvent& /*event*/) {
-    Close(true);
+void RichMainFrame::OnExit(wxCommandEvent& event) {
+    event.Skip();
 }
 
 void RichMainFrame::OnAbout(wxCommandEvent& /*event*/) {

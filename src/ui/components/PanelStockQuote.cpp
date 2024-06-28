@@ -48,6 +48,7 @@ PanelStockQuote::PanelStockQuote(wxWindow* parent, wxWindowID id, const wxPoint&
     m_gridCtrlQuote->SetSelectionForeground(wxColor(219, 219, 3, 255));
     m_gridCtrlQuote->HideRowLabels();
     m_gridCtrlQuote->SetSortingColumn(3, false);
+    m_gridCtrlQuote->SetDefaultCellFont(RichApplication::GetDefaultFont());
     /////////////////////////////////////////////////
     /// 插入行情列表表头
 
