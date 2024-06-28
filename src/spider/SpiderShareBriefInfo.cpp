@@ -119,7 +119,7 @@ void SpiderShareBriefInfo::ConcurrentFetchBriefInfo() {
     }
 }
 
-void SpiderShareBriefInfo::OnTimerFetchBriefInfo(uint32_t timer_id, void* args) {
+void SpiderShareBriefInfo::OnTimerFetchBriefInfo(uint32_t timer_id, void* /*args*/) {
     if (this->HasFinish()) {
         m_pStockStorage->SaveShareNames();
         Timer::CancelTimer(timer_id);

@@ -32,10 +32,10 @@ PanelStockQuote::PanelStockQuote(wxWindow* parent, wxWindowID id, const wxPoint&
     wxSizer* sizer = new wxBoxSizer(wxHORIZONTAL);
     sizer->Add(m_gridCtrlQuote, 1, wxEXPAND | wxALL, 0);
     this->SetSizer(sizer);
-    wxColor background_clr(50, 50, 50);
+    wxColor background_clr(0, 0, 0);
     m_gridCtrlQuote->SetDefaultCellBackgroundColour(background_clr);
     m_gridCtrlQuote->SetDefaultCellTextColour(wxColour(192, 192, 192));
-    m_gridCtrlQuote->SetDefaultCellAlignment(wxALIGN_CENTER, wxALIGN_CENTER);
+    m_gridCtrlQuote->SetDefaultCellAlignment(wxALIGN_RIGHT, wxALIGN_CENTER);
     m_gridCtrlQuote->DisableDragRowSize();    // 禁止拖拽改变行高
     m_gridCtrlQuote->EnableEditing(false);    // 禁止编辑
     m_gridCtrlQuote->EnableGridLines(false);  // 不划线
@@ -44,29 +44,49 @@ PanelStockQuote::PanelStockQuote(wxWindow* parent, wxWindowID id, const wxPoint&
     m_gridCtrlQuote->SetCellHighlightPenWidth(0);
     m_gridCtrlQuote->SetLabelBackgroundColour(background_clr);
     m_gridCtrlQuote->SetLabelTextColour(wxColour(192, 192, 192));
-    m_gridCtrlQuote->SetRowLabelAlignment(wxALIGN_CENTRE, wxALIGN_CENTRE);
+    // m_gridCtrlQuote->SetRowLabelAlignment(wxALIGN_CENTER, wxALIGN_CENTRE);
     m_gridCtrlQuote->SetSelectionBackground(wxColor(100, 100, 100));
-    m_gridCtrlQuote->SetSelectionForeground(wxColor(219, 219, 3, 255));
+    // m_gridCtrlQuote->SetSelectionForeground(wxColor(219, 219, 3, 255));
+    m_gridCtrlQuote->SetDefaultRowSize(25);
     m_gridCtrlQuote->HideRowLabels();
     m_gridCtrlQuote->SetSortingColumn(3, false);
     m_gridCtrlQuote->SetDefaultCellFont(RichApplication::GetDefaultFont());
+    m_gridCtrlQuote->SetSelectionMode(wxGrid::wxGridSelectRows);
     m_gridCtrlQuote->SetDefaultRenderer(new RichGridCellStringRenderer());
+    m_gridCtrlQuote->SetLabelFont(RichApplication::GetDefaultFont(14));
+    m_gridCtrlQuote->SetColLabelAlignment(wxALIGN_RIGHT, wxALIGN_CENTRE);
     /////////////////////////////////////////////////
     /// 插入行情列表表头
 
     std::vector<std::pair<wxString, int>> columnsStockQuote = {
-        {CN("序号"), 56},    {CN("代码"), 120}, {CN("名称"), 140}, {CN("涨幅"), 100}, {CN("现价"), 100},
-        {CN("昨收"), 100},   {CN("今开"), 100}, {CN("最高"), 100}, {CN("最低"), 100}, {CN("成交额"), 140},
-        {CN("成交量"), 140}, {CN("换手"), 100}, {CN("量比"), 100}, {CN("行业"), 100}, {CN("省份"), 100},
+        {CN("序号"), 56},  {CN("代码"), 120},   {CN("名称"), 140},   {CN("涨幅"), 100},
+        {CN("现价"), 100}, {CN("昨收"), 100},   {CN("今开"), 100},   {CN("最高"), 100},
+        {CN("最低"), 100}, {CN("成交额"), 140}, {CN("成交量"), 140}, {CN("换手"), 100},
+        {CN("振幅"), 100}, {CN("量比"), 100},   {CN("行业"), 140},   {CN("省份"), 100},
     };
     // m_gridCtrlQuote->CreateGrid(30, columnsStockQuote.size(), wxGrid::wxGridSelectRows);
     int icol = 0;
     for (std::pair<wxString, int>& item : columnsStockQuote) {
         m_gridCtrlQuote->SetColSize(icol, item.second);
-        m_gridCtrlQuote->SetColLabelValue(icol, item.first);
-        m_gridCtrlQuote->SetColLabelAlignment(wxALIGN_CENTRE, wxALIGN_CENTRE);
+        // m_gridCtrlQuote->SetColLabelValue(icol, item.first);
         icol++;
     }
+    wxGridCellAttr* pAlignLeftAttr = new wxGridCellAttr(
+        wxColour(192, 192, 192), wxColor(0, 0, 0), RichApplication::GetDefaultFont(14), wxALIGN_LEFT, wxALIGN_CENTRE);
+    wxGridCellAttr* pAlignCenterAttr = new wxGridCellAttr(
+        wxColour(192, 192, 192), wxColor(0, 0, 0), RichApplication::GetDefaultFont(14), wxALIGN_CENTER, wxALIGN_CENTRE);
+    m_gridCtrlQuote->SetColAttr(0, pAlignCenterAttr);
+    m_gridCtrlQuote->SetColAttr(1, pAlignLeftAttr);
+    m_gridCtrlQuote->SetColAttr(2, pAlignLeftAttr);
+    m_gridCtrlQuote->SetColAttr(13, pAlignCenterAttr);
+    m_gridCtrlQuote->SetColAttr(14, pAlignLeftAttr);
+    m_gridCtrlQuote->SetColAttr(15, pAlignLeftAttr);
+    m_gridCtrlQuote->SetColumnLabelAlignment(0, wxALIGN_CENTER, wxALIGN_CENTER);
+    m_gridCtrlQuote->SetColumnLabelAlignment(1, wxALIGN_LEFT, wxALIGN_CENTER);
+    m_gridCtrlQuote->SetColumnLabelAlignment(2, wxALIGN_LEFT, wxALIGN_CENTER);
+    m_gridCtrlQuote->SetColumnLabelAlignment(13, wxALIGN_CENTER, wxALIGN_CENTER);
+    m_gridCtrlQuote->SetColumnLabelAlignment(14, wxALIGN_LEFT, wxALIGN_CENTER);
+    m_gridCtrlQuote->SetColumnLabelAlignment(15, wxALIGN_LEFT, wxALIGN_CENTER);
     // StaticText1 = new wxStaticText(this, ID_STATICTEXT1, _("Label"), wxPoint(232,232), wxDefaultSize, 0,
     // _T("ID_STATICTEXT1"));
 }
@@ -91,7 +111,8 @@ void PanelStockQuote::LoadStockMarketQuote() {
             //     m_gridCtrlQuote->SetCellValue(irow, 3, CN(convertDouble(share.change_rate) + '%'));      // 涨幅
             //     m_gridCtrlQuote->SetCellValue(irow, 4, CN(convertDouble(share.price_now)));              // 当前价
             //     m_gridCtrlQuote->SetCellValue(irow, 5, CN(convertDouble(share.price_yesterday_close)));  //
-            //     昨天收盘价 m_gridCtrlQuote->SetCellValue(irow, 6, CN(convertDouble(share.price_open))); // 开盘价
+            //     昨天收盘价
+            //      m_gridCtrlQuote->SetCellValue(irow, 6, CN(convertDouble(share.price_open))); // 开盘价
             //     m_gridCtrlQuote->SetCellValue(irow, 7, CN(convertDouble(share.price_max)));              // 最高价
             //     m_gridCtrlQuote->SetCellValue(irow, 8, CN(convertDouble(share.price_min)));              // 最低价
             //     m_gridCtrlQuote->SetCellValue(irow, 9, CN(std::to_string(share.amount)));                // 成交额
@@ -121,6 +142,11 @@ void PanelStockQuote::LoadStockMarketQuote() {
                 m_gridCtrlQuote->SetCellTextColour(irow, 8, clr_red);
             } else if (share.price_min < share.price_yesterday_close) {
                 m_gridCtrlQuote->SetCellTextColour(irow, 8, clr_green);
+            }
+            if (share.price_amplitude > 0) {
+                m_gridCtrlQuote->SetCellTextColour(irow, 12, clr_red);
+            } else {
+                m_gridCtrlQuote->SetCellTextColour(irow, 12, clr_green);
             }
             irow++;
         }

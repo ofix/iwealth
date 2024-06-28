@@ -29,6 +29,8 @@
 
 #include "ui/RichApplication.h"
 #include "ui/components/RichGridCellStringRenderer.h"
+#include "ui/components/RichGridColumnHeaderProvider.h"
+#include "ui/components/RichGridColumnHeaderRenderer.h"
 #include "ui/components/RichGridTable.h"
 #include "wx/generic/gridctrl.h"
 #include "wx/generic/grideditors.h"
@@ -74,6 +76,23 @@ RichGrid::RichGrid(wxWindow* parent,
     StockDataStorage* pStorage = static_cast<RichApplication*>(wxTheApp)->GetStockDataStorage();
     RichGridTable* pDataTable = new RichGridTable(RichGridTableDataType::Stock, pStorage);
     this->SetTable(pDataTable);
+    // RichGridColumnHeaderRenderer* pHeaderRender = new RichGridColumnHeaderRenderer();
+    // pHeaderRender->SetFont(RichApplication::GetDefaultFont(14));
+    // this->GetTable()->SetAttrProvider(new RichGridColumnHeaderProvider());
+}
+
+void RichGrid::SetColumnLabelAlignment(int iCol, int hAlign, int vAlign) {
+    m_colLabelAlignment.insert({iCol, {hAlign, vAlign}});
+}
+void RichGrid::GetColumnLabelAlignment(int iCol, int* hAlign, int* vAlign) {
+    if (m_colLabelAlignment.find(iCol) != m_colLabelAlignment.end()) {
+        std::pair<int, int> item = m_colLabelAlignment[iCol];
+        *hAlign = item.first;
+        *vAlign = item.second;
+        std::cout << "[" << iCol << "]= " << item.first << "," << item.second << std::endl;
+    } else {
+        GetColLabelAlignment(hAlign, vAlign);
+    }
 }
 
 void RichGrid::DrawColLabel(wxDC& dc, int col) {
@@ -117,7 +136,7 @@ void RichGrid::DrawColLabel(wxDC& dc, int col) {
     }
 
     int hAlign, vAlign;
-    GetColLabelAlignment(&hAlign, &vAlign);
+    GetColumnLabelAlignment(col, &hAlign, &vAlign);
     const int orient = GetColLabelTextOrientation();
 
     rend.DrawLabel(*this, dc, GetColLabelValue(col), rect, hAlign, vAlign, orient);

@@ -92,7 +92,7 @@ void DialogShareSearch::SetKeyword(const std::string& keyword) {
     Raise();                                     // 将搜索窗口置于最顶部
 }
 
-void DialogShareSearch::OnSearchShare(wxCommandEvent& event) {
+void DialogShareSearch::OnSearchShare(wxCommandEvent& /*event*/) {
     wxString input = m_textctrl_keyword->GetValue();
     std::string keyword = input.ToStdString();
     StockDataStorage* pStorage = static_cast<RichApplication*>(wxTheApp)->GetStockDataStorage();
@@ -100,7 +100,7 @@ void DialogShareSearch::OnSearchShare(wxCommandEvent& event) {
     SetShareList(shares);
 }
 
-void DialogShareSearch::OnExitSearchShare(wxCommandEvent& event) {
+void DialogShareSearch::OnExitSearchShare(wxCommandEvent& /*event*/) {
     m_textctrl_keyword->Clear();
     this->Show(false);
 }

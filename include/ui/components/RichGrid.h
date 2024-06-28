@@ -4,6 +4,13 @@
 #include <wx/defs.h>
 #include <wx/gdicmn.h>
 #include <wx/grid.h>
+#include <unordered_map>
+
+struct RichColLabelAlignment {
+    int iCol;
+    int horiz = wxALIGN_CENTER;
+    int vert = wxALIGN_CENTER;
+};
 
 class RichGrid : public wxGrid {
    public:
@@ -15,6 +22,11 @@ class RichGrid : public wxGrid {
              long style = wxWANTS_CHARS,
              const wxString& name = wxASCII_STR(wxGridNameStr));
     virtual void DrawColLabel(wxDC& dc, int col) wxOVERRIDE;
+    void SetColumnLabelAlignment(int iCol, int hAlign, int vAlign);
+    void GetColumnLabelAlignment(int iCol, int* hAlign, int* vAlign);
+
+   protected:
+    std::unordered_map<int, std::pair<int, int>> m_colLabelAlignment;
 };
 
 #endif

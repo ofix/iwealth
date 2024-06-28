@@ -12,7 +12,7 @@ RichGridTable::~RichGridTable() {
 
 int RichGridTable::GetNumberRows() {
     if (m_dataType == RichGridTableDataType::Stock) {
-        return 30;
+        return 37;
         // return static_cast<int>(m_pStorage->GetStockMarketShareCount());
     }
     return 0;
@@ -20,7 +20,7 @@ int RichGridTable::GetNumberRows() {
 
 int RichGridTable::GetNumberCols() {
     if (m_dataType == RichGridTableDataType::Stock) {
-        return 15;
+        return 16;
     }
     return 0;
 }
@@ -29,7 +29,7 @@ wxString RichGridTable::GetColLabelValue(int col) {
     if (m_dataType == RichGridTableDataType::Stock) {
         static std::vector<wxString> columns = {
             CN("序号"), CN("代码"),   CN("名称"),   CN("涨幅"), CN("现价"), CN("昨收"), CN("今开"), CN("最高"),
-            CN("最低"), CN("成交额"), CN("成交量"), CN("换手"), CN("量比"), CN("行业"), CN("省份"),
+            CN("最低"), CN("成交额"), CN("成交量"), CN("换手"), CN("振幅"), CN("量比"), CN("行业"), CN("省份"),
         };
         if (col < columns.size()) {
             return columns[col];
@@ -42,7 +42,7 @@ wxString RichGridTable::GetColLabelValue(int col) {
 wxString RichGridTable::GetValue(int row, int col) {
     if (m_dataType == RichGridTableDataType::Stock) {
         int nTotalRows = static_cast<int>(m_pStorage->GetStockMarketShareCount());
-        if (row < nTotalRows && col < 15) {
+        if (row < nTotalRows && col < 16) {
             Share share = m_pStorage->GetStockAllShares()->at(row);
             switch (col) {
                 case 0:
@@ -54,26 +54,28 @@ wxString RichGridTable::GetValue(int row, int col) {
                 case 3:
                     return CN(convertDouble(share.change_rate) + '%');  // 涨幅
                 case 4:
-                    return CN(convertDouble(share.price_now) + '%');  // 当前价
+                    return CN(convertDouble(share.price_now));  // 当前价
                 case 5:
-                    return CN(convertDouble(share.price_yesterday_close) + '%');  // 昨天收盘价
+                    return CN(convertDouble(share.price_yesterday_close));  // 昨天收盘价
                 case 6:
-                    return CN(convertDouble(share.price_open) + '%');  // 开盘价
+                    return CN(convertDouble(share.price_open));  // 开盘价
                 case 7:
-                    return CN(convertDouble(share.price_max) + '%');  // 最高价
+                    return CN(convertDouble(share.price_max));  // 最高价
                 case 8:
-                    return CN(convertDouble(share.price_min) + '%');  // 最低价
+                    return CN(convertDouble(share.price_min));  // 最低价
                 case 9:
-                    return CN(std::to_string(share.amount));  // 成交额
+                    return RichUnit(share.amount);  // 成交额
                 case 10:
-                    return CN(std::to_string(share.volume));  // 成交量
+                    return RichUnit(share.volume);  // 成交量
                 case 11:
                     return CN(convertDouble(share.turnover_rate) + '%');  // 换手率
                 case 12:
-                    return CN(convertDouble(share.qrr));  // 量比
+                    return CN(convertDouble(share.price_amplitude) + '%');  // 振幅
                 case 13:
-                    return CN(share.industry_name);  // 行业
+                    return CN(convertDouble(share.qrr));  // 量比
                 case 14:
+                    return CN(share.industry_name);  // 行业
+                case 15:
                     return CN(share.province);  // 区域
                 default:
                     return "";

@@ -21,7 +21,8 @@ RichMainFrame::RichMainFrame(wxWindow* parent, wxWindowID id, const wxPoint& /*p
     //(*Initialize(RichMainFrame)
     Create(parent, id, _("东方巴菲特"), wxDefaultPosition, wxDefaultSize, wxDEFAULT_FRAME_STYLE | wxWANTS_CHARS,
            _T("id"));
-    SetClientSize(wxSize(364, 600));
+    SetClientSize(wxSize(1024, 580));
+    SetMinSize(wxSize(1024, 580));  // 设置最小窗口大小为 300x200
     Move(wxDefaultPosition);
     SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_MENUTEXT));
     {

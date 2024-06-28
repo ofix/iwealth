@@ -105,6 +105,8 @@ gui_sources = [
     'ui/components/RichVolumeBarCtrl.cpp',
     'ui/components/RichGrid.cpp',
     'ui/components/RichGridCellStringRenderer.cpp',
+    'ui/components/RichGridColumnHeaderProvider.cpp',
+    'ui/components/RichGridColumnHeaderRenderer.cpp',
     'ui/components/RichGridTable.cpp',
     'stock/StockDataStorage.cpp',
     'spider/SpiderShareBriefInfo.cpp',
@@ -134,7 +136,9 @@ foreach file : gui_sources
 endforeach
 
 ui_cpp_args = cpp_args
-ui_cpp_args += ['-DIWEALTH','-DDEBUG']
+ui_cpp_args += ['-DIWEALTH',
+                #'-DDEBUG'
+               ]
 executable('iwealth', full_gui_sources,
             cpp_args:ui_cpp_args,
             link_args : ldflags,
