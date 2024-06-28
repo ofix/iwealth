@@ -3,6 +3,7 @@
 #include "spider/SpiderShareQuote.h"
 #include "ui/RichApplication.h"
 #include "ui/RichHelper.h"
+#include "ui/components/RichGridCellStringRenderer.h"
 
 //(*InternalHeaders(PanelStockQuote)
 #include <wx/intl.h>
@@ -49,6 +50,7 @@ PanelStockQuote::PanelStockQuote(wxWindow* parent, wxWindowID id, const wxPoint&
     m_gridCtrlQuote->HideRowLabels();
     m_gridCtrlQuote->SetSortingColumn(3, false);
     m_gridCtrlQuote->SetDefaultCellFont(RichApplication::GetDefaultFont());
+    m_gridCtrlQuote->SetDefaultRenderer(new RichGridCellStringRenderer());
     /////////////////////////////////////////////////
     /// 插入行情列表表头
 

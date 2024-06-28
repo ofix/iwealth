@@ -104,6 +104,7 @@ gui_sources = [
     'ui/components/RichKlineInfoCtrl.cpp',
     'ui/components/RichVolumeBarCtrl.cpp',
     'ui/components/RichGrid.cpp',
+    'ui/components/RichGridCellStringRenderer.cpp',
     'stock/StockDataStorage.cpp',
     'spider/SpiderShareBriefInfo.cpp',
     'spider/SpiderConceptListEastMoney.cpp',

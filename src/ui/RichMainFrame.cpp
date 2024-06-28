@@ -108,6 +108,7 @@ void RichMainFrame::OnChar(wxKeyEvent& event) {
         m_dlgShareSearch->SetKeyword(keyword);
         AdjustDlgShareSearchPostion();
         m_dlgShareSearch->Show();
+        // 如果选中了wxGrid
     }
 }
 
@@ -118,10 +119,6 @@ void RichMainFrame::AdjustDlgShareSearchPostion() {
     wxSize frame_size = this->GetSize();
     // 获取股票搜索对话框大小
     wxSize dlg_size = m_dlgShareSearch->GetSize();
-    // // 获取横向滚动条高度
-    // int horizontalScrollbarHeight = wxSystemSettings::GetMetric(wxSYS_HSCROLL_Y);
-    // // 获取和纵向滚动条宽度
-    // int verticalScrollbarWidth = wxSystemSettings::GetMetric(wxSYS_VSCROLL_X);
     // 根据平台进行补偿
     wxString platform = wxPlatformId::GetCurrent();
     int verticalScrollbarWidth = 0;
