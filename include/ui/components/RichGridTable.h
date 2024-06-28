@@ -13,6 +13,7 @@ class RichGridTable : public wxGridTableBase {
     virtual int GetNumberRows();
     virtual int GetNumberCols();
     virtual wxString GetValue(int row, int col);
+    virtual wxString GetColLabelValue(int col);
     virtual void SetValue(int row, int col, const wxString& value);
     void SetStorage(StockDataStorage* pStorage);
 
