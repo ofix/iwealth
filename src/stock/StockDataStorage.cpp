@@ -401,6 +401,14 @@ std::vector<Share> StockDataStorage::GetMarketAllShares() {
     return m_market_shares;
 }
 
+std::vector<Share>* StockDataStorage::GetStockAllShares() {
+    return &m_market_shares;
+}
+
+size_t StockDataStorage::GetStockMarketShareCount() {
+    return m_market_shares.size();
+}
+
 bool StockDataStorage::LoadLocalFileQuote(std::string& path, std::vector<Share>& shares) {
     try {
         std::string json_data = FileTool::LoadFile(path);

@@ -27,7 +27,9 @@
 #include "wx/clipbrd.h"
 #endif  // wxUSE_CLIPBOARD
 
+#include "ui/RichApplication.h"
 #include "ui/components/RichGridCellStringRenderer.h"
+#include "ui/components/RichGridTable.h"
 #include "wx/generic/gridctrl.h"
 #include "wx/generic/grideditors.h"
 #include "wx/generic/gridsel.h"
@@ -69,6 +71,9 @@ RichGrid::RichGrid(wxWindow* parent,
                    const wxString& name)
     : wxGrid(parent, id, pos, size, style, name) {
     this->SetDefaultRenderer(new RichGridCellStringRenderer());
+    StockDataStorage* pStorage = static_cast<RichApplication*>(wxTheApp)->GetStockDataStorage();
+    RichGridTable* pDataTable = new RichGridTable(RichGridTableDataType::Stock, pStorage);
+    this->SetTable(pDataTable);
 }
 
 void RichGrid::DrawColLabel(wxDC& dc, int col) {

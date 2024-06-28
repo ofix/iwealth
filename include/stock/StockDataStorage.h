@@ -35,10 +35,11 @@ class StockDataStorage {
     };
     StockDataStorage();
     virtual ~StockDataStorage();
-    void Init();                          // 初始化操作
-    uint16_t GetStockMarketShareCount();  // 获取市场股票数量
-    uint16_t GetStockMarketShareCountByLocation(const std::string&& location);
+    void Init();                        // 初始化操作
+    size_t GetStockMarketShareCount();  // 获取市场股票数量
+    size_t GetStockMarketShareCountByLocation(const std::string&& location);
     std::vector<Share> GetMarketAllShares();
+    std::vector<Share>* GetStockAllShares();
     std::string GetStockDataSaveDir();
     void InsertShareNameToTrie(const std::string& share_name, const std::string& share_code);  // 插入股票
     std::vector<Share*> SearchShares(const std::string& prefix);
