@@ -43,7 +43,6 @@ PanelStockQuote::PanelStockQuote(wxWindow* parent, wxWindowID id, const wxPoint&
     m_gridCtrlQuote->SetCellHighlightColour(wxColor(255, 255, 255, 0));
     m_gridCtrlQuote->SetCellHighlightPenWidth(0);
     m_gridCtrlQuote->SetLabelBackgroundColour(background_clr);
-    m_gridCtrlQuote->SetLabelTextColour(wxColour(192, 192, 192));
     // m_gridCtrlQuote->SetRowLabelAlignment(wxALIGN_CENTER, wxALIGN_CENTRE);
     m_gridCtrlQuote->SetSelectionBackground(wxColor(100, 100, 100));
     // m_gridCtrlQuote->SetSelectionForeground(wxColor(219, 219, 3, 255));
@@ -54,6 +53,7 @@ PanelStockQuote::PanelStockQuote(wxWindow* parent, wxWindowID id, const wxPoint&
     m_gridCtrlQuote->SetSelectionMode(wxGrid::wxGridSelectRows);
     m_gridCtrlQuote->SetDefaultRenderer(new RichGridCellStringRenderer());
     m_gridCtrlQuote->SetLabelFont(RichApplication::GetDefaultFont(14));
+    m_gridCtrlQuote->SetLabelTextColour(wxColour(192, 192, 192));
     m_gridCtrlQuote->SetColLabelAlignment(wxALIGN_RIGHT, wxALIGN_CENTRE);
     m_gridCtrlQuote->SetScrollRate(0, static_cast<int>(36 * 8.5));
 
@@ -90,8 +90,6 @@ PanelStockQuote::PanelStockQuote(wxWindow* parent, wxWindowID id, const wxPoint&
     m_gridCtrlQuote->SetColumnLabelAlignment(13, wxALIGN_CENTER, wxALIGN_CENTER);
     m_gridCtrlQuote->SetColumnLabelAlignment(14, wxALIGN_LEFT, wxALIGN_CENTER);
     m_gridCtrlQuote->SetColumnLabelAlignment(15, wxALIGN_LEFT, wxALIGN_CENTER);
-    // StaticText1 = new wxStaticText(this, ID_STATICTEXT1, _("Label"), wxPoint(232,232), wxDefaultSize, 0,
-    // _T("ID_STATICTEXT1"));
 }
 
 RichGrid* PanelStockQuote::GetGridCtrl() {

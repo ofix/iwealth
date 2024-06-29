@@ -71,15 +71,18 @@ RichGrid::RichGrid(wxWindow* parent,
                    long style,
                    const wxString& name)
     : wxGrid(parent, id, pos, size, style, name) {
+    // 自定义单元格渲染器，解决行选中无法独立设置每个单元格的文字颜色
     this->SetDefaultRenderer(new RichGridCellStringRenderer());
+    // 自定义数据来源，解决直接排序的效率问题，避免字符串排序
     StockDataStorage* pStorage = static_cast<RichApplication*>(wxTheApp)->GetStockDataStorage();
     m_pGridDataTable = new RichGridTable(RichGridTableDataType::Stock, pStorage);
     this->SetTable(m_pGridDataTable);
+    // 自定义表格头渲染，解决排序没有指示器的问题
+    RichGridColumnHeaderRenderer* pHeaderRender = new RichGridColumnHeaderRenderer();
+    pHeaderRender->SetFont(RichApplication::GetDefaultFont(14));
+    this->GetTable()->SetAttrProvider(new RichGridColumnHeaderProvider());
     // 绑定鼠标滚轮事件
     // Bind(wxEVT_MOUSEWHEEL, &RichGrid::OnMouseWheel, this);
-    // RichGridColumnHeaderRenderer* pHeaderRender = new RichGridColumnHeaderRenderer();
-    // pHeaderRender->SetFont(RichApplication::GetDefaultFont(14));
-    // this->GetTable()->SetAttrProvider(new RichGridColumnHeaderProvider());
 }
 
 void RichGrid::SortColumn(int iCol) {

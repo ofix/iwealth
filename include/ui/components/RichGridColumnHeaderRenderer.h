@@ -18,7 +18,6 @@ class RichGridColumnHeaderRenderer : public wxGridColumnHeaderRenderer {
     virtual void DrawBorder(const wxGrid& WXUNUSED(grid), wxDC& dc, wxRect& rect) const;
 
    protected:
-    wxFont m_font;
     wxDECLARE_NO_COPY_CLASS(RichGridColumnHeaderRenderer);
 };
 
