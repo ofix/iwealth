@@ -55,6 +55,9 @@ PanelStockQuote::PanelStockQuote(wxWindow* parent, wxWindowID id, const wxPoint&
     m_gridCtrlQuote->SetDefaultRenderer(new RichGridCellStringRenderer());
     m_gridCtrlQuote->SetLabelFont(RichApplication::GetDefaultFont(14));
     m_gridCtrlQuote->SetColLabelAlignment(wxALIGN_RIGHT, wxALIGN_CENTRE);
+    m_gridCtrlQuote->SetScrollRate(0, static_cast<int>(36 * 8.5));
+
+    m_gridCtrlQuote->Bind(wxEVT_GRID_LABEL_LEFT_CLICK, &PanelStockQuote::OnGridQuoteHeaderClick, this);
     /////////////////////////////////////////////////
     /// 插入行情列表表头
 
@@ -93,6 +96,13 @@ PanelStockQuote::PanelStockQuote(wxWindow* parent, wxWindowID id, const wxPoint&
 
 RichGrid* PanelStockQuote::GetGridCtrl() {
     return m_gridCtrlQuote;
+}
+
+void PanelStockQuote::OnGridQuoteHeaderClick(wxGridEvent& event) {
+    int col = event.GetCol();
+    m_gridCtrlQuote->SortColumn(col);
+    LoadStockMarketQuote();
+    m_gridCtrlQuote->Refresh();
 }
 
 // 加载市场当前行情并显示

@@ -22,6 +22,7 @@ class PanelStockQuote : public wxPanel {
     //*)
 
     void LoadStockMarketQuote();  // 加载股票市场行情
+    void OnGridQuoteHeaderClick(wxGridEvent& event);
 
    protected:
     //(*Identifiers(PanelStockQuote)

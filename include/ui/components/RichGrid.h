@@ -5,6 +5,7 @@
 #include <wx/gdicmn.h>
 #include <wx/grid.h>
 #include <unordered_map>
+#include "ui/components/RichGridTable.h"
 
 struct RichColLabelAlignment {
     int iCol;
@@ -24,9 +25,11 @@ class RichGrid : public wxGrid {
     virtual void DrawColLabel(wxDC& dc, int col) wxOVERRIDE;
     void SetColumnLabelAlignment(int iCol, int hAlign, int vAlign);
     void GetColumnLabelAlignment(int iCol, int* hAlign, int* vAlign);
+    void SortColumn(int iCol);
 
    protected:
     std::unordered_map<int, std::pair<int, int>> m_colLabelAlignment;
+    RichGridTable* m_pGridDataTable;
 };
 
 #endif

@@ -31,7 +31,6 @@
 #include "ui/components/RichGridCellStringRenderer.h"
 #include "ui/components/RichGridColumnHeaderProvider.h"
 #include "ui/components/RichGridColumnHeaderRenderer.h"
-#include "ui/components/RichGridTable.h"
 #include "wx/generic/gridctrl.h"
 #include "wx/generic/grideditors.h"
 #include "wx/generic/gridsel.h"
@@ -74,22 +73,28 @@ RichGrid::RichGrid(wxWindow* parent,
     : wxGrid(parent, id, pos, size, style, name) {
     this->SetDefaultRenderer(new RichGridCellStringRenderer());
     StockDataStorage* pStorage = static_cast<RichApplication*>(wxTheApp)->GetStockDataStorage();
-    RichGridTable* pDataTable = new RichGridTable(RichGridTableDataType::Stock, pStorage);
-    this->SetTable(pDataTable);
+    m_pGridDataTable = new RichGridTable(RichGridTableDataType::Stock, pStorage);
+    this->SetTable(m_pGridDataTable);
+    // 绑定鼠标滚轮事件
+    // Bind(wxEVT_MOUSEWHEEL, &RichGrid::OnMouseWheel, this);
     // RichGridColumnHeaderRenderer* pHeaderRender = new RichGridColumnHeaderRenderer();
     // pHeaderRender->SetFont(RichApplication::GetDefaultFont(14));
     // this->GetTable()->SetAttrProvider(new RichGridColumnHeaderProvider());
 }
 
+void RichGrid::SortColumn(int iCol) {
+    m_pGridDataTable->SortColumn(iCol);
+}
+
 void RichGrid::SetColumnLabelAlignment(int iCol, int hAlign, int vAlign) {
     m_colLabelAlignment.insert({iCol, {hAlign, vAlign}});
 }
+
 void RichGrid::GetColumnLabelAlignment(int iCol, int* hAlign, int* vAlign) {
     if (m_colLabelAlignment.find(iCol) != m_colLabelAlignment.end()) {
         std::pair<int, int> item = m_colLabelAlignment[iCol];
         *hAlign = item.first;
         *vAlign = item.second;
-        std::cout << "[" << iCol << "]= " << item.first << "," << item.second << std::endl;
     } else {
         GetColLabelAlignment(hAlign, vAlign);
     }
