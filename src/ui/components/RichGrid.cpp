@@ -86,8 +86,16 @@ RichGrid::RichGrid(wxWindow* parent,
     // Bind(wxEVT_MOUSEWHEEL, &RichGrid::OnMouseWheel, this);
 }
 
-void RichGrid::SortColumn(int iCol) {
-    m_pGridDataTable->SortColumn(iCol);
+void RichGrid::SortMultiColumns() {
+    m_pGridDataTable->SortMultiColumns();
+}
+
+bool RichGrid::SetSortColumn(int iCol) {
+    return m_pGridDataTable->SetSortColumn(iCol);
+}
+
+bool RichGrid::SetFixedSortColumn(int iCol) {
+    return m_pGridDataTable->SetFixedSortColumn(iCol);
 }
 
 // 加载本地排序图标

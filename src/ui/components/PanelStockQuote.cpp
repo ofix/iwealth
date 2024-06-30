@@ -58,6 +58,7 @@ PanelStockQuote::PanelStockQuote(wxWindow* parent, wxWindowID id, const wxPoint&
     m_gridCtrlQuote->SetScrollRate(0, static_cast<int>(36 * 8.5));
 
     m_gridCtrlQuote->Bind(wxEVT_GRID_LABEL_LEFT_CLICK, &PanelStockQuote::OnGridQuoteHeaderClick, this);
+    m_gridCtrlQuote->Bind(wxEVT_GRID_LABEL_LEFT_DCLICK, &PanelStockQuote::OnGridQuoteHeaderDblClick, this);
     /////////////////////////////////////////////////
     /// 插入行情列表表头
 
@@ -98,7 +99,18 @@ RichGrid* PanelStockQuote::GetGridCtrl() {
 
 void PanelStockQuote::OnGridQuoteHeaderClick(wxGridEvent& event) {
     int col = event.GetCol();
-    m_gridCtrlQuote->SortColumn(col);
+    m_gridCtrlQuote->SetSortColumn(col);
+    m_gridCtrlQuote->SortMultiColumns();
+    std::cout << "left click" << std::endl;
+    LoadStockMarketQuote();
+    m_gridCtrlQuote->Refresh();
+}
+
+void PanelStockQuote::OnGridQuoteHeaderDblClick(wxGridEvent& event) {
+    int col = event.GetCol();
+    m_gridCtrlQuote->SetFixedSortColumn(col);
+    m_gridCtrlQuote->SortMultiColumns();
+    std::cout << "left double click" << std::endl;
     LoadStockMarketQuote();
     m_gridCtrlQuote->Refresh();
 }

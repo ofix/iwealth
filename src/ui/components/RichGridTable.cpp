@@ -7,6 +7,7 @@ RichGridTable::RichGridTable(RichGridTableDataType type, StockDataStorage* pStor
     m_clrGreen = wxColor(57, 227, 101);
     m_clrRed = wxColor(255, 0, 0);
     m_colSortOrders = {0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+    m_colSortFixed = -1;
     m_iColSorting = 3;
 }
 
@@ -22,7 +23,11 @@ int RichGridTable::GetNumberRows() {
 
 bool RichGridTable::SetColumnOrder(int iCol, int order) {
     if (iCol < m_colSortOrders.size()) {
-        m_colSortOrders[iCol] = order;
+        if (order == wxDirection::wxUP) {
+            m_colSortOrders[iCol] = 0;
+        } else {
+            m_colSortOrders[iCol] = 1;
+        }
         return true;
     }
     return false;
@@ -36,155 +41,288 @@ bool RichGridTable::IsSortingColumn(int iCol) {
     return m_iColSorting == iCol;
 }
 
-void RichGridTable::SortColumn(int iCol) {
-    if (m_dataType == RichGridTableDataType::Stock) {
-        if (iCol < 16) {
-            m_iColSorting = iCol;
-            std::vector<Share>* pShares = m_pStorage->GetStockAllShares();
-            m_colSortOrders[iCol] = ((~m_colSortOrders[iCol]) & 0x01);
-            int order = m_colSortOrders[iCol];
-            if (iCol == 1) {
-                if (order == 0) {  // 股票代码升序
-                    std::stable_sort(pShares->begin(), pShares->end(), [](const Share& a, const Share& b) {
-                        return a.code < b.code;
-                    });
-                } else if (order == 1) {  // 股票代码降序
-                    std::stable_sort(pShares->begin(), pShares->end(), [](const Share& a, const Share& b) {
-                        return a.code > b.code;
-                    });
-                }
-            } else if (iCol == 2) {
-                if (order == 0) {  // 股票名称升序
-                    std::stable_sort(pShares->begin(), pShares->end(), [](const Share& a, const Share& b) {
-                        return a.name < b.name;
-                    });
-                } else if (order == 1) {  // 股票名称降序
-                    std::stable_sort(pShares->begin(), pShares->end(), [](const Share& a, const Share& b) {
-                        return a.name > b.code;
-                    });
-                }
-            } else if (iCol == 3) {
-                if (order == 0) {  // 股票涨幅升序
-                    std::stable_sort(pShares->begin(), pShares->end(), [](const Share& a, const Share& b) {
-                        return a.change_rate < b.change_rate;
-                    });
-                } else if (order == 1) {  // 股票涨幅降序
-                    std::stable_sort(pShares->begin(), pShares->end(), [](const Share& a, const Share& b) {
-                        return a.change_rate > b.change_rate;
-                    });
-                }
-            } else if (iCol == 4) {
-                if (order == 0) {  // 股票现价升序
-                    std::stable_sort(pShares->begin(), pShares->end(), [](const Share& a, const Share& b) {
-                        return a.price_now < b.price_now;
-                    });
-                } else if (order == 1) {  // 股票现价降序
-                    std::stable_sort(pShares->begin(), pShares->end(), [](const Share& a, const Share& b) {
-                        return a.price_now > b.price_now;
-                    });
-                }
-            } else if (iCol == 5) {
-                if (order == 0) {  // 股票昨天收盘价升序
-                    std::stable_sort(pShares->begin(), pShares->end(), [](const Share& a, const Share& b) {
-                        return a.price_yesterday_close < b.price_yesterday_close;
-                    });
-                } else if (order == 1) {  // 股票收盘价降序
-                    std::stable_sort(pShares->begin(), pShares->end(), [](const Share& a, const Share& b) {
-                        return a.price_yesterday_close > b.price_yesterday_close;
-                    });
-                }
-            } else if (iCol == 6) {
-                if (order == 0) {  // 股票开盘价升序
-                    std::stable_sort(pShares->begin(), pShares->end(), [](const Share& a, const Share& b) {
-                        return a.price_open < b.price_open;
-                    });
-                } else if (order == 1) {  // 股票开盘价降序
-                    std::stable_sort(pShares->begin(), pShares->end(), [](const Share& a, const Share& b) {
-                        return a.price_open > b.price_open;
-                    });
-                }
-            } else if (iCol == 7) {
-                if (order == 0) {  // 股票最高价升序
-                    std::stable_sort(pShares->begin(), pShares->end(), [](const Share& a, const Share& b) {
-                        return a.price_max < b.price_max;
-                    });
-                } else if (order == 1) {  // 股票最高价降序
-                    std::stable_sort(pShares->begin(), pShares->end(), [](const Share& a, const Share& b) {
-                        return a.price_max > b.price_max;
-                    });
-                }
-            } else if (iCol == 8) {
-                if (order == 0) {  // 股票最低价升序
-                    std::stable_sort(pShares->begin(), pShares->end(), [](const Share& a, const Share& b) {
-                        return a.price_min < b.price_min;
-                    });
-                } else if (order == 1) {  // 股票最低价降序
-                    std::stable_sort(pShares->begin(), pShares->end(), [](const Share& a, const Share& b) {
-                        return a.price_min > b.price_min;
-                    });
-                }
-            } else if (iCol == 9) {
-                if (order == 0) {  // 股票成交额升序
-                    std::stable_sort(pShares->begin(), pShares->end(), [](const Share& a, const Share& b) {
-                        return a.amount < b.amount;
-                    });
-                } else if (order == 1) {  // 股票成交额降序
-                    std::stable_sort(pShares->begin(), pShares->end(), [](const Share& a, const Share& b) {
-                        return a.amount > b.amount;
-                    });
-                }
-            } else if (iCol == 10) {
-                if (order == 0) {  // 股票成交量升序
-                    std::stable_sort(pShares->begin(), pShares->end(), [](const Share& a, const Share& b) {
-                        return a.volume < b.volume;
-                    });
-                } else if (order == 1) {  // 股票成交量降序
-                    std::stable_sort(pShares->begin(), pShares->end(), [](const Share& a, const Share& b) {
-                        return a.volume > b.volume;
-                    });
-                }
-            } else if (iCol == 11) {
-                if (order == 0) {  // 股票换手率升序
-                    std::stable_sort(pShares->begin(), pShares->end(), [](const Share& a, const Share& b) {
-                        return a.turnover_rate < b.turnover_rate;
-                    });
-                } else if (order == 1) {  // 股票换手率降序
-                    std::stable_sort(pShares->begin(), pShares->end(), [](const Share& a, const Share& b) {
-                        return a.turnover_rate > b.turnover_rate;
-                    });
-                }
-            } else if (iCol == 13) {
-                if (order == 0) {  // 股票量比升序
-                    std::stable_sort(pShares->begin(), pShares->end(), [](const Share& a, const Share& b) {
-                        return a.qrr < b.qrr;
-                    });
-                } else if (order == 1) {  // 股票量比降序
-                    std::stable_sort(pShares->begin(), pShares->end(), [](const Share& a, const Share& b) {
-                        return a.qrr > b.qrr;
-                    });
-                }
-            } else if (iCol == 14) {
-                if (order == 0) {  // 股票行业升序
-                    std::stable_sort(pShares->begin(), pShares->end(), [](const Share& a, const Share& b) {
-                        return a.industry_name < b.industry_name;
-                    });
-                } else if (order == 1) {  // 股票行业降序
-                    std::stable_sort(pShares->begin(), pShares->end(), [](const Share& a, const Share& b) {
-                        return a.industry_name > b.industry_name;
-                    });
-                }
-            } else if (iCol == 15) {
-                if (order == 0) {  // 股票省份升序
-                    std::stable_sort(pShares->begin(), pShares->end(), [](const Share& a, const Share& b) {
-                        return a.province < b.province;
-                    });
-                } else if (order == 1) {  // 股票省份降序
-                    std::stable_sort(pShares->begin(), pShares->end(), [](const Share& a, const Share& b) {
-                        return a.province > b.province;
-                    });
-                }
-            }
+// 支持多列排序
+bool RichGridTable::IsFixedSortColumn(int iCol) {
+    return m_colSortFixed == iCol;
+}
+
+int RichGridTable::GetFixedSortColumn() const {
+    return m_colSortFixed;
+}
+
+bool RichGridTable::SetSortColumn(int iCol) {
+    if (iCol < 16) {
+        m_iColSorting = iCol;
+        m_colSortOrders[iCol] = ((~m_colSortOrders[iCol]) & 0x01);
+        return true;
+    }
+    return false;
+}
+
+bool RichGridTable::SetFixedSortColumn(int iCol) {
+    if (iCol < 16) {
+        if (m_colSortFixed == iCol) {
+            m_colSortFixed = -1;  // 允许取消固定列，双击同一个固定列取消
+        } else {
+            m_colSortFixed = iCol;  // 如果设置的固定列没有设置，或者设置的不一样
         }
+        m_colSortOrders[iCol] = ((~m_colSortOrders[iCol]) & 0x01);
+        return true;
+    }
+    return false;
+}
+
+// 支持多字段分组排序
+int RichGridTable::SortComparator(const Share& a, const Share& b, int iCol, int order) {
+    if (iCol == 1) {
+        if (order == 0) {  // 股票代码升序
+            if (a.code < b.code) {
+                return 1;
+            } else if (a.code == b.code) {
+                return 0;
+            }
+            return -1;
+        } else if (order == 1) {  // 股票代码降序
+            if (a.code > b.code) {
+                return 1;
+            } else if (a.code == b.code) {
+                return 0;
+            }
+            return -1;
+        }
+    } else if (iCol == 2) {
+        if (order == 0) {  // 股票名称升序
+            if (a.name < b.name) {
+                return 1;
+            } else if (a.name == b.name) {
+                return 0;
+            }
+            return -1;
+        } else if (order == 1) {  // 股票名称降序
+            if (a.name > b.name) {
+                return 1;
+            } else if (a.name == b.name) {
+                return 0;
+            }
+            return -1;
+        }
+    } else if (iCol == 3) {
+        if (order == 0) {  // 股票涨幅升序
+            if (a.change_rate < b.change_rate) {
+                return 1;
+            } else if (a.change_rate == b.change_rate) {
+                return 0;
+            }
+            return -1;
+        } else if (order == 1) {  // 股票涨幅降序
+            if (a.change_rate > b.change_rate) {
+                return 1;
+            } else if (a.change_rate == b.change_rate) {
+                return 0;
+            }
+            return -1;
+        }
+    } else if (iCol == 4) {
+        if (order == 0) {  // 股票现价升序
+            if (a.price_now < b.price_now) {
+                return 1;
+            } else if (a.price_now == b.price_now) {
+                return 0;
+            }
+            return -1;
+        } else if (order == 1) {  // 股票现价降序
+            if (a.price_now > b.price_now) {
+                return 1;
+            } else if (a.price_now == b.price_now) {
+                return 0;
+            }
+            return -1;
+        }
+    } else if (iCol == 5) {
+        if (order == 0) {  // 股票昨天收盘价升序
+            if (a.price_yesterday_close < b.price_yesterday_close) {
+                return 1;
+            } else if (a.price_yesterday_close == b.price_yesterday_close) {
+                return 0;
+            }
+            return -1;
+        } else if (order == 1) {  // 股票收盘价降序
+            if (a.price_yesterday_close > b.price_yesterday_close) {
+                return 1;
+            } else if (a.price_yesterday_close == b.price_yesterday_close) {
+                return 0;
+            }
+            return -1;
+        }
+    } else if (iCol == 6) {
+        if (order == 0) {  // 股票开盘价升序
+            if (a.price_open < b.price_open) {
+                return 1;
+            } else if (a.price_open == b.price_open) {
+                return 0;
+            }
+            return -1;
+        } else if (order == 1) {  // 股票开盘价降序
+            if (a.price_open > b.price_open) {
+                return 1;
+            } else if (a.price_open == b.price_open) {
+                return 0;
+            }
+            return -1;
+        }
+    } else if (iCol == 7) {
+        if (order == 0) {  // 股票最高价升序
+            if (a.price_max < b.price_max) {
+                return 1;
+            } else if (a.price_max == b.price_max) {
+                return 0;
+            }
+            return -1;
+        } else if (order == 1) {  // 股票最高价降序
+            if (a.price_max > b.price_max) {
+                return 1;
+            } else if (a.price_max == b.price_max) {
+                return 0;
+            }
+            return -1;
+        }
+    } else if (iCol == 8) {
+        if (order == 0) {  // 股票最低价升序
+            if (a.price_min < b.price_min) {
+                return 1;
+            } else if (a.price_min == b.price_min) {
+                return 0;
+            }
+            return -1;
+        } else if (order == 1) {  // 股票最低价降序
+            if (a.price_min > b.price_min) {
+                return 1;
+            } else if (a.price_min == b.price_min) {
+                return 0;
+            }
+            return -1;
+        }
+    } else if (iCol == 9) {
+        if (order == 0) {  // 股票成交额升序
+            if (a.amount < b.amount) {
+                return 1;
+            } else if (a.amount == b.amount) {
+                return 0;
+            }
+            return -1;
+        } else if (order == 1) {  // 股票成交额降序
+            if (a.amount > b.amount) {
+                return 1;
+            } else if (a.amount == b.amount) {
+                return 0;
+            }
+            return -1;
+        }
+    } else if (iCol == 10) {
+        if (order == 0) {  // 股票成交量升序
+            if (a.volume < b.volume) {
+                return 1;
+            } else if (a.volume == b.volume) {
+                return 0;
+            }
+            return -1;
+        } else if (order == 1) {  // 股票成交量降序
+            if (a.volume > b.volume) {
+                return 1;
+            } else if (a.volume == b.volume) {
+                return 0;
+            }
+            return -1;
+        }
+    } else if (iCol == 11) {
+        if (order == 0) {  // 股票换手率升序
+            if (a.turnover_rate < b.turnover_rate) {
+                return 1;
+            } else if (a.turnover_rate == b.turnover_rate) {
+                return 0;
+            }
+            return -1;
+        } else if (order == 1) {  // 股票换手率降序
+            if (a.turnover_rate > b.turnover_rate) {
+                return 1;
+            } else if (a.turnover_rate == b.turnover_rate) {
+                return 0;
+            }
+            return -1;
+        }
+    } else if (iCol == 13) {
+        if (order == 0) {  // 股票量比升序
+            if (a.qrr < b.qrr) {
+                return 1;
+            } else if (a.qrr == b.qrr) {
+                return 0;
+            }
+            return -1;
+        } else if (order == 1) {  // 股票量比降序
+            if (a.qrr > b.qrr) {
+                return 1;
+            } else if (a.qrr == b.qrr) {
+                return 0;
+            }
+            return -1;
+        }
+    } else if (iCol == 14) {
+        if (order == 0) {  // 股票行业升序
+            if (a.industry_name < b.industry_name) {
+                return 1;
+            } else if (a.industry_name == b.industry_name) {
+                return 0;
+            }
+            return -1;
+        } else if (order == 1) {  // 股票行业降序
+            if (a.industry_name > b.industry_name) {
+                return 1;
+            } else if (a.industry_name == b.industry_name) {
+                return 0;
+            }
+            return -1;
+        }
+    } else if (iCol == 15) {
+        if (order == 0) {  // 股票省份升序
+            if (a.province < b.province) {
+                return 1;
+            } else if (a.province == b.province) {
+                return 0;
+            }
+            return -1;
+        } else if (order == 1) {  // 股票省份降序
+            if (a.province > b.province) {
+                return 1;
+            } else if (a.province == b.province) {
+                return 0;
+            }
+            return -1;
+        }
+    }
+}
+
+void RichGridTable::SortMultiColumns() {
+    if (m_dataType == RichGridTableDataType::Stock) {
+        std::vector<Share>* pShares = m_pStorage->GetStockAllShares();
+        int order = m_colSortOrders[m_iColSorting];
+        std::stable_sort(pShares->begin(), pShares->end(), [this, order](const Share& a, const Share& b) {
+            if (m_colSortFixed != -1) {
+                int orderFixed = m_colSortOrders[m_colSortFixed];
+                if (SortComparator(a, b, m_colSortFixed, orderFixed) == 1) {
+                    return true;
+                } else if (SortComparator(a, b, m_colSortFixed, orderFixed) == 0) {
+                    if (SortComparator(a, b, m_iColSorting, order) == 1) {
+                        return true;
+                    }
+                    return false;
+                }
+            } else {
+                if (SortComparator(a, b, m_iColSorting, order) == 1) {
+                    return true;
+                }
+                return false;
+            }
+        });
     }
 }
 

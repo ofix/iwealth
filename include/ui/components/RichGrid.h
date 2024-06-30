@@ -27,7 +27,12 @@ class RichGrid : public wxGrid {
     virtual void DrawColLabel(wxDC& dc, int col) wxOVERRIDE;
     void SetColumnLabelAlignment(int iCol, int hAlign, int vAlign);
     void GetColumnLabelAlignment(int iCol, int* hAlign, int* vAlign);
-    void SortColumn(int iCol);
+
+    bool SetSortColumn(int iCol);
+    bool SetFixedSortColumn(int iCol);
+    // 多列分组排序
+    void SortMultiColumns();
+
     void LoadColumnLabelImages();
     wxRect GetSortIndicatorRect(wxDC& dc, wxString& colLabelValue, wxRect& rect, int hAlign, int vAlign);
     void DrawSortImage(wxDC& dc, wxString& colLabelValue, wxRect& rect, int hAlign, int vAlign, int order);
