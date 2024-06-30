@@ -31,6 +31,8 @@
 #include "ui/components/RichGridCellStringRenderer.h"
 #include "ui/components/RichGridColumnHeaderProvider.h"
 #include "ui/components/RichGridColumnHeaderRenderer.h"
+#include "util/FileTool.h"
+#include "util/Global.h"
 #include "wx/generic/gridctrl.h"
 #include "wx/generic/grideditors.h"
 #include "wx/generic/gridsel.h"
@@ -78,15 +80,31 @@ RichGrid::RichGrid(wxWindow* parent,
     m_pGridDataTable = new RichGridTable(RichGridTableDataType::Stock, pStorage);
     this->SetTable(m_pGridDataTable);
     // 自定义表格头渲染，解决排序没有指示器的问题
-    RichGridColumnHeaderRenderer* pHeaderRender = new RichGridColumnHeaderRenderer();
-    pHeaderRender->SetFont(RichApplication::GetDefaultFont(14));
     this->GetTable()->SetAttrProvider(new RichGridColumnHeaderProvider());
+    LoadColumnLabelImages();
     // 绑定鼠标滚轮事件
     // Bind(wxEVT_MOUSEWHEEL, &RichGrid::OnMouseWheel, this);
 }
 
 void RichGrid::SortColumn(int iCol) {
     m_pGridDataTable->SortColumn(iCol);
+}
+
+// 加载本地排序图标
+void RichGrid::LoadColumnLabelImages() {
+    wxImage imageSortUp;
+    wxImage imageSortDown;
+    wxImage::AddHandler(new wxPNGHandler);
+    if (!imageSortUp.LoadFile(FileTool::CurrentPath() + "assets" + DIRECTORY_SEPARATOR + "up.png", wxBITMAP_TYPE_PNG)) {
+        std::cout << "load up png failed" << std::endl;
+    }
+    m_imgSortUp = wxBitmap(imageSortUp);
+
+    if (!imageSortDown.LoadFile(FileTool::CurrentPath() + "assets" + DIRECTORY_SEPARATOR + "down.png",
+                                wxBITMAP_TYPE_PNG)) {
+        std::cout << "load down png failed" << std::endl;
+    }
+    m_imgSortDown = wxBitmap(imageSortDown);
 }
 
 void RichGrid::SetColumnLabelAlignment(int iCol, int hAlign, int vAlign) {
@@ -147,5 +165,79 @@ void RichGrid::DrawColLabel(wxDC& dc, int col) {
     GetColumnLabelAlignment(col, &hAlign, &vAlign);
     const int orient = GetColLabelTextOrientation();
 
-    rend.DrawLabel(*this, dc, GetColLabelValue(col), rect, hAlign, vAlign, orient);
+    // 渲染排序指示器，需要重新计算文字矩形和排序指示器图片占用的矩形
+    wxString colLabelValue = GetColLabelValue(col);
+    if ((hAlign == wxALIGN_RIGHT) && m_pGridDataTable->IsSortingColumn(col)) {
+        wxRect rectLabelValue = rect;
+        rectLabelValue.SetWidth(rect.GetWidth() - 18);
+        rend.DrawLabel(*this, dc, colLabelValue, rectLabelValue, hAlign, vAlign, orient);
+    } else {
+        rend.DrawLabel(*this, dc, colLabelValue, rect, hAlign, vAlign, orient);
+    }
+    // 绘制图片
+    if (m_pGridDataTable->IsSortingColumn(col)) {
+        int order = m_pGridDataTable->GetColumnOrder(col);
+        DrawSortImage(dc, colLabelValue, rect, hAlign, vAlign, order);
+    }
+}
+
+void RichGrid::DrawSortImage(wxDC& dc, wxString& colLabelValue, wxRect& rect, int hAlign, int vAlign, int order) {
+    wxRect rectSort = GetSortIndicatorRect(dc, colLabelValue, rect, hAlign, vAlign);
+    wxPoint originDeviceOrigin = dc.GetDeviceOrigin();
+    double originUserScaleX, originUserScaleY;
+    dc.GetUserScale(&originUserScaleX, &originUserScaleY);
+    // 绘制排序PNG图标
+    dc.SetDeviceOrigin(rectSort.x, rectSort.y);
+    if (order == 0) {
+        // 一定要强制转换为double，否则传入无效参数0 给SetUserScale，将无法正确渲染图片！！
+        dc.SetUserScale(static_cast<double>(rectSort.width) / m_imgSortUp.GetWidth(),
+                        static_cast<double>(rectSort.height) / m_imgSortUp.GetHeight());
+        dc.DrawBitmap(m_imgSortUp, 0, 0, true);
+    } else {
+        dc.SetUserScale(static_cast<double>(rectSort.width) / m_imgSortDown.GetWidth(),
+                        static_cast<double>(rectSort.height) / m_imgSortDown.GetHeight());
+        dc.DrawBitmap(m_imgSortDown, 0, 0, true);
+    }
+    // 恢复
+    dc.SetDeviceOrigin(originDeviceOrigin.x, originDeviceOrigin.y);
+    dc.SetUserScale(originUserScaleX, originUserScaleY);
+}
+
+wxRect RichGrid::GetSortIndicatorRect(wxDC& dc, wxString& colLabelValue, wxRect& rect, int hAlign, int vAlign) {
+    int wLabelText, hLabelText;
+    dc.GetTextExtent(colLabelValue, &wLabelText, &hLabelText);
+    int wImg = 18;
+    int hImg = 18;  // 图片18个像素大小
+    wxRect rectSort;
+    rectSort.SetWidth(wImg);
+    rectSort.SetHeight(hImg);
+    if (hAlign == wxALIGN_LEFT) {                           // 左对齐
+        rectSort.SetLeft(rect.GetLeft() + wLabelText + 2);  // 图片和文字间隔两个像素
+        if (vAlign == wxALIGN_CENTER) {
+            rectSort.SetTop(rect.GetTop() + (rect.GetHeight() - hImg) / 2);
+        } else if (vAlign == wxALIGN_TOP) {
+            rectSort.SetTop(rect.GetTop());
+        } else {
+            rectSort.SetTop(rect.GetBottom() - hImg);
+        }
+    } else if (hAlign == wxALIGN_CENTER) {
+        rectSort.SetLeft(rect.GetLeft() + rect.GetWidth() / 2 + wLabelText / 2 + 2);
+        if (vAlign == wxALIGN_CENTER) {
+            rectSort.SetTop(rect.GetTop() + (rect.GetHeight() - hImg) / 2);
+        } else if (vAlign == wxALIGN_TOP) {
+            rectSort.SetTop(rect.GetTop());
+        } else {
+            rectSort.SetTop(rect.GetBottom() - hImg);
+        }
+    } else if (hAlign == wxALIGN_RIGHT) {
+        rectSort.SetLeft(rect.GetRight() - 18);
+        if (vAlign == wxALIGN_CENTER) {
+            rectSort.SetTop(rect.GetTop() + (rect.GetHeight() - hImg) / 2);
+        } else if (vAlign == wxALIGN_TOP) {
+            rectSort.SetTop(rect.GetTop());
+        } else {
+            rectSort.SetTop(rect.GetBottom() - hImg);
+        }
+    }
+    return rectSort;
 }

@@ -6,6 +6,8 @@ RichGridTable::RichGridTable(RichGridTableDataType type, StockDataStorage* pStor
     : wxGridTableBase(), m_dataType(type), m_pStorage(pStorage) {
     m_clrGreen = wxColor(57, 227, 101);
     m_clrRed = wxColor(255, 0, 0);
+    m_colSortOrders = {0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+    m_iColSorting = 3;
 }
 
 RichGridTable::~RichGridTable() {
@@ -18,13 +20,29 @@ int RichGridTable::GetNumberRows() {
     return 0;
 }
 
+bool RichGridTable::SetColumnOrder(int iCol, int order) {
+    if (iCol < m_colSortOrders.size()) {
+        m_colSortOrders[iCol] = order;
+        return true;
+    }
+    return false;
+}
+
+int RichGridTable::GetColumnOrder(int iCol) {
+    return m_colSortOrders[iCol];
+}
+
+bool RichGridTable::IsSortingColumn(int iCol) {
+    return m_iColSorting == iCol;
+}
+
 void RichGridTable::SortColumn(int iCol) {
     if (m_dataType == RichGridTableDataType::Stock) {
-        static std::vector<int> sort_order = {0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
         if (iCol < 16) {
+            m_iColSorting = iCol;
             std::vector<Share>* pShares = m_pStorage->GetStockAllShares();
-            sort_order[iCol] = ((~sort_order[iCol]) & 0x01);
-            int order = sort_order[iCol];
+            m_colSortOrders[iCol] = ((~m_colSortOrders[iCol]) & 0x01);
+            int order = m_colSortOrders[iCol];
             if (iCol == 1) {
                 if (order == 0) {  // 股票代码升序
                     std::stable_sort(pShares->begin(), pShares->end(), [](const Share& a, const Share& b) {

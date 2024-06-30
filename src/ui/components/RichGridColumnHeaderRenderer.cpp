@@ -1,10 +1,10 @@
 #include "ui/components/RichGridColumnHeaderRenderer.h"
+
 #include <iostream>
+#include "util/FileTool.h"
+#include "util/Global.h"
 
 RichGridColumnHeaderRenderer::RichGridColumnHeaderRenderer() {
-}
-
-void RichGridColumnHeaderRenderer::SetFont(const wxFont& font) {
 }
 
 void RichGridColumnHeaderRenderer::DrawLabel(const wxGrid& grid,

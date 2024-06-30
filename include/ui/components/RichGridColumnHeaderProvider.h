@@ -13,7 +13,6 @@ class RichGridColumnHeaderProvider : public wxGridCellAttrProvider {
 
    private:
     RichGridColumnHeaderRenderer m_headerRenderer;
-    wxFont m_font;
     wxDECLARE_NO_COPY_CLASS(RichGridColumnHeaderProvider);
 };
 

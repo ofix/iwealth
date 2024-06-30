@@ -1,13 +1,13 @@
 #ifndef RICHGRIDCOLUMNHEADERRENDER_H
 #define RICHGRIDCOLUMNHEADERRENDER_H
 #include <wx/dc.h>
+#include <wx/dcsvg.h>
 #include <wx/font.h>
 #include <wx/grid.h>
 
 class RichGridColumnHeaderRenderer : public wxGridColumnHeaderRenderer {
    public:
     RichGridColumnHeaderRenderer();
-    void SetFont(const wxFont& font);
     virtual void DrawLabel(const wxGrid& WXUNUSED(grid),
                            wxDC& dc,
                            const wxString& value,
