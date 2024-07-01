@@ -25,6 +25,7 @@ class FileTool {
     static std::regex BuildRegexFromMap(const std::map<std::string, std::string>& map);
     static std::string MultiRegexReplace(const std::string& text,
                                          const std::map<std::string, std::string>& replacement_map);
+    static std::ifstream& GetLine(std::ifstream& ifs, std::string& line);
 };
 
 #endif  // FILETOOL_H

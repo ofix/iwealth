@@ -99,7 +99,9 @@ bool ChinesePinYin::LoadPinYinDictionary(const std::string& dict_path) {
     std::ifstream file(dict_path);
     if (file.is_open()) {
         std::string line;
-        while (std::getline(file, line)) {
+        // 默认 std::getline 无法跨平台区分\r\n,\r换行符的混用，Linux
+        // Linux系统下读取\r\n的文本文件，会多出来\r，导致程序处理异常
+        while (FileTool::GetLine(file, line)) {
             std::vector<std::string> parts = split(line, " ");
             std::vector<std::string> pinyin = split(parts[0], ",");
             pinyin_dict[parts[1]] = pinyin;

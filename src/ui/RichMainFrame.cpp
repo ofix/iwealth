@@ -105,7 +105,7 @@ void RichMainFrame::OnChar(wxKeyEvent& event) {
     if (keycode != 8) {
         wxChar key = event.GetUnicodeKey();
         wxString character(key);
-        std::string keyword = character.ToStdString();
+        std::string keyword = character.utf8_string();
         m_dlgShareSearch->SetKeyword(keyword);
         AdjustDlgShareSearchPostion();
         m_dlgShareSearch->Show();

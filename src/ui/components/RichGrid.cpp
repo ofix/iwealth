@@ -102,7 +102,7 @@ bool RichGrid::SetFixedSortColumn(int iCol) {
 void RichGrid::LoadColumnLabelImages() {
     wxImage imageSortUp;
     wxImage imageSortDown;
-    wxImage::AddHandler(new wxPNGHandler);
+    // wxImage::AddHandler(new wxPNGHandler);
     if (!imageSortUp.LoadFile(FileTool::CurrentPath() + "assets" + DIRECTORY_SEPARATOR + "up.png", wxBITMAP_TYPE_PNG)) {
         std::cout << "load up png failed" << std::endl;
     }

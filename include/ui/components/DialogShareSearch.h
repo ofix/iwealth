@@ -12,6 +12,8 @@
 #include <vector>
 #include "stock/Stock.h"
 
+#include <chrono>
+
 class DialogShareSearch : public wxDialog {
    public:
     DialogShareSearch(wxWindow* parent,
@@ -44,6 +46,9 @@ class DialogShareSearch : public wxDialog {
     wxTextCtrl* m_textctrl_keyword;
     wxStaticText* m_statictext_title;
     wxBitmapButton* m_bitmapbutton_close;
+
+    std::chrono::steady_clock::time_point m_oldTimeKeywordInput;
+    std::chrono::steady_clock::time_point m_nowTimeKeywordInput;
 
    private:
     //(*Handlers(DialogShareSearch)

@@ -43,8 +43,8 @@ PanelStockQuote::PanelStockQuote(wxWindow* parent, wxWindowID id, const wxPoint&
     m_gridCtrlQuote->SetCellHighlightColour(wxColor(255, 255, 255, 0));
     m_gridCtrlQuote->SetCellHighlightPenWidth(0);
     m_gridCtrlQuote->SetLabelBackgroundColour(background_clr);
-    // m_gridCtrlQuote->SetRowLabelAlignment(wxALIGN_CENTER, wxALIGN_CENTRE);
     m_gridCtrlQuote->SetSelectionBackground(wxColor(100, 100, 100));
+    // m_gridCtrlQuote->SetRowLabelAlignment(wxALIGN_CENTER, wxALIGN_CENTRE);
     // m_gridCtrlQuote->SetSelectionForeground(wxColor(219, 219, 3, 255));
     m_gridCtrlQuote->SetDefaultRowSize(25);
     m_gridCtrlQuote->HideRowLabels();
@@ -125,22 +125,6 @@ void PanelStockQuote::LoadStockMarketQuote() {
         wxColor clr_green(57, 227, 101);
         wxColor clr_red(255, 0, 0);
         for (Share& share : shares) {
-            //     m_gridCtrlQuote->SetCellValue(irow, 0, std::to_string(irow + 1));                        // 序号
-            //     m_gridCtrlQuote->SetCellValue(irow, 1, CN(share.code));                                  // 股票代码
-            //     m_gridCtrlQuote->SetCellValue(irow, 2, CN(share.name));                                  // 股票名称
-            //     m_gridCtrlQuote->SetCellValue(irow, 3, CN(convertDouble(share.change_rate) + '%'));      // 涨幅
-            //     m_gridCtrlQuote->SetCellValue(irow, 4, CN(convertDouble(share.price_now)));              // 当前价
-            //     m_gridCtrlQuote->SetCellValue(irow, 5, CN(convertDouble(share.price_yesterday_close)));  //
-            //     昨天收盘价
-            //      m_gridCtrlQuote->SetCellValue(irow, 6, CN(convertDouble(share.price_open))); // 开盘价
-            //     m_gridCtrlQuote->SetCellValue(irow, 7, CN(convertDouble(share.price_max)));              // 最高价
-            //     m_gridCtrlQuote->SetCellValue(irow, 8, CN(convertDouble(share.price_min)));              // 最低价
-            //     m_gridCtrlQuote->SetCellValue(irow, 9, CN(std::to_string(share.amount)));                // 成交额
-            //     m_gridCtrlQuote->SetCellValue(irow, 10, CN(std::to_string(share.volume)));               // 成交量
-            //     m_gridCtrlQuote->SetCellValue(irow, 11, CN(convertDouble(share.turnover_rate) + '%'));   // 换手率
-            //     m_gridCtrlQuote->SetCellValue(irow, 12, CN(convertDouble(share.qrr)));                   // 量比
-            //     m_gridCtrlQuote->SetCellValue(irow, 13, CN(share.industry_name));                        // 行业
-            //     m_gridCtrlQuote->SetCellValue(irow, 14, CN(share.province));                             // 省份
             if (share.change_rate > 0) {
                 m_gridCtrlQuote->SetCellTextColour(irow, 3, clr_red);
                 m_gridCtrlQuote->SetCellTextColour(irow, 4, clr_red);

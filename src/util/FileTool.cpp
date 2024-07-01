@@ -300,3 +300,16 @@ std::string FileTool::MultiRegexReplace(const std::string& text,
 
     return result;
 }
+
+// 跨平台读取文本行，解决 std::getline Linux环境下无法正确读取\r\n结尾的文件
+std::ifstream& FileTool::GetLine(std::ifstream& ifs, std::string& line) {
+    std::string _line;
+    if (std::getline(ifs, _line)) {
+        if (_line.size() && _line[_line.size() - 1] == '\r') {
+            line = _line.substr(0, _line.size() - 1);
+        } else {
+            line = _line;
+        }
+    }
+    return ifs;
+}

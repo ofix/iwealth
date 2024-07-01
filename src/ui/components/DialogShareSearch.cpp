@@ -3,6 +3,7 @@
 //(*InternalHeaders(DialogShareSearch)
 #include <wx/intl.h>
 #include <wx/string.h>
+#include <chrono>
 #include "stock/StockDataStorage.h"
 #include "ui/RichApplication.h"
 #include "ui/RichHelper.h"
@@ -52,6 +53,9 @@ DialogShareSearch::DialogShareSearch(wxWindow* parent,
     m_listctrl_sharelist->InsertColumn(1, CN("名称"), 0, 100);
     m_listctrl_sharelist->InsertColumn(2, CN("市场"), 0, 90);
     m_listctrl_sharelist->SetFont(RichApplication::GetDefaultFont(12));
+
+    m_oldTimeKeywordInput = std::chrono::steady_clock::now();
+    m_nowTimeKeywordInput = std::chrono::steady_clock::now();
 }
 
 void DialogShareSearch::ReLayout(const wxSize& size) {
@@ -86,15 +90,26 @@ void DialogShareSearch::SetShareList(const std::vector<Share*>& shares) {
 }
 
 void DialogShareSearch::SetKeyword(const std::string& keyword) {
-    m_textctrl_keyword->SetValue(keyword);
+    // 通过判断调用时间来决定是否要拼接keyword,优化中文输入法导致的无法完整获取用户输入的中文字符串的问题
+    m_nowTimeKeywordInput = std::chrono::steady_clock::now();
+    std::chrono::milliseconds time_elapsed =
+        std::chrono::duration_cast<std::chrono::milliseconds>(m_nowTimeKeywordInput - m_oldTimeKeywordInput);
+    static std::string cache_keyword = "";
+    if (time_elapsed.count() < 200) {  // 不能设置太小，否则无法识别到
+        cache_keyword += keyword;
+    } else {
+        cache_keyword = keyword;
+    }
+    m_textctrl_keyword->SetValue(CN(cache_keyword));  // 需要转换成UTF8字符串才能工作
     m_textctrl_keyword->SetFocus();
     m_textctrl_keyword->SetInsertionPointEnd();  // 移动光标到输入字符串末尾
     Raise();                                     // 将搜索窗口置于最顶部
+    m_oldTimeKeywordInput = m_nowTimeKeywordInput;
 }
 
 void DialogShareSearch::OnSearchShare(wxCommandEvent& /*event*/) {
     wxString input = m_textctrl_keyword->GetValue();
-    std::string keyword = input.ToStdString();
+    std::string keyword = input.utf8_string();  // Trie只支持utf8字符串
     StockDataStorage* pStorage = static_cast<RichApplication*>(wxTheApp)->GetStockDataStorage();
     std::vector<Share*> shares = pStorage->SearchShares(keyword);
     SetShareList(shares);
