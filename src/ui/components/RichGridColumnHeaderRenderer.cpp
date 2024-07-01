@@ -1,8 +1,10 @@
 #include "ui/components/RichGridColumnHeaderRenderer.h"
 
+#include <wx/settings.h>
 #include <iostream>
 #include "util/FileTool.h"
 #include "util/Global.h"
+
 
 RichGridColumnHeaderRenderer::RichGridColumnHeaderRenderer() {
 }

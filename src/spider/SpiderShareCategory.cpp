@@ -180,6 +180,7 @@ std::unordered_map<std::string, std::vector<std::string>>* SpiderShareCategory::
     } else if (type == ShareCategoryType::Concept) {
         return &m_concepts;
     }
+    return nullptr;
 }
 
 std::string SpiderShareCategory::GetCategoryKey(std::string name) {
