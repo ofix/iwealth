@@ -1,5 +1,5 @@
 project('iwealth', 'cpp',
-         version : '0.1',
+         version : '0.3',
          default_options:[
             'default_library=shared',
             'warning_level=2',
@@ -139,11 +139,32 @@ ui_cpp_args = cpp_args
 ui_cpp_args += ['-DIWEALTH',
                 #'-DDEBUG'
                ]
+
 executable('iwealth', full_gui_sources,
             cpp_args:ui_cpp_args,
             link_args : ldflags,
             include_directories : inc,
             dependencies : [third_party_dep])
+
+
+dir_assets = join_paths(meson.source_root(),'build/assets')
+# 拷贝图片目录到build目录
+install_subdir('../../src/assets',
+                install_dir:dir_assets,
+                install_mode:'rw-r--r--',
+                strip_directory:true)
+# 拷贝文件
+if host_machine.cpu_family().startswith('x86')
+    CP=find_program('copy')
+else
+    CP=find_program('cp')
+endif
+cp_pinyin_dic = custom_target('cp--pinyin-dic',
+                        input : [join_paths(meson.source_root(),'../../src/search/ChinesePinYin.dic')],
+                        output : ['ChinesePinYin.dic'],
+                        command : [CP, '-rf','@INPUT@', '@OUTPUT@'],
+                        install: false,
+                        build_by_default: true)
 
 console_sources = [
     'console/Test.cpp',
