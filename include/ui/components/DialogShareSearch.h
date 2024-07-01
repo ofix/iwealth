@@ -31,6 +31,12 @@ class DialogShareSearch : public wxDialog {
     void OnSearchShare(wxCommandEvent& event);
     // 退出搜索
     void OnExitSearchShare(wxCommandEvent& event);
+    // 监听上下方向键
+    void OnKeyDown(wxKeyEvent& event);
+    void MoveSelectedListItem(int dir);
+    void OnListItemSelected(wxListEvent& event);
+    void OnListItemDeSelected(wxListEvent& event);
+    void OnLeftClick(wxMouseEvent& event);
 
     //(*Declarations(DialogShareSearch)
     static const long ID_TEXTCTRL_KEYWORD;
