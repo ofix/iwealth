@@ -14,7 +14,11 @@ long long diff_seconds(const std::string& start_time, const std::string& end_tim
 std::string get_nearest_trade_day(int days = 0);
 // 检查日期是否是中国节假日
 bool is_chinese_holiday(std::string day);
+// 检查日期是否是交易日
+bool is_trade_day(const std::string& day);
 // 比较时间大小，格式 YYYY-mm-dd HH:mm:ss 标准格式
 int compare_time(const std::string& time1, const std::string& time2);
+// 格式化日期
+std::string format_time(const time_t t, const std::string format);
 
 #endif  // DATETIME_H

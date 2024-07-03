@@ -155,7 +155,7 @@ install_subdir('../../src/assets',
                 strip_directory:true)
 # 拷贝文件
 if host_machine.cpu_family().startswith('x86')
-    CP=find_program('copy')
+    CP=find_program('cp')
 else
     CP=find_program('cp')
 endif

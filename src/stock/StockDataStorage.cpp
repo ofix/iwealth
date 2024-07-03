@@ -52,18 +52,37 @@ void StockDataStorage::Init() {
 
 /// @brief 检查本地行情数据是否过期
 bool StockDataStorage::IsLocalQuoteDataExpired() {
-    // 获取最近交易日
-    std::string nearest_trade_day = get_nearest_trade_day();
-    std::string nearest_trade_open_time = nearest_trade_day + " 09:15:00";   // 最近交易日的开盘时间
-    std::string nearest_trade_close_time = nearest_trade_day + " 15:00:00";  // 最近交易日的收盘时间
-
     // 获取本地行情数据文件修改时间
     std::string local_quote_file_modified_time = FileTool::GetFileModifiedTime(m_path_share_quote);
-    // 检查文件修改时间是否 > 最近交易日收盘时间
-    if (compare_time(local_quote_file_modified_time, nearest_trade_close_time) > 0) {
-        return false;
+    std::string today = now("%Y-%m-%d");
+    std::string now_time = now("%Y-%m-%d %H:%M:%S");
+    if (is_trade_day(today)) {  // 如果当天是交易日
+        std::string last_trade_day = get_nearest_trade_day(-1);
+        std::string last_trade_close_time = last_trade_day + " 15:00:00";  // 上一个交易日的收盘时间
+        std::string current_trade_day = get_nearest_trade_day();
+        std::string current_trade_open_time = current_trade_day + " 09:30:00";          // 当天开盘时间
+        std::string current_trade_close_time = current_trade_day + " 15:00:00";         // 当天收盘时间
+        if (compare_time(local_quote_file_modified_time, last_trade_close_time) > 0 &&  // 文件时间大于昨天收盘时间
+            compare_time(now_time, current_trade_open_time) < 0 &&                      // 当前时间未开盘
+            compare_time(local_quote_file_modified_time, current_trade_open_time) < 0  // 文件时间小于今天开盘时间
+        ) {
+            return false;
+        }
+
+        if (compare_time(local_quote_file_modified_time, current_trade_close_time) > 0) {  // 文件时间大于当天收盘时间
+            return false;
+        }
+
+        return true;
+    } else {
+        std::string last_trade_day = get_nearest_trade_day();
+        std::string last_trade_close_time = last_trade_day + " 15:00:00";
+        // 检查文件修改时间是否 > 最近交易日收盘时间
+        if (compare_time(local_quote_file_modified_time, last_trade_close_time) > 0) {
+            return false;
+        }
+        return true;
     }
-    return true;
 }
 
 void StockDataStorage::LoadLocalFileShare() {
