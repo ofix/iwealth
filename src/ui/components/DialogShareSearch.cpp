@@ -54,25 +54,13 @@ DialogShareSearch::DialogShareSearch(wxWindow* parent,
     m_listctrl_sharelist->InsertColumn(1, CN("名称"), 0, 100);
     m_listctrl_sharelist->InsertColumn(2, CN("市场"), 0, 90);
     m_listctrl_sharelist->Bind(wxEVT_KEY_DOWN, &DialogShareSearch::OnKeyDown, this);
+    m_listctrl_sharelist->Bind(wxEVT_LEFT_DOWN, &DialogShareSearch::OnLeftClick, this);
     // m_listctrl_sharelist->Bind(wxEVT_LIST_ITEM_SELECTED, &DialogShareSearch::OnListItemSelected, this);
     // m_listctrl_sharelist->Bind(wxEVT_LIST_ITEM_DESELECTED, &DialogShareSearch::OnListItemDeSelected, this);
-    // m_listctrl_sharelist->Bind(wxEVT_LEFT_DOWN, &DialogShareSearch::OnLeftClick, this);
     m_listctrl_sharelist->SetFont(RichApplication::GetDefaultFont(12));
 
     m_oldTimeKeywordInput = std::chrono::steady_clock::now();
     m_nowTimeKeywordInput = std::chrono::steady_clock::now();
-}
-
-void DialogShareSearch::OnLeftClick(wxMouseEvent& event) {
-    int flags = wxLIST_HITTEST_ONITEM;
-    int iSelectedItem = m_listctrl_sharelist->HitTest(event.GetPosition(), flags);
-    if (iSelectedItem != wxNOT_FOUND) {
-        // m_listctrl_sharelist->ClearAllSelections();
-        m_listctrl_sharelist->SetItemBackgroundColour(iSelectedItem, wxColor(201, 201, 237));
-        m_listctrl_sharelist->SetItemTextColour(iSelectedItem, wxColor(52, 52, 227));
-        m_listctrl_sharelist->SetItemState(iSelectedItem, wxLIST_STATE_SELECTED, wxLIST_STATE_SELECTED);
-    }
-    event.Skip();
 }
 
 void DialogShareSearch::ReLayout(const wxSize& size) {
@@ -89,6 +77,18 @@ void DialogShareSearch::ReLayout(const wxSize& size) {
     m_listctrl_sharelist->SetSize(size_listctrl);
 }
 
+void DialogShareSearch::OnLeftClick(wxMouseEvent& event) {
+    int flags = wxLIST_HITTEST_ONITEM;
+    int iSelectedItem = m_listctrl_sharelist->HitTest(event.GetPosition(), flags);
+    if (iSelectedItem != wxNOT_FOUND) {
+        // m_listctrl_sharelist->ClearAllSelections();
+        m_listctrl_sharelist->SetItemState(iSelectedItem, wxLIST_STATE_SELECTED, wxLIST_STATE_SELECTED);
+        m_listctrl_sharelist->SetItemBackgroundColour(iSelectedItem, wxColor(201, 201, 237));
+        m_listctrl_sharelist->SetItemTextColour(iSelectedItem, wxColor(52, 52, 227));
+    }
+    event.Skip();
+}
+
 void DialogShareSearch::OnKeyDown(wxKeyEvent& event) {
     if (event.GetKeyCode() == WXK_UP) {
         MoveSelectedListItem(-1);
@@ -97,7 +97,7 @@ void DialogShareSearch::OnKeyDown(wxKeyEvent& event) {
     } else if (event.GetKeyCode() == WXK_LEFT) {
     } else if (event.GetKeyCode() == WXK_RIGHT) {
     }
-    event.Skip();
+    // event.Skip();
 }
 
 void DialogShareSearch::MoveSelectedListItem(int dir) {
@@ -121,29 +121,29 @@ void DialogShareSearch::MoveSelectedListItem(int dir) {
 }
 
 void DialogShareSearch::OnListItemSelected(wxListEvent& event) {
-    int iSelectedItem = event.GetIndex();
-    // wxListItem item = event.GetItem();
-    m_listctrl_sharelist->SetItemBackgroundColour(iSelectedItem, wxColor(201, 201, 237));
-    m_listctrl_sharelist->SetItemTextColour(iSelectedItem, wxColor(52, 52, 227));
-    m_listctrl_sharelist->SetFocus();
-    // 设置此行才能让自定义颜色生效
-    // 参考网址: https://github.com/wxWidgets/Phoenix/issues/1178
-    // item.SetBackgroundColour(wxColor(201, 201, 237));
-    // item.SetTextColour(wxColor(52, 52, 227));
-    // m_listctrl_sharelist->SetItem(item);
-    event.Skip();
+    // int iSelectedItem = event.GetIndex();
+    // // wxListItem item = event.GetItem();
+    // m_listctrl_sharelist->SetItemBackgroundColour(iSelectedItem, wxColor(201, 201, 237));
+    // m_listctrl_sharelist->SetItemTextColour(iSelectedItem, wxColor(52, 52, 227));
+    // m_listctrl_sharelist->SetFocus();
+    // // 设置此行才能让自定义颜色生效
+    // // 参考网址: https://github.com/wxWidgets/Phoenix/issues/1178
+    // // item.SetBackgroundColour(wxColor(201, 201, 237));
+    // // item.SetTextColour(wxColor(52, 52, 227));
+    // // m_listctrl_sharelist->SetItem(item);
+    // event.Skip();
 }
 
 void DialogShareSearch::OnListItemDeSelected(wxListEvent& event) {
-    int iSelectedItem = event.GetIndex();
-    // wxListItem item = event.GetItem();
-    m_listctrl_sharelist->SetItemBackgroundColour(iSelectedItem, wxColor(255, 255, 255));
-    m_listctrl_sharelist->SetItemTextColour(iSelectedItem, wxColor(0, 0, 0));
-    m_listctrl_sharelist->SetFocus();
-    // item.SetBackgroundColour(wxColor(255, 255, 255));
-    // item.SetTextColour(wxColor(0, 0, 0));
-    // m_listctrl_sharelist->SetItem(item);
-    event.Skip();
+    // int iSelectedItem = event.GetIndex();
+    // // wxListItem item = event.GetItem();
+    // m_listctrl_sharelist->SetItemBackgroundColour(iSelectedItem, wxColor(255, 255, 255));
+    // m_listctrl_sharelist->SetItemTextColour(iSelectedItem, wxColor(0, 0, 0));
+    // m_listctrl_sharelist->SetFocus();
+    // // item.SetBackgroundColour(wxColor(255, 255, 255));
+    // // item.SetTextColour(wxColor(0, 0, 0));
+    // // m_listctrl_sharelist->SetItem(item);
+    // event.Skip();
 }
 
 void DialogShareSearch::SetShareList(const std::vector<Share*>& shares) {

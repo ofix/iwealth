@@ -3,6 +3,7 @@
 #include <ctime>
 #include <iomanip>
 #include <iostream>
+#include <unordered_map>
 
 /// @brief windows不存在strptime函数
 /// @param s 日期字符串
@@ -68,20 +69,38 @@ long long diff_seconds(const std::string& start_time, const std::string& end_tim
     return std::chrono::duration_cast<std::chrono::seconds>(tp2 - tp1).count();
 }
 
-// 获取最近交易日交易日期
-std::string get_nearest_trade_day() {
+/**
+ * @brief  获取最近交易日交易日期，只考虑周末，暂不考虑中国节假日带来的影响
+ * @param days 允许为负数，如果是-1，则表示最近交易日的上一个交易日，默认是0，则表示最近交易日
+ * @return 交易日期 格式 YYYY-mm-dd,比如 2024-03-05
+ */
+std::string get_nearest_trade_day(int days) {
     time_t now = std::time(nullptr);
-    struct tm* local_time = localtime(&now);
+    struct tm* trade_day = localtime(&now);
 
-    while (local_time->tm_wday == 0 || local_time->tm_wday == 6) {  // 排除周日和周六
+    while (days > 0) {
         now -= 24 * 60 * 60;
-        local_time = localtime(&now);
+        if (trade_day->tm_wday == 0 || trade_day->tm_wday == 6) {  // 如果当天是周日和周六，排除
+            trade_day = localtime(&now);
+        } else {
+            days -= 1;
+        }
     }
 
     char buf[20];
-    strftime(buf, sizeof(buf), "%Y-%m-%d", local_time);
+    strftime(buf, sizeof(buf), "%Y-%m-%d", trade_day);
     return std::string(buf);
 }
+
+bool is_chinese_holiday(std::string day) {
+    static std::unordered_map<std::string, bool> holidays = {
+        {"", true},
+        {"", true},
+        {"", true},
+        {"", true},
+    }
+}
+
 /// @brief 比较时间大小，格式 YYYY-mm-dd HH:mm:ss 标准格式
 /// @return 0: time1 == time2
 ///        -1: time1  < time2

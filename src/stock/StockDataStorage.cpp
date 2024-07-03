@@ -54,7 +54,9 @@ void StockDataStorage::Init() {
 bool StockDataStorage::IsLocalQuoteDataExpired() {
     // 获取最近交易日
     std::string nearest_trade_day = get_nearest_trade_day();
-    std::string nearest_trade_close_time = nearest_trade_day + " 15:00:00";
+    std::string nearest_trade_open_time = nearest_trade_day + " 09:15:00";   // 最近交易日的开盘时间
+    std::string nearest_trade_close_time = nearest_trade_day + " 15:00:00";  // 最近交易日的收盘时间
+
     // 获取本地行情数据文件修改时间
     std::string local_quote_file_modified_time = FileTool::GetFileModifiedTime(m_path_share_quote);
     // 检查文件修改时间是否 > 最近交易日收盘时间
