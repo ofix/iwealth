@@ -44,6 +44,7 @@ PanelStockQuote::PanelStockQuote(wxWindow* parent, wxWindowID id, const wxPoint&
     m_gridCtrlQuote->SetDefaultCellAlignment(wxALIGN_RIGHT, wxALIGN_CENTER);
     m_gridCtrlQuote->SetDefaultRowSize(25);
     m_gridCtrlQuote->SetDefaultCellFont(RichApplication::GetDefaultFont());
+    // 自定义单元格渲染器，解决行选中无法独立设置每个单元格的文字颜色
     m_gridCtrlQuote->SetDefaultRenderer(new RichGridCellStringRenderer());
 
     m_gridCtrlQuote->DisableDragRowSize();                               // 禁止拖拽改变行高
@@ -55,7 +56,7 @@ PanelStockQuote::PanelStockQuote(wxWindow* parent, wxWindowID id, const wxPoint&
     m_gridCtrlQuote->SetCellHighlightColour(wxColor(255, 255, 255, 0));  // 高亮颜色透明
     m_gridCtrlQuote->SetSortingColumn(3, false);                         // 默认按第3列倒序排列
     m_gridCtrlQuote->SetSelectionMode(wxGrid::wxGridSelectRows);         // 只支持整行选择
-    m_gridCtrlQuote->SetSelectionBackground(wxColor(100, 100, 100));     // 设置行选择背景色
+    m_gridCtrlQuote->SetSelectionBackground(wxColor(31, 31, 31));        // 设置行选择背景色
 
     // 标签行列设置
     m_gridCtrlQuote->SetLabelBackgroundColour(background_clr);
@@ -109,7 +110,6 @@ void PanelStockQuote::OnGridQuoteHeaderClick(wxGridEvent& event) {
     int col = event.GetCol();
     m_gridCtrlQuote->SetSortColumn(col);
     m_gridCtrlQuote->SortMultiColumns();
-    std::cout << "left click" << std::endl;
     LoadStockMarketQuote();
     m_gridCtrlQuote->Refresh();
 }
@@ -118,7 +118,6 @@ void PanelStockQuote::OnGridQuoteHeaderDblClick(wxGridEvent& event) {
     int col = event.GetCol();
     m_gridCtrlQuote->SetFixedSortColumn(col);
     m_gridCtrlQuote->SortMultiColumns();
-    std::cout << "left double click" << std::endl;
     LoadStockMarketQuote();
     m_gridCtrlQuote->Refresh();
 }

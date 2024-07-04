@@ -8,6 +8,7 @@
 #include "ui/RichApplication.h"
 #include "ui/RichHelper.h"
 #include "ui/components/RichGridCellStringRenderer.h"
+#include "ui/components/ShareListGridCellStringRenderer.h"
 #include "ui/components/ShareListGridTable.h"
 
 //*)
@@ -54,18 +55,17 @@ DialogShareSearch::DialogShareSearch(wxWindow* parent,
     // 必须优先设置Table，否则设置wxGrid属性会失败！
     m_gridShareList->SetTable(CreateShareListGridTable());
     m_gridShareList->SetFont(RichApplication::GetDefaultFont(12));
-
     m_gridShareList->SetDefaultCellAlignment(wxALIGN_LEFT, wxALIGN_CENTER);
     m_gridShareList->SetDefaultCellFont(RichApplication::GetDefaultFont());
-    m_gridShareList->SetDefaultRenderer(new RichGridCellStringRenderer());
-    m_gridShareList->SetDefaultRowSize(25);  // 设置默认行高
+    m_gridShareList->SetDefaultRenderer(new ShareListGridCellStringRenderer());  // 采用默认的单元格渲染器
+    m_gridShareList->SetDefaultRowSize(25);                                      // 设置默认行高
 
     // 颜色设置
     wxColor background_clr(255, 255, 255);
     m_gridShareList->SetDefaultCellBackgroundColour(background_clr);
     m_gridShareList->SetDefaultCellTextColour(wxColour(0, 0, 0));
     m_gridShareList->SetGridLineColour(background_clr);
-    m_gridShareList->SetSelectionBackground(wxColor(201, 201, 237));
+    m_gridShareList->SetSelectionBackground(wxColor(209, 201, 240));
     m_gridShareList->SetSelectionForeground(wxColor(52, 52, 227));
     m_gridShareList->SetSelectionMode(wxGrid::wxGridSelectRows);  // 只支持行选择
     m_gridShareList->SetCellHighlightPenWidth(0);  // 单元格不高亮,必须设置，否则行选择效果不对
@@ -79,7 +79,6 @@ DialogShareSearch::DialogShareSearch(wxWindow* parent,
 
     m_gridShareList->HideColLabels();  // 隐藏列标签
     m_gridShareList->HideRowLabels();  // 隐藏行标签
-    m_gridShareList->Bind(wxEVT_KEY_DOWN, &DialogShareSearch::OnKeyDown, this);
 
     /////////////////////////////////////////////////
     m_oldTimeKeywordInput = std::chrono::steady_clock::now();
@@ -105,39 +104,18 @@ void DialogShareSearch::ReLayout(const wxSize& size) {
     m_gridShareList->SetSize(size_gridctrl);
 }
 
-void DialogShareSearch::OnLeftClick(wxMouseEvent& event) {
-}
-
 void DialogShareSearch::OnKeyDown(wxKeyEvent& event) {
     if (event.GetKeyCode() == WXK_UP) {  // 向上方向键
-        MoveSelectedListItem(-1);
+        m_gridShareList->MoveSelectedListItem(-1);
     } else if (event.GetKeyCode() == WXK_DOWN) {  // 向下方向键
-        MoveSelectedListItem(1);
+        m_gridShareList->MoveSelectedListItem(1);
+    } else {
+        event.Skip();  // 其他按键按默认方式处理
     }
+}
+
+void DialogShareSearch::OnLeftClick(wxMouseEvent& event) {
     event.Skip();
-}
-
-void DialogShareSearch::MoveSelectedListItem(int dir) {
-    wxArrayInt selectedRows = m_gridShareList->GetSelectedRows();
-    int nRows = m_gridShareList->GetNumberRows();
-    int iSelectedRow = -1;
-    if (selectedRows.size() > 0) {
-        iSelectedRow = selectedRows.Item(0);
-        iSelectedRow += dir;
-        if (iSelectedRow >= nRows) {
-            iSelectedRow = 0;
-        } else if (iSelectedRow < 0) {
-            iSelectedRow = nRows - 1;
-        }
-        m_gridShareList->SelectRow(iSelectedRow);
-        m_gridShareList->Refresh();
-    }
-}
-
-void DialogShareSearch::OnListItemSelected(wxListEvent& event) {
-}
-
-void DialogShareSearch::OnListItemDeSelected(wxListEvent& event) {
 }
 
 void DialogShareSearch::SetKeyword(const std::string& keyword) {
@@ -166,6 +144,7 @@ void DialogShareSearch::OnSearchShare(wxCommandEvent& event) {
     pGridTable->SetSearchKeyword(keyword);
     m_gridShareList->SetTable(pGridTable);
     m_gridShareList->SelectRow(0);  // 选中第一行
+    m_gridShareList->Refresh();
     event.Skip();
 }
 

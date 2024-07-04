@@ -72,12 +72,38 @@ RichGrid::RichGrid(wxWindow* parent,
                    long style,
                    const wxString& name)
     : wxGrid(parent, id, pos, size, style, name) {
-    // 自定义单元格渲染器，解决行选中无法独立设置每个单元格的文字颜色
-    this->SetDefaultRenderer(new RichGridCellStringRenderer());
-
     LoadColumnLabelImages();
     // 绑定鼠标滚轮事件
     // Bind(wxEVT_MOUSEWHEEL, &RichGrid::OnMouseWheel, this);
+    Bind(wxEVT_KEY_DOWN, &RichGrid::OnKeyDown, this);
+}
+
+void RichGrid::OnKeyDown(wxKeyEvent& event) {
+    if (event.GetKeyCode() == WXK_UP) {  // 向上方向键
+        MoveSelectedListItem(-1);
+    } else if (event.GetKeyCode() == WXK_DOWN) {  // 向下方向键
+        MoveSelectedListItem(1);
+    } else {
+        event.Skip();  // 其他按键按默认方式处理
+    }
+}
+
+void RichGrid::MoveSelectedListItem(int dir) {
+    wxArrayInt selectedRows = this->GetSelectedRows();
+    int nRows = this->GetNumberRows();
+    int iSelectedRow = -1;
+    if (selectedRows.size() > 0) {
+        iSelectedRow = selectedRows.Item(0);
+        iSelectedRow += dir;
+        if (iSelectedRow >= nRows) {
+            iSelectedRow = 0;
+        } else if (iSelectedRow < 0) {
+            iSelectedRow = nRows - 1;
+        }
+        this->SelectRow(iSelectedRow);
+        this->MakeCellVisible(iSelectedRow, 0);
+        this->Refresh();
+    }
 }
 
 void RichGrid::SortMultiColumns() {

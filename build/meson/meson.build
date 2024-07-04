@@ -107,6 +107,7 @@ gui_sources = [
     'ui/components/RichGridCellStringRenderer.cpp',
     'ui/components/RichGridColumnHeaderProvider.cpp',
     'ui/components/RichGridColumnHeaderRenderer.cpp',
+    'ui/components/ShareListGridCellStringRenderer.cpp',
     'ui/components/ShareListGridTable.cpp',
     'ui/components/RichGridTable.cpp',
     'stock/StockDataStorage.cpp',

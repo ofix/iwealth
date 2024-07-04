@@ -27,6 +27,8 @@ class RichGrid : public wxGrid {
     virtual void DrawColLabel(wxDC& dc, int col) wxOVERRIDE;
     void SetColumnLabelAlignment(int iCol, int hAlign, int vAlign);
     void GetColumnLabelAlignment(int iCol, int* hAlign, int* vAlign);
+    void OnKeyDown(wxKeyEvent& event);
+    void MoveSelectedListItem(int dir);
 
     bool SetSortColumn(int iCol);
     bool SetFixedSortColumn(int iCol);
