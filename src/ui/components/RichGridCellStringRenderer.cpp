@@ -17,7 +17,8 @@ void RichGridCellStringRenderer::Draw(wxGrid& grid,
     rect.Inflate(-1);
 
     // erase only this cells background, overflow cells should have been erased
-    wxGridCellRenderer::Draw(grid, attr, dc, rectCell, row, col, isSelected);
+    // wxGridCellRenderer::Draw(grid, attr, dc, rectCell, row, col, isSelected);
+    DrawBackground(grid, attr, dc, rectCell, row, col, isSelected);
 
     if (attr.CanOverflow()) {
         int hAlign, vAlign;
@@ -92,6 +93,35 @@ void RichGridCellStringRenderer::Draw(wxGrid& grid,
     SetTextColoursAndFont(grid, attr, dc, isSelected);
 
     grid.DrawTextRectangle(dc, grid.GetCellValue(row, col), rect, attr);
+}
+
+void RichGridCellStringRenderer::DrawBackground(wxGrid& grid,
+                                                wxGridCellAttr& attr,
+                                                wxDC& dc,
+                                                const wxRect& rect,
+                                                int row,
+                                                int col,
+                                                bool isSelected) {
+    dc.SetBackgroundMode(wxBRUSHSTYLE_SOLID);
+    wxColour clr;
+    if (grid.IsThisEnabled()) {
+        if (isSelected) {
+            clr = grid.GetSelectionBackground();  // 不区分是否失去输入焦点，只显示高亮背景色
+            // if (grid.HasFocus())
+            //     clr = grid.GetSelectionBackground();
+            // else
+            //     clr = wxSystemSettings::GetColour(wxSYS_COLOUR_BTNSHADOW);
+        } else {
+            clr = attr.GetBackgroundColour();
+        }
+    } else  // grey out fields if the grid is disabled
+    {
+        clr = wxSystemSettings::GetColour(wxSYS_COLOUR_BTNFACE);
+    }
+
+    dc.SetBrush(clr);
+    dc.SetPen(*wxTRANSPARENT_PEN);
+    dc.DrawRectangle(rect);
 }
 
 void RichGridCellStringRenderer::SetTextColoursAndFont(const wxGrid& grid,

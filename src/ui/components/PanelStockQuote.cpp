@@ -161,6 +161,7 @@ void PanelStockQuote::LoadStockMarketQuote() {
             }
             irow++;
         }
+        m_gridCtrlQuote->SelectRow(0);  // 默认选中第一行
     }
     m_gridCtrlQuote->Refresh();
 }

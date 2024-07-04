@@ -35,7 +35,8 @@ class DialogShareSearch : public wxDialog {
     void OnExitSearchShare(wxCommandEvent& event);
     // 监听上下方向键
     void OnKeyDown(wxKeyEvent& event);
-    void OnLeftClick(wxMouseEvent& event);
+    // void OnLeftClick(wxMouseEvent& event);
+    void OnGridCellLeftClick(wxGridEvent& event);
 
     //(*Declarations(DialogShareSearch)
     static const long ID_TEXTCTRL_KEYWORD;

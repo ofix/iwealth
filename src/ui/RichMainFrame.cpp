@@ -110,9 +110,9 @@ void RichMainFrame::OnChar(wxKeyEvent& event) {
         AdjustDlgShareSearchPostion();
         m_dlgShareSearch->Show();
         // 如果行情数据表格有选中行，取消选中
-        if (m_panelStockQuote->GetGridCtrl()->IsSelection()) {
-            m_panelStockQuote->GetGridCtrl()->ClearSelection();
-        }
+        // if (m_panelStockQuote->GetGridCtrl()->IsSelection()) {
+        //     m_panelStockQuote->GetGridCtrl()->ClearSelection();
+        // }
     }
 }
 

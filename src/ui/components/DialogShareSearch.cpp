@@ -79,6 +79,7 @@ DialogShareSearch::DialogShareSearch(wxWindow* parent,
 
     m_gridShareList->HideColLabels();  // 隐藏列标签
     m_gridShareList->HideRowLabels();  // 隐藏行标签
+    m_gridShareList->Bind(wxEVT_GRID_CELL_LEFT_CLICK, &DialogShareSearch::OnGridCellLeftClick, this);
 
     /////////////////////////////////////////////////
     m_oldTimeKeywordInput = std::chrono::steady_clock::now();
@@ -88,6 +89,13 @@ DialogShareSearch::DialogShareSearch(wxWindow* parent,
 ShareListGridTable* DialogShareSearch::CreateShareListGridTable() {
     StockDataStorage* pStorage = static_cast<RichApplication*>(wxTheApp)->GetStockDataStorage();
     return new ShareListGridTable(pStorage);
+}
+
+void DialogShareSearch::OnGridCellLeftClick(wxGridEvent& event) {
+    int iSelectedRow = event.GetRow();
+    m_gridShareList->SelectRow(iSelectedRow);
+    m_gridShareList->MakeCellVisible(iSelectedRow, 0);
+    m_gridShareList->Refresh();
 }
 
 void DialogShareSearch::ReLayout(const wxSize& size) {
@@ -112,10 +120,6 @@ void DialogShareSearch::OnKeyDown(wxKeyEvent& event) {
     } else {
         event.Skip();  // 其他按键按默认方式处理
     }
-}
-
-void DialogShareSearch::OnLeftClick(wxMouseEvent& event) {
-    event.Skip();
 }
 
 void DialogShareSearch::SetKeyword(const std::string& keyword) {

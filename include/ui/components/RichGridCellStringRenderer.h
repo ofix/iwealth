@@ -6,6 +6,13 @@ class RichGridCellStringRenderer : public wxGridCellStringRenderer {
     RichGridCellStringRenderer();
 
     void Draw(wxGrid& grid, wxGridCellAttr& attr, wxDC& dc, const wxRect& rectCell, int row, int col, bool isSelected);
+    void DrawBackground(wxGrid& grid,
+                        wxGridCellAttr& attr,
+                        wxDC& dc,
+                        const wxRect& rectCell,
+                        int row,
+                        int col,
+                        bool isSelected);
 
    protected:
     // set the text colours before drawing
