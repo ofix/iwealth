@@ -29,8 +29,7 @@
 
 #include "ui/RichApplication.h"
 #include "ui/components/RichGridCellStringRenderer.h"
-#include "ui/components/RichGridColumnHeaderProvider.h"
-#include "ui/components/RichGridColumnHeaderRenderer.h"
+#include "ui/components/ShareListGridTable.h"
 #include "util/FileTool.h"
 #include "util/Global.h"
 #include "wx/generic/gridctrl.h"
@@ -75,27 +74,22 @@ RichGrid::RichGrid(wxWindow* parent,
     : wxGrid(parent, id, pos, size, style, name) {
     // 自定义单元格渲染器，解决行选中无法独立设置每个单元格的文字颜色
     this->SetDefaultRenderer(new RichGridCellStringRenderer());
-    // 自定义数据来源，解决直接排序的效率问题，避免字符串排序
-    StockDataStorage* pStorage = static_cast<RichApplication*>(wxTheApp)->GetStockDataStorage();
-    m_pGridDataTable = new RichGridTable(RichGridTableDataType::Stock, pStorage);
-    this->SetTable(m_pGridDataTable);
-    // 自定义表格头渲染，解决排序没有指示器的问题
-    this->GetTable()->SetAttrProvider(new RichGridColumnHeaderProvider());
+
     LoadColumnLabelImages();
     // 绑定鼠标滚轮事件
     // Bind(wxEVT_MOUSEWHEEL, &RichGrid::OnMouseWheel, this);
 }
 
 void RichGrid::SortMultiColumns() {
-    m_pGridDataTable->SortMultiColumns();
+    static_cast<RichGridTable*>(GetTable())->SortMultiColumns();
 }
 
 bool RichGrid::SetSortColumn(int iCol) {
-    return m_pGridDataTable->SetSortColumn(iCol);
+    return static_cast<RichGridTable*>(GetTable())->SetSortColumn(iCol);
 }
 
 bool RichGrid::SetFixedSortColumn(int iCol) {
-    return m_pGridDataTable->SetFixedSortColumn(iCol);
+    return static_cast<RichGridTable*>(GetTable())->SetFixedSortColumn(iCol);
 }
 
 // 加载本地排序图标
@@ -173,9 +167,11 @@ void RichGrid::DrawColLabel(wxDC& dc, int col) {
     GetColumnLabelAlignment(col, &hAlign, &vAlign);
     const int orient = GetColLabelTextOrientation();
 
+    RichGridTable* pTable = static_cast<RichGridTable*>(GetTable());
+
     // 渲染排序指示器，需要重新计算文字矩形和排序指示器图片占用的矩形
     wxString colLabelValue = GetColLabelValue(col);
-    if ((hAlign == wxALIGN_RIGHT) && m_pGridDataTable->IsSortingColumn(col)) {
+    if ((hAlign == wxALIGN_RIGHT) && pTable->IsSortingColumn(col)) {
         wxRect rectLabelValue = rect;
         rectLabelValue.SetWidth(rect.GetWidth() - 18);
         rend.DrawLabel(*this, dc, colLabelValue, rectLabelValue, hAlign, vAlign, orient);
@@ -183,8 +179,8 @@ void RichGrid::DrawColLabel(wxDC& dc, int col) {
         rend.DrawLabel(*this, dc, colLabelValue, rect, hAlign, vAlign, orient);
     }
     // 绘制图片
-    if (m_pGridDataTable->IsSortingColumn(col)) {
-        int order = m_pGridDataTable->GetColumnOrder(col);
+    if (pTable->IsSortingColumn(col)) {
+        int order = pTable->GetColumnOrder(col);
         DrawSortImage(dc, colLabelValue, rect, hAlign, vAlign, order);
     }
 }

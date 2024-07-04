@@ -41,7 +41,6 @@ class RichGrid : public wxGrid {
     wxBitmap m_imgSortUp;
     wxBitmap m_imgSortDown;
     std::unordered_map<int, std::pair<int, int>> m_colLabelAlignment;
-    RichGridTable* m_pGridDataTable;
 };
 
 #endif

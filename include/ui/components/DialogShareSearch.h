@@ -11,6 +11,8 @@
 //*)
 #include <vector>
 #include "stock/Stock.h"
+#include "ui/components/RichGrid.h"
+#include "ui/components/ShareListGridTable.h"
 
 #include <chrono>
 
@@ -25,10 +27,10 @@ class DialogShareSearch : public wxDialog {
                       const wxString& name = wxDialogNameStr);
     virtual ~DialogShareSearch();
     void SetKeyword(const std::string& keyword);
-    void SetShareList(const std::vector<Share*>& shares);
     void ReLayout(const wxSize& size);
     // 搜索股票
     void OnSearchShare(wxCommandEvent& event);
+    ShareListGridTable* CreateShareListGridTable();
     // 退出搜索
     void OnExitSearchShare(wxCommandEvent& event);
     // 监听上下方向键
@@ -40,7 +42,7 @@ class DialogShareSearch : public wxDialog {
 
     //(*Declarations(DialogShareSearch)
     static const long ID_TEXTCTRL_KEYWORD;
-    static const long ID_LISTCTRL_SHARELIST;
+    static const long ID_RICHGRID_SHARELIST;
     static const long ID_STATICTEXT_TITLE;
     static const long ID_BITMAPBUTTON_CLOSE;
     //*)
@@ -48,8 +50,9 @@ class DialogShareSearch : public wxDialog {
    protected:
     //(*Identifiers(DialogShareSearch)
     //*)
-    wxListCtrl* m_listctrl_sharelist;
-    wxTextCtrl* m_textctrl_keyword;
+    // wxListCtrl* m_gridShareLIst;
+    RichGrid* m_gridShareList;
+    wxTextCtrl* m_textCtrlKeyword;
     wxStaticText* m_statictext_title;
     wxBitmapButton* m_bitmapbutton_close;
 

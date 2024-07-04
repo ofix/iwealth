@@ -4,6 +4,8 @@
 #include "ui/RichApplication.h"
 #include "ui/RichHelper.h"
 #include "ui/components/RichGridCellStringRenderer.h"
+#include "ui/components/RichGridColumnHeaderProvider.h"
+#include "ui/components/RichGridColumnHeaderRenderer.h"
 
 //(*InternalHeaders(PanelStockQuote)
 #include <wx/intl.h>
@@ -20,15 +22,18 @@ BEGIN_EVENT_TABLE(PanelStockQuote, wxPanel)
 END_EVENT_TABLE()
 
 PanelStockQuote::PanelStockQuote(wxWindow* parent, wxWindowID id, const wxPoint& pos, const wxSize& size) {
-    //(*Initialize(PanelStockQuote)
     Create(parent, id, pos, size, wxTAB_TRAVERSAL | wxWANTS_CHARS, _T("Panel_StockQuote"));
     m_gridCtrlQuote = new RichGrid(this, ID_GRIDCTRL_QUOTA, wxPoint(0, 0), size);
-    wxFont quote_font(14, wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL, false, _T("微软雅黑"),
-                      wxFONTENCODING_DEFAULT);
-    m_gridCtrlQuote->SetFont(quote_font);
-    //*)
 
-    /// wxPanel 自适应 wxFrame
+    StockDataStorage* pStorage = static_cast<RichApplication*>(wxTheApp)->GetStockDataStorage();
+    // 自定义数据来源，解决直接排序的效率问题，避免字符串排序
+    m_gridCtrlQuote->SetTable(new RichGridTable(RichGridTableDataType::Stock, pStorage));
+    // 自定义表格头渲染，解决排序没有指示器的问题
+    m_gridCtrlQuote->GetTable()->SetAttrProvider(new RichGridColumnHeaderProvider());
+
+    m_gridCtrlQuote->SetFont(RichApplication::GetDefaultFont(14));
+
+    /// wxPanel 自适应 wxFrame，通过 wxSizer 即可实现
     wxSizer* sizer = new wxBoxSizer(wxHORIZONTAL);
     sizer->Add(m_gridCtrlQuote, 1, wxEXPAND | wxALL, 0);
     this->SetSizer(sizer);
@@ -56,7 +61,6 @@ PanelStockQuote::PanelStockQuote(wxWindow* parent, wxWindowID id, const wxPoint&
     m_gridCtrlQuote->SetLabelTextColour(wxColour(192, 192, 192));
     m_gridCtrlQuote->SetColLabelAlignment(wxALIGN_RIGHT, wxALIGN_CENTRE);
     m_gridCtrlQuote->SetScrollRate(0, static_cast<int>(36 * 8.5));
-
     m_gridCtrlQuote->Bind(wxEVT_GRID_LABEL_LEFT_CLICK, &PanelStockQuote::OnGridQuoteHeaderClick, this);
     m_gridCtrlQuote->Bind(wxEVT_GRID_LABEL_LEFT_DCLICK, &PanelStockQuote::OnGridQuoteHeaderDblClick, this);
     /////////////////////////////////////////////////

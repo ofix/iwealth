@@ -22,19 +22,25 @@ int RichGridTable::GetNumberRows() {
 }
 
 bool RichGridTable::SetColumnOrder(int iCol, int order) {
-    if (iCol < m_colSortOrders.size()) {
-        if (order == wxDirection::wxUP) {
-            m_colSortOrders[iCol] = 0;
-        } else {
-            m_colSortOrders[iCol] = 1;
+    if (m_dataType == RichGridTableDataType::Stock) {
+        if (iCol < m_colSortOrders.size()) {
+            if (order == wxDirection::wxUP) {
+                m_colSortOrders[iCol] = 0;
+            } else {
+                m_colSortOrders[iCol] = 1;
+            }
+            return true;
         }
-        return true;
+        return false;
     }
     return false;
 }
 
 int RichGridTable::GetColumnOrder(int iCol) {
-    return m_colSortOrders[iCol];
+    if (m_dataType == RichGridTableDataType::Stock) {
+        return m_colSortOrders[iCol];
+    }
+    return 0;
 }
 
 bool RichGridTable::IsSortingColumn(int iCol) {
@@ -51,23 +57,29 @@ int RichGridTable::GetFixedSortColumn() const {
 }
 
 bool RichGridTable::SetSortColumn(int iCol) {
-    if (iCol < 16) {
-        m_iColSorting = iCol;
-        m_colSortOrders[iCol] = ((~m_colSortOrders[iCol]) & 0x01);
-        return true;
+    if (m_dataType == RichGridTableDataType::Stock) {
+        if (iCol < 16) {
+            m_iColSorting = iCol;
+            m_colSortOrders[iCol] = ((~m_colSortOrders[iCol]) & 0x01);
+            return true;
+        }
+        return false;
     }
     return false;
 }
 
 bool RichGridTable::SetFixedSortColumn(int iCol) {
-    if (iCol < 16) {
-        if (m_colSortFixed == iCol) {
-            m_colSortFixed = -1;  // 允许取消固定列，双击同一个固定列取消
-        } else {
-            m_colSortFixed = iCol;  // 如果设置的固定列没有设置，或者设置的不一样
+    if (m_dataType == RichGridTableDataType::Stock) {
+        if (iCol < 16) {
+            if (m_colSortFixed == iCol) {
+                m_colSortFixed = -1;  // 允许取消固定列，双击同一个固定列取消
+            } else {
+                m_colSortFixed = iCol;  // 如果设置的固定列没有设置，或者设置的不一样
+            }
+            m_colSortOrders[iCol] = ((~m_colSortOrders[iCol]) & 0x01);
+            return true;
         }
-        m_colSortOrders[iCol] = ((~m_colSortOrders[iCol]) & 0x01);
-        return true;
+        return false;
     }
     return false;
 }
