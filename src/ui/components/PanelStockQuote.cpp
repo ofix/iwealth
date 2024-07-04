@@ -38,28 +38,32 @@ PanelStockQuote::PanelStockQuote(wxWindow* parent, wxWindowID id, const wxPoint&
     sizer->Add(m_gridCtrlQuote, 1, wxEXPAND | wxALL, 0);
     this->SetSizer(sizer);
     wxColor background_clr(0, 0, 0);
+    // 默认设置
     m_gridCtrlQuote->SetDefaultCellBackgroundColour(background_clr);
     m_gridCtrlQuote->SetDefaultCellTextColour(wxColour(192, 192, 192));
     m_gridCtrlQuote->SetDefaultCellAlignment(wxALIGN_RIGHT, wxALIGN_CENTER);
-    m_gridCtrlQuote->DisableDragRowSize();    // 禁止拖拽改变行高
-    m_gridCtrlQuote->EnableEditing(false);    // 禁止编辑
-    m_gridCtrlQuote->EnableGridLines(false);  // 不划线
-    m_gridCtrlQuote->SetGridLineColour(background_clr);
-    m_gridCtrlQuote->SetCellHighlightColour(wxColor(255, 255, 255, 0));
-    m_gridCtrlQuote->SetCellHighlightPenWidth(0);
-    m_gridCtrlQuote->SetLabelBackgroundColour(background_clr);
-    m_gridCtrlQuote->SetSelectionBackground(wxColor(100, 100, 100));
-    // m_gridCtrlQuote->SetRowLabelAlignment(wxALIGN_CENTER, wxALIGN_CENTRE);
-    // m_gridCtrlQuote->SetSelectionForeground(wxColor(219, 219, 3, 255));
     m_gridCtrlQuote->SetDefaultRowSize(25);
-    m_gridCtrlQuote->HideRowLabels();
-    m_gridCtrlQuote->SetSortingColumn(3, false);
     m_gridCtrlQuote->SetDefaultCellFont(RichApplication::GetDefaultFont());
-    m_gridCtrlQuote->SetSelectionMode(wxGrid::wxGridSelectRows);
     m_gridCtrlQuote->SetDefaultRenderer(new RichGridCellStringRenderer());
+
+    m_gridCtrlQuote->DisableDragRowSize();                               // 禁止拖拽改变行高
+    m_gridCtrlQuote->EnableEditing(false);                               // 禁止编辑
+    m_gridCtrlQuote->EnableGridLines(false);                             // 不划线
+    m_gridCtrlQuote->HideRowLabels();                                    // 隐藏默认行标签
+    m_gridCtrlQuote->SetCellHighlightPenWidth(0);                        // 单元格不高亮
+    m_gridCtrlQuote->SetGridLineColour(background_clr);                  // 网格线颜色
+    m_gridCtrlQuote->SetCellHighlightColour(wxColor(255, 255, 255, 0));  // 高亮颜色透明
+    m_gridCtrlQuote->SetSortingColumn(3, false);                         // 默认按第3列倒序排列
+    m_gridCtrlQuote->SetSelectionMode(wxGrid::wxGridSelectRows);         // 只支持整行选择
+    m_gridCtrlQuote->SetSelectionBackground(wxColor(100, 100, 100));     // 设置行选择背景色
+
+    // 标签行列设置
+    m_gridCtrlQuote->SetLabelBackgroundColour(background_clr);
     m_gridCtrlQuote->SetLabelFont(RichApplication::GetDefaultFont(14));
     m_gridCtrlQuote->SetLabelTextColour(wxColour(192, 192, 192));
     m_gridCtrlQuote->SetColLabelAlignment(wxALIGN_RIGHT, wxALIGN_CENTRE);
+    // m_gridCtrlQuote->SetRowLabelAlignment(wxALIGN_CENTER, wxALIGN_CENTRE);
+    // 鼠标滚轮设置
     m_gridCtrlQuote->SetScrollRate(0, static_cast<int>(36 * 8.5));
     m_gridCtrlQuote->Bind(wxEVT_GRID_LABEL_LEFT_CLICK, &PanelStockQuote::OnGridQuoteHeaderClick, this);
     m_gridCtrlQuote->Bind(wxEVT_GRID_LABEL_LEFT_DCLICK, &PanelStockQuote::OnGridQuoteHeaderDblClick, this);
