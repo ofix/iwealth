@@ -46,7 +46,9 @@ StockDataStorage::~StockDataStorage() {
 void StockDataStorage::Init() {
     if (!m_inited) {
         m_inited = true;
+#ifdef IWEALTH
         LoadLocalFileShare();
+#endif
     }
 }
 

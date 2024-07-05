@@ -3,14 +3,17 @@
 #include "spider/Spider.h"
 #include "util/EasyLogger.h"
 
-ConcurrentRequest::ConcurrentRequest(const std::string& thread_name, uint32_t concurrent_size)
-    : m_thread_name(thread_name), m_concurrent_size(concurrent_size) {
+ConcurrentRequest::ConcurrentRequest(const std::string& thread_name, int concurrent_size)
+    : m_thread_name(thread_name), m_concurrent_size(concurrent_size), m_last_request_url("") {
 }
 
 ConcurrentRequest::ConcurrentRequest(const std::string& thread_name,
                                      std::list<conn_t*>& connections,
-                                     uint32_t concurrent_size)
-    : m_thread_name(thread_name), m_concurrent_size(concurrent_size), m_connections(connections) {
+                                     int concurrent_size)
+    : m_thread_name(thread_name),
+      m_concurrent_size(concurrent_size),
+      m_connections(connections),
+      m_last_request_url("") {
 }
 
 ConcurrentRequest::~ConcurrentRequest() {
@@ -46,11 +49,12 @@ size_t ConcurrentRequest::_CurlOnResponseHeaderRecv(void* /*ptr*/, size_t size, 
 }
 
 // 初始化 LibCurl 依赖库
-void ConcurrentRequest::_CurlInit(conn_t* conn) {
+void ConcurrentRequest::_CurlInit(conn_t* conn, int http_version) {
     conn->easy_curl = curl_easy_init();
     conn->response = "";
     conn->reuse = false;  // 默认不复用请求
     if (conn->easy_curl) {
+        curl_easy_setopt(conn->easy_curl, CURLOPT_HTTP_VERSION, http_version);
         _SetRequestHeader(conn);
         _SetCommonOptions(conn);
         _SetMiscOptions(conn);
@@ -147,7 +151,8 @@ void ConcurrentRequest::AddNewRequest(CURLM* cm) {
     if (!m_connections.empty()) {
         conn_t* conn = m_connections.back();  // 获取最后一个元素
         bool old_reuse = conn->reuse;
-        _CurlInit(conn);  // 每次初始化会复写reuse，导致百度财经无法正常结束
+        m_last_request_url = conn->url;
+        _CurlInit(conn, conn->http_version);  // 每次初始化会复写reuse，导致百度财经无法正常结束
         conn->reuse = old_reuse;
         curl_multi_add_handle(cm, conn->easy_curl);
         m_connections.pop_back();  // 移除最后一个元素
@@ -217,6 +222,11 @@ void ConcurrentRequest::Run() {
                         }
                     } else {
                         if (pStatistics != nullptr) {
+                            if (curl_easy_getinfo(conn->easy_curl, CURLINFO_EFFECTIVE_URL, &conn->url) == CURLE_OK) {
+                                std::cout << std::setfill('0') << std::setw(3) << request_no << ": "
+                                          << m_last_request_url << ", http_code = " << conn->http_code << std::endl;
+                            }
+
                             pStatistics->failed_requests += 1;
                         }
                     }
@@ -254,7 +264,8 @@ void HttpConcurrentGet(const std::string& thread_name,
                        const std::list<std::string>& urls,
                        std::function<void(conn_t*)>& callback,
                        void* user_extra,
-                       uint32_t concurrent_size) {
+                       int concurrent_size,
+                       int http_version) {
     ConcurrentRequest request(thread_name, concurrent_size);
     std::list<conn_t*> connections;
     for (auto url : urls) {
@@ -264,10 +275,11 @@ void HttpConcurrentGet(const std::string& thread_name,
             break;
         }
         pConn->url = url;
+        pConn->http_version = http_version;
         pConn->method = "GET";
         pConn->callback = callback;
         pConn->extra = user_extra;
-        pConn->debug = false;
+        pConn->debug = true;
         pConn->statistics = static_cast<CrawlExtra*>(user_extra)->statistics;
         connections.push_back(pConn);
     }
@@ -280,7 +292,8 @@ void HttpConcurrentGet(const std::string& thread_name,
                        const std::list<std::string>& urls,
                        std::function<void(conn_t*)>& callback,
                        const std::vector<void*>& user_extra,
-                       uint32_t concurrent_size) {
+                       int concurrent_size,
+                       int http_version) {
     ConcurrentRequest request(thread_name, concurrent_size);
     std::list<conn_t*> connections;
     size_t i = 0;
@@ -291,10 +304,11 @@ void HttpConcurrentGet(const std::string& thread_name,
             break;
         }
         pConn->url = url;
+        pConn->http_version = http_version;
         pConn->method = "GET";
         pConn->callback = callback;
         pConn->extra = user_extra[i];
-        pConn->debug = false;
+        pConn->debug = true;
         pConn->statistics = static_cast<CrawlExtra*>(user_extra[i])->statistics;
         connections.push_back(pConn);
         i++;
@@ -304,9 +318,7 @@ void HttpConcurrentGet(const std::string& thread_name,
 }
 
 // 通常情况下，这个函数在独立的分离线程工作
-void HttpConcurrentGet(const std::string& thread_name,
-                       const std::list<conn_t*>& connections,
-                       uint32_t concurrent_size) {
+void HttpConcurrentGet(const std::string& thread_name, const std::list<conn_t*>& connections, int concurrent_size) {
     ConcurrentRequest request(thread_name, concurrent_size);
     request.AddConnectionList(connections);
     request.Run();

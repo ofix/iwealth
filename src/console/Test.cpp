@@ -185,6 +185,22 @@ void TestChinesePinYin() {
     }
 }
 
+void TestKlineDownload() {
+    StockDataStorage* m_pStockStorage = new StockDataStorage();
+    SpiderShareKline* spiderKline = new SpiderShareKline(m_pStockStorage);
+    Share* pShare = new Share();
+    if (pShare) {
+        pShare->code = "002252";
+        pShare->name = "上海莱士";
+        pShare->market = Market::ShenZhen;
+        std::vector<uiKline> klines = spiderKline->CrawlSync(pShare, KlineType::Day);
+        for (size_t i = 0; i < klines.size(); i++) {
+            SpiderShareKline::DumpKline(klines[i]);
+        }
+        delete pShare;
+    }
+}
+
 int main(int /*argc*/, char** /*argv*/) {
     // TestSpiderConceptListEastMoney();
     // TestTimer();
@@ -194,6 +210,7 @@ int main(int /*argc*/, char** /*argv*/) {
     // TestDateTime();
     // TestFile();
     // TestTrie();
-    TestChinesePinYin();
+    // TestChinesePinYin();
+    TestKlineDownload();
     std::cin.get();
 }

@@ -60,8 +60,8 @@ void SpiderShareQuote::ConcurrentCrawl() {
         // 启动新线程进行并发请求
         std::thread crawl_thread(std::bind(
             static_cast<void (*)(const std::string&, const std::list<std::string>&, std::function<void(conn_t*)>&,
-                                 const std::vector<void*>&, uint32_t)>(HttpConcurrentGet),
-            "Hexun", urls, callback, user_data, 4));
+                                 const std::vector<void*>&, int, int)>(HttpConcurrentGet),
+            "Hexun", urls, callback, user_data, 4, CURL_HTTP_VERSION_1_1));
         crawl_thread.detach();
     }
 }

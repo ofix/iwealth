@@ -16,6 +16,7 @@ class SpiderShareKline : public Spider {
     SpiderShareKline(StockDataStorage* storage, bool concurrent);
     virtual ~SpiderShareKline();
     void Crawl(KlineType type = KlineType::Day);
+    std::vector<uiKline> CrawlSync(Share* pShare, KlineType kline_type);
     void OnRequestTimer(uint32_t timer_id, void* args);
     static bool IsNaN(const std::string& data);
     static bool ParseKlineBaidu(const std::string& kline, uiKline* uiKline);
@@ -23,6 +24,7 @@ class SpiderShareKline : public Spider {
     void MergeShareKlines(const KlineType kline_type = KlineType::Day);
     size_t GetKlineCount(const std::vector<std::vector<uiKline>>& multi_klines);
     std::string GetProviderName(DataProvider provider) const;
+    static void DumpKline(uiKline& kline);
 
    protected:
     virtual void DoCrawl(KlineType type = KlineType::Day);
@@ -32,7 +34,6 @@ class SpiderShareKline : public Spider {
                           std::unordered_map<std::string, std::vector<uiKline>>& target_klines);
     void SingleCrawl(std::vector<KlineCrawlTask>& tasks, KlineType kline_type);
     void ConurrentCrawl(std::vector<KlineCrawlTask>& tasks, KlineType kline_type);
-    std::vector<uiKline> CrawlSync(Share* pShare, KlineType kline_type);
     // 百度财经
     std::string GetKlineTypeFinanceBaidu(const KlineType kline_type);
     std::string GetKlineUrl(const DataProvider provider,      // 供应商

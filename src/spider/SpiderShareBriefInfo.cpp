@@ -106,8 +106,8 @@ void SpiderShareBriefInfo::ConcurrentFetchBriefInfo() {
             // 启动新线程进行并发请求
             std::thread crawl_thread(std::bind(
                 static_cast<void (*)(const std::string&, const std::list<std::string>&, std::function<void(conn_t*)>&,
-                                     const std::vector<void*>&, uint32_t)>(HttpConcurrentGet),
-                "EastMoney::BriefInfo", urls, callback, user_data, 6));
+                                     const std::vector<void*>&, int, int)>(HttpConcurrentGet),
+                "EastMoney::BriefInfo", urls, callback, user_data, 6, CURL_HTTP_VERSION_1_1));
             crawl_thread.detach();
         }
         std::function<void(uint32_t, void*)> timer_cb = [=](uint32_t timer_id, void* args) {

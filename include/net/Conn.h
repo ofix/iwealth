@@ -14,6 +14,7 @@ struct upload_info_t {
 
 struct conn_t {
     std::string url;
+    int http_version;
     std::string method;
     std::string payload;
     std::vector<std::string> headers;

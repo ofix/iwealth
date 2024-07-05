@@ -150,20 +150,20 @@ struct uiKlineRange {
 };
 
 struct uiKline {
-    std::string day;       // 交易日期
-    double market_cap;     // 股票市值
-    double change_rate;    // 涨跌幅
-    double change_amount;  // 涨跌额
-    double trade_volume;   // 成交量
-    double trade_amount;   // 成交额
-    double price_open;     // 开盘价
-    double price_close;    // 收盘价
-    double price_max;      // 最高价
-    double price_min;      // 最低价
-    double price_now;      // 当前实时价
-    double turnover_rate;  // 换手率
-    uint8_t danger;        // 1:security 2:warning 3: danger 4: damage
-    uint8_t favorite;      // 0:not favorite 1:favorite
+    std::string day;             // 交易日期
+    double market_cap = 0.0;     // 股票市值
+    double change_rate = 0.0;    // 涨跌幅
+    double change_amount = 0.0;  // 涨跌额
+    double trade_volume = 0.0;   // 成交量
+    double trade_amount = 0.0;   // 成交额
+    double price_open = 0.0;     // 开盘价
+    double price_close = 0.0;    // 收盘价
+    double price_max = 0.0;      // 最高价
+    double price_min = 0.0;      // 最低价
+    double price_now = 0.0;      // 当前实时价
+    double turnover_rate = 0.0;  // 换手率
+    uint8_t danger = 0.0;        // 1:security 2:warning 3: danger 4: damage
+    uint8_t favorite = 0.0;      // 0:not favorite 1:favorite
 };
 
 inline std::string MARKET_NAME(Market market) {
