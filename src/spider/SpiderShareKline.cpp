@@ -381,6 +381,7 @@ void SpiderShareKline::ConcurrentResponseCallback(conn_t* conn) {
         }
     } else if (pExtra->provider == DataProvider::EastMoney) {  // 东方财富只需要请求一次，即可获取所有数据
         this->m_concurrent_day_klines_adjust[share_code].push_back(multi_kline);
+        conn->reuse = false;
     }
 }
 

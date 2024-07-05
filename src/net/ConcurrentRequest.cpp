@@ -214,7 +214,6 @@ void ConcurrentRequest::Run() {
                 }
                 curl_multi_remove_handle(cm, easy_curl);
                 if (!conn->reuse) {  // 如果没有子请求复用，释放资源
-                    _CurlClose(conn);
                     //////// 请求统计 /////////
                     if (conn->http_code == 200 && !response_parse_error) {
                         if (pStatistics != nullptr) {
@@ -223,10 +222,9 @@ void ConcurrentRequest::Run() {
                     } else {
                         if (pStatistics != nullptr) {
                             if (curl_easy_getinfo(conn->easy_curl, CURLINFO_EFFECTIVE_URL, &conn->url) == CURLE_OK) {
-                                std::cout << std::setfill('0') << std::setw(3) << request_no << ": "
-                                          << m_last_request_url << ", http_code = " << conn->http_code << std::endl;
+                                std::cout << std::setfill('0') << std::setw(3) << request_no << ": " << conn->url
+                                          << ", http_code = " << conn->http_code << std::endl;
                             }
-
                             pStatistics->failed_requests += 1;
                         }
                     }
@@ -235,6 +233,7 @@ void ConcurrentRequest::Run() {
                                   << ", failed: " << pStatistics->failed_requests
                                   << ", total: " << pStatistics->request_count << std::endl;
                     }
+                    _CurlClose(conn);  // 修正windows下提前关闭conn，导致上面统计报错的问题
                     //////////////////////////
                 } else {  // 如果复用，需要重置response
                     conn->response.clear();

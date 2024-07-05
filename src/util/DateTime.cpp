@@ -72,8 +72,8 @@ bool is_trade_day(const std::string& day) {
     std::time_t t = mktime(&tm);
     struct tm* trade_day = std::localtime(&t);
     std::string format_trade_day = format_time(t, "%Y-%m-%d");
-    if (trade_day->tm_wday != 0 && trade_day->tm_wday != 6 &&
-        !is_chinese_holiday(format_trade_day)) {  // 如果当天是周六/周日/节假日，日期往前一天，但交易天数保持不变
+    if ((trade_day->tm_wday != 0) && (trade_day->tm_wday != 6) &&
+        (!is_chinese_holiday(format_trade_day))) {  // 如果当天是周六/周日/节假日，日期往前一天，但交易天数保持不变
         return true;
     }
     return false;
@@ -116,6 +116,15 @@ std::string get_nearest_trade_day(int days) {
         trade_day = localtime(&now);
 
         format_trade_day = format_time(now, "%Y-%m-%d");
+    }
+
+    if (days == 0) {
+        while (trade_day->tm_wday == 0 || trade_day->tm_wday == 6 ||
+               is_chinese_holiday(format_trade_day)) {  // 如果当天是周六/周日/节假日，日期往前一天，但交易天数保持不变
+            now -= 24 * 60 * 60;
+            trade_day = localtime(&now);
+            format_trade_day = format_time(now, "%Y-%m-%d");
+        }
     }
 
     char buf[20];

@@ -432,7 +432,7 @@ bool StockDataStorage::SaveShareKlinesInCsvFile(const std::string& file_path, co
         line += convertDouble(kline.turnover_rate) + "\n";
         lines += line;
     }
-    FileTool::SaveFile(file_path, lines);
+    return FileTool::SaveFile(file_path, lines);
 }
 
 bool StockDataStorage::SaveShareKlines(const KlineType kline_type) {
