@@ -44,7 +44,7 @@ RichKlineCtrl::RichKlineCtrl(wxWindow* parent,
     m_height = size.GetHeight();
 }
 
-//以下函数实现必须写，否则会爆错误 undefined reference to 'vtable for RichKlineCtrl'
+// 以下函数实现必须写，否则会爆错误 undefined reference to 'vtable for RichKlineCtrl'
 wxBEGIN_EVENT_TABLE(RichKlineCtrl, wxControl) EVT_PAINT(RichKlineCtrl::OnPaint)
     //    EVT_ERASE_BACKGROUND(RichKlineCtrl::OnBackground)
     EVT_SIZE(RichKlineCtrl::OnSize) EVT_LEFT_DOWN(RichKlineCtrl::OnLeftMouseDown) EVT_KEY_DOWN(RichKlineCtrl::OnKeyDown)
@@ -141,8 +141,8 @@ bool RichKlineCtrl::ReadCsv() {
         // fields[5].ToDouble(&item.price_min);
         // fields[8].ToDouble(&item.change_amount);//涨跌额
         // fields[9].ToDouble(&item.change_rate);//涨跌幅
-        // fields[11].ToDouble(&item.trade_volume);//成交量
-        // fields[12].ToDouble(&item.trade_amount);//成交额
+        // fields[11].ToDouble(&item.volume);//成交量
+        // fields[12].ToDouble(&item.amount);//成交额
         item.favorite = 0;
         item.danger = 0;
         item.price_now = item.price_close;
@@ -190,10 +190,10 @@ void RichKlineCtrl::DrawKline(wxDC* pDC,
     int hRect = maxY - minY;
     int wRect = maxX - minX;
     double x1, y1, x2, y2;
-    double xShadow, yShadowUp, yShadowDown;  //上影线,下影线(如果有的话)
+    double xShadow, yShadowUp, yShadowDown;  // 上影线,下影线(如果有的话)
     if (visibleKLineCount > wRect) {
-        if (price_open < price_close) {  //红盘
-            //绘制K线实体
+        if (price_open < price_close) {  // 红盘
+            // 绘制K线实体
             x1 = nKLine * wRect / visibleKLineCount;  // nKLine/visibleKLineCount = x1/wRect;
             y1 = (rect_price_max - price_close) / hPrice * hRect + minY;
             x2 = x1;
@@ -201,14 +201,14 @@ void RichKlineCtrl::DrawKline(wxDC* pDC,
             pDC->SetPen(*wxRED_PEN);
             pDC->SetBrush(*wxBLACK_BRUSH);
             pDC->DrawLine(x1, y1, x2, y2);
-            //绘制上影线
+            // 绘制上影线
             xShadow = x1;
             yShadowUp = (rect_price_max - price_max) / hPrice * hRect + minY;
             pDC->DrawLine(xShadow, yShadowUp, xShadow, y1);
-            //绘制下影线
+            // 绘制下影线
             yShadowDown = (rect_price_max - price_min) / hPrice * hRect + minY;
             pDC->DrawLine(xShadow, yShadowDown, xShadow, y2 - 1);
-        } else if (price_open > price_close) {        //绿盘
+        } else if (price_open > price_close) {        // 绿盘
             x1 = nKLine * wRect / visibleKLineCount;  // nKLine/visibleKLineCount = x1/wRect;
             y1 = (rect_price_max - price_open) / hPrice * hRect + minY;
             x2 = x1;
@@ -216,17 +216,17 @@ void RichKlineCtrl::DrawKline(wxDC* pDC,
             pDC->SetPen(wxPen(wxColor(84, 255, 255)));
             pDC->SetBrush(wxBrush(wxColor(84, 255, 255)));
             pDC->DrawLine(x1, y1, x2, y2);
-            //绘制上影线
+            // 绘制上影线
             xShadow = x1;
             yShadowUp = (rect_price_max - price_max) / hPrice * hRect + minY;
             pDC->DrawLine(xShadow, yShadowUp, xShadow, y1);
-            //绘制下影线
+            // 绘制下影线
             yShadowDown = (rect_price_max - price_min) / hPrice * hRect + minY;
             pDC->DrawLine(xShadow, yShadowDown, xShadow, y2 - 1);
         }
     } else {
-        if (price_open < price_close) {  //红盘
-            //绘制K线实体
+        if (price_open < price_close) {  // 红盘
+            // 绘制K线实体
             x1 = nKLine * (klineWidth + klineSpan);
             y1 = (rect_price_max - price_close) / hPrice * hRect + minY;
             x2 = x1 + klineWidth;
@@ -234,15 +234,15 @@ void RichKlineCtrl::DrawKline(wxDC* pDC,
             pDC->SetPen(*wxRED_PEN);
             pDC->SetBrush(*wxBLACK_BRUSH);
             pDC->DrawRectangle(x1, y1, x2 - x1, y2 - y1);
-            //绘制上影线
+            // 绘制上影线
             xShadow = (x1 + x2) / 2;
             yShadowUp = (rect_price_max - price_max) / hPrice * hRect + minY;
             pDC->DrawLine(xShadow, yShadowUp, xShadow, y1);
-            //绘制下影线
+            // 绘制下影线
             yShadowDown = (rect_price_max - price_min) / hPrice * hRect + minY;
             pDC->DrawLine(xShadow, yShadowDown, xShadow, y2 - 1);
             //        cout<<"x1,y1,w1,h1  "<<x1<<","<<y1<<","<<x2-x1<<","<<y2-y1<<endl;
-        } else if (price_open > price_close) {  //绿盘
+        } else if (price_open > price_close) {  // 绿盘
             x1 = nKLine * (klineWidth + klineSpan);
             y1 = (rect_price_max - price_open) / hPrice * hRect + minY;
             x2 = x1 + klineWidth;
@@ -250,18 +250,18 @@ void RichKlineCtrl::DrawKline(wxDC* pDC,
             pDC->SetPen(wxPen(wxColor(84, 255, 255)));
             pDC->SetBrush(wxBrush(wxColor(84, 255, 255)));
             pDC->DrawRectangle(x1, y1, x2 - x1, y2 - y1);
-            //绘制上影线
+            // 绘制上影线
             xShadow = (x1 + x2) / 2;
             yShadowUp = (rect_price_max - price_max) / hPrice * hRect + minY;
             pDC->DrawLine(xShadow, yShadowUp, xShadow, y1);
-            //绘制下影线
+            // 绘制下影线
             yShadowDown = (rect_price_max - price_min) / hPrice * hRect + minY;
             pDC->DrawLine(xShadow, yShadowDown, xShadow, y2 - 1);
             //        cout<<"x2,y2,w2,h2  "<<x1<<","<<y1<<","<<x2-x1<<","<<y2-y1<<endl;
         }
     }
-    //考虑跌停
-    //考虑涨停
+    // 考虑跌停
+    // 考虑涨停
 }
 
 std::vector<uiKline> RichKlineCtrl::GetWeekKlines() {
@@ -288,10 +288,10 @@ std::vector<uiKline> RichKlineCtrl::GetMonthKlines() {
  * @author songhuabiao
  */
 void RichKlineCtrl::DrawCrossLine(wxDC* pDC, int centerX, int centerY, int w,
-                                  int h) {  //光标十字线
+                                  int h) {  // 光标十字线
     pDC->SetPen(wxPen(wxColor(255, 255, 255)));
-    pDC->DrawLine(0, centerY, w, centerY);  //横线
-    pDC->DrawLine(centerX, 0, centerX, h);  //竖线
+    pDC->DrawLine(0, centerY, w, centerY);  // 横线
+    pDC->DrawLine(centerX, 0, centerX, h);  // 竖线
 }
 
 /**
@@ -405,7 +405,7 @@ wxPoint RichKlineCtrl::GetCrossLinePt(long n) {
     uiKline item = m_klines.at(n);
     double hPrice = m_rectPriceMax - m_rectPriceMin;
     y = m_paddingTop + (1 - (item.price_close - m_rectPriceMin) / hPrice) * GetInnerHeight();
-    if (total > m_width) {  //一屏幕已经显示不下了
+    if (total > m_width) {  // 一屏幕已经显示不下了
         x = (n - m_klineRng.begin) / total * m_width;
     } else {
         x = (m_klineWidth + m_klineSpan) * (n - m_klineRng.begin) + m_klineWidth / 2;
@@ -415,10 +415,10 @@ wxPoint RichKlineCtrl::GetCrossLinePt(long n) {
 
 // event callback functions
 void RichKlineCtrl::OnPaint(wxPaintEvent& /*event*/) {
-    //自动双缓冲，如果系统默认支持双缓冲，会调用系统，否则使用位图实现，
-    //必须在 Create之前调用 SetBackgroundStyle(wxBG_STYLE_PAINT);
+    // 自动双缓冲，如果系统默认支持双缓冲，会调用系统，否则使用位图实现，
+    // 必须在 Create之前调用 SetBackgroundStyle(wxBG_STYLE_PAINT);
     wxAutoBufferedPaintDC dc(this);
-    //绘制黑色背景
+    // 绘制黑色背景
     dc.SetBackground(*wxBLACK_BRUSH);
     dc.Clear();
     float rect_price_max = GetRectMaxPrice(m_klines, m_klineRng.begin, m_klineRng.end);
@@ -458,7 +458,7 @@ void RichKlineCtrl::OnBackground(wxEraseEvent& event) {
 void RichKlineCtrl::OnSize(wxSizeEvent& /*event*/) {
     GetClientSize(&m_width, &m_height);
     m_klineRng = GetKlineRangeZoomIn(m_klines.size(), m_width, m_klineWidth, m_klineSpan);
-    Refresh();  //刷新窗口
+    Refresh();  // 刷新窗口
 }
 
 void RichKlineCtrl::OnKeyDown(wxKeyEvent& event) {
@@ -489,7 +489,7 @@ void RichKlineCtrl::OnKeyDown(wxKeyEvent& event) {
         }
     } else if (key == WXK_UP) {  // scale up klines
         if (m_crossLine != NO_CROSS_LINE && m_crossLine <= m_klineRng.begin &&
-            m_crossLine >= m_klineRng.end) {  //以十字线为中心放大
+            m_crossLine >= m_klineRng.end) {  // 以十字线为中心放大
             long left = m_crossLine - m_klineRng.begin;
             long right = m_klineRng.end - m_crossLine;
             long old_begin = m_klineRng.begin;
@@ -513,7 +513,7 @@ void RichKlineCtrl::OnKeyDown(wxKeyEvent& event) {
 
             if (m_crossLine != NO_CROSS_LINE) {
                 if (m_crossLine <= m_klineRng.begin && m_crossLine >= m_klineRng.end) {
-                    m_crossLinePt = GetCrossLinePt(m_crossLine);  //修正十字线的位置
+                    m_crossLinePt = GetCrossLinePt(m_crossLine);  // 修正十字线的位置
                 }
             }
 
@@ -533,7 +533,7 @@ void RichKlineCtrl::OnKeyDown(wxKeyEvent& event) {
         }
     } else if (event.GetKeyCode() == WXK_DOWN) {  // scale down klines
         if (m_crossLine != NO_CROSS_LINE && m_crossLine <= m_klineRng.begin &&
-            m_crossLine >= m_klineRng.end) {  //以十字线为中心缩小
+            m_crossLine >= m_klineRng.end) {  // 以十字线为中心缩小
             if (m_klineWidth == 1 && m_klineSpan == 0) {
                 m_klineRng = GetKlineRangeZoomOut(max, m_crossLine);
             } else {
@@ -571,21 +571,21 @@ void RichKlineCtrl::OnKeyDown(wxKeyEvent& event) {
     }
     if (m_crossLine != NO_CROSS_LINE) {
         if (m_crossLine >= m_klineRng.begin && m_crossLine <= m_klineRng.end) {
-            m_crossLinePt = GetCrossLinePt(m_crossLine);  //修正十字线的位置
+            m_crossLinePt = GetCrossLinePt(m_crossLine);  // 修正十字线的位置
         }
     }
     this->Refresh(false);
 }
 
 void RichKlineCtrl::OnLeftMouseDown(wxMouseEvent& event) {
-    if (event.LeftIsDown()) {  //左键按下
+    if (event.LeftIsDown()) {  // 左键按下
         long x, y;
         event.GetPosition(&x, &y);
         if (this->m_klineWidth == 1) {
             m_crossLinePt.x = x;
             m_crossLinePt.y = y;
             m_crossLine = m_klineRng.begin + x * (m_klineRng.end - m_klineRng.begin) / m_width;
-        } else {  //获取最靠近的K线
+        } else {  // 获取最靠近的K线
             int k = x / (m_klineWidth + m_klineSpan);
             m_crossLine = m_klineRng.begin + k;
             m_crossLinePt = GetCrossLinePt(m_crossLine);

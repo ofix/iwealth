@@ -35,8 +35,8 @@ void RichVolumeBarCtrl::OnDraw(wxDC* pDC) {
     for (it = klines.begin() + klineRng.begin; it != klines.begin() + klineRng.end; ++it, ++i) {
         // make sure i must be double or result would be error!
         double x = (double)i / (klineRng.end - klineRng.begin) * m_pKlineCtrl->GetInnerWidth();
-        double y = yVolumeBar + (1.0 - it->trade_volume / max_volume) * hVolumeBar;
-        double h = it->trade_volume / max_volume * hVolumeBar;
+        double y = yVolumeBar + (1.0 - it->volume / max_volume) * hVolumeBar;
+        double h = it->volume / max_volume * hVolumeBar;
         pDC->SetPen(*wxTRANSPARENT_PEN);
         if (it->price_close >= it->price_open) {  // red bar
             pDC->SetBrush(wxBrush(wxColor(255, 0, 0)));
@@ -53,8 +53,8 @@ double RichVolumeBarCtrl::GetMaxVolumeInRange() {
     std::vector<uiKline>& klines = m_pKlineCtrl->m_klines;
     uiKlineRange& klineRng = m_pKlineCtrl->m_klineRng;
     for (it = klines.begin() + klineRng.begin; it != klines.begin() + klineRng.end; ++it) {
-        if (it->trade_volume >= max) {
-            max = it->trade_volume;
+        if (it->volume >= max) {
+            max = it->volume;
         }
     }
     return max;

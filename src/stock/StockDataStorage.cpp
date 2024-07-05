@@ -408,8 +408,8 @@ bool StockDataStorage::SaveShareKlines(const std::string& dir_path,
             line += std::to_string(kline.price_close) + ",";
             line += std::to_string(kline.price_max) + ",";
             line += std::to_string(kline.price_min) + ",";
-            line += std::to_string(kline.trade_volume) + ",";
-            line += std::to_string(kline.trade_amount) + ",";
+            line += std::to_string(kline.volume) + ",";
+            line += std::to_string(kline.amount) + ",";
             line += std::to_string(kline.change_amount) + ",";
             line += std::to_string(kline.change_rate) + ",";
             line += std::to_string(kline.turnover_rate) + "\r\n";

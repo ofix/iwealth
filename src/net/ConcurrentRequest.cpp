@@ -279,7 +279,7 @@ void HttpConcurrentGet(const std::string& thread_name,
         pConn->method = "GET";
         pConn->callback = callback;
         pConn->extra = user_extra;
-        pConn->debug = true;
+        pConn->debug = false;
         pConn->statistics = static_cast<CrawlExtra*>(user_extra)->statistics;
         connections.push_back(pConn);
     }
@@ -308,7 +308,7 @@ void HttpConcurrentGet(const std::string& thread_name,
         pConn->method = "GET";
         pConn->callback = callback;
         pConn->extra = user_extra[i];
-        pConn->debug = true;
+        pConn->debug = false;
         pConn->statistics = static_cast<CrawlExtra*>(user_extra[i])->statistics;
         connections.push_back(pConn);
         i++;

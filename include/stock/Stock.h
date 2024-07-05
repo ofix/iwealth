@@ -107,7 +107,7 @@ struct Share {
     double change_amount;                 // 涨跌额
     double change_rate;                   // 涨跌幅度
     uint64_t volume;                      // 成交量
-    uint64_t amount;                      // 成交额
+    double amount;                        // 成交额
     double price_yesterday_close;         // 昨天收盘价
     double price_now;                     // 最新价
     double price_max;                     // 最高价
@@ -154,8 +154,8 @@ struct uiKline {
     double market_cap = 0.0;     // 股票市值
     double change_rate = 0.0;    // 涨跌幅
     double change_amount = 0.0;  // 涨跌额
-    double trade_volume = 0.0;   // 成交量
-    double trade_amount = 0.0;   // 成交额
+    uint64_t volume = 0;         // 成交量
+    double amount = 0.0;         // 成交额
     double price_open = 0.0;     // 开盘价
     double price_close = 0.0;    // 收盘价
     double price_max = 0.0;      // 最高价

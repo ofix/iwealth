@@ -111,7 +111,7 @@ void PanelStockQuote::OnGridQuoteHeaderClick(wxGridEvent& event) {
     m_gridCtrlQuote->SetSortColumn(col);
     m_gridCtrlQuote->SortMultiColumns();
     LoadStockMarketQuote();
-    m_gridCtrlQuote->Refresh();
+    m_gridCtrlQuote->MakeCellVisible(0, 0);
 }
 
 void PanelStockQuote::OnGridQuoteHeaderDblClick(wxGridEvent& event) {
@@ -119,7 +119,8 @@ void PanelStockQuote::OnGridQuoteHeaderDblClick(wxGridEvent& event) {
     m_gridCtrlQuote->SetFixedSortColumn(col);
     m_gridCtrlQuote->SortMultiColumns();
     LoadStockMarketQuote();
-    m_gridCtrlQuote->Refresh();
+    m_gridCtrlQuote->MakeCellVisible(0, 0);
+    // m_gridCtrlQuote->Refresh();
 }
 
 // 加载市场当前行情并显示

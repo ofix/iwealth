@@ -285,10 +285,10 @@ bool SpiderShareKline::ParseKlineBaidu(const std::string& kline, uiKline* uiKlin
         uiKline->day = fields[1];                                                  // 时间
         uiKline->price_open = std::stod(fields[2]);                                // 开盘价
         uiKline->price_close = std::stod(fields[3]);                               // 收盘价
-        uiKline->trade_volume = IsNaN(fields[4]) ? 0.0 : std::stod(fields[4]);     // 成交量
+        uiKline->volume = IsNaN(fields[4]) ? 0.0 : std::stod(fields[4]);           // 成交量
         uiKline->price_max = IsNaN(fields[5]) ? 0.0 : std::stod(fields[5]);        // 最高价
         uiKline->price_min = IsNaN(fields[6]) ? 0.0 : std::stod(fields[6]);        // 最低价
-        uiKline->trade_amount = IsNaN(fields[7]) ? 0.0 : std::stod(fields[7]);     // 成交额
+        uiKline->amount = IsNaN(fields[7]) ? 0.0 : std::stod(fields[7]);           // 成交额
         uiKline->change_amount = IsNaN(fields[8]) ? 0.0 : std::stod(fields[8]);    // 涨跌额
         uiKline->change_rate = IsNaN(fields[9]) ? 0.0 : std::stod(fields[9]);      // 涨跌幅
         uiKline->turnover_rate = IsNaN(fields[10]) ? 0.0 : std::stod(fields[10]);  // 换手率
@@ -308,8 +308,8 @@ bool SpiderShareKline::ParseKlineEastMoney(const std::string& kline, uiKline* ui
         uiKline->price_close = std::stod(fields[2]);                               // 收盘价
         uiKline->price_max = IsNaN(fields[3]) ? 0.0 : std::stod(fields[3]);        // 最高价
         uiKline->price_min = IsNaN(fields[4]) ? 0.0 : std::stod(fields[4]);        // 最低价
-        uiKline->trade_volume = IsNaN(fields[5]) ? 0.0 : std::stod(fields[5]);     // 成交量
-        uiKline->trade_amount = IsNaN(fields[6]) ? 0.0 : std::stod(fields[6]);     // 成交额
+        uiKline->volume = IsNaN(fields[5]) ? 0.0 : std::stod(fields[5]);           // 成交量
+        uiKline->amount = IsNaN(fields[6]) ? 0.0 : std::stod(fields[6]);           // 成交额
         uiKline->change_rate = IsNaN(fields[8]) ? 0.0 : std::stod(fields[8]);      // 涨跌幅
         uiKline->change_amount = IsNaN(fields[9]) ? 0.0 : std::stod(fields[9]);    // 涨跌额
         uiKline->turnover_rate = IsNaN(fields[10]) ? 0.0 : std::stod(fields[10]);  // 换手率
@@ -437,7 +437,7 @@ size_t SpiderShareKline::GetKlineCount(const std::vector<std::vector<uiKline>>& 
 void SpiderShareKline::DumpKline(uiKline& kline) {
     std::cout << kline.day << "," << std::fixed << std::setprecision(2) << kline.price_now << "," << kline.price_max
               << "," << kline.price_min << "," << kline.price_open << "," << kline.price_close << ","
-              << kline.change_rate << "," << kline.change_amount << "," << kline.trade_volume << ","
-              << kline.trade_amount << "," << kline.turnover_rate;
+              << kline.change_rate << "," << kline.change_amount << "," << kline.volume << "," << kline.amount << ","
+              << kline.turnover_rate;
     std::cout << std::endl;
 }
