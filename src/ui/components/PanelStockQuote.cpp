@@ -49,7 +49,7 @@ PanelStockQuote::PanelStockQuote(wxWindow* parent, wxWindowID id, const wxPoint&
 
     m_gridCtrlQuote->DisableDragRowSize();                               // 禁止拖拽改变行高
     m_gridCtrlQuote->EnableEditing(false);                               // 禁止编辑
-    m_gridCtrlQuote->EnableGridLines(false);                             // 不划线
+    m_gridCtrlQuote->EnableGridLines(false);                             // 不显示网格线
     m_gridCtrlQuote->HideRowLabels();                                    // 隐藏默认行标签
     m_gridCtrlQuote->SetCellHighlightPenWidth(0);                        // 单元格不高亮
     m_gridCtrlQuote->SetGridLineColour(background_clr);                  // 网格线颜色

@@ -50,6 +50,7 @@ DialogShareSearch::DialogShareSearch(wxWindow* parent,
     m_textCtrlKeyword->Bind(wxEVT_KEY_DOWN, &DialogShareSearch::OnKeyDown, this);
     m_textCtrlKeyword->SetFont(RichApplication::GetDefaultFont(11));
 
+    /////////////////////////////////////////////////
     // 股票列表组件
     m_gridShareList = new RichGrid(this, ID_RICHGRID_SHARELIST, wxPoint(5, 75), wxSize(200, 148));
     // 必须优先设置Table，否则设置wxGrid属性会失败！
@@ -70,9 +71,9 @@ DialogShareSearch::DialogShareSearch(wxWindow* parent,
     m_gridShareList->SetSelectionMode(wxGrid::wxGridSelectRows);  // 只支持行选择
     m_gridShareList->SetCellHighlightPenWidth(0);  // 单元格不高亮,必须设置，否则行选择效果不对
 
-    m_gridShareList->DisableDragRowSize();   // 禁止拖拽改变行高
-    m_gridShareList->EnableEditing(false);   // 禁止编辑
-    m_gridShareList->EnableGridLines(true);  // 不划线
+    m_gridShareList->DisableDragRowSize();    // 禁止拖拽改变行高
+    m_gridShareList->EnableEditing(false);    // 禁止编辑
+    m_gridShareList->EnableGridLines(false);  // 不显示网格线
 
     // m_gridShareList->SetCellHighlightColour(wxColor(52, 52, 227));
     // m_gridShareList->SetCellHighlightPenWidth(0);
@@ -81,7 +82,13 @@ DialogShareSearch::DialogShareSearch(wxWindow* parent,
     m_gridShareList->HideRowLabels();  // 隐藏行标签
     m_gridShareList->Bind(wxEVT_GRID_CELL_LEFT_CLICK, &DialogShareSearch::OnGridCellLeftClick, this);
 
+    // 设置列宽
+    std::vector<int> grid_column_widths = {60, 160, 120};
+    for (size_t i = 0; i < grid_column_widths.size(); i++) {
+        m_gridShareList->SetColSize(i, grid_column_widths[i]);
+    }
     /////////////////////////////////////////////////
+
     m_oldTimeKeywordInput = std::chrono::steady_clock::now();
     m_nowTimeKeywordInput = std::chrono::steady_clock::now();
 }
