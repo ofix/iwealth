@@ -16,7 +16,7 @@ class SpiderShareKline : public Spider {
     SpiderShareKline(StockDataStorage* storage, bool concurrent);
     virtual ~SpiderShareKline();
     void Crawl(KlineType type = KlineType::Day);
-    std::vector<uiKline> CrawlSync(Share* pShare, KlineType kline_type);
+    void CrawlSync(Share* pShare, KlineType kline_type);
     void OnRequestTimer(uint32_t timer_id, void* args);
     static bool IsNaN(const std::string& data);
     static bool ParseKlineBaidu(const std::string& kline, uiKline* uiKline);

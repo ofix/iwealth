@@ -16,6 +16,7 @@
 #include "spider/SpiderShareKline.h"
 #include "spider/SpiderShareQuote.h"
 #include "ui/RichApplication.h"
+#include "ui/RichHelper.h"
 #include "util/DateTime.h"
 #include "util/EasyLogger.h"
 #include "util/FileTool.h"
@@ -175,6 +176,9 @@ Spider* StockDataStorage::GetSpider(SpiderType type) {
         case SpiderType::BriefInfo: {
             return new SpiderShareBriefInfo(this);
         }
+        case SpiderType::HistoryKline: {
+            return new SpiderShareKline(this);
+        }
         default:
             return nullptr;
     }
@@ -297,7 +301,7 @@ bool StockDataStorage::SaveShareBriefInfo(ShareBriefInfo* pBriefInfo, const std:
     return FileTool::SaveFile(file_path, data);
 }
 
-Share* StockDataStorage::FindShare(std::string& share_code) {
+Share* StockDataStorage::FindShare(const std::string& share_code) {
     if (m_code_share_hash.find(share_code) != m_code_share_hash.end()) {
         return m_code_share_hash[share_code];
     }
@@ -377,7 +381,61 @@ void StockDataStorage::LoadLocalFileShareNames() {
     }
 }
 
-bool StockDataStorage::SaveShareKLines(const KlineType kline_type) {
+void StockDataStorage::FetchKlineSync(const std::string& share_code, const KlineType kline_type) {
+    Share* pShare = FindShare(share_code);
+    if (pShare) {
+        FetchKlineSync(pShare, kline_type);
+    }
+}
+
+void StockDataStorage::FetchKlineSync(Share* pShare, const KlineType kline_type) {
+    SpiderShareKline* pSpider = static_cast<SpiderShareKline*>(GetSpider(SpiderType::HistoryKline));
+    pSpider->CrawlSync(pShare, kline_type);
+}
+
+bool StockDataStorage::SaveShareKlines(const std::string& share_code, const KlineType kline_type) {
+    std::string dir_path = FileTool::CurrentPath() + "data/";
+    std::unordered_map<std::string, std::vector<uiKline>>* kline_map;
+    if (kline_type == KlineType::Day) {
+        dir_path += "day";
+        kline_map = &m_day_klines_adjust;
+    } else if (kline_type == KlineType::Week) {
+        dir_path += "week";
+        kline_map = &m_week_klines_adjust;
+    } else if (kline_type == KlineType::Month) {
+        dir_path += "month";
+        kline_map = &m_month_klines_adjust;
+    } else if (kline_type == KlineType::Year) {
+        dir_path += "year";
+        kline_map = &m_year_klines_adjust;
+    }
+    if (kline_map->find(share_code) != kline_map->end()) {
+        std::string file_path = dir_path + DIRECTORY_SEPARATOR + share_code + ".csv";
+        return SaveShareKlinesInCsvFile(file_path, (*kline_map)[share_code]);
+    }
+    return false;
+}
+
+bool StockDataStorage::SaveShareKlinesInCsvFile(const std::string& file_path, const std::vector<uiKline>& klines) {
+    std::string lines = "";
+    for (const auto& kline : klines) {
+        std::string line = "";
+        line += kline.day + ",";
+        line += convertDouble(kline.price_open) + ",";
+        line += convertDouble(kline.price_close) + ",";
+        line += convertDouble(kline.price_max) + ",";
+        line += convertDouble(kline.price_min) + ",";
+        line += std::to_string(kline.volume) + ",";
+        line += convertDouble(kline.amount) + ",";
+        line += convertDouble(kline.change_amount) + ",";
+        line += convertDouble(kline.change_rate) + ",";
+        line += convertDouble(kline.turnover_rate) + "\n";
+        lines += line;
+    }
+    FileTool::SaveFile(file_path, lines);
+}
+
+bool StockDataStorage::SaveShareKlines(const KlineType kline_type) {
     std::string dir_path = FileTool::CurrentPath() + "data/";
     if (kline_type == KlineType::Day) {
         dir_path += "day";
@@ -398,24 +456,8 @@ bool StockDataStorage::SaveShareKLines(const KlineType kline_type) {
 bool StockDataStorage::SaveShareKlines(const std::string& dir_path,
                                        const std::unordered_map<std::string, std::vector<uiKline>>& klines) {
     for (const auto& pair : klines) {
-        std::string file_path = dir_path + pair.first + ".csv";
-        std::vector<uiKline> vec = pair.second;
-        std::string lines;
-        for (const auto& kline : vec) {
-            std::string line = "";
-            line += kline.day + ",";
-            line += std::to_string(kline.price_open) + ",";
-            line += std::to_string(kline.price_close) + ",";
-            line += std::to_string(kline.price_max) + ",";
-            line += std::to_string(kline.price_min) + ",";
-            line += std::to_string(kline.volume) + ",";
-            line += std::to_string(kline.amount) + ",";
-            line += std::to_string(kline.change_amount) + ",";
-            line += std::to_string(kline.change_rate) + ",";
-            line += std::to_string(kline.turnover_rate) + "\r\n";
-            lines += line;
-        }
-        FileTool::SaveFile(file_path, lines);
+        std::string file_path = dir_path + DIRECTORY_SEPARATOR + pair.first + ".csv";
+        SaveShareKlinesInCsvFile(file_path, pair.second);
     }
     return true;
 }

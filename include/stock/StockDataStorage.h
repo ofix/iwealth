@@ -32,6 +32,7 @@ class StockDataStorage {
         Concept,           // 概念板块爬虫
         IndustryProvince,  // 行业|地区板块联合爬虫
         BriefInfo,         // 股票基本信息(曾用名)爬虫
+        HistoryKline,      // 历史K线爬虫
     };
     StockDataStorage();
     virtual ~StockDataStorage();
@@ -45,8 +46,10 @@ class StockDataStorage {
     std::vector<Share*> SearchShares(const std::string& prefix);
     bool SaveShareNames();  // 保存股票曾用名和名称到文件
     bool SaveShareBriefInfo(ShareBriefInfo* pBriefInfo, const std::string& share_code);
-    bool SaveShareKLines(const KlineType kline_type);
-    Share* FindShare(std::string& share_code);
+    bool SaveShareKlines(const KlineType kline_type);
+    bool SaveShareKlines(const std::string& share_code, const KlineType kline_type);
+    bool SaveShareKlinesInCsvFile(const std::string& file_path, const std::vector<uiKline>& klines);
+    Share* FindShare(const std::string& share_code);
 
     void PrintAllShares(std::vector<Share>& all_shares);
     inline bool IsQuoteDataReady() const {
@@ -68,6 +71,9 @@ class StockDataStorage {
     void SetFetchResultOk(FetchResult result);
     bool IsLocalQuoteDataExpired();
     Spider* GetSpider(SpiderType type);
+
+    void FetchKlineSync(const std::string& share_code, const KlineType kline_type);
+    void FetchKlineSync(Share* pShare, const KlineType kline_type);
 
    protected:
     void FetchQuoteIndustryProvince();  // 爬取行情数据+板块数据

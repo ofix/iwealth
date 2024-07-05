@@ -32,7 +32,7 @@ void SpiderShareKline::Crawl(KlineType kline_type) {
     DoCrawl(kline_type);
 }
 
-std::vector<uiKline> SpiderShareKline::CrawlSync(Share* pShare, KlineType kline_type) {
+void SpiderShareKline::CrawlSync(Share* pShare, KlineType kline_type) {
     std::vector<DataProvider> providers = {
         DataProvider::FinanceBaidu,
         DataProvider::EastMoney,
@@ -45,7 +45,7 @@ std::vector<uiKline> SpiderShareKline::CrawlSync(Share* pShare, KlineType kline_
     urls.push_back(GetKlineUrl(provider, kline_type, pShare->code, pShare->market));
     RequestStatistics* pStatistics = NewRequestStatistics(1, provider);
     if (pStatistics == nullptr) {
-        return {};
+        return;
     }
 
     KlineCrawlExtra* pExtra = new KlineCrawlExtra();
@@ -62,10 +62,7 @@ std::vector<uiKline> SpiderShareKline::CrawlSync(Share* pShare, KlineType kline_
     } else {
         HttpConcurrentGet("kline " + GetProviderName(provider), urls, callback, user_data);
     }
-
-    std::unordered_map<std::string, std::vector<uiKline>> uiKlines;
-    MergeShareKlines(m_concurrent_day_klines_adjust, uiKlines);
-    return uiKlines[pShare->code];
+    MergeShareKlines(m_concurrent_day_klines_adjust, m_pStockStorage->m_day_klines_adjust);
 }
 
 void SpiderShareKline::DoCrawl(KlineType kline_type) {
@@ -285,7 +282,7 @@ bool SpiderShareKline::ParseKlineBaidu(const std::string& kline, uiKline* uiKlin
         uiKline->day = fields[1];                                                  // 时间
         uiKline->price_open = std::stod(fields[2]);                                // 开盘价
         uiKline->price_close = std::stod(fields[3]);                               // 收盘价
-        uiKline->volume = IsNaN(fields[4]) ? 0.0 : std::stod(fields[4]);           // 成交量
+        uiKline->volume = IsNaN(fields[4]) ? 0 : std::stoull(fields[4]);           // 成交量
         uiKline->price_max = IsNaN(fields[5]) ? 0.0 : std::stod(fields[5]);        // 最高价
         uiKline->price_min = IsNaN(fields[6]) ? 0.0 : std::stod(fields[6]);        // 最低价
         uiKline->amount = IsNaN(fields[7]) ? 0.0 : std::stod(fields[7]);           // 成交额

@@ -17,6 +17,7 @@
 #include "ui/components/DialogShareSearch.h"
 #include "ui/components/PanelStockQuote.h"
 
+class RichApplication;
 class RichMainFrame : public wxFrame {
    public:
     RichMainFrame(wxWindow* parent,

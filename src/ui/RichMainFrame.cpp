@@ -5,6 +5,7 @@
 #include <wx/platinfo.h>
 #include <vector>
 #include "stock/StockDataStorage.h"
+#include "ui/RichApplication.h"
 #include "util/Global.h"
 
 //(*IdInit(PanelStockQuote)
@@ -152,6 +153,11 @@ void RichMainFrame::OnGridCellLeftClick(wxGridEvent& event) {
 void RichMainFrame::OnGridCellLeftDblClick(wxGridEvent& event) {
     int iRow = event.GetRow();
     wxString share_code = m_panelStockQuote->GetGridCtrl()->GetCellValue(iRow, 1);
+    std::cout << share_code.ToStdString() << std::endl;
+    StockDataStorage* pStorage = static_cast<RichApplication*>(wxTheApp)->GetStockDataStorage();
+    std::string _share_code = share_code.ToStdString();
+    pStorage->FetchKlineSync(_share_code, KlineType::Day);
+    pStorage->SaveShareKlines(_share_code, KlineType::Day);
     event.Skip();
 }
 

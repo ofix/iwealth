@@ -97,7 +97,6 @@ endif
 gui_sources = [
     'ui/RichApplication.cpp',
     'ui/RichMainFrame.cpp',
-    'ui/RichHelper.cpp',
     'ui/components/PanelStockQuote.cpp',
     'ui/components/DialogShareSearch.cpp',
     'ui/components/RichKlineCtrl.cpp',
@@ -123,6 +122,7 @@ gui_sources = [
     'net/ConcurrentRequest.cpp',
     'search/Trie.cpp',
     'search/ChinesePinYin.cpp',
+    'ui/RichHelper.cpp',
     'util/Timer.cpp',
     'util/DateTime.cpp',
     'util/ConsoleTable.cpp',
@@ -184,6 +184,7 @@ console_sources = [
     'net/ConcurrentRequest.cpp',
     'search/Trie.cpp',
     'search/ChinesePinYin.cpp',
+    'ui/RichHelper.cpp',
     'util/Timer.cpp',
     'util/DateTime.cpp',
     'util/ConsoleTable.cpp',

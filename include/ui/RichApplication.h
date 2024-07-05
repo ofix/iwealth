@@ -19,6 +19,7 @@
 
 #include "stock/StockDataStorage.h"
 
+class RichMainFrame;
 class RichApplication : public wxApp {
    public:
     virtual bool OnInit();
