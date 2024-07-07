@@ -79,15 +79,15 @@ Share& Share::operator=(const Share& other) {
         ptr_brief_info->company_name = other.ptr_brief_info->company_name;
         ptr_brief_info->old_names = other.ptr_brief_info->old_names;
         ptr_brief_info->company_website = other.ptr_brief_info->company_website;
-        ptr_brief_info->registered_address = other.ptr_brief_info->registered_address;
+        ptr_brief_info->register_address = other.ptr_brief_info->register_address;
         ptr_brief_info->staff_num = other.ptr_brief_info->staff_num;
-        ptr_brief_info->registered_capital = other.ptr_brief_info->registered_capital;  // 注册资本
-        ptr_brief_info->law_office = other.ptr_brief_info->law_office;                  // 律师事务所
-        ptr_brief_info->accounting_office = other.ptr_brief_info->accounting_office;    // 会计事务所
-        ptr_brief_info->ceo = other.ptr_brief_info->ceo;                                // 公司董事长
-        ptr_brief_info->board_secretary = other.ptr_brief_info->board_secretary;        // 董秘
-        ptr_brief_info->office_address = other.ptr_brief_info->office_address;          // 办公地址
-        ptr_brief_info->company_profile = other.ptr_brief_info->company_profile;        // 公司简介
+        ptr_brief_info->register_capital = other.ptr_brief_info->register_capital;    // 注册资本
+        ptr_brief_info->law_office = other.ptr_brief_info->law_office;                // 律师事务所
+        ptr_brief_info->accounting_office = other.ptr_brief_info->accounting_office;  // 会计事务所
+        ptr_brief_info->ceo = other.ptr_brief_info->ceo;                              // 公司董事长
+        ptr_brief_info->board_secretary = other.ptr_brief_info->board_secretary;      // 董秘
+        ptr_brief_info->office_address = other.ptr_brief_info->office_address;        // 办公地址
+        ptr_brief_info->company_profile = other.ptr_brief_info->company_profile;      // 公司简介
     } else {
         ptr_brief_info = nullptr;
     }
@@ -145,15 +145,15 @@ Share::Share(const Share& other)
         ptr_brief_info->company_name = other.ptr_brief_info->company_name;
         ptr_brief_info->old_names = other.ptr_brief_info->old_names;
         ptr_brief_info->company_website = other.ptr_brief_info->company_website;
-        ptr_brief_info->registered_address = other.ptr_brief_info->registered_address;
+        ptr_brief_info->register_address = other.ptr_brief_info->register_address;
         ptr_brief_info->staff_num = other.ptr_brief_info->staff_num;
-        ptr_brief_info->registered_capital = other.ptr_brief_info->registered_capital;  // 注册资本
-        ptr_brief_info->law_office = other.ptr_brief_info->law_office;                  // 律师事务所
-        ptr_brief_info->accounting_office = other.ptr_brief_info->accounting_office;    // 会计事务所
-        ptr_brief_info->ceo = other.ptr_brief_info->ceo;                                // 公司董事长
-        ptr_brief_info->board_secretary = other.ptr_brief_info->board_secretary;        // 董秘
-        ptr_brief_info->office_address = other.ptr_brief_info->office_address;          // 办公地址
-        ptr_brief_info->company_profile = other.ptr_brief_info->company_profile;        // 公司简介
+        ptr_brief_info->register_capital = other.ptr_brief_info->register_capital;    // 注册资本
+        ptr_brief_info->law_office = other.ptr_brief_info->law_office;                // 律师事务所
+        ptr_brief_info->accounting_office = other.ptr_brief_info->accounting_office;  // 会计事务所
+        ptr_brief_info->ceo = other.ptr_brief_info->ceo;                              // 公司董事长
+        ptr_brief_info->board_secretary = other.ptr_brief_info->board_secretary;      // 董秘
+        ptr_brief_info->office_address = other.ptr_brief_info->office_address;        // 办公地址
+        ptr_brief_info->company_profile = other.ptr_brief_info->company_profile;      // 公司简介
     } else {
         ptr_brief_info = nullptr;
     }

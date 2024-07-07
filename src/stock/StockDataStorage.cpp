@@ -222,6 +222,14 @@ void StockDataStorage::FetchFinancial() {
 void StockDataStorage::FetchBusinessAnalysis() {
 }
 
+void StockDataStorage::DumpStorage(DumpType dump_type) {
+    if (dump_type & DumpType::Quote) {
+        for (auto& share : m_market_shares) {
+            std::cout << "province: " << share.province << ", industry_name: " << share.industry_name << std::endl;
+        }
+    }
+}
+
 std::string StockDataStorage::DumpQuoteData(std::vector<Share>& shares) {
     json result = json::array();
     for (Share share : shares) {
@@ -285,18 +293,18 @@ void StockDataStorage::SaveCategory(ShareCategoryType type,
 bool StockDataStorage::SaveShareBriefInfo(ShareBriefInfo* pBriefInfo, const std::string& share_code) {
     std::string file_path = m_path_brief_dir + "brief_" + share_code + ".json";
     json o = json::object();
-    o["ceo"] = pBriefInfo->ceo;                                // ceo
-    o["accounting_office"] = pBriefInfo->accounting_office;    // 会计事务所
-    o["board_secretary"] = pBriefInfo->board_secretary;        // 董事会秘书
-    o["company_name"] = pBriefInfo->company_name;              // 公司名称
-    o["company_profile"] = pBriefInfo->company_profile;        // 公司简介
-    o["company_website"] = pBriefInfo->company_website;        // 公司网站
-    o["law_office"] = pBriefInfo->law_office;                  // 律师事务所
-    o["office_address"] = pBriefInfo->office_address;          // 办公地址
-    o["old_names"] = pBriefInfo->old_names;                    // 旧名称
-    o["registered_address"] = pBriefInfo->registered_address;  // 注册地址
-    o["registered_capital"] = pBriefInfo->registered_capital;  // 注册资本
-    o["staff_num"] = pBriefInfo->staff_num;                    // 员工数量
+    o["ceo"] = pBriefInfo->ceo;                              // ceo
+    o["accounting_office"] = pBriefInfo->accounting_office;  // 会计事务所
+    o["board_secretary"] = pBriefInfo->board_secretary;      // 董事会秘书
+    o["company_name"] = pBriefInfo->company_name;            // 公司名称
+    o["company_profile"] = pBriefInfo->company_profile;      // 公司简介
+    o["company_website"] = pBriefInfo->company_website;      // 公司网站
+    o["law_office"] = pBriefInfo->law_office;                // 律师事务所
+    o["office_address"] = pBriefInfo->office_address;        // 办公地址
+    o["old_names"] = pBriefInfo->old_names;                  // 旧名称
+    o["register_address"] = pBriefInfo->register_address;    // 注册地址
+    o["register_capital"] = pBriefInfo->register_capital;    // 注册资本
+    o["staff_num"] = pBriefInfo->staff_num;                  // 员工数量
     std::string data = o.dump(4);
     return FileTool::SaveFile(file_path, data);
 }
@@ -543,6 +551,7 @@ void StockDataStorage::OnTimerFetchShareQuoteData(uint32_t timer_id, void* args)
         HashShares();                                    // share_code->Share* 映射
         spiderCategory->BuildShareCategoryProvinces();   // 填充股票省份信息
         spiderCategory->BuildShareCategoryIndustries();  // 填充股票行业信息
+        DumpStorage(DumpType::Quote);
         // 保存行情数据/行业板块/地域板块数据到本地文件
         SaveQuote();
         SaveCategory(ShareCategoryType::Industry, spiderCategory->GetCategory(ShareCategoryType::Industry));
@@ -556,6 +565,7 @@ void StockDataStorage::OnTimerFetchShareQuoteData(uint32_t timer_id, void* args)
         delete spiderQuote;                        // 删除爬虫指针
         delete spiderCategory;                     // 删除爬虫指针
         delete pSpiders;                           // 删除容器指针
+        DumpStorage(DumpType::Quote);
 
         pSpiders = nullptr;
         Timer::CancelTimer(timer_id);  // 取消定时器

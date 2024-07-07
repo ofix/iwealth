@@ -86,18 +86,18 @@ struct ShareBasicInfo {
 };
 
 struct ShareBriefInfo {
-    std::string company_name;        // 公司名称
-    std::string old_names;           // 公司曾用名
-    std::string company_website;     // 公司网址
-    std::string registered_address;  // 注册地址
-    int staff_num;                   // 雇员人数
-    double registered_capital;       // 注册资本
-    std::string law_office;          // 律师事务所
-    std::string accounting_office;   // 会计事务所
-    std::string ceo;                 // 公司董事长
-    std::string board_secretary;     // 董秘
-    std::string office_address;      // 办公地址
-    std::string company_profile;     // 公司简介
+    std::string company_name;       // 公司名称
+    std::string old_names;          // 公司曾用名
+    std::string company_website;    // 公司网址
+    std::string register_address;   // 注册地址
+    int staff_num;                  // 雇员人数
+    double register_capital;        // 注册资本
+    std::string law_office;         // 律师事务所
+    std::string accounting_office;  // 会计事务所
+    std::string ceo;                // 公司董事长
+    std::string board_secretary;    // 董秘
+    std::string office_address;     // 办公地址
+    std::string company_profile;    // 公司简介
 };
 
 struct Share {
@@ -131,7 +131,7 @@ struct Share {
     std::string industry_name;            // 行业名称
     Market market;                        // 所在交易所
     std::string province;                 // 所在省份
-    uint32_t staff_num;                   // 员工数
+    int staff_num;                        // 员工数
     uint64_t register_capital;            // 注册资本
     std::vector<ShareConcept*> concepts;  // 所属概念板块
     ShareBriefInfo* ptr_brief_info;       // 公司简要信息

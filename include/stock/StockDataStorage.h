@@ -34,6 +34,9 @@ class StockDataStorage {
         BriefInfo,         // 股票基本信息(曾用名)爬虫
         HistoryKline,      // 历史K线爬虫
     };
+    enum DumpType {
+        Quote = 0,  // 打印行情信息
+    };
     StockDataStorage();
     virtual ~StockDataStorage();
     void Init();                        // 初始化操作
@@ -76,12 +79,13 @@ class StockDataStorage {
     void FetchKlineSync(Share* pShare, const KlineType kline_type);
 
    protected:
-    void FetchQuoteIndustryProvince();  // 爬取行情数据+板块数据
-    void FetchQuoteSync();              // 爬取行情数据
-    void FetchKline();                  // 爬取股票历史K线数据
-    void FetchFinancial();              // 爬取股票年报数据
-    void FetchBusinessAnalysis();       // 爬取股票经营分析内容
-    void FetchBriefInfo();              // 爬取股票[曾用名/员工数等基本信息]
+    void FetchQuoteIndustryProvince();     // 爬取行情数据+板块数据
+    void FetchQuoteSync();                 // 爬取行情数据
+    void FetchKline();                     // 爬取股票历史K线数据
+    void FetchFinancial();                 // 爬取股票年报数据
+    void FetchBusinessAnalysis();          // 爬取股票经营分析内容
+    void FetchBriefInfo();                 // 爬取股票[曾用名/员工数等基本信息]
+    void DumpStorage(DumpType dump_type);  // 打印信息
 
     std::string DumpQuoteData(std::vector<Share>& shares);
     void SaveQuote();  // 保存行情数据到本地文件

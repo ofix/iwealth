@@ -79,7 +79,8 @@ uint8_t SpiderShareBriefInfo::GetIndustryLevel(const std::string& industry_name)
 }
 
 void SpiderShareBriefInfo::ConcurrentFetchBriefInfo() {
-    std::vector<Share> shares = m_pStockStorage->m_market_shares;
+    std::vector<Share>& shares =
+        m_pStockStorage->m_market_shares;  // 此次必须使用引用或者指针，否则跨线程传递，访问局部变量会出现段错误
     std::list<std::string> urls;
     std::vector<void*> user_data = {};
     RequestStatistics* pStatistics = NewRequestStatistics(shares.size(), DataProvider::EastMoney);
@@ -141,7 +142,8 @@ void SpiderShareBriefInfo::ConcurrentResponseCallback(conn_t* conn) {
 void SpiderShareBriefInfo::ParseResponse(std::string& response, Share* pShare) {
     json _response = json::parse(response);
     json o = _response["result"]["data"][0];
-    if (!o["FORMERNAME"].is_null()) {
+
+    if (o.contains("FORMERNAME") && !o["FORMERNAME"].is_null()) {
         std::string former_name = o["FORMERNAME"].template get<std::string>();
         std::vector<std::string> old_names = split(former_name, "→");
         for (auto& old_name : old_names) {
@@ -150,15 +152,17 @@ void SpiderShareBriefInfo::ParseResponse(std::string& response, Share* pShare) {
     }
 
     // 保存信息到文件
-    pShare->staff_num = o["EMP_NUM"];             // 公司员工数量
-    pShare->register_capital = o["REG_CAPITAL"];  // 公司注册资本
+    pShare->staff_num = o["EMP_NUM"].is_null() ? 0 : o["EMP_NUM"].template get<int>();  // 公司员工数量
+    pShare->register_capital =
+        o["REG_CAPITAL"].is_null() ? 0 : o["REG_CAPITAL"].template get<uint64_t>();  // 公司注册资本
     ShareBriefInfo* pBriefInfo = new ShareBriefInfo();
-    pBriefInfo->company_name = o["ORG_NAME"];
+    pBriefInfo->company_name = o["ORG_NAME"].is_null() ? o["ORG_NAME"] : "";
     pBriefInfo->old_names = o["FORMERNAME"].is_null() ? "" : o["FORMERNAME"];
     pBriefInfo->company_website = o["ORG_WEB"].is_null() ? "" : o["ORG_WEB"];
-    pBriefInfo->registered_address = o["REG_ADDRESS"].is_null() ? "" : o["REG_ADDRESS"];
-    pBriefInfo->staff_num = o["EMP_NUM"];
-    pBriefInfo->registered_capital = o["REG_CAPITAL"].is_null() ? "" : o["REG_CAPITAL"];
+    pBriefInfo->register_address = o["REG_ADDRESS"].is_null() ? "" : o["REG_ADDRESS"];
+    pBriefInfo->staff_num = o["EMP_NUM"].is_null() ? 0 : o["EMP_NUM"].template get<int>();
+    pBriefInfo->register_capital =
+        o["REG_CAPITAL"].is_null() ? 0 : o["REG_CAPITAL"].template get<uint64_t>();  // 公司注册资本
     pBriefInfo->law_office = o["LAW_FIRM"].is_null() ? "" : o["LAW_FIRM"];
     pBriefInfo->accounting_office = o["ACCOUNTFIRM_NAME"].is_null() ? "" : o["ACCOUNTFIRM_NAME"];
     pBriefInfo->ceo = o["CHAIRMAN"].is_null() ? "" : o["CHAIRMAN"];
