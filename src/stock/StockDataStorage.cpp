@@ -54,9 +54,9 @@ void StockDataStorage::Init() {
 }
 
 /// @brief 检查本地行情数据是否过期
-bool StockDataStorage::IsLocalQuoteDataExpired() {
+bool StockDataStorage::IsLocalDataFileExpired(const std::string& file_path) {
     // 获取本地行情数据文件修改时间
-    std::string local_quote_file_modified_time = FileTool::GetFileModifiedTime(m_path_share_quote);
+    std::string local_quote_file_modified_time = FileTool::GetFileModifiedTime(file_path);
     std::string today = now("%Y-%m-%d");
     std::string now_time = now("%Y-%m-%d %H:%M:%S");
     if (is_trade_day(today)) {  // 如果当天是交易日
@@ -93,7 +93,7 @@ void StockDataStorage::LoadLocalFileShare() {
     if (FileTool::IsFileExists(m_path_share_quote) && FileTool::IsFileExists(m_path_category_province) &&
         FileTool::IsFileExists(m_path_category_industry)) {
 #ifndef DEBUG  // 调试模式下，避免频繁下载行情数据
-        if (IsLocalQuoteDataExpired() && !between_time_period("09:00", "09:29")) {
+        if (IsLocalDataFileExpired(m_path_share_quote) && !between_time_period("09:00", "09:29")) {
             FetchQuoteSync();  // 如果本地行情数据过时了且时间段不在 09:00~09:29，则同步更新行情数据
         }
 #endif
@@ -220,6 +220,10 @@ void StockDataStorage::FetchFinancial() {
 }
 
 void StockDataStorage::FetchBusinessAnalysis() {
+}
+
+void StockDataStorage::LoadShareKlinesSync(const std::string& share_code) {
+    // 检查文件是否存在,如果不存在，下载最新的日K线
 }
 
 void StockDataStorage::DumpStorage(DumpType dump_type) {

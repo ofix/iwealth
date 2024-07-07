@@ -156,8 +156,9 @@ void RichMainFrame::OnGridCellLeftDblClick(wxGridEvent& event) {
     std::cout << share_code.ToStdString() << std::endl;
     StockDataStorage* pStorage = static_cast<RichApplication*>(wxTheApp)->GetStockDataStorage();
     std::string _share_code = share_code.ToStdString();
-    pStorage->FetchKlineSync(_share_code, KlineType::Day);
-    pStorage->SaveShareKlines(_share_code, KlineType::Day);
+    pStorage->LoadShareKlines(_share_code);
+    // pStorage->FetchKlineSync(_share_code, KlineType::Day);
+    // pStorage->SaveShareKlines(_share_code, KlineType::Day);
     event.Skip();
 }
 

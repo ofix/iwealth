@@ -72,9 +72,10 @@ class StockDataStorage {
     };
 
     void SetFetchResultOk(FetchResult result);
-    bool IsLocalQuoteDataExpired();
+    bool IsLocalDataFileExpired(const std::string& file_path);
     Spider* GetSpider(SpiderType type);
 
+    void LoadShareKlinesSync(const std::string& share_code);  // 加载单个股票所有K线数据，如果本地没有就爬取远程的
     void FetchKlineSync(const std::string& share_code, const KlineType kline_type);
     void FetchKlineSync(Share* pShare, const KlineType kline_type);
 

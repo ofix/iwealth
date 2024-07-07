@@ -26,7 +26,8 @@ enum class KlineType {
     Week = 1,     // 周K线
     Month = 2,    // 月K线
     Quarter = 3,  // 季度K线
-    Year = 4      // 年K线
+    Year = 4,     // 年K线
+    All = 5       // 以上所有K线
 };
 
 enum class DataProvider {
