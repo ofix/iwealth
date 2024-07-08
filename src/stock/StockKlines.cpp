@@ -1,5 +1,6 @@
 #include "stock/StockKlines.h"
 #include <iostream>
+#include "util/DateTime.h"
 
 std::vector<uiKline> StockKlines::GetWeekKlines(const std::vector<uiKline>& day_klines) {
     std::vector<uiKline> week_klines;

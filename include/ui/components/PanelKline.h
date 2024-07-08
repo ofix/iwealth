@@ -26,8 +26,9 @@ class PanelKline : public wxPanel {
     std::vector<uiKline>* m_pKlines;  // 当前需要显示的K线
 
    protected:
-    static const long ID_KLINECTRL;
-    static const long ID_KLINEINFOCTRL;
+    static const long ID_KLINE_CTRL;
+    static const long ID_KLINE_INFO_CTRL;
+    static const long ID_RAIDO_CTRL;
     std::string m_share_code;
 };
 

@@ -428,6 +428,13 @@ bool StockDataStorage::SaveShareKlines(const std::string& share_code, const Klin
     return false;
 }
 
+std::vector<uiKline>* StockDataStorage::GetShareKlines(const std::string& share_code, const KlineType kline_type) {
+    if (m_day_klines_adjust.find(share_code) != m_day_klines_adjust.end()) {
+        return &m_day_klines_adjust[share_code];
+    }
+    return nullptr;
+}
+
 bool StockDataStorage::SaveShareKlinesInCsvFile(const std::string& file_path, const std::vector<uiKline>& klines) {
     std::string lines = "";
     for (const auto& kline : klines) {

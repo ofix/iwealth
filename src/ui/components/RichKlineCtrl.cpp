@@ -11,6 +11,19 @@
 #include "ui/components/RichKlineCtrl.h"
 #include "ui/components/RichKlineInfoCtrl.h"
 
+// 以下函数实现必须写，否则会爆错误 undefined reference to 'vtable for RichKlineCtrl'
+BEGIN_EVENT_TABLE(RichKlineCtrl, wxControl)
+EVT_PAINT(RichKlineCtrl::OnPaint)
+EVT_SIZE(RichKlineCtrl::OnSize)
+EVT_LEFT_DOWN(RichKlineCtrl::OnLeftMouseDown)
+EVT_KEY_DOWN(RichKlineCtrl::OnKeyDown)
+// EVT_MOUSE_EVENTS(RichKlineCtrl::OnMouseEvent)
+// EVT_ERASE_BACKGROUND(RichKlineCtrl::OnBackground)
+END_EVENT_TABLE()
+
+//
+wxIMPLEMENT_DYNAMIC_CLASS(RichKlineCtrl, wxControl);
+
 RichKlineCtrl::RichKlineCtrl() {
     Init();
 }
@@ -44,14 +57,7 @@ RichKlineCtrl::RichKlineCtrl(wxWindow* parent,
     m_height = size.GetHeight();
 }
 
-// 以下函数实现必须写，否则会爆错误 undefined reference to 'vtable for RichKlineCtrl'
-wxBEGIN_EVENT_TABLE(RichKlineCtrl, wxControl) EVT_PAINT(RichKlineCtrl::OnPaint)
-    //    EVT_ERASE_BACKGROUND(RichKlineCtrl::OnBackground)
-    EVT_SIZE(RichKlineCtrl::OnSize) EVT_LEFT_DOWN(RichKlineCtrl::OnLeftMouseDown) EVT_KEY_DOWN(RichKlineCtrl::OnKeyDown)
-    //    EVT_MOUSE_EVENTS(RichKlineCtrl::OnMouseEvent)
-    wxEND_EVENT_TABLE() wxIMPLEMENT_DYNAMIC_CLASS(RichKlineCtrl, wxControl)
-
-        void RichKlineCtrl::Init() {
+void RichKlineCtrl::Init() {
     m_share.code = "";
     m_share.name = "";
     m_share.market = Market::ShangHai;

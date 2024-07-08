@@ -52,6 +52,7 @@ class StockDataStorage {
     bool SaveShareKlines(const KlineType kline_type);
     bool SaveShareKlines(const std::string& share_code, const KlineType kline_type);
     bool SaveShareKlinesInCsvFile(const std::string& file_path, const std::vector<uiKline>& klines);
+    std::vector<uiKline>* GetShareKlines(const std::string& share_code, const KlineType kline_type);
     Share* FindShare(const std::string& share_code);
 
     void PrintAllShares(std::vector<Share>& all_shares);

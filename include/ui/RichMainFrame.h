@@ -34,8 +34,8 @@ class RichMainFrame : public wxFrame {
     void OnGridCellLeftClick(wxGridEvent& event);
     void OnGridCellLeftDblClick(wxGridEvent& event);
     void AdjustDlgShareSearchPostion();
-
-    PanelKline* GetPanelKline();
+    void AddPanelToStack(wxPanel* panel);
+    wxPanel* PopPanelFromStack();
 
    protected:
     //(*Identifiers(RichMainFrame)
@@ -51,9 +51,8 @@ class RichMainFrame : public wxFrame {
     void OnStorageDataReady(wxThreadEvent& event);
 
    private:
-    PanelStockQuote* m_panelStockQuote;
-    PanelKline* m_panelKline;
-    std::vector<wxPanel*> m_panelHistory;
+    std::vector<wxPanel*> m_panelStack;  // 视图栈
+    wxPanel* m_panelCurrent;             // 当前视图
     DialogShareSearch* m_dlgShareSearch;
     DECLARE_EVENT_TABLE()
 };

@@ -20,7 +20,6 @@ EVT_THREAD(ID_QUOTE_DATA_READY, RichMainFrame::OnStorageDataReady)
 END_EVENT_TABLE()
 
 RichMainFrame::RichMainFrame(wxWindow* parent, wxWindowID id, const wxPoint& /*point*/, const wxSize& /*size*/) {
-    //(*Initialize(RichMainFrame)
     Create(parent, id, _("东方巴菲特"), wxDefaultPosition, wxDefaultSize, wxDEFAULT_FRAME_STYLE | wxWANTS_CHARS,
            _T("id"));
     SetClientSize(wxSize(1024, 580));
@@ -33,7 +32,9 @@ RichMainFrame::RichMainFrame(wxWindow* parent, wxWindowID id, const wxPoint& /*p
             wxArtProvider::GetBitmap(wxART_MAKE_ART_ID_FROM_STR(_T("wxART_QUESTION")), wxART_FRAME_ICON));
         SetIcon(FrameIcon);
     }
-    //*)
+
+    m_panelStack = {};
+    m_panelCurrent = nullptr;
 
     wxMenu* menuFile = new wxMenu;
     menuFile->Append(wxID_EXIT);
@@ -56,15 +57,13 @@ RichMainFrame::RichMainFrame(wxWindow* parent, wxWindowID id, const wxPoint& /*p
     Bind(wxEVT_ICONIZE, &RichMainFrame::OnIconize, this);
     Bind(wxEVT_MAXIMIZE, &RichMainFrame::OnMaximize, this);
     // 初始化主窗口面板
-    m_panelStockQuote = new PanelStockQuote(this, ID_PANEL_STOCK_QUOTE, wxPoint(384, 48), wxSize(1240, 600));
-    m_panelStockQuote->LoadStockMarketQuote();
-    m_panelStockQuote->Show();
-    m_panelStockQuote->GetGridCtrl()->Bind(wxEVT_CHAR, &RichMainFrame::OnChar, this);
-    m_panelStockQuote->GetGridCtrl()->Bind(wxEVT_GRID_CELL_LEFT_CLICK, &RichMainFrame::OnGridCellLeftClick, this);
-    m_panelStockQuote->GetGridCtrl()->Bind(wxEVT_GRID_CELL_LEFT_DCLICK, &RichMainFrame::OnGridCellLeftDblClick, this);
-    m_panelStockQuote->GetGridCtrl()->Bind(wxEVT_KEY_DOWN, &RichMainFrame::OnKeyDown, this);
-
-    m_panelKline = nullptr;
+    PanelStockQuote* panelQuote = new PanelStockQuote(this, ID_PANEL_STOCK_QUOTE, wxPoint(384, 48), wxSize(1240, 600));
+    panelQuote->LoadStockMarketQuote();
+    panelQuote->GetGridCtrl()->Bind(wxEVT_CHAR, &RichMainFrame::OnChar, this);
+    panelQuote->GetGridCtrl()->Bind(wxEVT_GRID_CELL_LEFT_CLICK, &RichMainFrame::OnGridCellLeftClick, this);
+    panelQuote->GetGridCtrl()->Bind(wxEVT_GRID_CELL_LEFT_DCLICK, &RichMainFrame::OnGridCellLeftDblClick, this);
+    panelQuote->GetGridCtrl()->Bind(wxEVT_KEY_DOWN, &RichMainFrame::OnKeyDown, this);
+    AddPanelToStack(panelQuote);
 
     m_dlgShareSearch = new DialogShareSearch(
         this, ID_DIALOG_SHARE_SEARCH, _T("股票精灵"), wxDefaultPosition, wxDefaultSize,
@@ -152,25 +151,37 @@ void RichMainFrame::OnGridCellLeftClick(wxGridEvent& event) {
     event.Skip();
 }
 
-PanelKline* RichMainFrame::GetPanelKline() {
-    if (m_panelKline != nullptr) {
-        return m_panelKline;
-    }
-    m_panelKline = new PanelKline(this, ID_PANEL_KLINE);
-    return m_panelKline;
-}
-
 // 双击股票行情，显示日K线图
 void RichMainFrame::OnGridCellLeftDblClick(wxGridEvent& event) {
     int iRow = event.GetRow();
-    wxString share_code = m_panelStockQuote->GetGridCtrl()->GetCellValue(iRow, 1);
-    std::cout << share_code.ToStdString() << std::endl;
-    StockDataStorage* pStorage = static_cast<RichApplication*>(wxTheApp)->GetStockDataStorage();
+    RichGrid* pGrid = static_cast<RichGrid*>(event.GetEventObject());
+    wxString share_code = pGrid->GetCellValue(iRow, 1);
     std::string _share_code = share_code.ToStdString();
-    GetPanelKline()->SetShareCode(_share_code);
-    // pStorage->FetchKlineSync(_share_code, KlineType::Day);
-    // pStorage->SaveShareKlines(_share_code, KlineType::Day);
+    wxPoint pos = m_panelCurrent->GetPosition();
+    wxSize size = m_panelCurrent->GetSize();
+    PanelKline* panelKline = new PanelKline(this, ID_PANEL_KLINE, pos, size);
+    panelKline->SetShareCode(_share_code);
+    AddPanelToStack(panelKline);
+
     event.Skip();
+}
+
+void RichMainFrame::AddPanelToStack(wxPanel* panel) {
+    if (m_panelCurrent != nullptr) {
+        m_panelCurrent->Show(false);
+    }
+    m_panelStack.push_back(panel);
+    m_panelCurrent = panel;
+    m_panelCurrent->Show(true);
+}
+
+wxPanel* RichMainFrame::PopPanelFromStack() {
+    if (m_panelStack.size() > 0) {
+        wxPanel* panel = m_panelStack[m_panelStack.size() - 1];
+        m_panelStack.pop_back();
+        return panel;
+    }
+    return nullptr;
 }
 
 // 监听异步子线程消息
@@ -178,7 +189,8 @@ void RichMainFrame::OnStorageDataReady(wxThreadEvent& event) {
     wxString data = event.GetString();
     std::cout << "thread event data: " << event.GetString() << std::endl;
     if (data == "Quote") {
-        m_panelStockQuote->LoadStockMarketQuote();
+        PanelStockQuote* panelQuote = static_cast<PanelStockQuote*>(m_panelCurrent);
+        panelQuote->LoadStockMarketQuote();
     }
 }
 void RichMainFrame::OnExit(wxCommandEvent& event) {
