@@ -13,8 +13,7 @@
 #define KLINE_MODE_WEEK 2
 #define KLINE_MODE_MONTH 4
 #define KLINE_MODE_YEAR 8
-#define KLINE_MODES \
-    (KLINE_MODE_DAY | KLINE_MODE_WEEK | KLINE_MODE_MONTH | KLINE_MODE_YEAR)
+#define KLINE_MODES (KLINE_MODE_DAY | KLINE_MODE_WEEK | KLINE_MODE_MONTH | KLINE_MODE_YEAR)
 #define NO_CROSS_LINE -1
 
 class RichVolumeBarCtrl;
@@ -86,9 +85,8 @@ class RichKlineCtrl : public wxControl {
                                      int16_t klineWidth = 5,
                                      int16_t klineSpan = 2,
                                      long crossLine = NO_CROSS_LINE);  //放大K线图
-    uiKlineRange GetKlineRangeZoomOut(
-        long totalKLines,
-        long crossLine = NO_CROSS_LINE);  //以十字线为中心，否则右侧缩放
+    uiKlineRange GetKlineRangeZoomOut(long totalKLines,
+                                      long crossLine = NO_CROSS_LINE);  //以十字线为中心，否则右侧缩放
     wxPoint GetCrossLinePt(long n);
 
    protected:

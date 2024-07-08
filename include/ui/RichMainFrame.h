@@ -15,6 +15,7 @@
 
 #include <wx/listctrl.h>
 #include "ui/components/DialogShareSearch.h"
+#include "ui/components/PanelKline.h"
 #include "ui/components/PanelStockQuote.h"
 
 class RichApplication;
@@ -34,10 +35,13 @@ class RichMainFrame : public wxFrame {
     void OnGridCellLeftDblClick(wxGridEvent& event);
     void AdjustDlgShareSearchPostion();
 
+    PanelKline* GetPanelKline();
+
    protected:
     //(*Identifiers(RichMainFrame)
     //*)
     static const long ID_PANEL_STOCK_QUOTE;
+    static const long ID_PANEL_KLINE;
     static const long ID_DIALOG_SHARE_SEARCH;
 
    private:
@@ -48,6 +52,8 @@ class RichMainFrame : public wxFrame {
 
    private:
     PanelStockQuote* m_panelStockQuote;
+    PanelKline* m_panelKline;
+    std::vector<wxPanel*> m_panelHistory;
     DialogShareSearch* m_dlgShareSearch;
     DECLARE_EVENT_TABLE()
 };

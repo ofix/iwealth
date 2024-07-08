@@ -12,6 +12,7 @@
 const long RichMainFrame::ID_PANEL_STOCK_QUOTE = wxNewId();
 //*)
 const long RichMainFrame::ID_DIALOG_SHARE_SEARCH = wxNewId();
+const long RichMainFrame::ID_PANEL_KLINE = wxNewId();
 
 // catch the event from the thread
 BEGIN_EVENT_TABLE(RichMainFrame, wxFrame)
@@ -62,6 +63,8 @@ RichMainFrame::RichMainFrame(wxWindow* parent, wxWindowID id, const wxPoint& /*p
     m_panelStockQuote->GetGridCtrl()->Bind(wxEVT_GRID_CELL_LEFT_CLICK, &RichMainFrame::OnGridCellLeftClick, this);
     m_panelStockQuote->GetGridCtrl()->Bind(wxEVT_GRID_CELL_LEFT_DCLICK, &RichMainFrame::OnGridCellLeftDblClick, this);
     m_panelStockQuote->GetGridCtrl()->Bind(wxEVT_KEY_DOWN, &RichMainFrame::OnKeyDown, this);
+
+    m_panelKline = nullptr;
 
     m_dlgShareSearch = new DialogShareSearch(
         this, ID_DIALOG_SHARE_SEARCH, _T("股票精灵"), wxDefaultPosition, wxDefaultSize,
@@ -149,6 +152,14 @@ void RichMainFrame::OnGridCellLeftClick(wxGridEvent& event) {
     event.Skip();
 }
 
+PanelKline* RichMainFrame::GetPanelKline() {
+    if (m_panelKline != nullptr) {
+        return m_panelKline;
+    }
+    m_panelKline = new PanelKline(this, ID_PANEL_KLINE);
+    return m_panelKline;
+}
+
 // 双击股票行情，显示日K线图
 void RichMainFrame::OnGridCellLeftDblClick(wxGridEvent& event) {
     int iRow = event.GetRow();
@@ -156,7 +167,7 @@ void RichMainFrame::OnGridCellLeftDblClick(wxGridEvent& event) {
     std::cout << share_code.ToStdString() << std::endl;
     StockDataStorage* pStorage = static_cast<RichApplication*>(wxTheApp)->GetStockDataStorage();
     std::string _share_code = share_code.ToStdString();
-    pStorage->LoadShareKlines(_share_code);
+    GetPanelKline()->SetShareCode(_share_code);
     // pStorage->FetchKlineSync(_share_code, KlineType::Day);
     // pStorage->SaveShareKlines(_share_code, KlineType::Day);
     event.Skip();
