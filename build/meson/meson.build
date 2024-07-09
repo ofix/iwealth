@@ -20,16 +20,16 @@ message(third_party_lib)
 
 if host_machine.cpu_family().startswith('x86')
     inc = include_directories([
-        '../../include',
-        '../../include/wxWidgets/3.2.4/include',
+        '../../src',
         '../../lib',
+        '../../lib/wxWidgets/3.2.4/include',
         '../../lib/wxWidgets/3.2.4/mingw_x64_windows/mswu',
     ])
 else
     inc = include_directories([
-        '../../include',
-        '../../include/wxWidgets/3.2.4/include',
+        '../../src',
         '../../lib',
+        '../../lib/wxWidgets/3.2.4/include',
         '../../lib/wxWidgets/3.2.4/aarch64_linux/wx/include/gtk3-unicode-3.2',
     ])
 endif
@@ -43,7 +43,7 @@ third_party_dep = declare_dependency(
         cc.find_library('curl', dirs: third_party_lib)
       ],
       include_directories: [
-        include_directories('../../include/curl')
+        include_directories('../../lib/curl/include')
       ],
     )
 
@@ -52,14 +52,14 @@ compile_time = run_command('date', '+%F %H:%M:%S').stdout().strip()
 if host_machine.cpu_family().startswith('x86')
 cpp_args = [
     '-I../../../lib/wxWidgets/3.2.4/mingw_x64_windows/mswu/',
-    '-I../../../include/wxWidgets/3.2.4/include',
+    '-I../../../lib/wxWidgets/3.2.4/include',
     '-DWXUSINGDLL',
 ]
 else
 cpp_args = [
     #'-Werror'
     '-I../../../lib/wxWidgets/3.2.4/aarch64_linux/wx/include/gtk3-unicode-3.2',
-    '-I../../../include/wxWidgets/3.2.4/include',
+    '-I../../../lib/wxWidgets/3.2.4/include',
     '-DWXUSINGDLL',
     '-D__WXGTK3__',
     '-D__WXGTK__',

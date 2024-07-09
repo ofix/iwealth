@@ -5,7 +5,7 @@
 #include <list>
 #include <string>
 #include <thread>
-#include "../curl/curl.h"
+#include "curl.h"
 #include "net/Conn.h"
 
 #define BUF_SIZE 1024
@@ -45,7 +45,9 @@ class Request {
 
     Request();
     Request(const Request&){};
-    Request& operator=(const Request&) { return *this; };
+    Request& operator=(const Request&) {
+        return *this;
+    };
     static Request* m_pThis;
 };
 
@@ -56,17 +58,11 @@ void HttpBatchGet(const std::list<std::string>& urls,
 
 std::string HttpGet(const std::string& url, int http_version = CURL_HTTP_VERSION_1_1);
 std::string HttpGet(conn_t* conn, int http_version = CURL_HTTP_VERSION_1_1);
-std::string HttpPost(const std::string& url,
-                     const std::string& payload,
-                     int http_version = CURL_HTTP_VERSION_1_1);
+std::string HttpPost(const std::string& url, const std::string& payload, int http_version = CURL_HTTP_VERSION_1_1);
 std::string HttpPost(conn_t* conn, int http_version = CURL_HTTP_VERSION_1_1);
-std::string HttpPut(const std::string& url,
-                    const std::string& payload,
-                    int http_version = CURL_HTTP_VERSION_1_1);
+std::string HttpPut(const std::string& url, const std::string& payload, int http_version = CURL_HTTP_VERSION_1_1);
 std::string HttpPut(conn_t* conn, int http_version = CURL_HTTP_VERSION_1_1);
-std::string HttpPatch(const std::string& url,
-                      const std::string& payload,
-                      int http_version = CURL_HTTP_VERSION_1_1);
+std::string HttpPatch(const std::string& url, const std::string& payload, int http_version = CURL_HTTP_VERSION_1_1);
 std::string HttpPatch(conn_t* conn, int http_version = CURL_HTTP_VERSION_1_1);
 std::string HttpDelete(const std::string& url, int http_version = CURL_HTTP_VERSION_1_1);
 std::string HttpDelete(conn_t* conn, int http_version = CURL_HTTP_VERSION_1_1);
