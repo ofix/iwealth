@@ -8,10 +8,11 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 #include "spider/Spider.h"
+#include <curl.h>
 #include <mutex>
-#include "curl/curl.h"
 #include "stock/StockDataStorage.h"
 #include "util/EasyLogger.h"
+
 
 Spider::Spider(StockDataStorage* storage)
     : m_pStockStorage(storage),

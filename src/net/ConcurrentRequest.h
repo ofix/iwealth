@@ -1,8 +1,8 @@
 #pragma once
+#include <curl.h>
 #include <iostream>
 #include <list>
 #include <string>
-#include "curl/curl.h"
 #include "net/Conn.h"
 
 class ConcurrentRequest {
