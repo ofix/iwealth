@@ -15,6 +15,9 @@ class RichGridTable : public wxGridTableBase {
     virtual wxString GetValue(int row, int col);
     virtual wxString GetColLabelValue(int col);
     virtual void SetValue(int row, int col, const wxString& value);
+    virtual bool InsertRows(size_t pos, size_t numRows);
+    virtual bool AppendRows(size_t numRows = 1);  // 重写此函数，用来通知RichGrid数据有变更，否则视图不会自动刷新
+    virtual bool DeleteRows(size_t pos, size_t numRows);
     void SetStorage(StockDataStorage* pStorage);
     bool SortMultiColumns();
     virtual int GetColumnOrder(int iCol);

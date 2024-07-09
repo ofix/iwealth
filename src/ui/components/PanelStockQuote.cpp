@@ -71,17 +71,12 @@ PanelStockQuote::PanelStockQuote(wxWindow* parent, wxWindowID id, const wxPoint&
     /////////////////////////////////////////////////
     /// 插入行情列表表头
 
-    std::vector<std::pair<wxString, int>> columnsStockQuote = {
-        {CN("序号"), 56},  {CN("代码"), 120},   {CN("名称"), 140},   {CN("涨幅"), 100},
-        {CN("现价"), 100}, {CN("昨收"), 100},   {CN("今开"), 100},   {CN("最高"), 100},
-        {CN("最低"), 100}, {CN("成交额"), 140}, {CN("成交量"), 140}, {CN("换手"), 100},
-        {CN("振幅"), 100}, {CN("量比"), 100},   {CN("行业"), 140},   {CN("省份"), 100},
+    std::vector<int> columnsStockQuote = {
+        56, 120, 140, 100, 100, 100, 100, 100, 100, 140, 140, 100, 100, 100, 140, 100,
     };
-    // m_gridCtrlQuote->CreateGrid(30, columnsStockQuote.size(), wxGrid::wxGridSelectRows);
     int icol = 0;
-    for (std::pair<wxString, int>& item : columnsStockQuote) {
-        m_gridCtrlQuote->SetColSize(icol, item.second);
-        // m_gridCtrlQuote->SetColLabelValue(icol, item.first);
+    for (auto& colWidth : columnsStockQuote) {
+        m_gridCtrlQuote->SetColSize(icol, colWidth);
         icol++;
     }
     wxGridCellAttr* pAlignLeftAttr = new wxGridCellAttr(
@@ -120,7 +115,6 @@ void PanelStockQuote::OnGridQuoteHeaderDblClick(wxGridEvent& event) {
     m_gridCtrlQuote->SortMultiColumns();
     LoadStockMarketQuote();
     m_gridCtrlQuote->MakeCellVisible(0, 0);
-    // m_gridCtrlQuote->Refresh();
 }
 
 // 加载市场当前行情并显示
@@ -129,7 +123,7 @@ void PanelStockQuote::LoadStockMarketQuote() {
     if (pStorage->IsQuoteDataReady()) {
         std::vector<Share> shares = pStorage->GetMarketAllShares();
         long irow = 0;
-        // m_gridCtrlQuote->AppendRows(shares.size() - 30 + 1, false);
+        m_gridCtrlQuote->GetTable()->InsertRows(0, shares.size());  // 必须增加这一行，通知视图表格模型数据已变更
         wxColor clr_green(57, 227, 101);
         wxColor clr_red(255, 0, 0);
         for (Share& share : shares) {
@@ -164,7 +158,8 @@ void PanelStockQuote::LoadStockMarketQuote() {
         }
         m_gridCtrlQuote->SelectRow(0);  // 默认选中第一行
     }
-    m_gridCtrlQuote->Refresh();
+    // 解决启动过程中数据下载完成，RichGridTable::GetNumRows() 依然返回0，导致界面不刷新
+    m_gridCtrlQuote->ForceRefresh();  // 使用Refresh()不会有效果
 }
 
 PanelStockQuote::~PanelStockQuote() {

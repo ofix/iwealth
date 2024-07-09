@@ -15,12 +15,12 @@
 using json = nlohmann::json;
 
 SpiderConceptListEastMoney::SpiderConceptListEastMoney(StockDataStorage* storage) : Spider(storage) {
-    m_debug = true;
+    m_debug = false;
 }
 
 SpiderConceptListEastMoney::SpiderConceptListEastMoney(StockDataStorage* storage, bool concurrent)
     : Spider(storage, concurrent) {
-    m_debug = true;
+    m_debug = false;
 }
 
 SpiderConceptListEastMoney::~SpiderConceptListEastMoney() {

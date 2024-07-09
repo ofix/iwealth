@@ -209,7 +209,6 @@ void ConcurrentRequest::Run() {
                     } catch (std::exception& e) {
                         response_parse_error = true;
                         std::cout << GetThreadPrefix() << "concurrent loop callback error! " << e.what() << std::endl;
-                        std::cout << conn->response << std::endl;
                     }
                 }
                 curl_multi_remove_handle(cm, easy_curl);

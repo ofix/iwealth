@@ -227,7 +227,7 @@ void StockDataStorage::LoadShareKlinesSync(const std::string& /*share_code*/) {
 }
 
 void StockDataStorage::DumpStorage(DumpType dump_type) {
-    if (dump_type & DumpType::Quote) {
+    if (dump_type == DumpType::Quote) {
         for (auto& share : m_market_shares) {
             std::cout << "province: " << share.province << ", industry_name: " << share.industry_name << std::endl;
         }
@@ -562,7 +562,6 @@ void StockDataStorage::OnTimerFetchShareQuoteData(uint32_t timer_id, void* args)
         HashShares();                                    // share_code->Share* 映射
         spiderCategory->BuildShareCategoryProvinces();   // 填充股票省份信息
         spiderCategory->BuildShareCategoryIndustries();  // 填充股票行业信息
-        DumpStorage(DumpType::Quote);
         // 保存行情数据/行业板块/地域板块数据到本地文件
         SaveQuote();
         SaveCategory(ShareCategoryType::Industry, spiderCategory->GetCategory(ShareCategoryType::Industry));
@@ -571,13 +570,11 @@ void StockDataStorage::OnTimerFetchShareQuoteData(uint32_t timer_id, void* args)
         for (auto& share : m_market_shares) {
             InsertShareNameToTrie(share.name, share.code);
         }
-        FetchBriefInfo();                          // 异步启动公司基本信息爬虫
         SetFetchResultOk(FetchResult::QuoteData);  // 通知ui线程刷新页面
+        FetchBriefInfo();                          // 异步启动公司基本信息爬虫
         delete spiderQuote;                        // 删除爬虫指针
         delete spiderCategory;                     // 删除爬虫指针
         delete pSpiders;                           // 删除容器指针
-        DumpStorage(DumpType::Quote);
-
         pSpiders = nullptr;
         Timer::CancelTimer(timer_id);  // 取消定时器
         // 所有股票下载完后，开始爬取股票基本信息，包括(员工数/曾用名/主营业务/分红融资额/分红送转/总股本//增减持/官方网站/等等)
@@ -585,6 +582,18 @@ void StockDataStorage::OnTimerFetchShareQuoteData(uint32_t timer_id, void* args)
         std::cout << "spiderShareList::progress: " << spiderQuote->GetProgress()
                   << ",spiderShareCategory::progress: " << spiderCategory->GetProgress() << std::endl;
     }
+}
+
+// 清空股票
+bool StockDataStorage::ClearShares() {
+    m_market_shares.clear();
+    return true;
+}
+
+// 删除股票
+bool StockDataStorage::DeleteShares(size_t pos, size_t numRows) {
+    m_market_shares.erase(m_market_shares.begin() + pos, m_market_shares.begin() + pos + numRows);
+    return true;
 }
 
 void StockDataStorage::PrintAllShares(std::vector<Share>& all_shares) {

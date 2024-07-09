@@ -16,9 +16,56 @@ RichGridTable::~RichGridTable() {
 
 int RichGridTable::GetNumberRows() {
     if (m_dataType == RichGridTableDataType::Stock) {
-        return static_cast<int>(m_pStorage->GetStockMarketShareCount());
+        int rows = static_cast<int>(m_pStorage->GetStockMarketShareCount());
+        return rows;
     }
     return 0;
+}
+
+bool RichGridTable::InsertRows(size_t pos, size_t numRows) {
+    if (pos >= m_pStorage->GetStockMarketShareCount()) {
+        return AppendRows(numRows);
+    }
+    if (GetView()) {
+        wxGridTableMessage msg(this, wxGRIDTABLE_NOTIFY_ROWS_INSERTED, pos, numRows);
+
+        GetView()->ProcessTableMessage(msg);
+    }
+    return true;
+}
+
+bool RichGridTable::AppendRows(size_t numRows) {
+    wxGrid* pGrid = GetView();
+    if (pGrid != NULL) {
+        wxGridTableMessage changed(this, wxGRIDTABLE_NOTIFY_ROWS_APPENDED, numRows);
+        pGrid->ProcessTableMessage(changed);
+        return true;
+    }
+    return false;
+}
+
+bool RichGridTable::DeleteRows(size_t pos, size_t numRows) {
+    size_t curNumRows = m_pStorage->GetStockMarketShareCount();
+    if (pos >= curNumRows) {
+        wxFAIL_MSG(wxString::Format(wxT("Called wxGridStringTable::DeleteRows(pos=%lu, N=%lu)\nPos value is invalid "
+                                        "for present table with %lu rows"),
+                                    (unsigned long)pos, (unsigned long)numRows, (unsigned long)curNumRows));
+
+        return false;
+    }
+    if (numRows > curNumRows - pos) {
+        numRows = curNumRows - pos;
+    }
+    if (numRows >= curNumRows) {
+        m_pStorage->ClearShares();
+    } else {
+        m_pStorage->DeleteShares(pos, numRows);
+    }
+    if (GetView()) {
+        wxGridTableMessage msg(this, wxGRIDTABLE_NOTIFY_ROWS_DELETED, pos, numRows);
+        GetView()->ProcessTableMessage(msg);
+    }
+    return true;
 }
 
 bool RichGridTable::SetColumnOrder(int iCol, int order) {

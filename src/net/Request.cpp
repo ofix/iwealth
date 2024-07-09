@@ -24,7 +24,7 @@ std::string Request::Get(const std::string& url, int http_version) {
     conn.timeout = 50000;
     conn.curl_header_list = nullptr;
     conn.upload_info = nullptr;
-    conn.debug = true;
+    conn.debug = false;
     return Request::Get(&conn, http_version);
 }
 
