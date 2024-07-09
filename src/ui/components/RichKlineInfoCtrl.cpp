@@ -12,7 +12,7 @@
 #include "ui/components/RichKlineCtrl.h"
 
 RichKlineInfoCtrl::RichKlineInfoCtrl(RichKlineCtrl* pKlineCtrl, wxWindowID id, const wxPoint& pos, const wxSize& size)
-    : wxControl(nullptr, id, pos, size), m_pKlineCtrl(pKlineCtrl) {
+    : wxControl(pKlineCtrl, id, pos, size), m_pKlineCtrl(pKlineCtrl) {
     // ctor
 }
 
@@ -106,9 +106,9 @@ std::string RichKlineInfoCtrl::GetWeek(std::string /*date*/) {
     // return CalcWeek(year, month, day);
 }
 
-//通过日期判断是星期几可以通过基姆拉尔森计算公式算出
+// 通过日期判断是星期几可以通过基姆拉尔森计算公式算出
 std::string RichKlineInfoCtrl::CalcWeek(int year, int month, int day) {
-    if (month == 1 || month == 2) {  //把一月和二月换算成上一年的十三月和是四月
+    if (month == 1 || month == 2) {  // 把一月和二月换算成上一年的十三月和是四月
         month += 12;
         year--;
     }

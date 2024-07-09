@@ -11,7 +11,9 @@ PanelKline::PanelKline(wxWindow* parent, wxWindowID id, const wxPoint& pos, cons
     m_pRadioCtrl = new RichRadioCtrl(options, 0, this, ID_RAIDO_CTRL, wxPoint(2, 2), wxSize(600, 28));
     wxSize klineSize = size;
     klineSize.DecTo(wxSize(0, 30));
+    // m_pRadioCtrl->Show();
     m_pKlineCtrl = new RichKlineCtrl(this, ID_KLINE_CTRL, wxPoint(2, 30), klineSize);
+    // m_pKlineCtrl->Show();
     m_pKlineInfoCtrl = new RichKlineInfoCtrl(m_pKlineCtrl, ID_KLINE_INFO_CTRL, pos, wxSize(200, 400));
     m_pKlineInfoCtrl->Show(false);
 }

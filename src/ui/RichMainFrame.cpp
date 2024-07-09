@@ -187,7 +187,6 @@ wxPanel* RichMainFrame::PopPanelFromStack() {
 // 监听异步子线程消息
 void RichMainFrame::OnStorageDataReady(wxThreadEvent& event) {
     wxString data = event.GetString();
-    std::cout << "thread event data: " << event.GetString() << std::endl;
     if (data == "Quote") {
         PanelStockQuote* panelQuote = static_cast<PanelStockQuote*>(m_panelCurrent);
         panelQuote->LoadStockMarketQuote();

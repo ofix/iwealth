@@ -1,5 +1,6 @@
 #include "ui/components/RichRadioCtrl.h"
 #include <wx/gdicmn.h>
+#include "ui/RichHelper.h"
 #include "ui/components/RichRadioEvent.h"
 
 RichRadioCtrl::RichRadioCtrl() {
@@ -19,20 +20,26 @@ RichRadioCtrl::RichRadioCtrl(const std::vector<std::string>& options,  // 需要
     m_clrDefault = wxColor(180, 180, 180);
     m_clrActive = wxColor(233, 223, 0);
     for (size_t i = 0; i < options.size(); i++) {
-        wxStaticText* option_ctrl = new wxStaticText(this, wxNewId(), wxString(options[i]));
+        wxStaticText* option_ctrl = new wxStaticText(this, wxNewId(), CN(options[i]));
         option_ctrl->Bind(wxEVT_LEFT_DOWN, &RichRadioCtrl::OnClick, this);
         m_optionCtrls.emplace_back(option_ctrl);
         m_optionMap.insert({options[i], i});
     }
+    Layout();
 }
 
 bool RichRadioCtrl::Layout() {
     if (m_optionCtrls.size() < 1) {
         return false;
     }
-    // int x = GetPosition().x;
-    // wxSize size = GetSize();
-    // int w = size.GetWidth() / m_optionCtrls.size();
+    int x = GetPosition().x;
+    int y = GetPosition().y;
+    wxSize size = GetSize();
+    int w = size.GetWidth() / m_optionCtrls.size();
+    for (size_t i = 0; i < m_optionCtrls.size(); i++) {
+        m_optionCtrls[i]->Move(x, y, 0);
+        x += w;
+    }
     return true;
 }
 
