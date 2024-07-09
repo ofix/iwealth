@@ -33,7 +33,7 @@ class RichGrid : public wxGrid {
     bool SetSortColumn(int iCol);
     bool SetFixedSortColumn(int iCol);
     // 多列分组排序
-    void SortMultiColumns();
+    bool SortMultiColumns();
 
     void LoadColumnLabelImages();
     wxRect GetSortIndicatorRect(wxDC& dc, wxString& colLabelValue, wxRect& rect, int hAlign, int vAlign);

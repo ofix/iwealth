@@ -99,8 +99,8 @@ void RichGridCellStringRenderer::DrawBackground(wxGrid& grid,
                                                 wxGridCellAttr& attr,
                                                 wxDC& dc,
                                                 const wxRect& rect,
-                                                int row,
-                                                int col,
+                                                int /*row*/,
+                                                int /*col*/,
                                                 bool isSelected) {
     dc.SetBackgroundMode(wxBRUSHSTYLE_SOLID);
     wxColour clr;

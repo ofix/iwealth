@@ -27,7 +27,7 @@ class ConcurrentRequest {
 
    protected:
     std::string m_thread_name;         // 线程名称
-    int m_concurrent_size;             // 一次并发数
+    size_t m_concurrent_size;          // 一次并发数
     std::list<conn_t*> m_connections;  // 所有请求
     size_t m_request_size;  // 用户需要发送的初始请求数，不包括请求衍生出来的子请求数量
     std::string m_last_request_url;  // 上一次请求的URL完整地址，防止接口403报错，无法从conn->url中获取到

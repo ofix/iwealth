@@ -17,7 +17,7 @@ RichRadioCtrl::RichRadioCtrl(const std::vector<std::string>& options,  // 需要
     Create(parent, id, pos, size, style);
     m_activeLabel = wxString(options[current]);
     m_clrDefault = wxColor(180, 180, 180);
-    m_clrActive = wxColor(322, 322, 0);
+    m_clrActive = wxColor(233, 223, 0);
     for (size_t i = 0; i < options.size(); i++) {
         wxStaticText* option_ctrl = new wxStaticText(this, wxNewId(), wxString(options[i]));
         option_ctrl->Bind(wxEVT_LEFT_DOWN, &RichRadioCtrl::OnClick, this);
@@ -30,9 +30,9 @@ bool RichRadioCtrl::Layout() {
     if (m_optionCtrls.size() < 1) {
         return false;
     }
-    int x = GetPosition().x;
-    wxSize size = GetSize();
-    int w = size.GetWidth() / m_optionCtrls.size();
+    // int x = GetPosition().x;
+    // wxSize size = GetSize();
+    // int w = size.GetWidth() / m_optionCtrls.size();
     return true;
 }
 
@@ -44,7 +44,7 @@ int RichRadioCtrl::GetSelectionIndex(const std::string& label) {
 }
 
 void RichRadioCtrl::SetSelection(int n) {
-    if (n > m_optionCtrls.size()) {
+    if ((size_t)n > m_optionCtrls.size()) {
         return;
     }
     if (m_active != n) {

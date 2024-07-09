@@ -106,8 +106,8 @@ void RichGrid::MoveSelectedListItem(int dir) {
     }
 }
 
-void RichGrid::SortMultiColumns() {
-    static_cast<RichGridTable*>(GetTable())->SortMultiColumns();
+bool RichGrid::SortMultiColumns() {
+    return static_cast<RichGridTable*>(GetTable())->SortMultiColumns();
 }
 
 bool RichGrid::SetSortColumn(int iCol) {

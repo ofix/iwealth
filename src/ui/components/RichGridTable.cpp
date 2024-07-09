@@ -23,7 +23,7 @@ int RichGridTable::GetNumberRows() {
 
 bool RichGridTable::SetColumnOrder(int iCol, int order) {
     if (m_dataType == RichGridTableDataType::Stock) {
-        if (iCol < m_colSortOrders.size()) {
+        if ((size_t)iCol < m_colSortOrders.size()) {
             if (order == wxDirection::wxUP) {
                 m_colSortOrders[iCol] = 0;
             } else {
@@ -311,9 +311,10 @@ int RichGridTable::SortComparator(const Share& a, const Share& b, int iCol, int 
             return -1;
         }
     }
+    return -1;
 }
 
-void RichGridTable::SortMultiColumns() {
+bool RichGridTable::SortMultiColumns() {
     if (m_dataType == RichGridTableDataType::Stock) {
         std::vector<Share>* pShares = m_pStorage->GetStockAllShares();
         int order = m_colSortOrders[m_iColSorting];
@@ -334,8 +335,11 @@ void RichGridTable::SortMultiColumns() {
                 }
                 return false;
             }
+            return false;
         });
+        return true;
     }
+    return false;
 }
 
 int RichGridTable::GetNumberCols() {
@@ -351,7 +355,7 @@ wxString RichGridTable::GetColLabelValue(int col) {
             CN("序号"), CN("代码"),   CN("名称"),   CN("涨幅"), CN("现价"), CN("昨收"), CN("今开"), CN("最高"),
             CN("最低"), CN("成交额"), CN("成交量"), CN("换手"), CN("振幅"), CN("量比"), CN("行业"), CN("省份"),
         };
-        if (col < columns.size()) {
+        if ((size_t)col < columns.size()) {
             return columns[col];
         }
     }

@@ -10,7 +10,7 @@ class ChinesePinYin {
    public:
     static std::vector<std::string> GetFirstLetters(const std::string& chinese);
     static std::vector<std::string> GetLetters(const std::string& chinese);
-    static std::vector<std::string> ToCharList(const std::string& chinese);
+    // static std::vector<std::string> ToCharList(const std::string& chinese);
 
    private:
     static bool LoadPinYinDictionary(const std::string& dict_path);

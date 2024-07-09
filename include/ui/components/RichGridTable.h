@@ -16,7 +16,7 @@ class RichGridTable : public wxGridTableBase {
     virtual wxString GetColLabelValue(int col);
     virtual void SetValue(int row, int col, const wxString& value);
     void SetStorage(StockDataStorage* pStorage);
-    void SortMultiColumns();
+    bool SortMultiColumns();
     virtual int GetColumnOrder(int iCol);
     bool SetColumnOrder(int iCol, int order);
 

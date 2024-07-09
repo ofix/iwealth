@@ -25,7 +25,7 @@ void ShareListGridTable::SetSearchKeyword(const std::string& keyword) {
 }
 
 wxString ShareListGridTable::GetValue(int row, int col) {
-    if (row < m_shareList.size()) {
+    if ((size_t)row < m_shareList.size()) {
         if (col == 0) {
             return CN(m_shareList[row]->code);
         } else if (col == 1) {

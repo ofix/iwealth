@@ -86,14 +86,14 @@ std::vector<std::string> ChinesePinYin::GetFirstLetters(const std::string& chine
     return RemoveRepeats(letters);
 }
 
-static std::vector<std::string> ToCharList(const std::string& chinese) {
-    std::vector<std::string> list = {};
-    for (size_t i = 0; i < chinese.length();) {
-        NEXT_UTF8_CHAR(i, chinese, letter);
-        list.emplace_back(letter);
-    }
-    return list;
-}
+// static std::vector<std::string> ToCharList(const std::string& chinese) {
+//     std::vector<std::string> list = {};
+//     for (size_t i = 0; i < chinese.length();) {
+//         NEXT_UTF8_CHAR(i, chinese, letter);
+//         list.emplace_back(letter);
+//     }
+//     return list;
+// }
 
 bool ChinesePinYin::LoadPinYinDictionary(const std::string& dict_path) {
     std::ifstream file(dict_path);

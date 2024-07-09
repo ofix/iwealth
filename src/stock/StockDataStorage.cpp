@@ -222,7 +222,7 @@ void StockDataStorage::FetchFinancial() {
 void StockDataStorage::FetchBusinessAnalysis() {
 }
 
-void StockDataStorage::LoadShareKlinesSync(const std::string& share_code) {
+void StockDataStorage::LoadShareKlinesSync(const std::string& /*share_code*/) {
     // 检查文件是否存在,如果不存在，下载最新的日K线
 }
 
@@ -428,7 +428,7 @@ bool StockDataStorage::SaveShareKlines(const std::string& share_code, const Klin
     return false;
 }
 
-std::vector<uiKline>* StockDataStorage::GetShareKlines(const std::string& share_code, const KlineType kline_type) {
+std::vector<uiKline>* StockDataStorage::GetShareKlines(const std::string& share_code, const KlineType /*kline_type*/) {
     if (m_day_klines_adjust.find(share_code) != m_day_klines_adjust.end()) {
         return &m_day_klines_adjust[share_code];
     }

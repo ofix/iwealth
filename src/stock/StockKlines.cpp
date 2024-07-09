@@ -5,7 +5,7 @@
 std::vector<uiKline> StockKlines::GetWeekKlines(const std::vector<uiKline>& day_klines) {
     std::vector<uiKline> week_klines;
     uiKline week_kline;
-    int prev_week = 0, this_week = 0, ndays = 0, prev_week_price_close = 0.0;
+    int prev_week = 0, this_week = 0, /* ndays = 0,*/ prev_week_price_close = 0.0;
     std::string prev_day = "";
 
     prev_day = day_klines[0].day;
@@ -18,7 +18,6 @@ std::vector<uiKline> StockKlines::GetWeekKlines(const std::vector<uiKline>& day_
 
     for (size_t i = 0; i < day_klines.size(); i++) {
         uiKline day_kline = day_klines[i];
-        time_t current_day_t;
         struct tm day_time;
         if (!strptime(day_kline.day.c_str(), "%Y-%m-%d", &day_time)) {
             std::cerr << "Error parsing date: " << day_kline.day << std::endl;
@@ -44,7 +43,7 @@ std::vector<uiKline> StockKlines::GetWeekKlines(const std::vector<uiKline>& day_
             week_kline.market_cap = 0;
             week_kline.volume = 0;
             week_kline.amount = 0;
-            ndays = 0;
+            /* ndays = 0; */
             prev_day = day_kline.day;
             prev_week = this_week;
         }
@@ -88,7 +87,6 @@ std::vector<uiKline> StockKlines::GetMonthKlines(const std::vector<uiKline>& day
 
     for (size_t i = 0; i < day_klines.size(); i++) {
         uiKline day_kline = day_klines[i];
-        time_t current_day_t;
         struct tm day_time;
         if (!strptime(day_kline.day.c_str(), "%Y-%m-%d", &day_time)) {
             std::cerr << "Error parsing date: " << day_kline.day << std::endl;
@@ -158,7 +156,6 @@ std::vector<uiKline> StockKlines::GetQuarterKlines(const std::vector<uiKline>& d
 
     for (size_t i = 0; i < day_klines.size(); i++) {
         uiKline day_kline = day_klines[i];
-        time_t current_day_t;
         struct tm day_time;
         if (!strptime(day_kline.day.c_str(), "%Y-%m-%d", &day_time)) {
             std::cerr << "Error parsing date: " << day_kline.day << std::endl;
