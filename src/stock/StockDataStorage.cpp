@@ -92,13 +92,17 @@ void StockDataStorage::LoadLocalFileShare() {
     // 检查 股票行情文件/概念板块映射文件/行业板块映射文件/股票曾用名映射文件 是否存在
     if (FileTool::IsFileExists(m_path_share_quote) && FileTool::IsFileExists(m_path_category_province) &&
         FileTool::IsFileExists(m_path_category_industry)) {
-#ifndef DEBUG  // 调试模式下，避免频繁下载行情数据
-        if (IsLocalDataFileExpired(m_path_share_quote) && !between_time_period("09:00", "09:29")) {
-            FetchQuoteSync();  // 如果本地行情数据过时了且时间段不在 09:00~09:29，则同步更新行情数据
+        if (IsLocalDataFileExpired(m_path_share_quote)) {  // 过期了要求拉取数据
+            if (between_time_period("09:00", "09:29")) {   // 这个时间段不能拉取,只加载本地过期数据
+                LoadLocalFileQuote(m_path_share_quote, m_market_shares);  // 步骤1. 恢复 m_market_shares 数据
+            } else {
+                // 为了效率，LoadLocalFileQuote 和 FetchQuoteSync 做的事情一样，不能同时使用，会导致数据重复
+                FetchQuoteSync();  // 如果本地行情数据过时了且时间段不在 09:00~09:29，则同步更新行情数据
+            }
+        } else {
+            LoadLocalFileQuote(m_path_share_quote, m_market_shares);  // 步骤1. 恢复 m_market_shares 数据
         }
-#endif
-        LoadLocalFileQuote(m_path_share_quote, m_market_shares);  // 步骤1. 恢复 m_market_shares 数据
-        HashShares();                                             // 步骤2 share_code -> Share* 映射
+        HashShares();  // 步骤2 share_code -> Share* 映射
         LoadLocalFileCategory(ShareCategoryType::Province, m_path_category_province,
                               m_category_provinces);  // 步骤3 恢复 m_category_provinces
         LoadLocalFileCategory(ShareCategoryType::Industry, m_path_category_industry,
@@ -138,6 +142,10 @@ void StockDataStorage::LoadLocalFileCategory(ShareCategoryType type,
     for (auto& category : categories) {
         if (category.length() < 10) {
             break;
+        }
+        // 检查最后一个字符是否是\r,需要排除掉，否则会导致通过share_code无法找到Share*,进而股票行业和地域无法显示
+        if (category[category.size() - 1] == '\r') {
+            category.pop_back();
         }
         std::vector<std::string> map = split(category, ",");
         std::string category_name = map[0];
@@ -204,7 +212,6 @@ void StockDataStorage::FetchQuoteSync() {
     SpiderShareQuote* spiderQuote = static_cast<SpiderShareQuote*>(GetSpider(SpiderType::Quote));
     spiderQuote->CrawlSync();                   // 同步爬取行情数据
     spiderQuote->SaveShareListToDataStorage();  // 保存股票列表
-    HashShares();                               // share_code->Share* 映射
     SaveQuote();                                // 保存行情信息
 }
 
