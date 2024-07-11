@@ -21,18 +21,18 @@ std::string exec(const char* cmd) {
     return result;
 }
 
-/**
- * @todo 获取当前时间
- * @param
- */
-std::string now() {
-    std::time_t now = std::time(nullptr);
-    struct tm time;
-    char buf[80];
-    time = *localtime(&now);
-    strftime(buf, sizeof(buf), "%Y-%m-%d.%X", &time);
-    return buf;
-}
+// /**
+//  * @todo 获取当前时间
+//  * @param
+//  */
+// std::string now() {
+//     std::time_t now = std::time(nullptr);
+//     struct tm time;
+//     char buf[80];
+//     time = *localtime(&now);
+//     strftime(buf, sizeof(buf), "%Y-%m-%d.%X", &time);
+//     return buf;
+// }
 
 /**
  * @todo 分割字符串

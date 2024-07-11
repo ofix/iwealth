@@ -123,13 +123,12 @@ void RichGrid::LoadColumnLabelImages() {
     wxImage imageSortUp;
     wxImage imageSortDown;
     // wxImage::AddHandler(new wxPNGHandler);
-    if (!imageSortUp.LoadFile(FileTool::CurrentPath() + "assets" + DIRECTORY_SEPARATOR + "up.png", wxBITMAP_TYPE_PNG)) {
+    if (!imageSortUp.LoadFile(FileTool::CurrentPath() + "assets" + DIR_SEPARATOR + "up.png", wxBITMAP_TYPE_PNG)) {
         std::cout << "load up png failed" << std::endl;
     }
     m_imgSortUp = wxBitmap(imageSortUp);
 
-    if (!imageSortDown.LoadFile(FileTool::CurrentPath() + "assets" + DIRECTORY_SEPARATOR + "down.png",
-                                wxBITMAP_TYPE_PNG)) {
+    if (!imageSortDown.LoadFile(FileTool::CurrentPath() + "assets" + DIR_SEPARATOR + "down.png", wxBITMAP_TYPE_PNG)) {
         std::cout << "load down png failed" << std::endl;
     }
     m_imgSortDown = wxBitmap(imageSortDown);

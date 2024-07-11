@@ -4,7 +4,8 @@ const string EasyLogger::m_fileName = "iwealth.log";
 EasyLogger* EasyLogger::m_pThis = NULL;
 ofstream EasyLogger::m_logFile;
 
-EasyLogger::EasyLogger() {}
+EasyLogger::EasyLogger() {
+}
 
 EasyLogger* EasyLogger::Instance() {
     if (m_pThis == NULL) {

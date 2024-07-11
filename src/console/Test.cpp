@@ -139,7 +139,7 @@ void TestDateTime() {
 }
 
 void TestFile() {
-    std::string file_path = FileTool::CurrentPath() + "data" + DIRECTORY_SEPARATOR + "stock_quote.json";
+    std::string file_path = FileTool::CurrentPath() + "data" + DIR_SEPARATOR + "stock_quote.json";
     std::string modified_time = FileTool::GetFileModifiedTime(file_path);
     std::cout << "file modifed time = " + modified_time << std::endl;
 }

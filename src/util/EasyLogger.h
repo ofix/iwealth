@@ -6,8 +6,7 @@
 #include <fstream>
 #include <iostream>
 #include <string>
-#include "util/Global.h"
-
+#include "util/DateTime.h"
 
 using namespace std;
 #define gLogger EasyLogger::Instance()
@@ -22,7 +21,9 @@ class EasyLogger {
    private:
     EasyLogger();
     EasyLogger(const EasyLogger&){};
-    EasyLogger& operator=(const EasyLogger&) { return *this; };
+    EasyLogger& operator=(const EasyLogger&) {
+        return *this;
+    };
     static const std::string m_fileName;
     static EasyLogger* m_pThis;
     static ofstream m_logFile;

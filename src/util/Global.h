@@ -11,9 +11,9 @@
 #include "Color.h"
 
 #ifdef _WIN32
-#define DIRECTORY_SEPARATOR "\\"
+#define DIR_SEPARATOR "\\"
 #else
-#define DIRECTORY_SEPARATOR "/"
+#define DIR_SEPARATOR "/"
 #endif
 
 typedef struct _cell_size {
@@ -22,7 +22,6 @@ typedef struct _cell_size {
 } cell_size;
 
 std::string exec(const char* cmd);
-std::string now();
 std::vector<std::string> split(const std::string& str, const std::string& delimiter = "\n");
 std::string join(const std::vector<std::string>& arr, const std::string& delimiter = ",");
 bool end_with(const std::string& origin, const std::string& target);

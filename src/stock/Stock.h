@@ -144,6 +144,35 @@ struct Share {
     bool operator<(const Share& other) const;
 };
 
+// 自选股
+struct FavoriteShare {
+    Share* pShare;                     // share指针
+    std::string favoriate_date;        // 添加日期
+    double add_price;                  // 添加自选时的股价
+    double total_change_rate;          // 加入自选后的涨跌幅
+    double recent_5_days_change_rate;  // 最近5日涨跌幅
+    double recent_month_change_rate;   // 最近1个月涨跌幅
+    double recent_year_change_rate;    // 今年以来涨跌幅
+};
+
+// 自选股分组
+struct FavoriteShareGroup {
+    std::string name;  // 自选股分组名称
+    std::vector<FavoriteShare> shares;
+};
+
+// 监控股
+struct MonitorShare {
+    Share* pShare;
+    std::string moniter_date;    // 加入监控时的日期
+    double monitor_price;        // 加入监控时的股价
+    double expect_change_rate;   // 期望跌幅
+    double max_change_rate;      // 最大跌幅
+    int max_decrease_used_days;  // 跌幅最深耗时天数
+    double current_change_rate;  // 当前跌幅
+    int monitor_days;            // 监控天数
+};
+
 // K线绘制
 struct uiKlineRange {
     int begin;  // 起始K线下标

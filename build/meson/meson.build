@@ -182,6 +182,8 @@ console_sources = [
     'spider/SpiderShareKline.cpp',
     'spider/SpiderShareCategory.cpp',
     'spider/Spider.cpp',
+    'stock/StockMonitorShare.cpp',
+    'stock/UserFavoriteShare.cpp',
     'stock/Stock.cpp',
     'stock/ShareCategory.cpp',
     'net/Request.cpp',

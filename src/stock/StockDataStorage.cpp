@@ -31,13 +31,13 @@ StockDataStorage::StockDataStorage()
       m_fetch_financial_data_ok(false),
       m_fetch_business_analysis_ok(false),
       m_fetch_old_name_ok(false) {
-    m_data_dir = FileTool::CurrentPath() + "data" + DIRECTORY_SEPARATOR;
+    m_data_dir = FileTool::CurrentPath() + "data" + DIR_SEPARATOR;
     m_path_share_quote = m_data_dir + "stock_quote.json";
     m_path_category_province = m_data_dir + "stock_province.csv";
     m_path_category_industry = m_data_dir + "stock_industry.csv";
     m_path_category_concept = m_data_dir + "stock_concept.csv";
     m_path_share_names = m_data_dir + "stock_share_names.csv";
-    m_path_brief_dir = m_data_dir + "brief" + DIRECTORY_SEPARATOR;
+    m_path_brief_dir = m_data_dir + "brief" + DIR_SEPARATOR;
     Init();
 }
 
@@ -429,7 +429,7 @@ bool StockDataStorage::SaveShareKlines(const std::string& share_code, const Klin
         kline_map = &m_year_klines_adjust;
     }
     if (kline_map->find(share_code) != kline_map->end()) {
-        std::string file_path = dir_path + DIRECTORY_SEPARATOR + share_code + ".csv";
+        std::string file_path = dir_path + DIR_SEPARATOR + share_code + ".csv";
         return SaveShareKlinesInCsvFile(file_path, (*kline_map)[share_code]);
     }
     return false;
@@ -482,7 +482,7 @@ bool StockDataStorage::SaveShareKlines(const KlineType kline_type) {
 bool StockDataStorage::SaveShareKlines(const std::string& dir_path,
                                        const std::unordered_map<std::string, std::vector<uiKline>>& klines) {
     for (const auto& pair : klines) {
-        std::string file_path = dir_path + DIRECTORY_SEPARATOR + pair.first + ".csv";
+        std::string file_path = dir_path + DIR_SEPARATOR + pair.first + ".csv";
         SaveShareKlinesInCsvFile(file_path, pair.second);
     }
     return true;
