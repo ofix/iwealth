@@ -135,19 +135,19 @@ std::string RichKlineInfoCtrl::CalcWeek(int year, int month, int day) {
 uiKline RichKlineInfoCtrl::GetCurrentKlineInfo() {
     int n;
     if (m_pKlineCtrl->m_crossLine == NO_CROSS_LINE) {
-        n = m_pKlineCtrl->m_klines.size() - 1;
+        n = m_pKlineCtrl->m_uiKlines.size() - 1;
     } else {
         n = m_pKlineCtrl->m_crossLine;
     }
-    return m_pKlineCtrl->m_klines.at(n);
+    return m_pKlineCtrl->m_uiKlines.at(n);
 }
 
 uiKline RichKlineInfoCtrl::GetPrevKlineInfo() {
     int n;
     if (m_pKlineCtrl->m_crossLine == NO_CROSS_LINE) {
-        n = m_pKlineCtrl->m_klines.size() - 1;
+        n = m_pKlineCtrl->m_uiKlines.size() - 1;
     } else {
         n = m_pKlineCtrl->m_crossLine;
     }
-    return m_pKlineCtrl->m_klines.at((n - 1) >= 0 ? (n - 1) : 0);
+    return m_pKlineCtrl->m_uiKlines.at((n - 1) >= 0 ? (n - 1) : 0);
 }

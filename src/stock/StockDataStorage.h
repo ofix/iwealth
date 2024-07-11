@@ -53,6 +53,10 @@ class StockDataStorage {
     bool SaveShareKlines(const std::string& share_code, const KlineType kline_type);
     bool SaveShareKlinesInCsvFile(const std::string& file_path, const std::vector<uiKline>& klines);
     std::vector<uiKline>* GetShareKlines(const std::string& share_code, const KlineType kline_type);
+    std::string GetFilePathShareKline(const std::string& share_code);
+    bool IsLocalFileShareKlinesExist(const std::string& share_code);
+    bool LoadShareKlines(std::vector<uiKline>* pKlines, const std::string& share_code);
+
     Share* FindShare(const std::string& share_code);
     bool ClearShares();                             // 清空股票
     bool DeleteShares(size_t pos, size_t numRows);  // 删除股票
@@ -78,7 +82,6 @@ class StockDataStorage {
     bool IsLocalDataFileExpired(const std::string& file_path);
     Spider* GetSpider(SpiderType type);
 
-    void LoadShareKlinesSync(const std::string& share_code);  // 加载单个股票所有K线数据，如果本地没有就爬取远程的
     void FetchKlineSync(const std::string& share_code, const KlineType kline_type);
     void FetchKlineSync(Share* pShare, const KlineType kline_type);
 

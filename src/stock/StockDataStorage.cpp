@@ -229,10 +229,6 @@ void StockDataStorage::FetchFinancial() {
 void StockDataStorage::FetchBusinessAnalysis() {
 }
 
-void StockDataStorage::LoadShareKlinesSync(const std::string& /*share_code*/) {
-    // 检查文件是否存在,如果不存在，下载最新的日K线
-}
-
 void StockDataStorage::DumpStorage(DumpType dump_type) {
     if (dump_type == DumpType::Quote) {
         for (auto& share : m_market_shares) {
@@ -440,6 +436,52 @@ std::vector<uiKline>* StockDataStorage::GetShareKlines(const std::string& share_
         return &m_day_klines_adjust[share_code];
     }
     return nullptr;
+}
+
+bool StockDataStorage::IsLocalFileShareKlinesExist(const std::string& share_code) {
+    // 检查文件是否存在
+    std::string file_path = GetFilePathShareKline(share_code);
+    if (!FileTool::IsFileExists(file_path)) {
+        return false;
+    }
+    return true;
+}
+
+std::string StockDataStorage::GetFilePathShareKline(const std::string& share_code) {
+    return FileTool::CurrentPath() + "data" + DIR_SEPARATOR + "day" + DIR_SEPARATOR + share_code + ".csv";
+}
+
+// 加载本地股票历史K线数据
+bool StockDataStorage::LoadShareKlines(std::vector<uiKline>* pKlines, const std::string& share_code) {
+    if (!IsLocalFileShareKlinesExist(share_code)) {
+        return false;
+    }
+    std::string file_path = GetFilePathShareKline(share_code);
+    std::string lines = FileTool::LoadFile(file_path);
+    std::vector<std::string> klines = split(lines, "\n");
+    for (auto& kline : klines) {
+        if (kline.length() < 10) {
+            break;
+        }
+        // 检查最后一个字符是否是\r,需要排除掉，否则会导致通过share_code无法找到Share*,进而股票行业和地域无法显示
+        if (kline[kline.size() - 1] == '\r') {
+            kline.pop_back();
+        }
+        std::vector<std::string> fields = split(kline, ",");
+        uiKline ui_kline;
+        ui_kline.day = fields[0];
+        ui_kline.price_open = std::stod(fields[1]);     // 开盘价
+        ui_kline.price_close = std::stod(fields[2]);    // 收盘价
+        ui_kline.price_max = std::stod(fields[3]);      // 最高价
+        ui_kline.price_min = std::stod(fields[4]);      // 最低价
+        ui_kline.volume = std::stoull(fields[5]);       // 成交量
+        ui_kline.amount = std::stod(fields[6]);         // 成交额
+        ui_kline.change_amount = std::stod(fields[7]);  // 涨跌额
+        ui_kline.change_rate = std::stod(fields[8]);    // 涨跌幅
+        ui_kline.turnover_rate = std::stod(fields[9]);  // 换手率
+        pKlines->push_back(ui_kline);
+    }
+    return true;
 }
 
 bool StockDataStorage::SaveShareKlinesInCsvFile(const std::string& file_path, const std::vector<uiKline>& klines) {

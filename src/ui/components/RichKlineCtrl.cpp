@@ -9,6 +9,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 #include "ui/components/RichKlineCtrl.h"
+#include "stock/StockDataStorage.h"
 #include "ui/components/RichKlineInfoCtrl.h"
 
 // 以下函数实现必须写，否则会爆错误 undefined reference to 'vtable for RichKlineCtrl'
@@ -18,7 +19,7 @@ EVT_SIZE(RichKlineCtrl::OnSize)
 EVT_LEFT_DOWN(RichKlineCtrl::OnLeftMouseDown)
 EVT_KEY_DOWN(RichKlineCtrl::OnKeyDown)
 // EVT_MOUSE_EVENTS(RichKlineCtrl::OnMouseEvent)
-// EVT_ERASE_BACKGROUND(RichKlineCtrl::OnBackground)
+EVT_ERASE_BACKGROUND(RichKlineCtrl::OnBackground)
 END_EVENT_TABLE()
 
 //
@@ -32,24 +33,14 @@ RichKlineCtrl::~RichKlineCtrl() {
     // dtor
 }
 
-RichKlineCtrl::RichKlineCtrl(std::string /*strShareCode*/, wxWindow* parent, wxWindowID id) {
-    Init();
-    SetBackgroundStyle(wxBG_STYLE_PAINT);
-    Create(parent, id);
-    GetClientSize(&m_width, &m_height);
-    // SetCsvPath(getExecDir()+strShareCode+_T(".csv"));
-    ReadCsv();
-    m_klineRng = GetKlineRangeZoomIn(m_klines.size(), m_width, m_klineWidth, m_klineSpan);
-    // m_pVolumeBar = new RichVolumeBarCtrl(this);
-    // m_pInfoToolbar = new RichKlineInfoCtrl(this);
-}
-
-RichKlineCtrl::RichKlineCtrl(wxWindow* parent,
+RichKlineCtrl::RichKlineCtrl(StockDataStorage* pStorage,
+                             wxWindow* parent,
                              wxWindowID id,
                              const wxPoint& pos,
                              const wxSize& size,
                              long style,
-                             const wxValidator& validator) {
+                             const wxValidator& validator)
+    : m_pStorage(pStorage) {
     Init();
     SetBackgroundStyle(wxBG_STYLE_PAINT);
     Create(parent, id, pos, size, style, validator);
@@ -58,13 +49,10 @@ RichKlineCtrl::RichKlineCtrl(wxWindow* parent,
 }
 
 void RichKlineCtrl::Init() {
-    m_share.code = "";
-    m_share.name = "";
-    m_share.market = Market::ShangHai;
     m_iMode = KLINE_MODE_DAY;
-    m_csvPath = "";
     m_klineWidth = 5;
     m_klineSpan = m_klineWidth * 0.8;
+    m_shareCode = "";
     m_klineRng.begin = 0;
     m_klineRng.end = 0;
     m_curKline = -1;
@@ -76,24 +64,15 @@ void RichKlineCtrl::Init() {
     m_crossLine = NO_CROSS_LINE;
 }
 
-bool RichKlineCtrl::Create(wxWindow* parent,
-                           wxWindowID id,
-                           const wxPoint& pos,
-                           const wxSize& size,
-                           long style,
-                           const wxValidator& validator) {
-    if (!wxControl::Create(parent, id, pos, size, style, validator)) {
-        return false;
+void RichKlineCtrl::LoadKlines(const std::string& share_code) {
+    m_shareCode = share_code;
+    m_uiKlines.clear();
+    bool result = m_pStorage->LoadShareKlines(&m_uiKlines, share_code);
+    if (!result) {
+        std::cout << "load share " + share_code + " klines error!" << std::endl;
     }
-    return true;
-}
-
-void RichKlineCtrl::SetShare(Share share) {
-    m_share = share;
-}
-
-Share RichKlineCtrl::GetShare() const {
-    return m_share;
+    m_klineRng = GetKlineRangeZoomIn(m_uiKlines.size(), m_width, m_klineWidth, m_klineSpan);
+    this->Refresh();
 }
 
 /**
@@ -113,48 +92,12 @@ int RichKlineCtrl::GetMode() const {
     return m_iMode;
 }
 
-void RichKlineCtrl::SetCsvPath(std::string strPath) {
-    m_csvPath = strPath;
-}
-
-std::string RichKlineCtrl::GetCsvPath() const {
-    return m_csvPath;
-}
-
 int RichKlineCtrl::GetInnerWidth() {
     return m_width - m_paddingRight;
 }
 
 int RichKlineCtrl::GetInnerHeight() {
     return m_height * 0.7 - m_paddingTop - m_paddingBottom;
-}
-
-bool RichKlineCtrl::ReadCsv() {
-    m_klines.clear();
-    wxTextFile file;
-    if (!file.Open(m_csvPath)) {
-        return false;
-    }
-    // neglect first line
-    for (size_t i = file.GetLineCount() - 1; i >= 1; i--) {
-        std::string line = "";            // file[i];
-        std::vector<std::string> fields;  // slice(line);
-        uiKline item;
-        item.day = fields[0];
-        // fields[6].ToDouble(&item.price_open);
-        // fields[3].ToDouble(&item.price_close);
-        // fields[4].ToDouble(&item.price_max);
-        // fields[5].ToDouble(&item.price_min);
-        // fields[8].ToDouble(&item.change_amount);//涨跌额
-        // fields[9].ToDouble(&item.change_rate);//涨跌幅
-        // fields[11].ToDouble(&item.volume);//成交量
-        // fields[12].ToDouble(&item.amount);//成交额
-        item.favorite = 0;
-        item.danger = 0;
-        item.price_now = item.price_close;
-        m_klines.push_back(item);
-    }
-    return true;
 }
 
 /**
@@ -270,20 +213,6 @@ void RichKlineCtrl::DrawKline(wxDC* pDC,
     // 考虑涨停
 }
 
-std::vector<uiKline> RichKlineCtrl::GetWeekKlines() {
-    if (m_weekKlines.empty()) {
-        // calc week klines;
-    }
-    return m_weekKlines;
-}
-
-std::vector<uiKline> RichKlineCtrl::GetMonthKlines() {
-    if (m_monthKlines.empty()) {
-        // calc month klines;
-    }
-    return m_monthKlines;
-}
-
 /**
  * @func 绘制十字线
  * @param wxDC* pDC 设备绘制上下文
@@ -302,16 +231,16 @@ void RichKlineCtrl::DrawCrossLine(wxDC* pDC, int centerX, int centerY, int w,
 
 /**
  *@todo 获取日K线最低价
- *@param vector<uiKline> data 日K线数据
+ *@param vector<uiKline> uiKlines 日/周/月/季/年K线数据
  *@param int begin 开始位置
  *@param int end 结束位置
  *@author songhuabiao
  */
-float RichKlineCtrl::GetRectMinPrice(std::vector<uiKline>& data, int begin, int end) {
+float RichKlineCtrl::GetRectMinPrice(std::vector<uiKline>& uiKlines, int begin, int end) {
     float min = 100000000;
     for (int i = begin; i <= end; i++) {
-        if (data.at(i).price_min < min) {
-            min = data.at(i).price_min;
+        if (uiKlines.at(i).price_min < min) {
+            min = uiKlines.at(i).price_min;
         }
     }
     m_rectPriceMin = min;
@@ -320,16 +249,16 @@ float RichKlineCtrl::GetRectMinPrice(std::vector<uiKline>& data, int begin, int 
 
 /**
  *@todo 获取日K线最高价
- *@param vector<uiKline> data 日K线数据
+ *@param vector<uiKline> uiKlines 日/周/月/季/年K线数据
  *@param int begin 开始位置
  *@param int end 结束位置
  *@author songhuabiao
  */
-float RichKlineCtrl::GetRectMaxPrice(std::vector<uiKline>& data, int begin, int end) {
+float RichKlineCtrl::GetRectMaxPrice(std::vector<uiKline>& uiKlines, int begin, int end) {
     float max = -100000000;
     for (int i = begin; i <= end; i++) {
-        if (data.at(i).price_max > max) {
-            max = data.at(i).price_max;
+        if (uiKlines.at(i).price_max > max) {
+            max = uiKlines.at(i).price_max;
         }
     }
     m_rectPriceMax = max;
@@ -408,7 +337,7 @@ uiKlineRange RichKlineCtrl::GetKlineRangeZoomOut(long totalKLines, long crossLin
 wxPoint RichKlineCtrl::GetCrossLinePt(long n) {
     double x, y;
     long total = m_klineRng.end - m_klineRng.begin;
-    uiKline item = m_klines.at(n);
+    uiKline item = m_uiKlines.at(n);
     double hPrice = m_rectPriceMax - m_rectPriceMin;
     y = m_paddingTop + (1 - (item.price_close - m_rectPriceMin) / hPrice) * GetInnerHeight();
     if (total > m_width) {  // 一屏幕已经显示不下了
@@ -427,15 +356,15 @@ void RichKlineCtrl::OnPaint(wxPaintEvent& /*event*/) {
     // 绘制黑色背景
     dc.SetBackground(*wxBLACK_BRUSH);
     dc.Clear();
-    float rect_price_max = GetRectMaxPrice(m_klines, m_klineRng.begin, m_klineRng.end);
-    float rect_price_min = GetRectMinPrice(m_klines, m_klineRng.begin, m_klineRng.end);
+    float rect_price_max = GetRectMaxPrice(m_uiKlines, m_klineRng.begin, m_klineRng.end);
+    float rect_price_min = GetRectMinPrice(m_uiKlines, m_klineRng.begin, m_klineRng.end);
     int visible_klines = m_klineRng.end - m_klineRng.begin + 1;
     int nDay = 0;
 
     uiKline day;
-    if (m_klines.size() > (size_t)m_klineRng.end) {
+    if (m_uiKlines.size() > (size_t)m_klineRng.end) {
         for (int i = m_klineRng.begin; i <= m_klineRng.end; i++) {
-            day = m_klines.at(i);
+            day = m_uiKlines.at(i);
             DrawKline(&dc, nDay, visible_klines, day.price_open, day.price_close, day.price_max, day.price_min,
                       rect_price_max, rect_price_min, 0, m_paddingTop, GetInnerWidth(), GetInnerHeight(), m_klineWidth,
                       m_klineSpan);
@@ -444,7 +373,7 @@ void RichKlineCtrl::OnPaint(wxPaintEvent& /*event*/) {
         // draw volume bar
         // m_pVolumeBar->OnDraw(&dc);
         DrawCrossLine(&dc, m_crossLinePt.x, m_crossLinePt.y, m_width, m_height * 0.7);
-        m_pInfoToolbar->OnDraw(&dc);
+        // m_pInfoToolbar->OnDraw(&dc);
     }
 }
 
@@ -463,12 +392,12 @@ void RichKlineCtrl::OnBackground(wxEraseEvent& event) {
 
 void RichKlineCtrl::OnSize(wxSizeEvent& /*event*/) {
     GetClientSize(&m_width, &m_height);
-    m_klineRng = GetKlineRangeZoomIn(m_klines.size(), m_width, m_klineWidth, m_klineSpan);
+    m_klineRng = GetKlineRangeZoomIn(m_uiKlines.size(), m_width, m_klineWidth, m_klineSpan);
     Refresh();  // 刷新窗口
 }
 
 void RichKlineCtrl::OnKeyDown(wxKeyEvent& event) {
-    int max = m_klines.size();
+    int max = m_uiKlines.size();
     int key = event.GetKeyCode();
     if (key == WXK_LEFT) {            // look left
         if (m_klineRng.begin == 0) {  // no more klines in the left

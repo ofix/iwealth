@@ -16,6 +16,7 @@
 #define KLINE_MODES (KLINE_MODE_DAY | KLINE_MODE_WEEK | KLINE_MODE_MONTH | KLINE_MODE_YEAR)
 #define NO_CROSS_LINE -1
 
+class StockDataStorage;
 class RichVolumeBarCtrl;
 class RichKlineInfoCtrl;
 class RichKlineCtrl : public wxControl {
@@ -25,27 +26,19 @@ class RichKlineCtrl : public wxControl {
 
    public:
     RichKlineCtrl();
-    RichKlineCtrl(std::string strShareCode, wxWindow* parent, wxWindowID id);
-    RichKlineCtrl(wxWindow* parent,
+    RichKlineCtrl(StockDataStorage* pStorage,
+                  wxWindow* parent,
                   wxWindowID id,
                   const wxPoint& pos = wxDefaultPosition,
                   const wxSize& size = wxDefaultSize,
                   long style = 0,
                   const wxValidator& validator = wxDefaultValidator);
-    bool Create(wxWindow* parent,
-                wxWindowID id,
-                const wxPoint& pos = wxDefaultPosition,
-                const wxSize& size = wxDefaultSize,
-                long style = 0,
-                const wxValidator& validator = wxDefaultValidator);
     virtual ~RichKlineCtrl();
     void Init();
-    void SetShare(Share share);
-    Share GetShare() const;
     void SetMode(int iMode);  // Day|Week|Month|Year
     int GetMode() const;
-    void SetCsvPath(std::string strPath);
-    std::string GetCsvPath() const;
+
+    void LoadKlines(const std::string& share_code);
 
     // event callback functions
     void OnPaint(wxPaintEvent& event);
@@ -74,23 +67,20 @@ class RichKlineCtrl : public wxControl {
                    int maxY,
                    int lineWidth,
                    int lineSpan);
-    void DrawCrossLine(wxDC* pDC, int centerX, int centerY, int w, int h);  //光标十字线
+    void DrawCrossLine(wxDC* pDC, int centerX, int centerY, int w, int h);  // 光标十字线
     void DrawAnalysisBar(wxDC* pDC);
-    std::vector<uiKline> GetWeekKlines();
-    std::vector<uiKline> GetMonthKlines();
-    float GetRectMinPrice(std::vector<uiKline>& data, int begin, int end);
-    float GetRectMaxPrice(std::vector<uiKline>& data, int begin, int end);
+    float GetRectMinPrice(std::vector<uiKline>& uiKlines, int begin, int end);
+    float GetRectMaxPrice(std::vector<uiKline>& uiKlines, int begin, int end);
     uiKlineRange GetKlineRangeZoomIn(long totalKLines,
                                      long widthContainer,
                                      int16_t klineWidth = 5,
                                      int16_t klineSpan = 2,
-                                     long crossLine = NO_CROSS_LINE);  //放大K线图
+                                     long crossLine = NO_CROSS_LINE);  // 放大K线图
     uiKlineRange GetKlineRangeZoomOut(long totalKLines,
-                                      long crossLine = NO_CROSS_LINE);  //以十字线为中心，否则右侧缩放
+                                      long crossLine = NO_CROSS_LINE);  // 以十字线为中心，否则右侧缩放
     wxPoint GetCrossLinePt(long n);
 
    protected:
-    Share m_share;          // the share whose k line want to be draw
     int m_iMode;            // DAY|Week|Month|Year
     int m_iOrigin;          // 0-CSV 1-pointer
     int m_width;            // the drawing rect width
@@ -102,10 +92,11 @@ class RichKlineCtrl : public wxControl {
     float m_rectPriceMin;   // the minimum price in the drawing rect
     wxPoint m_crossLinePt;  // the current k line mouse point
     int m_crossLine;
-    std::string m_csvPath;               // csv file path of day k line history data
-    std::vector<uiKline> m_klines;       // the k line data
-    std::vector<uiKline> m_weekKlines;   // week k line data;
-    std::vector<uiKline> m_monthKlines;  // month k line data;
+
+    StockDataStorage* m_pStorage;     // 股票存储中心
+    std::string m_shareCode;          // 股票代码
+    std::vector<uiKline> m_uiKlines;  // 当前绘制的K线数据
+
     uiKlineRange m_klineRng;
     int m_paddingTop;     // padding top for klines control
     int m_paddingBottom;  // padding bottom for klines control
