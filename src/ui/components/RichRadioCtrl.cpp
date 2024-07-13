@@ -1,10 +1,14 @@
 #include "ui/components/RichRadioCtrl.h"
+#include <wx/dc.h>
+#include <wx/dcclient.h>
 #include <wx/gdicmn.h>
+#include <iostream>
 #include "ui/RichHelper.h"
 #include "ui/components/RichRadioEvent.h"
 
-RichRadioCtrl::RichRadioCtrl() {
-}
+BEGIN_EVENT_TABLE(RichRadioCtrl, wxControl)
+EVT_ERASE_BACKGROUND(RichRadioCtrl::OnBackground)
+END_EVENT_TABLE()
 
 RichRadioCtrl::RichRadioCtrl(const std::vector<std::string>& options,  // 需要显示的选项
                              int current,                              // 初始化第几项选中
@@ -15,16 +19,21 @@ RichRadioCtrl::RichRadioCtrl(const std::vector<std::string>& options,  // 需要
                              long style                                // 窗口样式
                              )
     : m_active(current) {
-    Create(parent, id, pos, size, style);
-    m_activeLabel = wxString(options[current]);
-    m_clrDefault = wxColor(180, 180, 180);
-    m_clrActive = wxColor(233, 223, 0);
+    Create(parent, id, pos, size, style | wxNO_BORDER);
+
+    m_clrBackground = wxColor(0, 0, 0);
+    m_clrTextDefault = wxColor(180, 180, 180);
+    m_clrTextActive = wxColor(233, 223, 0);
     for (size_t i = 0; i < options.size(); i++) {
-        wxStaticText* option_ctrl = new wxStaticText(this, wxNewId(), CN(options[i]));
+        RichStaticText* option_ctrl = new RichStaticText(this, wxNewId(), CN(options[i]));
+        option_ctrl->SetBackgroundColour(m_clrBackground);
+        option_ctrl->SetForegroundColour(m_clrTextDefault);
         option_ctrl->Bind(wxEVT_LEFT_DOWN, &RichRadioCtrl::OnClick, this);
         m_optionCtrls.emplace_back(option_ctrl);
         m_optionMap.insert({options[i], i});
     }
+    m_optionCtrls[m_active]->SetForegroundColour(m_clrTextActive);
+    m_activeLabel = m_optionCtrls[m_active]->GetLabel();
     Layout();
 }
 
@@ -34,11 +43,11 @@ bool RichRadioCtrl::Layout() {
     }
     int x = GetPosition().x;
     int y = GetPosition().y;
-    wxSize size = GetSize();
-    int w = size.GetWidth() / m_optionCtrls.size();
+    wxClientDC dc(this);
     for (size_t i = 0; i < m_optionCtrls.size(); i++) {
         m_optionCtrls[i]->Move(x, y, 0);
-        x += w;
+        wxSize text_size = dc.GetTextExtent(m_optionCtrls[i]->GetLabel());
+        x += text_size.GetWidth() + 12;
     }
     return true;
 }
@@ -55,25 +64,32 @@ void RichRadioCtrl::SetSelection(int n) {
         return;
     }
     if (m_active != n) {
-        m_optionCtrls[m_active]->SetForegroundColour(m_clrDefault);
+        m_optionCtrls[m_active]->SetForegroundColour(m_clrTextDefault);
         m_active = n;
         m_activeLabel = m_optionCtrls[m_active]->GetLabel();
-        m_optionCtrls[m_active]->SetForegroundColour(m_clrActive);
+        m_optionCtrls[m_active]->SetForegroundColour(m_clrTextActive);
     }
 }
 
 void RichRadioCtrl::OnClick(wxMouseEvent& event) {
     if (event.LeftDown()) {
-        wxStaticText* pControl = static_cast<wxStaticText*>(event.GetEventObject());
+        RichStaticText* pControl = static_cast<RichStaticText*>(event.GetEventObject());
         wxString label = pControl->GetLabel();
         if (label != m_activeLabel) {  // 需要切换
-            m_optionCtrls[m_active]->SetForegroundColour(m_clrDefault);
-            m_active = GetSelectionIndex(label.ToStdString());
+            m_optionCtrls[m_active]->SetForegroundColour(m_clrTextDefault);
+            m_optionCtrls[m_active]->Refresh();
+            m_active = GetSelectionIndex(label.utf8_string());  // 不能使用StdString()，会产生乱码，导致无法正确识别
             m_activeLabel = m_optionCtrls[m_active]->GetLabel();
-            m_optionCtrls[m_active]->SetForegroundColour(m_clrActive);
+            m_optionCtrls[m_active]->SetForegroundColour(m_clrTextActive);
+            m_optionCtrls[m_active]->Refresh();
             // 发送自定义事件
             RichRadioEvent radio_event = RichRadioEvent(wxEVT_RICH_RADIO, GetId());
             QueueEvent(radio_event.Clone());
         }
     }
+}
+
+void RichRadioCtrl::OnBackground(wxEraseEvent& event) {
+    wxDC* pDC = event.GetDC();
+    pDC->SetBrush(wxBrush(wxColour(0, 0, 0)));
 }

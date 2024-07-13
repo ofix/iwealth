@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <wxsmith>
-	<object class="wxDialog" name="DialogShareSearch">
+	<object class="wxDialog" name="RichDialogShareSearch">
 		<size>274,365</size>
 		<font>
 			<size>12</size>

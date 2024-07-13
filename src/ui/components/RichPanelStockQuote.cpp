@@ -1,4 +1,3 @@
-#include "ui/components/PanelStockQuote.h"
 #include <wx/colour.h>
 #include "spider/SpiderShareQuote.h"
 #include "ui/RichApplication.h"
@@ -6,23 +5,29 @@
 #include "ui/components/RichGridCellStringRenderer.h"
 #include "ui/components/RichGridColumnHeaderProvider.h"
 #include "ui/components/RichGridColumnHeaderRenderer.h"
+#include "ui/components/RichPanelStockQuote.h"
 
-//(*InternalHeaders(PanelStockQuote)
+
+//(*InternalHeaders(RichPanelStockQuote)
 #include <wx/intl.h>
 #include <wx/string.h>
 //*)
 
-//(*IdInit(PanelStockQuote)
-const long PanelStockQuote::ID_GRIDCTRL_QUOTA = wxNewId();
+//(*IdInit(RichPanelStockQuote)
+const long RichPanelStockQuote::ID_GRIDCTRL_QUOTA = wxNewId();
 //*)
 
-BEGIN_EVENT_TABLE(PanelStockQuote, wxPanel)
-//(*EventTable(PanelStockQuote)
+BEGIN_EVENT_TABLE(RichPanelStockQuote, wxPanel)
+//(*EventTable(RichPanelStockQuote)
 //*)
 END_EVENT_TABLE()
 
-PanelStockQuote::PanelStockQuote(wxWindow* parent, wxWindowID id, const wxPoint& pos, const wxSize& size) {
-    Create(parent, id, pos, size, wxTAB_TRAVERSAL | wxWANTS_CHARS, _T("Panel_StockQuote"));
+RichPanelStockQuote::RichPanelStockQuote(PanelType type,
+                                         wxWindow* parent,
+                                         wxWindowID id,
+                                         const wxPoint& pos,
+                                         const wxSize& size)
+    : RichPanel(type, parent, id, pos, size, wxTAB_TRAVERSAL | wxWANTS_CHARS, _T("PanelQuote")) {
     m_gridCtrlQuote = new RichGrid(this, ID_GRIDCTRL_QUOTA, wxPoint(0, 0), size);
 
     StockDataStorage* pStorage = static_cast<RichApplication*>(wxTheApp)->GetStockDataStorage();
@@ -66,8 +71,8 @@ PanelStockQuote::PanelStockQuote(wxWindow* parent, wxWindowID id, const wxPoint&
     // m_gridCtrlQuote->SetRowLabelAlignment(wxALIGN_CENTER, wxALIGN_CENTRE);
     // 鼠标滚轮设置
     m_gridCtrlQuote->SetScrollRate(0, static_cast<int>(36 * 8.5));
-    m_gridCtrlQuote->Bind(wxEVT_GRID_LABEL_LEFT_CLICK, &PanelStockQuote::OnGridQuoteHeaderClick, this);
-    m_gridCtrlQuote->Bind(wxEVT_GRID_LABEL_LEFT_DCLICK, &PanelStockQuote::OnGridQuoteHeaderDblClick, this);
+    m_gridCtrlQuote->Bind(wxEVT_GRID_LABEL_LEFT_CLICK, &RichPanelStockQuote::OnGridQuoteHeaderClick, this);
+    m_gridCtrlQuote->Bind(wxEVT_GRID_LABEL_LEFT_DCLICK, &RichPanelStockQuote::OnGridQuoteHeaderDblClick, this);
     /////////////////////////////////////////////////
     /// 插入行情列表表头
 
@@ -97,11 +102,11 @@ PanelStockQuote::PanelStockQuote(wxWindow* parent, wxWindowID id, const wxPoint&
     m_gridCtrlQuote->SetColumnLabelAlignment(15, wxALIGN_LEFT, wxALIGN_CENTER);
 }
 
-RichGrid* PanelStockQuote::GetGridCtrl() {
+RichGrid* RichPanelStockQuote::GetGridCtrl() {
     return m_gridCtrlQuote;
 }
 
-void PanelStockQuote::OnGridQuoteHeaderClick(wxGridEvent& event) {
+void RichPanelStockQuote::OnGridQuoteHeaderClick(wxGridEvent& event) {
     int col = event.GetCol();
     m_gridCtrlQuote->SetSortColumn(col);
     m_gridCtrlQuote->SortMultiColumns();
@@ -109,7 +114,7 @@ void PanelStockQuote::OnGridQuoteHeaderClick(wxGridEvent& event) {
     m_gridCtrlQuote->MakeCellVisible(0, 0);
 }
 
-void PanelStockQuote::OnGridQuoteHeaderDblClick(wxGridEvent& event) {
+void RichPanelStockQuote::OnGridQuoteHeaderDblClick(wxGridEvent& event) {
     int col = event.GetCol();
     m_gridCtrlQuote->SetFixedSortColumn(col);
     m_gridCtrlQuote->SortMultiColumns();
@@ -118,7 +123,7 @@ void PanelStockQuote::OnGridQuoteHeaderDblClick(wxGridEvent& event) {
 }
 
 // 加载市场当前行情并显示
-void PanelStockQuote::LoadStockMarketQuote() {
+void RichPanelStockQuote::LoadStockMarketQuote() {
     StockDataStorage* pStorage = static_cast<RichApplication*>(wxTheApp)->GetStockDataStorage();
     if (pStorage->IsQuoteDataReady()) {
         std::vector<Share> shares = pStorage->GetMarketAllShares();
@@ -162,7 +167,7 @@ void PanelStockQuote::LoadStockMarketQuote() {
     m_gridCtrlQuote->ForceRefresh();  // 使用Refresh()不会有效果
 }
 
-PanelStockQuote::~PanelStockQuote() {
-    //(*Destroy(PanelStockQuote)
+RichPanelStockQuote::~RichPanelStockQuote() {
+    //(*Destroy(RichPanelStockQuote)
     //*)
 }

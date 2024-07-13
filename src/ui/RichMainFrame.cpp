@@ -8,7 +8,7 @@
 #include "ui/RichApplication.h"
 #include "util/Global.h"
 
-//(*IdInit(PanelStockQuote)
+//(*IdInit(RichPanelStockQuote)
 const long RichMainFrame::ID_PANEL_STOCK_QUOTE = wxNewId();
 //*)
 const long RichMainFrame::ID_DIALOG_SHARE_SEARCH = wxNewId();
@@ -35,6 +35,7 @@ RichMainFrame::RichMainFrame(wxWindow* parent, wxWindowID id, const wxPoint& /*p
 
     m_panelStack = {};
     m_panelCurrent = nullptr;
+    m_panelPos = -1;
 
     wxMenu* menuFile = new wxMenu;
     menuFile->Append(wxID_EXIT);
@@ -57,7 +58,8 @@ RichMainFrame::RichMainFrame(wxWindow* parent, wxWindowID id, const wxPoint& /*p
     Bind(wxEVT_ICONIZE, &RichMainFrame::OnIconize, this);
     Bind(wxEVT_MAXIMIZE, &RichMainFrame::OnMaximize, this);
     // 初始化主窗口面板
-    PanelStockQuote* panelQuote = new PanelStockQuote(this, ID_PANEL_STOCK_QUOTE, wxPoint(384, 48), wxSize(1240, 600));
+    RichPanelStockQuote* panelQuote =
+        new RichPanelStockQuote(PanelType::Quote, this, ID_PANEL_STOCK_QUOTE, wxPoint(384, 48), wxSize(1240, 600));
     panelQuote->LoadStockMarketQuote();
     panelQuote->GetGridCtrl()->Bind(wxEVT_CHAR, &RichMainFrame::OnChar, this);
     panelQuote->GetGridCtrl()->Bind(wxEVT_GRID_CELL_LEFT_CLICK, &RichMainFrame::OnGridCellLeftClick, this);
@@ -65,7 +67,7 @@ RichMainFrame::RichMainFrame(wxWindow* parent, wxWindowID id, const wxPoint& /*p
     panelQuote->GetGridCtrl()->Bind(wxEVT_KEY_DOWN, &RichMainFrame::OnKeyDown, this);
     AddPanelToStack(panelQuote);
 
-    m_dlgShareSearch = new DialogShareSearch(
+    m_dlgShareSearch = new RichDialogShareSearch(
         this, ID_DIALOG_SHARE_SEARCH, _T("股票精灵"), wxDefaultPosition, wxDefaultSize,
         (wxDEFAULT_DIALOG_STYLE & ~(wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER)) | wxBORDER_NONE);  // 移除默认标题栏
     m_dlgShareSearch->ReLayout(wxSize(290, 380));
@@ -95,8 +97,11 @@ void RichMainFrame::OnMaximize(wxMaximizeEvent& event) {
 
 // 全局处理 Alt+Tab 按键消息
 void RichMainFrame::OnKeyDown(wxKeyEvent& event) {
-    if (event.GetKeyCode() == WXK_TAB && event.AltDown()) {
-        std::cout << " alt+tab 被按下了" << std::endl;
+    int key_code = event.GetKeyCode();
+    if (key_code == WXK_TAB && event.AltDown()) {
+        std::cout << " alt+tab 按下了" << std::endl;
+    } else if (key_code == WXK_ESCAPE) {
+        PopPanelFromStack();
     } else {
         event.Skip();
     }
@@ -104,8 +109,9 @@ void RichMainFrame::OnKeyDown(wxKeyEvent& event) {
 
 // 处理按键按下事件
 void RichMainFrame::OnChar(wxKeyEvent& event) {
-    int keycode = event.GetKeyCode();
-    if (keycode != 8) {
+    std::cout << "RichMainFrame::OnChar " << std::endl;
+    int key_code = event.GetKeyCode();
+    if (key_code != 8) {
         wxChar key = event.GetUnicodeKey();
         wxString character(key);
         std::string keyword = character.utf8_string();
@@ -117,6 +123,7 @@ void RichMainFrame::OnChar(wxKeyEvent& event) {
         //     m_panelStockQuote->GetGridCtrl()->ClearSelection();
         // }
     }
+    event.Skip();
 }
 
 void RichMainFrame::AdjustDlgShareSearchPostion() {
@@ -159,39 +166,45 @@ void RichMainFrame::OnGridCellLeftDblClick(wxGridEvent& event) {
     std::string _share_code = share_code.ToStdString();
     wxPoint pos = m_panelCurrent->GetPosition();
     wxSize size = m_panelCurrent->GetSize();
-    PanelKline* panelKline = new PanelKline(this, ID_PANEL_KLINE, pos, size);
+    RichPanelKline* panelKline = new RichPanelKline(PanelType::Kline, this, ID_PANEL_KLINE, pos, size);
     panelKline->SetShareCode(_share_code);
     AddPanelToStack(panelKline);
 
     event.Skip();
 }
 
-void RichMainFrame::AddPanelToStack(wxPanel* panel) {
+void RichMainFrame::AddPanelToStack(RichPanel* panel) {
     if (m_panelCurrent != nullptr) {
         m_panelCurrent->Show(false);
     }
     m_panelStack.push_back(panel);
     m_panelCurrent = panel;
+    m_panelPos += 1;
     m_panelCurrent->Show(true);
 }
 
-wxPanel* RichMainFrame::PopPanelFromStack() {
-    if (m_panelStack.size() > 0) {
-        wxPanel* panel = m_panelStack[m_panelStack.size() - 1];
+void RichMainFrame::PopPanelFromStack() {
+    if (m_panelStack.size() > 1) {
+        RichPanel* panel = m_panelStack[m_panelStack.size() - 1];
         m_panelStack.pop_back();
-        return panel;
+        m_panelPos -= 1;
+        m_panelCurrent = m_panelStack[m_panelPos];
+        // 必须释放，否则会内存泄露，请参考以下链接:
+        // https://stackoverflow.com/questions/28746161/does-stdvectorpop-back-set-the-pointers-of-the-objects-in-it-to-nullptr
+        delete panel;
+        m_panelCurrent->Show();
     }
-    return nullptr;
 }
 
 // 监听异步子线程消息
 void RichMainFrame::OnStorageDataReady(wxThreadEvent& event) {
     wxString data = event.GetString();
     if (data == "Quote") {
-        PanelStockQuote* panelQuote = static_cast<PanelStockQuote*>(m_panelCurrent);
+        RichPanelStockQuote* panelQuote = static_cast<RichPanelStockQuote*>(m_panelCurrent);
         panelQuote->LoadStockMarketQuote();
     }
 }
+
 void RichMainFrame::OnExit(wxCommandEvent& event) {
     event.Skip();
 }

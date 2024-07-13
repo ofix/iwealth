@@ -14,9 +14,9 @@
 #endif
 
 #include <wx/listctrl.h>
-#include "ui/components/DialogShareSearch.h"
-#include "ui/components/PanelKline.h"
-#include "ui/components/PanelStockQuote.h"
+#include "ui/components/RichDialogShareSearch.h"
+#include "ui/components/RichPanelKline.h"
+#include "ui/components/RichPanelStockQuote.h"
 
 class RichApplication;
 class RichMainFrame : public wxFrame {
@@ -34,8 +34,8 @@ class RichMainFrame : public wxFrame {
     void OnGridCellLeftClick(wxGridEvent& event);
     void OnGridCellLeftDblClick(wxGridEvent& event);
     void AdjustDlgShareSearchPostion();
-    void AddPanelToStack(wxPanel* panel);
-    wxPanel* PopPanelFromStack();
+    void AddPanelToStack(RichPanel* panel);
+    void PopPanelFromStack();
 
    protected:
     //(*Identifiers(RichMainFrame)
@@ -51,8 +51,9 @@ class RichMainFrame : public wxFrame {
     void OnStorageDataReady(wxThreadEvent& event);
 
    private:
-    std::vector<wxPanel*> m_panelStack;  // 视图栈
-    wxPanel* m_panelCurrent;             // 当前视图
-    DialogShareSearch* m_dlgShareSearch;
+    std::vector<RichPanel*> m_panelStack;  // 视图栈
+    RichPanel* m_panelCurrent;             // 当前视图
+    size_t m_panelPos;                     // 当前位置
+    RichDialogShareSearch* m_dlgShareSearch;
     DECLARE_EVENT_TABLE()
 };

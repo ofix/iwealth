@@ -1,5 +1,5 @@
-#ifndef RICHKLINECTRL_H
-#define RICHKLINECTRL_H
+#ifndef RICH_CTRL_KLINE_H
+#define RICH_CTRL_KLINE_H
 
 #include <wx/control.h>
 #include <wx/dcbuffer.h>
@@ -17,22 +17,11 @@
 #define NO_CROSS_LINE -1
 
 class StockDataStorage;
-class RichVolumeBarCtrl;
-class RichKlineInfoCtrl;
-class RichKlineCtrl : public wxControl {
-    wxDECLARE_DYNAMIC_CLASS(RichKlineCtrl);
-    wxDECLARE_EVENT_TABLE();
-    wxDECLARE_NO_COPY_CLASS(RichKlineCtrl);
-
+class RichKlineCtrl {
    public:
-    RichKlineCtrl();
     RichKlineCtrl(StockDataStorage* pStorage,
-                  wxWindow* parent,
-                  wxWindowID id,
                   const wxPoint& pos = wxDefaultPosition,
-                  const wxSize& size = wxDefaultSize,
-                  long style = 0,
-                  const wxValidator& validator = wxDefaultValidator);
+                  const wxSize& size = wxDefaultSize);
     virtual ~RichKlineCtrl();
     void Init();
     void SetMode(int iMode);  // Day|Week|Month|Year
@@ -40,18 +29,15 @@ class RichKlineCtrl : public wxControl {
 
     void LoadKlines(const std::string& share_code);
 
-    // event callback functions
-    void OnPaint(wxPaintEvent& event);
+    void OnPaint(wxDC* pDC);
     void OnBackground(wxEraseEvent& event);
     void OnSize(wxSizeEvent& event);
     void OnKeyDown(wxKeyEvent& event);
     void OnLeftMouseDown(wxMouseEvent& event);
 
    protected:
-    bool ReadCsv();
     int GetInnerWidth();
     int GetInnerHeight();
-    // draw helper functions
     void DrawKline(wxDC* pDC,
                    int nKLine,
                    int visibleKLineCount,
@@ -81,10 +67,10 @@ class RichKlineCtrl : public wxControl {
     wxPoint GetCrossLinePt(long n);
 
    protected:
-    int m_iMode;            // DAY|Week|Month|Year
-    int m_iOrigin;          // 0-CSV 1-pointer
-    int m_width;            // the drawing rect width
-    int m_height;           // the drawing rect height
+    int m_iMode;    // DAY|Week|Month|Year
+    wxPoint m_pos;  // 起始位置
+    int m_width;
+    int m_height;
     int m_curKline;         // the current k line under the cursor
     int m_klineWidth;       // single k line width
     int m_klineSpan;        // span between two single k line
@@ -98,16 +84,13 @@ class RichKlineCtrl : public wxControl {
     std::vector<uiKline> m_uiKlines;  // 当前绘制的K线数据
 
     uiKlineRange m_klineRng;
-    int m_paddingTop;     // padding top for klines control
-    int m_paddingBottom;  // padding bottom for klines control
-    int m_paddingRight;   // padding right for klines control
-    // volume bar ctrl
-    RichVolumeBarCtrl* m_pVolumeBar;
-    RichKlineInfoCtrl* m_pInfoToolbar;
+    int m_paddingTop;        // padding top for klines control
+    int m_paddingBottom;     // padding bottom for klines control
+    int m_paddingRight;      // padding right for klines control
     bool m_showAnalysisBar;  // if true, draw volume,MCDA,KDJ index
     int m_analysisType;
+    friend class RichDialogKlineInfo;
     friend class RichVolumeBarCtrl;
-    friend class RichKlineInfoCtrl;
 };
 
-#endif  // RICHKLINECTRL_H
+#endif  // RICH_CTRL_KLINE_H

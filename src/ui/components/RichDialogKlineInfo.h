@@ -4,18 +4,20 @@
 #include <wx/control.h>
 #include <wx/datetime.h>
 #include <wx/dcclient.h>
+#include <wx/dialog.h>
 #include <string>
 #include "stock/Stock.h"
 
 class RichKlineCtrl;
-class RichKlineInfoCtrl : public wxControl {
+class RichDialogKlineInfo : public wxDialog {
    public:
-    RichKlineInfoCtrl(RichKlineCtrl* pKlineCtrl,
-                      wxWindowID id,
-                      const wxPoint& pos = wxDefaultPosition,
-                      const wxSize& size = wxDefaultSize);
-    virtual ~RichKlineInfoCtrl();
-    void OnDraw(wxDC* pDC);
+    RichDialogKlineInfo(RichKlineCtrl* pKlineCtrl,
+                        wxWindow* parent,
+                        wxWindowID id,
+                        const wxPoint& pos = wxDefaultPosition,
+                        const wxSize& size = wxDefaultSize);
+    virtual ~RichDialogKlineInfo();
+    void OnDraw(wxDC& dc);
     uiKline GetCurrentKlineInfo();
     uiKline GetPrevKlineInfo();
     std::string FormatDay(std::string);

@@ -1,6 +1,15 @@
-#include "ui/components/DialogShareSearch.h"
+///////////////////////////////////////////////////////////////////////////////
+// Name:        iwealth/ui/commponents/RichDialogShareSearch.cpp
+// Purpose:     iwealth global share search dialog
+// Author:      songhuabiao
+// Modified by:
+// Created:     2024-06-13 18:00
+// Copyright:   (C) Copyright 2024, Wealth Corporation, All Rights Reserved.
+// Licence:     GNU GENERAL PUBLIC LICENSE, Version 3
+///////////////////////////////////////////////////////////////////////////////
 
-//(*InternalHeaders(DialogShareSearch)
+#include "ui/components/RichDialogShareSearch.h"
+
 #include <wx/intl.h>
 #include <wx/string.h>
 #include <chrono>
@@ -11,27 +20,22 @@
 #include "ui/components/ShareListGridCellStringRenderer.h"
 #include "ui/components/ShareListGridTable.h"
 
-//*)
+const long RichDialogShareSearch::ID_TEXTCTRL_KEYWORD = wxNewId();
+const long RichDialogShareSearch::ID_RICHGRID_SHARELIST = wxNewId();
+const long RichDialogShareSearch::ID_STATICTEXT_TITLE = wxNewId();
+const long RichDialogShareSearch::ID_BITMAPBUTTON_CLOSE = wxNewId();
 
-//(*IdInit(DialogShareSearch)
-const long DialogShareSearch::ID_TEXTCTRL_KEYWORD = wxNewId();
-const long DialogShareSearch::ID_RICHGRID_SHARELIST = wxNewId();
-const long DialogShareSearch::ID_STATICTEXT_TITLE = wxNewId();
-const long DialogShareSearch::ID_BITMAPBUTTON_CLOSE = wxNewId();
-//*)
+BEGIN_EVENT_TABLE(RichDialogShareSearch, wxDialog)
 
-BEGIN_EVENT_TABLE(DialogShareSearch, wxDialog)
-//(*EventTable(DialogShareSearch)
-//*)
 END_EVENT_TABLE()
 
-DialogShareSearch::DialogShareSearch(wxWindow* parent,
-                                     wxWindowID id,
-                                     const wxString& title,
-                                     const wxPoint& pos,
-                                     const wxSize& size,
-                                     long style,
-                                     const wxString& name) {
+RichDialogShareSearch::RichDialogShareSearch(wxWindow* parent,
+                                             wxWindowID id,
+                                             const wxString& title,
+                                             const wxPoint& pos,
+                                             const wxSize& size,
+                                             long style,
+                                             const wxString& name) {
     Create(parent, id, title, pos, size, style, name);
 
     // 自定义标题栏标题
@@ -40,14 +44,14 @@ DialogShareSearch::DialogShareSearch(wxWindow* parent,
     // 自定义右侧关闭按钮
     m_bitmapbutton_close = wxBitmapButton::NewCloseButton(this, ID_BITMAPBUTTON_CLOSE);
     m_bitmapbutton_close->SetPosition(wxPoint(255, 5));
-    m_bitmapbutton_close->Bind(wxEVT_BUTTON, &DialogShareSearch::OnExitSearchShare, this);
+    m_bitmapbutton_close->Bind(wxEVT_BUTTON, &RichDialogShareSearch::OnExitSearchShare, this);
 
     // 关键字搜索文本框
     m_textCtrlKeyword =
         new wxTextCtrl(this, ID_TEXTCTRL_KEYWORD, "", wxPoint(5, 32), wxSize(200, 32), wxTE_PROCESS_ENTER);
-    m_textCtrlKeyword->Bind(wxEVT_TEXT, &DialogShareSearch::OnSearchShare, this);
-    m_textCtrlKeyword->Bind(wxEVT_TEXT_ENTER, &DialogShareSearch::OnExitSearchShare, this);
-    m_textCtrlKeyword->Bind(wxEVT_KEY_DOWN, &DialogShareSearch::OnKeyDown, this);
+    m_textCtrlKeyword->Bind(wxEVT_TEXT, &RichDialogShareSearch::OnSearchShare, this);
+    m_textCtrlKeyword->Bind(wxEVT_TEXT_ENTER, &RichDialogShareSearch::OnExitSearchShare, this);
+    m_textCtrlKeyword->Bind(wxEVT_KEY_DOWN, &RichDialogShareSearch::OnKeyDown, this);
     m_textCtrlKeyword->SetFont(RichApplication::GetDefaultFont(11));
 
     /////////////////////////////////////////////////
@@ -80,7 +84,7 @@ DialogShareSearch::DialogShareSearch(wxWindow* parent,
 
     m_gridShareList->HideColLabels();  // 隐藏列标签
     m_gridShareList->HideRowLabels();  // 隐藏行标签
-    m_gridShareList->Bind(wxEVT_GRID_CELL_LEFT_CLICK, &DialogShareSearch::OnGridCellLeftClick, this);
+    m_gridShareList->Bind(wxEVT_GRID_CELL_LEFT_CLICK, &RichDialogShareSearch::OnGridCellLeftClick, this);
 
     // 设置列宽
     std::vector<int> grid_column_widths = {60, 160, 120};
@@ -93,19 +97,19 @@ DialogShareSearch::DialogShareSearch(wxWindow* parent,
     m_nowTimeKeywordInput = std::chrono::steady_clock::now();
 }
 
-ShareListGridTable* DialogShareSearch::CreateShareListGridTable() {
+ShareListGridTable* RichDialogShareSearch::CreateShareListGridTable() {
     StockDataStorage* pStorage = static_cast<RichApplication*>(wxTheApp)->GetStockDataStorage();
     return new ShareListGridTable(pStorage);
 }
 
-void DialogShareSearch::OnGridCellLeftClick(wxGridEvent& event) {
+void RichDialogShareSearch::OnGridCellLeftClick(wxGridEvent& event) {
     int iSelectedRow = event.GetRow();
     m_gridShareList->SelectRow(iSelectedRow);
     m_gridShareList->MakeCellVisible(iSelectedRow, 0);
     m_gridShareList->Refresh();
 }
 
-void DialogShareSearch::ReLayout(const wxSize& size) {
+void RichDialogShareSearch::ReLayout(const wxSize& size) {
     this->SetSize(size);
     m_bitmapbutton_close->SetPosition(wxPoint(size.x - 20, 5));
     wxSize size_textctrl;
@@ -119,7 +123,7 @@ void DialogShareSearch::ReLayout(const wxSize& size) {
     m_gridShareList->SetSize(size_gridctrl);
 }
 
-void DialogShareSearch::OnKeyDown(wxKeyEvent& event) {
+void RichDialogShareSearch::OnKeyDown(wxKeyEvent& event) {
     if (event.GetKeyCode() == WXK_UP) {  // 向上方向键
         m_gridShareList->MoveSelectedListItem(-1);
     } else if (event.GetKeyCode() == WXK_DOWN) {  // 向下方向键
@@ -129,7 +133,7 @@ void DialogShareSearch::OnKeyDown(wxKeyEvent& event) {
     }
 }
 
-void DialogShareSearch::SetKeyword(const std::string& keyword) {
+void RichDialogShareSearch::SetKeyword(const std::string& keyword) {
     // 通过判断调用时间来决定是否要拼接keyword,优化中文输入法导致的无法完整获取用户输入的中文字符串的问题
     m_nowTimeKeywordInput = std::chrono::steady_clock::now();
     std::chrono::milliseconds time_elapsed =
@@ -147,7 +151,7 @@ void DialogShareSearch::SetKeyword(const std::string& keyword) {
     m_oldTimeKeywordInput = m_nowTimeKeywordInput;
 }
 
-void DialogShareSearch::OnSearchShare(wxCommandEvent& event) {
+void RichDialogShareSearch::OnSearchShare(wxCommandEvent& event) {
     wxString input = m_textCtrlKeyword->GetValue();
     std::string keyword = input.utf8_string();  // Trie只支持utf8字符串
     // 必须先设置 Keyword，然后调用SetTable，否则 表格行数为0，无法显示搜索结果
@@ -159,12 +163,12 @@ void DialogShareSearch::OnSearchShare(wxCommandEvent& event) {
     event.Skip();
 }
 
-void DialogShareSearch::OnExitSearchShare(wxCommandEvent& /*event*/) {
+void RichDialogShareSearch::OnExitSearchShare(wxCommandEvent& /*event*/) {
     m_textCtrlKeyword->Clear();
     this->Show(false);
 }
 
-DialogShareSearch::~DialogShareSearch() {
-    //(*Destroy(DialogShareSearch)
+RichDialogShareSearch::~RichDialogShareSearch() {
+    //(*Destroy(RichDialogShareSearch)
     //*)
 }

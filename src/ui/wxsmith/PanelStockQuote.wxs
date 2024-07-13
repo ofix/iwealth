@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <wxsmith>
-	<object class="wxPanel" name="PanelStockQuote">
+	<object class="wxPanel" name="RichPanelStockQuote">
 		<id_arg>0</id_arg>
 		<size>639,566</size>
 		<pos_arg>1</pos_arg>

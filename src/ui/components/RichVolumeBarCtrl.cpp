@@ -1,9 +1,9 @@
 ///////////////////////////////////////////////////////////////////////////////
-// Name:        iwealth/ui/commponents/RichVolumnBar.cpp
-// Purpose:     GUI main frame
+// Name:        iwealth/ui/commponents/RichVolumnBarCtrl.cpp
+// Purpose:     kline volume bar
 // Author:      songhuabiao
 // Modified by:
-// Created:     2024-05-14-13.44
+// Created:     2024-07-13 19:00
 // Copyright:   (C) Copyright 2024, Wealth Corporation, All Rights Reserved.
 // Licence:     GNU GENERAL PUBLIC LICENSE, Version 3
 ///////////////////////////////////////////////////////////////////////////////
@@ -11,15 +11,14 @@
 #include "ui/components/RichVolumeBarCtrl.h"
 #include "ui/components/RichKlineCtrl.h"
 
-RichVolumeBarCtrl::RichVolumeBarCtrl(RichKlineCtrl* pKlineCtrl, wxWindowID id, const wxPoint& pos, const wxSize& size)
-    : wxControl(nullptr, id, pos, size), m_pKlineCtrl(pKlineCtrl) {
+RichVolumeBarCtrl::RichVolumeBarCtrl(RichKlineCtrl* pKlineCtrl, const wxPoint& pos, const wxSize& size)
+    : m_pKlineCtrl(pKlineCtrl) {
 }
 
 RichVolumeBarCtrl::~RichVolumeBarCtrl() {
-    // dtor
 }
 
-void RichVolumeBarCtrl::OnDraw(wxDC* pDC) {
+void RichVolumeBarCtrl::OnPaint(wxDC* pDC) {
     std::vector<uiKline>& klines = m_pKlineCtrl->m_uiKlines;
     uiKlineRange& klineRng = m_pKlineCtrl->m_klineRng;
     int span = m_pKlineCtrl->m_klineSpan;

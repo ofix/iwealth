@@ -1,51 +1,22 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Name:        iwealth/ui/components/RichRichKlineCtrl.cpp
-// Purpose:     GUI main frame
+// Purpose:     the main kline control
 // Author:      songhuabiao
 // Modified by:
-// Created:     2024-05-14-15.44
+// Created:     2024-05-14 19:44
 // Copyright:   (C) Copyright 2024, Wealth Corporation, All Rights Reserved.
 // Licence:     GNU GENERAL PUBLIC LICENSE, Version 3
 ///////////////////////////////////////////////////////////////////////////////
 
 #include "ui/components/RichKlineCtrl.h"
 #include "stock/StockDataStorage.h"
-#include "ui/components/RichKlineInfoCtrl.h"
-
-// 以下函数实现必须写，否则会爆错误 undefined reference to 'vtable for RichKlineCtrl'
-BEGIN_EVENT_TABLE(RichKlineCtrl, wxControl)
-EVT_PAINT(RichKlineCtrl::OnPaint)
-EVT_SIZE(RichKlineCtrl::OnSize)
-EVT_LEFT_DOWN(RichKlineCtrl::OnLeftMouseDown)
-EVT_KEY_DOWN(RichKlineCtrl::OnKeyDown)
-// EVT_MOUSE_EVENTS(RichKlineCtrl::OnMouseEvent)
-EVT_ERASE_BACKGROUND(RichKlineCtrl::OnBackground)
-END_EVENT_TABLE()
-
-//
-wxIMPLEMENT_DYNAMIC_CLASS(RichKlineCtrl, wxControl);
-
-RichKlineCtrl::RichKlineCtrl() {
-    Init();
-}
 
 RichKlineCtrl::~RichKlineCtrl() {
-    // dtor
 }
 
-RichKlineCtrl::RichKlineCtrl(StockDataStorage* pStorage,
-                             wxWindow* parent,
-                             wxWindowID id,
-                             const wxPoint& pos,
-                             const wxSize& size,
-                             long style,
-                             const wxValidator& validator)
-    : m_pStorage(pStorage) {
+RichKlineCtrl::RichKlineCtrl(StockDataStorage* pStorage, const wxPoint& pos, const wxSize& size)
+    : m_pStorage(pStorage), m_pos(pos), m_width(size.GetWidth()), m_height(size.GetHeight()) {
     Init();
-    SetBackgroundStyle(wxBG_STYLE_PAINT);
-    Create(parent, id, pos, size, style, validator);
-    m_width = size.GetWidth();
-    m_height = size.GetHeight();
 }
 
 void RichKlineCtrl::Init() {
@@ -72,7 +43,6 @@ void RichKlineCtrl::LoadKlines(const std::string& share_code) {
         std::cout << "load share " + share_code + " klines error!" << std::endl;
     }
     m_klineRng = GetKlineRangeZoomIn(m_uiKlines.size(), m_width, m_klineWidth, m_klineSpan);
-    this->Refresh();
 }
 
 /**
@@ -102,7 +72,7 @@ int RichKlineCtrl::GetInnerHeight() {
 
 /**
  * @todo 绘制日K线的函数
- * @param wxDC pDC 绘制设备上下文
+ * @param wxDC* pDC 待缓存的绘制设备上下文，此处必须用wxDC*，不能使用wxDC&
  * @param nKLine 第几个日K线
  * @param visibleKLineCount 总共需要显示日K线总数
  * @param float price_open 当日开盘价
@@ -348,14 +318,9 @@ wxPoint RichKlineCtrl::GetCrossLinePt(long n) {
     return wxPoint(x, y);
 }
 
-// event callback functions
-void RichKlineCtrl::OnPaint(wxPaintEvent& /*event*/) {
-    // 自动双缓冲，如果系统默认支持双缓冲，会调用系统，否则使用位图实现，
-    // 必须在 Create之前调用 SetBackgroundStyle(wxBG_STYLE_PAINT);
-    wxAutoBufferedPaintDC dc(this);
-    // 绘制黑色背景
-    dc.SetBackground(*wxBLACK_BRUSH);
-    dc.Clear();
+void RichKlineCtrl::OnPaint(wxDC* pDC) {
+    pDC->SetBackground(*wxBLACK_BRUSH);
+    pDC->Clear();
     float rect_price_max = GetRectMaxPrice(m_uiKlines, m_klineRng.begin, m_klineRng.end);
     float rect_price_min = GetRectMinPrice(m_uiKlines, m_klineRng.begin, m_klineRng.end);
     int visible_klines = m_klineRng.end - m_klineRng.begin + 1;
@@ -365,35 +330,29 @@ void RichKlineCtrl::OnPaint(wxPaintEvent& /*event*/) {
     if (m_uiKlines.size() > (size_t)m_klineRng.end) {
         for (int i = m_klineRng.begin; i <= m_klineRng.end; i++) {
             day = m_uiKlines.at(i);
-            DrawKline(&dc, nDay, visible_klines, day.price_open, day.price_close, day.price_max, day.price_min,
+            DrawKline(pDC, nDay, visible_klines, day.price_open, day.price_close, day.price_max, day.price_min,
                       rect_price_max, rect_price_min, 0, m_paddingTop, GetInnerWidth(), GetInnerHeight(), m_klineWidth,
                       m_klineSpan);
             nDay++;
         }
-        // draw volume bar
-        // m_pVolumeBar->OnDraw(&dc);
-        DrawCrossLine(&dc, m_crossLinePt.x, m_crossLinePt.y, m_width, m_height * 0.7);
-        // m_pInfoToolbar->OnDraw(&dc);
+        if (m_crossLine != NO_CROSS_LINE) {
+            DrawCrossLine(pDC, m_crossLinePt.x, m_crossLinePt.y, m_width, m_height * 0.7);
+        }
     }
 }
 
 void RichKlineCtrl::OnBackground(wxEraseEvent& event) {
-    wxClientDC* clientDC = NULL;
-    if (!event.GetDC())
-        clientDC = new wxClientDC(this);
-    wxDC* dc = clientDC ? clientDC : event.GetDC();
-    dc->SetBrush(wxBrush(wxColour(0, 0, 0)));
-    wxSize sz = GetClientSize();
-    dc->DrawRectangle(wxRect(0, 0, sz.x, sz.y));
-    dc->SetBrush(wxNullBrush);
-    if (clientDC)
-        wxDELETE(clientDC);
+    wxDC* pDC = event.GetDC();
+    pDC->SetBrush(wxBrush(wxColour(0, 0, 0)));
+    // dc->DrawRectangle(wxRect(m_pos.x, m_pos.y, m_width, m_height));
+    // dc->SetBrush(wxNullBrush);
 }
 
-void RichKlineCtrl::OnSize(wxSizeEvent& /*event*/) {
-    GetClientSize(&m_width, &m_height);
+void RichKlineCtrl::OnSize(wxSizeEvent& event) {
+    wxSize size = event.GetSize();
+    m_width = size.GetWidth();
+    m_height = size.GetHeight();
     m_klineRng = GetKlineRangeZoomIn(m_uiKlines.size(), m_width, m_klineWidth, m_klineSpan);
-    Refresh();  // 刷新窗口
 }
 
 void RichKlineCtrl::OnKeyDown(wxKeyEvent& event) {
@@ -451,7 +410,6 @@ void RichKlineCtrl::OnKeyDown(wxKeyEvent& event) {
                     m_crossLinePt = GetCrossLinePt(m_crossLine);  // 修正十字线的位置
                 }
             }
-
         } else {
             int count = m_klineRng.end - m_klineRng.begin + 1;
             if ((count - 360) > m_width) {
@@ -509,7 +467,6 @@ void RichKlineCtrl::OnKeyDown(wxKeyEvent& event) {
             m_crossLinePt = GetCrossLinePt(m_crossLine);  // 修正十字线的位置
         }
     }
-    this->Refresh(false);
 }
 
 void RichKlineCtrl::OnLeftMouseDown(wxMouseEvent& event) {
@@ -525,6 +482,5 @@ void RichKlineCtrl::OnLeftMouseDown(wxMouseEvent& event) {
             m_crossLine = m_klineRng.begin + k;
             m_crossLinePt = GetCrossLinePt(m_crossLine);
         }
-        this->Refresh(false);
     }
 }
