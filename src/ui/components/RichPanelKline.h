@@ -24,7 +24,7 @@ class RichPanelKline : public RichPanel {
     void OnPaint(wxPaintEvent& event);
     void OnBackground(wxEraseEvent& event);
     void OnSize(wxSizeEvent& event);
-    void OnKeyUp(wxKeyEvent& event);
+    void OnKeyDown(wxKeyEvent& event);
     void OnLeftMouseDown(wxMouseEvent& event);
 
    protected:

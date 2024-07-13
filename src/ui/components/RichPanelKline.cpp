@@ -21,7 +21,7 @@ BEGIN_EVENT_TABLE(RichPanelKline, RichPanel)
 EVT_PAINT(RichPanelKline::OnPaint)
 EVT_SIZE(RichPanelKline::OnSize)
 EVT_LEFT_DOWN(RichPanelKline::OnLeftMouseDown)
-EVT_KEY_UP(RichPanelKline::OnKeyUp)
+EVT_KEY_DOWN(RichPanelKline::OnKeyDown)
 EVT_ERASE_BACKGROUND(RichPanelKline::OnBackground)
 END_EVENT_TABLE()
 
@@ -79,7 +79,7 @@ void RichPanelKline::OnSize(wxSizeEvent& event) {
     m_pKlineCtrl->OnSize(event);
     Refresh();  // 界面需要重绘
 }
-void RichPanelKline::OnKeyUp(wxKeyEvent& event) {
+void RichPanelKline::OnKeyDown(wxKeyEvent& event) {
     m_pKlineCtrl->OnKeyDown(event);
     Refresh();  // 界面需要重绘
     event.Skip();
