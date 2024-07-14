@@ -62,6 +62,7 @@ RichMainFrame::RichMainFrame(wxWindow* parent, wxWindowID id, const wxPoint& /*p
     panelQuote->GetGridCtrl()->Bind(wxEVT_GRID_CELL_LEFT_CLICK, &RichMainFrame::OnGridCellLeftClick, this);
     panelQuote->GetGridCtrl()->Bind(wxEVT_GRID_CELL_LEFT_DCLICK, &RichMainFrame::OnGridCellLeftDblClick, this);
     panelQuote->GetGridCtrl()->Bind(wxEVT_KEY_DOWN, &RichMainFrame::OnKeyDown, this);
+    Bind(wxEVT_RICH_SHARE_SEARCH, &RichMainFrame::OnSearchShare, this);
     AddPanelToStack(panelQuote);
 
     m_dlgShareSearch = new RichDialogShareSearch(
@@ -155,19 +156,34 @@ void RichMainFrame::OnGridCellLeftClick(wxGridEvent& event) {
     event.Skip();
 }
 
+RichPanel* RichMainFrame::GetCurrentPanel() {
+    return m_panelCurrent;
+}
+
 // 双击股票行情，显示日K线图
 void RichMainFrame::OnGridCellLeftDblClick(wxGridEvent& event) {
     int iRow = event.GetRow();
     RichGrid* pGrid = static_cast<RichGrid*>(event.GetEventObject());
     wxString share_code = pGrid->GetCellValue(iRow, 1);
     std::string _share_code = share_code.ToStdString();
-    wxPoint pos = m_panelCurrent->GetPosition();
-    wxSize size = m_panelCurrent->GetSize();
-    RichPanelKline* panelKline = new RichPanelKline(PanelType::Kline, this, ID_PANEL_KLINE, pos, size);
-    panelKline->SetShareCode(_share_code);
-    AddPanelToStack(panelKline);
-
+    ShowKlinePanel(_share_code);
     event.Skip();
+}
+
+void RichMainFrame::OnSearchShare(RichShareSearchEvent& event) {
+    ShowKlinePanel(event.GetShareCode());
+}
+
+void RichMainFrame::ShowKlinePanel(const std::string& share_code) {
+    if (m_panelCurrent->GetType() == PanelType::Kline) {
+        dynamic_cast<RichPanelKline*>(m_panelCurrent)->SetShareCode(share_code);
+    } else {
+        wxPoint pos = m_panelCurrent->GetPosition();
+        wxSize size = m_panelCurrent->GetSize();
+        RichPanelKline* panelKline = new RichPanelKline(PanelType::Kline, this, ID_PANEL_KLINE, pos, size);
+        panelKline->SetShareCode(share_code);
+        AddPanelToStack(panelKline);
+    }
 }
 
 void RichMainFrame::AddPanelToStack(RichPanel* panel) {

@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////////////
-// Name:        iwealth/ui/commponents/RichRadioEvent.cpp
+// Name:        src/ui/events/RichRadioEvent.cpp
 // Purpose:     custom radio control selection event
 // Author:      songhuabiao
 // Modified by:
@@ -8,14 +8,16 @@
 // Licence:     GNU GENERAL PUBLIC LICENSE, Version 3
 ///////////////////////////////////////////////////////////////////////////////
 
-#include "ui/components/RichRadioEvent.h"
+#include "ui/events/RichRadioEvent.h"
 
 wxDEFINE_EVENT(wxEVT_RICH_RADIO, RichRadioEvent);
 
 RichRadioEvent::RichRadioEvent(wxEventType type, int id) : wxEvent(id, type) {
 }
 
+// 自定义数据必须在这里进行设置，否则事件接收者无法正确收到
 RichRadioEvent::RichRadioEvent(const RichRadioEvent& event) : wxEvent(event) {
+    this->SetSelection(event.GetSelection());
 }
 
 int RichRadioEvent::GetSelection() const {

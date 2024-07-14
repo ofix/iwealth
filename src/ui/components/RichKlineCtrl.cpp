@@ -40,12 +40,17 @@ void RichKlineCtrl::Init() {
 
 void RichKlineCtrl::LoadKlines(const std::string& share_code) {
     m_shareCode = share_code;
+    // 有可能重复加载，所以需要清空就数据
     m_uiKlines.clear();
+    m_emaCurves.clear();
+
     bool result = m_pStorage->LoadShareKlines(&m_uiKlines, share_code);
     if (!result) {
         std::cout << "load share " + share_code + " klines error!" << std::endl;
     }
     m_klineRng = GetKlineRangeZoomIn(m_uiKlines.size(), m_width, m_klineWidth, m_klineSpan);
+
+    // 添加 EMA 曲线的时候会自动计算相关数据
     AddEmaCurve(99, wxColor(255, 0, 255));
     AddEmaCurve(255, wxColor(255, 255, 0));
     AddEmaCurve(905, wxColor(0, 255, 0));

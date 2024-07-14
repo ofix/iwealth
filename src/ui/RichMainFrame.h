@@ -17,6 +17,7 @@
 #include "ui/RichDialogShareSearch.h"
 #include "ui/RichPanelKline.h"
 #include "ui/RichPanelStockQuote.h"
+#include "ui/events/RichShareSearchEvent.h"
 
 class RichApplication;
 class RichMainFrame : public wxFrame {
@@ -33,9 +34,12 @@ class RichMainFrame : public wxFrame {
     void OnKeyDown(wxKeyEvent& event);
     void OnGridCellLeftClick(wxGridEvent& event);
     void OnGridCellLeftDblClick(wxGridEvent& event);
+    void OnSearchShare(RichShareSearchEvent& event);
     void AdjustDlgShareSearchPostion();
     void AddPanelToStack(RichPanel* panel);
     void PopPanelFromStack();
+    void ShowKlinePanel(const std::string& share_code);
+    RichPanel* GetCurrentPanel();
 
    protected:
     //(*Identifiers(RichMainFrame)

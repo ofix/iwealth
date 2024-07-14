@@ -1,5 +1,5 @@
-#ifndef RICHEVENTRADIO_H
-#define RICHEVENTRADIO_H
+#ifndef RICH_RADIO_EVENT_H
+#define RICH_RADIO_EVENT_H
 
 #include <wx/event.h>
 

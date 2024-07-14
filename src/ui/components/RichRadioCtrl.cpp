@@ -14,7 +14,7 @@
 #include <wx/gdicmn.h>
 #include <iostream>
 #include "ui/RichHelper.h"
-#include "ui/components/RichRadioEvent.h"
+#include "ui/events/RichRadioEvent.h"
 
 BEGIN_EVENT_TABLE(RichRadioCtrl, wxControl)
 EVT_ERASE_BACKGROUND(RichRadioCtrl::OnBackground)
@@ -94,7 +94,9 @@ void RichRadioCtrl::OnClick(wxMouseEvent& event) {
             m_optionCtrls[m_active]->Refresh();
             // 发送自定义事件
             RichRadioEvent radio_event = RichRadioEvent(wxEVT_RICH_RADIO, GetId());
-            QueueEvent(radio_event.Clone());
+            radio_event.SetSelection(m_active);
+            wxPostEvent(this->GetParent(), radio_event);
+            // QueueEvent(radio_event.Clone());
         }
     }
 }

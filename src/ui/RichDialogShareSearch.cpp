@@ -19,6 +19,7 @@
 #include "ui/components/RichGridCellStringRenderer.h"
 #include "ui/components/ShareListGridCellStringRenderer.h"
 #include "ui/components/ShareListGridTable.h"
+#include "ui/events/RichShareSearchEvent.h"
 
 const long RichDialogShareSearch::ID_TEXTCTRL_KEYWORD = wxNewId();
 const long RichDialogShareSearch::ID_RICHGRID_SHARELIST = wxNewId();
@@ -164,6 +165,18 @@ void RichDialogShareSearch::OnSearchShare(wxCommandEvent& event) {
 }
 
 void RichDialogShareSearch::OnExitSearchShare(wxCommandEvent& /*event*/) {
+    // 获取选中的行
+    wxArrayInt selected_rows = m_gridShareList->GetSelectedRows();
+    if (selected_rows.size() > 0) {
+        wxString share_code = m_gridShareList->GetCellValue(selected_rows.at(0), 0);
+        std::string _share_code = share_code.utf8_string();
+        // 发送自定义事件
+        RichShareSearchEvent search_event(wxEVT_RICH_SHARE_SEARCH, GetId());
+        search_event.SetShareCode(_share_code);
+        RichMainFrame* pMainFrame = static_cast<RichApplication*>(wxTheApp)->GetMainFrame();
+        wxPostEvent(pMainFrame, search_event);
+    }
+
     m_textCtrlKeyword->Clear();
     this->Show(false);
 }
