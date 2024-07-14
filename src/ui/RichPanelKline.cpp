@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////////////
-// Name:        iwealth/ui/commponents/RichPanelKline.cpp
+// Name:        src/ui/RichPanelKline.cpp
 // Purpose:     Day/Week/Month/Quoter/Year Kline panel
 // Author:      songhuabiao
 // Modified by:
@@ -8,7 +8,7 @@
 // Licence:     GNU GENERAL PUBLIC LICENSE, Version 3
 ///////////////////////////////////////////////////////////////////////////////
 
-#include "ui/components/RichPanelKline.h"
+#include "ui/RichPanelKline.h"
 #include <wx/dcbuffer.h>
 #include "ui/RichApplication.h"
 
@@ -40,6 +40,7 @@ RichPanelKline::RichPanelKline(PanelType type, wxWindow* parent, wxWindowID id, 
     SetBackgroundStyle(wxBG_STYLE_PAINT);
     // 事件绑定， Radio 控件将始终获取鼠标键盘焦点
     m_pRadioCtrl->Bind(wxEVT_LEFT_UP, &RichPanelKline::OnLeftMouseDown, this);
+    SetFocusIgnoringChildren();  // 忽略子窗口默认获取输入焦点，解决无法移动K线的问题
 }
 
 RichPanelKline::~RichPanelKline() {

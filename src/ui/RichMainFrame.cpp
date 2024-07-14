@@ -8,13 +8,10 @@
 #include "ui/RichApplication.h"
 #include "util/Global.h"
 
-//(*IdInit(RichPanelStockQuote)
 const long RichMainFrame::ID_PANEL_STOCK_QUOTE = wxNewId();
-//*)
 const long RichMainFrame::ID_DIALOG_SHARE_SEARCH = wxNewId();
 const long RichMainFrame::ID_PANEL_KLINE = wxNewId();
 
-// catch the event from the thread
 BEGIN_EVENT_TABLE(RichMainFrame, wxFrame)
 EVT_THREAD(ID_QUOTE_DATA_READY, RichMainFrame::OnStorageDataReady)
 END_EVENT_TABLE()

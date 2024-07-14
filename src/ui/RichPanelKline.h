@@ -4,7 +4,7 @@
 #include <string>
 #include <vector>
 #include "stock/Stock.h"
-#include "ui/components/RichDialogKlineInfo.h"
+#include "ui/RichDialogKlineInfo.h"
 #include "ui/components/RichKlineCtrl.h"
 #include "ui/components/RichPanel.h"
 #include "ui/components/RichRadioCtrl.h"

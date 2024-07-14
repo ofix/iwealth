@@ -2,9 +2,9 @@
 #define RICHRADIO_H
 
 #include <wx/control.h>
+#include <wx/stattext.h>
 #include <unordered_map>
 #include <vector>
-#include "ui/components/RichStaticText.h"
 
 class RichRadioCtrl : public wxControl {
    public:
@@ -18,16 +18,12 @@ class RichRadioCtrl : public wxControl {
     void OnClick(wxMouseEvent& event);
     void OnBackground(wxEraseEvent& event);
     virtual void SetSelection(int n);
-    // 必须重写此函数，否则会始终获取 wxPanel 的键盘输入焦点，导致RichPanelKline 始终无法获取键盘按下事件
-    virtual bool AcceptsFocusFromKeyboard() const {
-        return false;
-    }
 
    protected:
     virtual bool Layout();
     int GetSelectionIndex(const std::string& label);
 
-    std::vector<RichStaticText*> m_optionCtrls;
+    std::vector<wxStaticText*> m_optionCtrls;
     int m_active;
     std::unordered_map<std::string, int> m_optionMap;
     wxString m_activeLabel;

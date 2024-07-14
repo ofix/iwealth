@@ -1,25 +1,18 @@
+#include "ui/RichPanelStockQuote.h"
 #include <wx/colour.h>
+#include <wx/intl.h>
+#include <wx/string.h>
 #include "spider/SpiderShareQuote.h"
 #include "ui/RichApplication.h"
 #include "ui/RichHelper.h"
 #include "ui/components/RichGridCellStringRenderer.h"
 #include "ui/components/RichGridColumnHeaderProvider.h"
 #include "ui/components/RichGridColumnHeaderRenderer.h"
-#include "ui/components/RichPanelStockQuote.h"
 
-
-//(*InternalHeaders(RichPanelStockQuote)
-#include <wx/intl.h>
-#include <wx/string.h>
-//*)
-
-//(*IdInit(RichPanelStockQuote)
 const long RichPanelStockQuote::ID_GRIDCTRL_QUOTA = wxNewId();
-//*)
 
 BEGIN_EVENT_TABLE(RichPanelStockQuote, wxPanel)
-//(*EventTable(RichPanelStockQuote)
-//*)
+
 END_EVENT_TABLE()
 
 RichPanelStockQuote::RichPanelStockQuote(PanelType type,

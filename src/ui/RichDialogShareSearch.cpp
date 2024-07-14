@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////////////
-// Name:        iwealth/ui/commponents/RichDialogShareSearch.cpp
+// Name:        src/ui/RichDialogShareSearch.cpp
 // Purpose:     iwealth global share search dialog
 // Author:      songhuabiao
 // Modified by:
@@ -8,7 +8,7 @@
 // Licence:     GNU GENERAL PUBLIC LICENSE, Version 3
 ///////////////////////////////////////////////////////////////////////////////
 
-#include "ui/components/RichDialogShareSearch.h"
+#include "ui/RichDialogShareSearch.h"
 
 #include <wx/intl.h>
 #include <wx/string.h>

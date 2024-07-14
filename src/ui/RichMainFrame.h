@@ -14,9 +14,9 @@
 #endif
 
 #include <wx/listctrl.h>
-#include "ui/components/RichDialogShareSearch.h"
-#include "ui/components/RichPanelKline.h"
-#include "ui/components/RichPanelStockQuote.h"
+#include "ui/RichDialogShareSearch.h"
+#include "ui/RichPanelKline.h"
+#include "ui/RichPanelStockQuote.h"
 
 class RichApplication;
 class RichMainFrame : public wxFrame {

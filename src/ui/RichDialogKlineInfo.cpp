@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////////////
-// Name:        iwealth/ui/components/RichRichDialogKlineInfo.cpp
+// Name:        iwealth/ui/RichRichDialogKlineInfo.cpp
 // Purpose:     GUI main frame
 // Author:      songhuabiao
 // Modified by:
@@ -8,7 +8,7 @@
 // Licence:     GNU GENERAL PUBLIC LICENSE, Version 3
 ///////////////////////////////////////////////////////////////////////////////
 
-#include "ui/components/RichDialogKlineInfo.h"
+#include "ui/RichDialogKlineInfo.h"
 #include "ui/components/RichKlineCtrl.h"
 
 RichDialogKlineInfo::RichDialogKlineInfo(RichKlineCtrl* pKlineCtrl,

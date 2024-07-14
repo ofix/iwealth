@@ -35,7 +35,7 @@ RichRadioCtrl::RichRadioCtrl(const std::vector<std::string>& options,  // 需要
     m_clrTextDefault = wxColor(180, 180, 180);
     m_clrTextActive = wxColor(233, 223, 0);
     for (size_t i = 0; i < options.size(); i++) {
-        RichStaticText* option_ctrl = new RichStaticText(this, wxNewId(), CN(options[i]));
+        wxStaticText* option_ctrl = new wxStaticText(this, wxNewId(), CN(options[i]));
         option_ctrl->SetBackgroundColour(m_clrBackground);
         option_ctrl->SetForegroundColour(m_clrTextDefault);
         option_ctrl->Bind(wxEVT_LEFT_DOWN, &RichRadioCtrl::OnClick, this);
@@ -83,7 +83,7 @@ void RichRadioCtrl::SetSelection(int n) {
 
 void RichRadioCtrl::OnClick(wxMouseEvent& event) {
     if (event.LeftDown()) {
-        RichStaticText* pControl = static_cast<RichStaticText*>(event.GetEventObject());
+        wxStaticText* pControl = static_cast<wxStaticText*>(event.GetEventObject());
         wxString label = pControl->GetLabel();
         if (label != m_activeLabel) {  // 需要切换
             m_optionCtrls[m_active]->SetForegroundColour(m_clrTextDefault);
