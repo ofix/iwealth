@@ -55,6 +55,21 @@ class RichKlineCtrl {
                    int lineSpan);
     void DrawCrossLine(wxDC* pDC, int centerX, int centerY, int w, int h);  // 光标十字线
     void DrawAnalysisBar(wxDC* pDC);
+    void DrawEmaCurves(wxDC* pDC,
+                       int visibleKLineCount,
+                       float rect_price_max,
+                       float rect_price_min,
+                       int minX,
+                       int minY,
+                       int maxX,
+                       int maxY,
+                       int klineWidth,
+                       int klineSpan);                            // 绘制所有EMA曲线
+    bool HideEmaCurve(int n);                                     // 隐藏周期为n的EMA平滑移动价格曲线
+    bool ShowEmaCurve(int n);                                     // 显示周期为n的EMA平滑移动价格曲线
+    bool AddEmaCurve(int n, wxColor color, bool visible = true);  // 添加周期为n的EMA平滑移动价格曲线
+    bool DelEmaCurve(int n);                                      // 删除周期为n的EMA平滑移动价格曲线
+    bool HasEmaCurve();
     float GetRectMinPrice(std::vector<uiKline>& uiKlines, int begin, int end);
     float GetRectMaxPrice(std::vector<uiKline>& uiKlines, int begin, int end);
     uiKlineRange GetKlineRangeZoomIn(long totalKLines,
@@ -79,9 +94,10 @@ class RichKlineCtrl {
     wxPoint m_crossLinePt;  // the current k line mouse point
     int m_crossLine;
 
-    StockDataStorage* m_pStorage;     // 股票存储中心
-    std::string m_shareCode;          // 股票代码
-    std::vector<uiKline> m_uiKlines;  // 当前绘制的K线数据
+    StockDataStorage* m_pStorage;            // 股票存储中心
+    std::string m_shareCode;                 // 股票代码
+    std::vector<uiKline> m_uiKlines;         // 当前绘制的K线数据
+    std::vector<ShareEmaCurve> m_emaCurves;  // 指数移动平均线
 
     uiKlineRange m_klineRng;
     int m_paddingTop;        // padding top for klines control

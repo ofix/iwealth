@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////////////
-// Name:        iwealth/ui/commponents/RichVolumnBarCtrl.cpp
+// Name:        src/ui/commponents/RichVolumnBarCtrl.cpp
 // Purpose:     kline volume bar
 // Author:      songhuabiao
 // Modified by:
@@ -44,6 +44,16 @@ void RichVolumeBarCtrl::OnPaint(wxDC* pDC) {
         }
         pDC->DrawRectangle(x, y, w, h);
     }
+    if (m_pKlineCtrl->m_crossLine != NO_CROSS_LINE) {
+        DrawCrossLine(pDC, m_pKlineCtrl->m_crossLinePt.x, m_pKlineCtrl->m_crossLinePt.y + m_pKlineCtrl->m_height * 0.7,
+                      m_pKlineCtrl->m_width, m_pKlineCtrl->m_height * 0.3);
+    }
+}
+
+void RichVolumeBarCtrl::DrawCrossLine(wxDC* pDC, int centerX, int centerY, int w, int h) {
+    wxPen dash_pen(wxColor(200, 200, 200), 1, wxPENSTYLE_LONG_DASH);
+    pDC->SetPen(dash_pen);
+    pDC->DrawLine(centerX, centerY, centerX, h);  // 竖线
 }
 
 double RichVolumeBarCtrl::GetMaxVolumeInRange() {

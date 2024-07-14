@@ -2,6 +2,7 @@
 #define STOCK_H
 
 #include <stdint.h>
+#include <wx/wx.h>
 #include <atomic>
 #include <mutex>
 #include <string>
@@ -142,6 +143,14 @@ struct Share {
     Share& operator=(const Share& other);
     Share(const Share& other);
     bool operator<(const Share& other) const;
+};
+
+// EMA指数移动平均线
+struct ShareEmaCurve {
+    int period;                     // 周期
+    wxColor color;                  // 曲线显示颜色
+    bool visible;                   // 是否显示
+    std::vector<double> ema_price;  // 收盘价简单移动平均值
 };
 
 // 自选股

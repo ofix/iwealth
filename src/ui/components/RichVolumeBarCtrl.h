@@ -14,6 +14,7 @@ class RichVolumeBarCtrl {
                       const wxSize& size = wxDefaultSize);
     virtual ~RichVolumeBarCtrl();
     void OnPaint(wxDC* pDC);
+    void DrawCrossLine(wxDC* pDC, int centerX, int centerY, int w, int h);
 
    protected:
     double GetMaxVolumeInRange();

@@ -1,9 +1,9 @@
 ///////////////////////////////////////////////////////////////////////////////
-// Name:        iwealth/ui/RichRichDialogKlineInfo.cpp
+// Name:        src/ui/RichRichDialogKlineInfo.cpp
 // Purpose:     GUI main frame
 // Author:      songhuabiao
 // Modified by:
-// Created:     2024-05-14-16.59
+// Created:     2024-05-14 16:59
 // Copyright:   (C) Copyright 2024, Wealth Corporation, All Rights Reserved.
 // Licence:     GNU GENERAL PUBLIC LICENSE, Version 3
 ///////////////////////////////////////////////////////////////////////////////

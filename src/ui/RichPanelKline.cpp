@@ -11,7 +11,9 @@
 #include "ui/RichPanelKline.h"
 #include <wx/dcbuffer.h>
 #include "ui/RichApplication.h"
+#include "ui/RichHelper.h"
 
+const long RichPanelKline::ID_SHARE_NAME_CTRL = wxNewId();
 const long RichPanelKline::ID_KLINE_CTRL = wxNewId();
 const long RichPanelKline::ID_DIALOG_KLINE_INFO = wxNewId();
 const long RichPanelKline::ID_RAIDO_CTRL = wxNewId();
@@ -27,19 +29,28 @@ END_EVENT_TABLE()
 
 RichPanelKline::RichPanelKline(PanelType type, wxWindow* parent, wxWindowID id, const wxPoint& pos, const wxSize& size)
     : RichPanel(type, parent, id, pos, size, wxTAB_TRAVERSAL | wxWANTS_CHARS, _T("Panel_Kline")) {
+    // 股票名称
+    m_pShareNameCtrl = new wxStaticText(this, ID_SHARE_NAME_CTRL, wxT(""), wxPoint(2, 2), wxSize(40, 24));
+    m_pShareNameCtrl->SetForegroundColour(wxColor(200, 200, 200));
+
+    // 日/周/月/季/年 K线
     std::vector<std::string> options = {"分时", "日线", "周线", "月线", "季线", "年线"};
-    m_pRadioCtrl = new RichRadioCtrl(options, 1, this, ID_RAIDO_CTRL, wxPoint(2, 2), wxSize(600, 28));
-    wxSize klineSize = size;
-    klineSize.DecBy(wxSize(0, 30));  // 这里不能使用DecTo,会导致RichKlineCtrl控件宽度为0
+    m_pRadioCtrl = new RichRadioCtrl(options, 1, this, ID_RAIDO_CTRL, wxPoint(42, 2), wxSize(600, 28));
+    // 事件绑定， Radio 控件将始终获取鼠标键盘焦点
+    m_pRadioCtrl->Bind(wxEVT_LEFT_UP, &RichPanelKline::OnLeftMouseDown, this);
+    // K线主图
+    m_ptKlineCtrl = wxPoint(2, 30);
+    m_sizeKlineCtrl = size;
+    m_sizeKlineCtrl.DecBy(wxSize(0, 30));  // 这里不能使用DecTo,会导致RichKlineCtrl控件宽度为0
     StockDataStorage* pStorage = static_cast<RichApplication*>(wxTheApp)->GetStockDataStorage();
-    m_pKlineCtrl = new RichKlineCtrl(pStorage, wxPoint(2, 30), klineSize);
+    m_pKlineCtrl = new RichKlineCtrl(pStorage, m_ptKlineCtrl, m_sizeKlineCtrl);
+    // 成交量/成交额附图
     m_pVolumeBarCtrl = new RichVolumeBarCtrl(m_pKlineCtrl);
+    // 日K线信息
     m_pDialogKlineInfo = new RichDialogKlineInfo(m_pKlineCtrl, this, ID_DIALOG_KLINE_INFO, pos, wxSize(200, 400));
     m_pDialogKlineInfo->Show(false);
     // 使用自动双缓冲
     SetBackgroundStyle(wxBG_STYLE_PAINT);
-    // 事件绑定， Radio 控件将始终获取鼠标键盘焦点
-    m_pRadioCtrl->Bind(wxEVT_LEFT_UP, &RichPanelKline::OnLeftMouseDown, this);
     SetFocusIgnoringChildren();  // 忽略子窗口默认获取输入焦点，解决无法移动K线的问题
 }
 
@@ -62,6 +73,10 @@ void RichPanelKline::SetShareCode(const std::string& share_code) {
         pStorage->SaveShareKlines(share_code, KlineType::Day);
     }
     m_pKlineCtrl->LoadKlines(share_code);
+    m_pShare = pStorage->FindShare(share_code);
+    if (m_pShare != nullptr) {  // 更新股票名称
+        m_pShareNameCtrl->SetLabel(CN(m_pShare->name));
+    }
     this->Refresh();
 }
 
@@ -80,9 +95,15 @@ void RichPanelKline::OnSize(wxSizeEvent& event) {
     m_pKlineCtrl->OnSize(event);
     Refresh();  // 界面需要重绘
 }
+
 void RichPanelKline::OnKeyDown(wxKeyEvent& event) {
     m_pKlineCtrl->OnKeyDown(event);
-    Refresh();  // 界面需要重绘
+    wxSize size = GetSize();
+    size.DecBy(0, 30);
+    wxRect rect;
+    rect.SetPosition(m_ptKlineCtrl);
+    rect.SetSize(size);
+    RefreshRect(rect);  // 界面需要重绘
     event.Skip();
 }
 void RichPanelKline::OnLeftMouseDown(wxMouseEvent& event) {

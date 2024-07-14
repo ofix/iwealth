@@ -31,14 +31,23 @@ class RichPanelKline : public RichPanel {
     RichKlineCtrl* m_pKlineCtrl;
     RichVolumeBarCtrl* m_pVolumeBarCtrl;
     RichDialogKlineInfo* m_pDialogKlineInfo;
-    RichRadioCtrl* m_pRadioCtrl;  // 日K线/周K线/月K线/季度K线/年K线
+    RichRadioCtrl* m_pRadioCtrl;     // 日K线/周K线/月K线/季度K线/年K线
+    wxStaticText* m_pShareNameCtrl;  // 股票名称控件
 
     std::vector<uiKline>* m_pKlines;  // 当前需要显示的K线
    protected:
+    static const long ID_SHARE_NAME_CTRL;
+    static const long ID_RAIDO_CTRL;
     static const long ID_KLINE_CTRL;
     static const long ID_DIALOG_KLINE_INFO;
-    static const long ID_RAIDO_CTRL;
-    std::string m_share_code;
+
+    wxPoint m_ptKlineCtrl;
+    wxSize m_sizeKlineCtrl;
+    wxPoint m_ptVolumeBarCtrl;
+    wxSize m_sizeVolumeBarCtrl;
+
+    std::string m_share_code;  // 当前显示的股票代码
+    Share* m_pShare;           // 当前显示的股票指针
 
    private:
     DECLARE_EVENT_TABLE()

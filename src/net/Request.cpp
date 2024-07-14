@@ -1,3 +1,13 @@
+///////////////////////////////////////////////////////////////////////////////
+// Name:        src/net/Request.cpp
+// Purpose:     single request based on libcurl
+// Author:      songhuabiao
+// Modified by:
+// Created:     2024-05-17 12:35
+// Copyright:   (C) Copyright 2024, Wealth Corporation, All Rights Reserved.
+// Licence:     GNU GENERAL PUBLIC LICENSE, Version 3
+///////////////////////////////////////////////////////////////////////////////
+
 #include "net/Request.h"
 #include "util/EasyLogger.h"
 
