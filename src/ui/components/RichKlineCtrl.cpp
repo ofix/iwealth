@@ -18,7 +18,7 @@ RichKlineCtrl::~RichKlineCtrl() {
 }
 
 RichKlineCtrl::RichKlineCtrl(StockDataStorage* pStorage, const wxPoint& pos, const wxSize& size)
-    : m_pStorage(pStorage), m_pos(pos), m_width(size.GetWidth()), m_height(size.GetHeight()) {
+    : m_pStorage(pStorage), m_pos(pos), m_width(size.GetWidth()), m_height(size.GetHeight()), m_pKlines(nullptr) {
     Init();
 }
 
@@ -38,17 +38,50 @@ void RichKlineCtrl::Init() {
     m_crossLine = NO_CROSS_LINE;
 }
 
-void RichKlineCtrl::LoadKlines(const std::string& share_code) {
+void RichKlineCtrl::LoadKlines(const std::string& share_code, const KlineType& kline_type) {
     m_shareCode = share_code;
-    // 有可能重复加载，所以需要清空就数据
-    m_uiKlines.clear();
-    m_emaCurves.clear();
-
-    bool result = m_pStorage->LoadShareKlines(&m_uiKlines, share_code);
-    if (!result) {
-        std::cout << "load share " + share_code + " klines error!" << std::endl;
+    // 新的股票代码K线，需要清空之前的，否则直接复用
+    if (m_shareCode != m_oldShareCode) {
+        // 有可能重复加载，所以需要清空就数据
+        m_dayKlines.clear();
+        m_pKlines = nullptr;
+        m_emaCurves.clear();
     }
-    m_klineRng = GetKlineRangeZoomIn(m_uiKlines.size(), m_width, m_klineWidth, m_klineSpan);
+    if (kline_type == KlineType::Day || kline_type == KlineType::Week || kline_type == KlineType::Month ||
+        kline_type == KlineType::Quarter || kline_type == KlineType::Year) {
+        if (m_dayKlines.size() == 0) {
+            bool result = m_pStorage->LoadShareKlines(&m_dayKlines, share_code);  // 加载日K线
+            if (!result) {
+                std::cout << "load share " + share_code + " klines error!" << std::endl;
+            }
+            m_pKlines = &m_dayKlines;
+        }
+        if (kline_type == KlineType::Day) {
+            m_pKlines = &m_dayKlines;
+        } else if (kline_type == KlineType::Week) {
+            if (m_weekKlines.size() == 0) {
+                // 根据日K线计算周K线
+            }
+            m_pKlines = &m_weekKlines;
+        } else if (kline_type == KlineType::Month) {
+            if (m_monthKlines.size() == 0) {
+                // 根据日K线计算月K线
+            }
+            m_pKlines = &m_monthKlines;
+        } else if (kline_type == KlineType::Quarter) {
+            if (m_quarterKlines.size() == 0) {
+                // 根据日K线计算季K线
+            }
+            m_pKlines = &m_quarterKlines;
+        } else if (kline_type == KlineType::Year) {
+            if (m_yearKlines.size() == 0) {
+                // 根据日K线计算年K线
+            }
+            m_pKlines = &m_yearKlines;
+        }
+    }
+
+    m_klineRng = GetKlineRangeZoomIn(m_pKlines->size(), m_width, m_klineWidth, m_klineSpan);
 
     // 添加 EMA 曲线的时候会自动计算相关数据
     AddEmaCurve(99, wxColor(255, 0, 255));
@@ -228,7 +261,7 @@ uiKlineRange RichKlineCtrl::GetKlineRangeZoomOut(long totalKLines, long crossLin
 wxPoint RichKlineCtrl::GetCrossLinePt(long n) {
     double x, y;
     long total = m_klineRng.end - m_klineRng.begin;
-    uiKline item = m_uiKlines.at(n);
+    uiKline item = m_pKlines->at(n);
     double hPrice = m_rectPriceMax - m_rectPriceMin;
     y = m_paddingTop + (1 - (item.price_close - m_rectPriceMin) / hPrice) * GetInnerHeight();
     if (total > m_width) {  // 一屏幕已经显示不下了
@@ -242,15 +275,15 @@ wxPoint RichKlineCtrl::GetCrossLinePt(long n) {
 void RichKlineCtrl::OnPaint(wxDC* pDC) {
     pDC->SetBackground(*wxBLACK_BRUSH);
     pDC->Clear();
-    float rect_price_max = GetRectMaxPrice(m_uiKlines, m_klineRng.begin, m_klineRng.end);
-    float rect_price_min = GetRectMinPrice(m_uiKlines, m_klineRng.begin, m_klineRng.end);
+    float rect_price_max = GetRectMaxPrice(*m_pKlines, m_klineRng.begin, m_klineRng.end);
+    float rect_price_min = GetRectMinPrice(*m_pKlines, m_klineRng.begin, m_klineRng.end);
     int visible_klines = m_klineRng.end - m_klineRng.begin + 1;
     int nDay = 0;
 
     uiKline day;
-    if (m_uiKlines.size() > (size_t)m_klineRng.end) {
+    if (m_pKlines->size() > (size_t)m_klineRng.end) {
         for (int i = m_klineRng.begin; i <= m_klineRng.end; i++) {
-            day = m_uiKlines.at(i);
+            day = m_pKlines->at(i);
             DrawKline(pDC, nDay, visible_klines, day.price_open, day.price_close, day.price_max, day.price_min,
                       rect_price_max, rect_price_min, 0, m_paddingTop, GetInnerWidth(), GetInnerHeight(), m_klineWidth,
                       m_klineSpan);
@@ -438,11 +471,11 @@ void RichKlineCtrl::OnSize(wxSizeEvent& event) {
     wxSize size = event.GetSize();
     m_width = size.GetWidth();
     m_height = size.GetHeight();
-    m_klineRng = GetKlineRangeZoomIn(m_uiKlines.size(), m_width, m_klineWidth, m_klineSpan);
+    m_klineRng = GetKlineRangeZoomIn(m_pKlines->size(), m_width, m_klineWidth, m_klineSpan);
 }
 
 void RichKlineCtrl::OnKeyDown(wxKeyEvent& event) {
-    int max = m_uiKlines.size();
+    int max = m_pKlines->size();
     int key = event.GetKeyCode();
     if (key == WXK_LEFT) {            // look left
         if (m_klineRng.begin == 0) {  // no more klines in the left
@@ -600,8 +633,8 @@ bool RichKlineCtrl::AddEmaCurve(int n, wxColor color, bool visible) {
     curve.period = n;
     curve.visible = visible;
     curve.ema_price = {};
-    curve.ema_price.reserve(m_uiKlines.size());  // 防止std::vector 频繁申请内存
-    FormulaEma::GetEmaPrice(m_uiKlines, curve.ema_price, n);
+    curve.ema_price.reserve(m_pKlines->size());  // 防止std::vector 频繁申请内存
+    FormulaEma::GetEmaPrice(*m_pKlines, curve.ema_price, n);
     m_emaCurves.push_back(curve);
     return true;
 }

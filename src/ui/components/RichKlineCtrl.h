@@ -27,7 +27,7 @@ class RichKlineCtrl {
     void SetMode(int iMode);  // Day|Week|Month|Year
     int GetMode() const;
 
-    void LoadKlines(const std::string& share_code);
+    void LoadKlines(const std::string& share_code, const KlineType& kline_type = KlineType::Day);
 
     void OnPaint(wxDC* pDC);
     void OnBackground(wxEraseEvent& event);
@@ -38,6 +38,9 @@ class RichKlineCtrl {
    protected:
     int GetInnerWidth();
     int GetInnerHeight();
+    void DrawMinuteKline(wxDC* pDC);
+    void DrawMinuteKlineBackground(wxDC* pDC);
+    void DrawMinuteKlineCurves(wxDC* pDC);
     void DrawKline(wxDC* pDC,
                    int nKLine,
                    int visibleKLineCount,
@@ -94,10 +97,17 @@ class RichKlineCtrl {
     wxPoint m_crossLinePt;  // the current k line mouse point
     int m_crossLine;
 
-    StockDataStorage* m_pStorage;            // 股票存储中心
-    std::string m_shareCode;                 // 股票代码
-    std::vector<uiKline> m_uiKlines;         // 当前绘制的K线数据
-    std::vector<ShareEmaCurve> m_emaCurves;  // 指数移动平均线
+    StockDataStorage* m_pStorage;             // 股票存储中心
+    std::string m_shareCode;                  // 股票代码
+    std::string m_oldShareCode;               // 上一个股票代码
+    std::vector<uiKline>* m_pKlines;          // 当前绘制的K线数据
+    std::vector<uiKline> m_dayKlines;         // 日K线缓存
+    std::vector<uiKline> m_weekKlines;        // 周K线缓存
+    std::vector<uiKline> m_monthKlines;       // 月K线缓存
+    std::vector<uiKline> m_quarterKlines;     // 季K线缓存
+    std::vector<uiKline> m_yearKlines;        // 年K线缓存
+    std::vector<ShareEmaCurve> m_emaCurves;   // 指数移动平均线
+    std::vector<minuteKline> m_minuteKlines;  // 分时图显示
 
     uiKlineRange m_klineRng;
     int m_paddingTop;        // padding top for klines control

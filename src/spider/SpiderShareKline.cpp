@@ -40,6 +40,9 @@ void SpiderShareKline::CrawlSync(Share* pShare, KlineType kline_type) {
     std::vector<DataProvider> data_providers;
     int iProvider = rand_int(0, providers.size() - 1);
     DataProvider provider = providers[iProvider];
+    if (kline_type == KlineType::MINUTE || kline_type == KlineType::FIVE_DAY) {
+        provider = DataProvider::FinanceBaidu;
+    }
     std::list<std::string> urls;
     std::vector<void*> user_data;
     urls.push_back(GetKlineUrl(provider, kline_type, pShare->code, pShare->name, pShare->market));

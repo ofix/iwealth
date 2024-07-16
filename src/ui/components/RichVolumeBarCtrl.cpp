@@ -19,7 +19,7 @@ RichVolumeBarCtrl::~RichVolumeBarCtrl() {
 }
 
 void RichVolumeBarCtrl::OnPaint(wxDC* pDC) {
-    std::vector<uiKline>& klines = m_pKlineCtrl->m_uiKlines;
+    std::vector<uiKline>& klines = *(m_pKlineCtrl->m_pKlines);
     uiKlineRange& klineRng = m_pKlineCtrl->m_klineRng;
     int span = m_pKlineCtrl->m_klineSpan;
     double hVolumeBar = m_pKlineCtrl->m_height * 0.3;
@@ -59,7 +59,7 @@ void RichVolumeBarCtrl::DrawCrossLine(wxDC* pDC, int centerX, int centerY, int w
 double RichVolumeBarCtrl::GetMaxVolumeInRange() {
     double max = 0;
     std::vector<uiKline>::const_iterator it;
-    std::vector<uiKline>& klines = m_pKlineCtrl->m_uiKlines;
+    std::vector<uiKline>& klines = *(m_pKlineCtrl->m_pKlines);
     uiKlineRange& klineRng = m_pKlineCtrl->m_klineRng;
     for (it = klines.begin() + klineRng.begin; it != klines.begin() + klineRng.end; ++it) {
         if (it->volume >= max) {
