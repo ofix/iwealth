@@ -1,11 +1,11 @@
 #ifndef RICH_PANEL_H
 #define RICH_PANEL_H
 
-#include <wx/panel.h>
+#include <wx/window.h>
 
 enum class PanelType { Quote, Kline };
 
-class RichPanel : public wxPanel {
+class RichPanel : public wxWindow {
    public:
     RichPanel(PanelType type,
               wxWindow* parent,

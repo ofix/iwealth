@@ -110,11 +110,19 @@ void KlineTest() {
         "1483459200,2017-01-04,6.84,6.85,5320285,6.86,6.77,37188319.00,-0.02,-0.29,--,6.87,6.83,4333075,6.77,"
         "4819666,6."
         "75,5817798";
-    uiKline kline;
-    bool result = SpiderShareKline::ParseKlineBaidu(error_kline, &kline);
-    if (!result) {
-        std::cout << "parse baidu finance kline error!" << std::endl;
-    }
+
+    uiKline ui_kline;
+    std::vector<std::string> fields = split(error_kline, ",");
+    ui_kline.day = fields[1];                                                                    // 时间
+    ui_kline.price_open = std::stod(fields[2]);                                                  // 开盘价
+    ui_kline.price_close = std::stod(fields[3]);                                                 // 收盘价
+    ui_kline.volume = SpiderShareKline::IsNaN(fields[4]) ? 0 : std::stoull(fields[4]);           // 成交量
+    ui_kline.price_max = SpiderShareKline::IsNaN(fields[5]) ? 0.0 : std::stod(fields[5]);        // 最高价
+    ui_kline.price_min = SpiderShareKline::IsNaN(fields[6]) ? 0.0 : std::stod(fields[6]);        // 最低价
+    ui_kline.amount = SpiderShareKline::IsNaN(fields[7]) ? 0.0 : std::stod(fields[7]);           // 成交额
+    ui_kline.change_amount = SpiderShareKline::IsNaN(fields[8]) ? 0.0 : std::stod(fields[8]);    // 涨跌额
+    ui_kline.change_rate = SpiderShareKline::IsNaN(fields[9]) ? 0.0 : std::stod(fields[9]);      // 涨跌幅
+    ui_kline.turnover_rate = SpiderShareKline::IsNaN(fields[10]) ? 0.0 : std::stod(fields[10]);  // 换手率
 }
 
 void TestDateTime() {
@@ -201,6 +209,12 @@ void TestKlineDownload() {
     }
 }
 
+void TestUrlEncode() {
+    std::string name = "上海莱士";
+    std::string encode_name = url_encode_utf8(name);
+    std::cout << encode_name << std::endl;
+}
+
 int main(int /*argc*/, char** /*argv*/) {
     // TestSpiderConceptListEastMoney();
     // TestTimer();
@@ -211,6 +225,7 @@ int main(int /*argc*/, char** /*argv*/) {
     // TestFile();
     // TestTrie();
     // TestChinesePinYin();
-    TestKlineDownload();
+    // TestKlineDownload();
+    TestUrlEncode();
     std::cin.get();
 }

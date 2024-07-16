@@ -14,6 +14,30 @@
         "&ktype=" +                                            \
         kline_type + "&finClientType=pc" + extra + "&finClientType=pc"
 
+// 百度股市通分时走势图
+#define KLINE_URL_FINANCE_BAIDU_MINUTE(share_code)       \
+    "https://finance.pae.baidu.com/vapi/v1/getquotation" \
+    "?srcid=5353"                                        \
+    "&pointType=string"                                  \
+    "&group=quotation_minute_ab"                         \
+    "&query=" +                                          \
+        share_code + "&code=" + share_code +             \
+        "&market_type=ab"                                \
+        "&new_Format=1"                                  \
+        "&finClientType=pc"
+
+// 百度股市通近5日分时走势图
+#define KLINE_URL_FINANCE_BAIDU_FIVE_DAY(share_code, share_name)     \
+    "https://finance.pae.baidu.com/vapi/v1/getquotation"             \
+    "?srcid=5353"                                                    \
+    "&pointType=string"                                              \
+    "&group=quotation_fiveday_ab"                                    \
+    "&query=" +                                                      \
+        share_code + "&code=" + share_code + "&name=" + share_name + \
+        "&market_type=ab"                                            \
+        "&new_Format=1"                                              \
+        "&finClientType=pc"
+
 // 东方财富行情中心 https://quote.eastmoney.com/concept/sz300729.html
 #define KLINE_URL_EAST_MONEY(share_code, market, kline_type) \
     "https://push2his.eastmoney.com/api/qt/stock/kline/get"  \

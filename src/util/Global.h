@@ -45,6 +45,11 @@ int rand_int(int min, int max);
 std::string repeat_chars(char ch, int count);
 void fill_chars(std::string& str, const char needle, size_t width, const std::string direction = "left");
 
+unsigned char to_hex(unsigned char x);
+unsigned char from_hex(unsigned char x);
+std::string url_encode_utf8(const std::string& str);
+std::string url_decode_utf8(const std::string& str);
+
 // 16进制转10进制模板函数
 template <typename T>
 T hex_to_dec(const std::string& hex) {

@@ -42,7 +42,7 @@ void SpiderShareKline::CrawlSync(Share* pShare, KlineType kline_type) {
     DataProvider provider = providers[iProvider];
     std::list<std::string> urls;
     std::vector<void*> user_data;
-    urls.push_back(GetKlineUrl(provider, kline_type, pShare->code, pShare->market));
+    urls.push_back(GetKlineUrl(provider, kline_type, pShare->code, pShare->name, pShare->market));
     RequestStatistics* pStatistics = NewRequestStatistics(1, provider);
     if (pStatistics == nullptr) {
         return;
@@ -105,7 +105,8 @@ void SpiderShareKline::ConurrentCrawl(std::vector<KlineCrawlTask>& tasks, KlineT
         }
         std::string provider_name = GetProviderName(tasks[i].provider);
         for (size_t j = pos_start; j <= pos_end; j++) {
-            urls.push_back(GetKlineUrl(tasks[i].provider, kline_type, shares[j].code, shares[j].market));
+            urls.push_back(
+                GetKlineUrl(tasks[i].provider, kline_type, shares[j].code, shares[j].name, shares[j].market));
             KlineCrawlExtra* pExtra = new KlineCrawlExtra();
             if (!pExtra) {
                 std::cout << "[error]: bad memory alloc KlineCrawlExtra" << std::endl;
@@ -160,7 +161,8 @@ void SpiderShareKline::SingleCrawl(std::vector<KlineCrawlTask>& tasks, KlineType
         priority += tasks[i].priority;
         pos_end = std::round((shares.size() - 1) * priority);
         for (size_t j = pos_start; j <= pos_end; j++) {
-            urls.push_back(GetKlineUrl(tasks[i].provider, kline_type, shares[j].code, shares[j].market));
+            urls.push_back(
+                GetKlineUrl(tasks[i].provider, kline_type, shares[j].code, shares[j].name, shares[j].market));
             KlineCrawlExtra* pExtra = new KlineCrawlExtra();
             pExtra->provider = tasks[i].provider;
             pExtra->type = kline_type;
@@ -198,17 +200,24 @@ std::string SpiderShareKline::GetKlineTypeFinanceBaidu(const KlineType kline_typ
 std::string SpiderShareKline::GetKlineUrl(const DataProvider provider,    // 供应商
                                           const KlineType kline_type,     // K线类型
                                           const std::string& share_code,  // 股票代码
+                                          const std::string& share_name,  // 股票名称
                                           const Market market,            // 股票市场
                                           const std::string& end_date     // 结束日期
 ) {
     if (provider == DataProvider::FinanceBaidu) {
-        std::string extra = "";
-        if (end_date != "") {
-            extra = "&end_time=" + end_date + "&count=3000";
+        if (kline_type == KlineType::MINUTE) {
+            return KLINE_URL_FINANCE_BAIDU_MINUTE(share_code);
+        } else if (kline_type == KlineType::FIVE_DAY) {
+            return KLINE_URL_FINANCE_BAIDU_FIVE_DAY(share_code, share_name);
+        } else {
+            std::string extra = "";
+            if (end_date != "") {
+                extra = "&end_time=" + end_date + "&count=3000";
+            }
+            std::string baidu_kline_type = GetKlineTypeFinanceBaidu(kline_type);
+            std::string url = KLINE_URL_FINANCE_BAIDU(share_code, baidu_kline_type, extra);
+            return url;
         }
-        std::string baidu_kline_type = GetKlineTypeFinanceBaidu(kline_type);
-        std::string url = KLINE_URL_FINANCE_BAIDU(share_code, baidu_kline_type, extra);
-        return url;
     } else if (provider == DataProvider::EastMoney) {
         int market_code = GetEastMoneyMarketCode(market);
         int east_money_kline_type = GetKlineTypeEastMoney(kline_type);
@@ -249,19 +258,6 @@ int SpiderShareKline::GetKlineTypeEastMoney(const KlineType kline_type) {
     return 0;
 }
 
-/// @brief 响应处理
-/// @param conn
-std::vector<uiKline> SpiderShareKline::ParseResponse(conn_t* conn) {
-    KlineCrawlExtra* pExtra = static_cast<KlineCrawlExtra*>(conn->extra);
-    std::vector<uiKline> uiKlines = {};
-    if (pExtra->provider == DataProvider::FinanceBaidu) {
-        ParseResponseFinanceBaidu(conn, uiKlines);
-    } else if (pExtra->provider == DataProvider::EastMoney) {
-        ParseResponseEastMoney(conn, uiKlines);
-    }
-    return uiKlines;
-}
-
 // 检查是否是合法的double数字
 bool SpiderShareKline::IsNaN(const std::string& data) {
     if (data.length() == 0) {
@@ -276,91 +272,100 @@ bool SpiderShareKline::IsNaN(const std::string& data) {
     return std::isdigit(data[0]) ? false : true;  // 只有一个字符的情况，判断是否是数字
 }
 
-bool SpiderShareKline::ParseKlineBaidu(const std::string& kline, uiKline* uiKline) {
-    try {
-        std::vector<std::string> fields = split(kline, ",");
-        uiKline->day = fields[1];                                                  // 时间
-        uiKline->price_open = std::stod(fields[2]);                                // 开盘价
-        uiKline->price_close = std::stod(fields[3]);                               // 收盘价
-        uiKline->volume = IsNaN(fields[4]) ? 0 : std::stoull(fields[4]);           // 成交量
-        uiKline->price_max = IsNaN(fields[5]) ? 0.0 : std::stod(fields[5]);        // 最高价
-        uiKline->price_min = IsNaN(fields[6]) ? 0.0 : std::stod(fields[6]);        // 最低价
-        uiKline->amount = IsNaN(fields[7]) ? 0.0 : std::stod(fields[7]);           // 成交额
-        uiKline->change_amount = IsNaN(fields[8]) ? 0.0 : std::stod(fields[8]);    // 涨跌额
-        uiKline->change_rate = IsNaN(fields[9]) ? 0.0 : std::stod(fields[9]);      // 涨跌幅
-        uiKline->turnover_rate = IsNaN(fields[10]) ? 0.0 : std::stod(fields[10]);  // 换手率
-        return true;
-    } catch (std::exception& e) {
-        std::cout << "[Error] ParseKlineBaidu: " << e.what() << std::endl;
-        std::cout << kline << std::endl;
-        return false;
-    }
-}
-
-bool SpiderShareKline::ParseKlineEastMoney(const std::string& kline, uiKline* uiKline) {
-    try {
-        std::vector<std::string> fields = split(kline, ",");
-        uiKline->day = fields[0];                                                  // 时间
-        uiKline->price_open = std::stod(fields[1]);                                // 开盘价
-        uiKline->price_close = std::stod(fields[2]);                               // 收盘价
-        uiKline->price_max = IsNaN(fields[3]) ? 0.0 : std::stod(fields[3]);        // 最高价
-        uiKline->price_min = IsNaN(fields[4]) ? 0.0 : std::stod(fields[4]);        // 最低价
-        uiKline->volume = IsNaN(fields[5]) ? 0.0 : std::stod(fields[5]);           // 成交量
-        uiKline->amount = IsNaN(fields[6]) ? 0.0 : std::stod(fields[6]);           // 成交额
-        uiKline->change_rate = IsNaN(fields[8]) ? 0.0 : std::stod(fields[8]);      // 涨跌幅
-        uiKline->change_amount = IsNaN(fields[9]) ? 0.0 : std::stod(fields[9]);    // 涨跌额
-        uiKline->turnover_rate = IsNaN(fields[10]) ? 0.0 : std::stod(fields[10]);  // 换手率
-        return true;
-    } catch (std::exception& e) {
-        std::cout << "[Error] ParseKlineEastMoney: " << e.what() << std::endl;
-        std::cout << kline << std::endl;
-        return false;
+void SpiderShareKline::ParseBaiduMinuteKline(conn_t* conn, std::vector<std::vector<minuteKline>>& minute_klines) {
+    json _response = json::parse(conn->response);
+    json days = _response["Result"]["newMarketData"]["marketData"];
+    for (json::iterator it = days.begin(); it != days.end(); ++it) {
+        std::string data = (*it)["p"];
+        std::vector<std::string> rows = split(data, ";");
+        std::vector<minuteKline> one_day_minute_klines;
+        for (size_t i = 0; i < rows.size(); i++) {
+            minuteKline minute_kline;
+            std::vector<std::string> fields = split(rows[i], ",");  // 时间
+            minute_kline.time = std::stod(fields[1]);               // 成交时间
+            minute_kline.price = std::stod(fields[2]);              // 成交价格
+            minute_kline.avg_price = std::stod(fields[3]);          // 成交均价
+            minute_kline.change_amount = std::stod(fields[4]);      // 涨跌额
+            minute_kline.change_rate = std::stod(fields[5]);        // 涨跌幅
+            minute_kline.volume = std::stod(fields[6]);             // 成交量
+            minute_kline.amount = std::stod(fields[7]);             // 成交额
+            minute_kline.total_volume = std::stod(fields[8]);       // 累计成交量
+            minute_kline.total_amount = std::stod(fields[9]);       // 累计成交额
+            one_day_minute_klines.push_back(minute_kline);
+        }
+        minute_klines.push_back(one_day_minute_klines);  // 可能包含5天的分时图
     }
 }
 
 // 解析百度财经返回数据
 // 百度财经数据完整历史K线需要请求多次，因此这里做统计最合适
-void SpiderShareKline::ParseResponseFinanceBaidu(conn_t* conn, std::vector<uiKline>& uiKlines) {
+void SpiderShareKline::ParseBaiduDayKline(conn_t* conn, std::vector<uiKline>& uiKlines) {
     json _response = json::parse(conn->response);
     std::string data = _response["Result"]["newMarketData"]["marketData"];
     if (data != "") {
-        std::vector<std::string> klines = split(data, ";");
-        for (size_t i = 0; i < klines.size(); i++) {
-            uiKline kline;
-            if (ParseKlineBaidu(klines[i], &kline)) {
-                uiKlines.push_back(kline);
-            }
+        std::vector<std::string> rows = split(data, ";");
+        for (size_t i = 0; i < rows.size(); i++) {
+            uiKline ui_kline;
+            std::vector<std::string> fields = split(rows[i], ",");
+            ui_kline.day = fields[1];                                                  // 时间
+            ui_kline.price_open = std::stod(fields[2]);                                // 开盘价
+            ui_kline.price_close = std::stod(fields[3]);                               // 收盘价
+            ui_kline.volume = IsNaN(fields[4]) ? 0 : std::stoull(fields[4]);           // 成交量
+            ui_kline.price_max = IsNaN(fields[5]) ? 0.0 : std::stod(fields[5]);        // 最高价
+            ui_kline.price_min = IsNaN(fields[6]) ? 0.0 : std::stod(fields[6]);        // 最低价
+            ui_kline.amount = IsNaN(fields[7]) ? 0.0 : std::stod(fields[7]);           // 成交额
+            ui_kline.change_amount = IsNaN(fields[8]) ? 0.0 : std::stod(fields[8]);    // 涨跌额
+            ui_kline.change_rate = IsNaN(fields[9]) ? 0.0 : std::stod(fields[9]);      // 涨跌幅
+            ui_kline.turnover_rate = IsNaN(fields[10]) ? 0.0 : std::stod(fields[10]);  // 换手率
+            uiKlines.push_back(ui_kline);
         }
     }
 }
 
 // 解析东方财富返回数据
-void SpiderShareKline::ParseResponseEastMoney(conn_t* conn, std::vector<uiKline>& uiKlines) {
+void SpiderShareKline::ParseEastMoneyDayKline(conn_t* conn, std::vector<uiKline>& uiKlines) {
     json _response = json::parse(conn->response);
     json klines = _response["data"]["klines"];
     if (klines != "") {
-        std::string last_kline = "";
         for (json::iterator it = klines.begin(); it != klines.end(); ++it) {
-            uiKline kline;
-            if (ParseKlineEastMoney(*it, &kline)) {
-                uiKlines.push_back(kline);
-            }
+            uiKline ui_kline;
+            std::vector<std::string> fields = split(*it, ",");
+            ui_kline.day = fields[0];                                                  // 时间
+            ui_kline.price_open = std::stod(fields[1]);                                // 开盘价
+            ui_kline.price_close = std::stod(fields[2]);                               // 收盘价
+            ui_kline.price_max = IsNaN(fields[3]) ? 0.0 : std::stod(fields[3]);        // 最高价
+            ui_kline.price_min = IsNaN(fields[4]) ? 0.0 : std::stod(fields[4]);        // 最低价
+            ui_kline.volume = IsNaN(fields[5]) ? 0.0 : std::stod(fields[5]);           // 成交量
+            ui_kline.amount = IsNaN(fields[6]) ? 0.0 : std::stod(fields[6]);           // 成交额
+            ui_kline.change_rate = IsNaN(fields[8]) ? 0.0 : std::stod(fields[8]);      // 涨跌幅
+            ui_kline.change_amount = IsNaN(fields[9]) ? 0.0 : std::stod(fields[9]);    // 涨跌额
+            ui_kline.turnover_rate = IsNaN(fields[10]) ? 0.0 : std::stod(fields[10]);  // 换手率
+
+            uiKlines.push_back(ui_kline);
         }
     }
 }
 
 void SpiderShareKline::SingleResponseCallback(conn_t* conn) {
     KlineCrawlExtra* pExtra = static_cast<KlineCrawlExtra*>(conn->extra);
-    std::vector<uiKline> multi_kline = ParseResponse(conn);
     if (pExtra->provider == DataProvider::FinanceBaidu) {
-        if (multi_kline.size() > 0) {
-            std::string end_date = multi_kline[0].day;
-            std::string share_code = pExtra->share->code;
-            conn->url = GetKlineUrl(pExtra->provider, pExtra->type, share_code, pExtra->market, end_date);
-            conn->reuse = true;  // 需要复用
-            this->m_concurrent_day_klines_adjust[share_code].push_back(multi_kline);
-        } else {
-            conn->reuse = false;  // 不需要复用
+        // 分时，近五日分时
+        if (pExtra->type == KlineType::MINUTE || pExtra->type == KlineType::FIVE_DAY) {
+            m_minute_klines.empty();
+            ParseBaiduMinuteKline(conn, m_minute_klines);
+        } else {  // 日/周/月/季/年
+            std::vector<uiKline> multi_kline = {};
+            ParseBaiduDayKline(conn, multi_kline);
+            if (multi_kline.size() > 0) {
+                std::string end_date = multi_kline[0].day;
+                std::string share_code = pExtra->share->code;
+                conn->url = GetKlineUrl(pExtra->provider, pExtra->type, share_code, pExtra->share->name, pExtra->market,
+                                        end_date);
+                conn->reuse = true;  // 需要复用
+                this->m_concurrent_day_klines_adjust[share_code].push_back(multi_kline);
+            } else {
+                conn->reuse = false;  // 不需要复用
+            }
         }
     }
 }
@@ -368,18 +373,28 @@ void SpiderShareKline::SingleResponseCallback(conn_t* conn) {
 // 此成员函数通常在分离的线程中运行
 void SpiderShareKline::ConcurrentResponseCallback(conn_t* conn) {
     KlineCrawlExtra* pExtra = static_cast<KlineCrawlExtra*>(conn->extra);
-    std::vector<uiKline> multi_kline = ParseResponse(conn);
     std::string share_code = pExtra->share->code;
     if (pExtra->provider == DataProvider::FinanceBaidu) {
-        if (multi_kline.size() > 0) {
-            std::string end_date = multi_kline[0].day;
-            conn->url = GetKlineUrl(pExtra->provider, pExtra->type, share_code, pExtra->market, end_date);
-            conn->reuse = true;  // 需要复用
-            this->m_concurrent_day_klines_adjust[share_code].push_back(multi_kline);
+        if (pExtra->type == KlineType::MINUTE || pExtra->type == KlineType::FIVE_DAY) {
+            m_minute_klines.empty();
+            ParseBaiduMinuteKline(conn, m_minute_klines);
         } else {
-            conn->reuse = false;  // 不需要复用
+            std::vector<uiKline> multi_kline = {};
+            ParseBaiduDayKline(conn, multi_kline);
+            if (multi_kline.size() > 0) {
+                std::string end_date = multi_kline[0].day;
+                conn->url = GetKlineUrl(pExtra->provider, pExtra->type, share_code, pExtra->share->name, pExtra->market,
+                                        end_date);
+                conn->reuse = true;  // 需要复用
+                this->m_concurrent_day_klines_adjust[share_code].push_back(multi_kline);
+            } else {
+                conn->reuse = false;  // 不需要复用
+            }
         }
+
     } else if (pExtra->provider == DataProvider::EastMoney) {  // 东方财富只需要请求一次，即可获取所有数据
+        std::vector<uiKline> multi_kline = {};
+        ParseEastMoneyDayKline(conn, multi_kline);
         this->m_concurrent_day_klines_adjust[share_code].push_back(multi_kline);
         conn->reuse = false;
     }

@@ -51,7 +51,7 @@ RichPanelKline::RichPanelKline(PanelType type, wxWindow* parent, wxWindowID id, 
     m_pDialogKlineInfo->Show(false);
     // 使用自动双缓冲
     SetBackgroundStyle(wxBG_STYLE_PAINT);
-    SetFocusIgnoringChildren();  // 忽略子窗口默认获取输入焦点，解决无法移动K线的问题
+    // SetFocusIgnoringChildren();  // 忽略子窗口默认获取输入焦点，解决无法移动K线的问题
 }
 
 RichPanelKline::~RichPanelKline() {

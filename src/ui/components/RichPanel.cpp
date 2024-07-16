@@ -17,7 +17,7 @@ RichPanel::RichPanel(PanelType type,
                      const wxSize& size,
                      long style,
                      const wxString& name)
-    : wxPanel(parent, id, pos, size, style, name), m_type(type) {
+    : wxWindow(parent, id, pos, size, style, name), m_type(type) {
 }
 
 PanelType RichPanel::GetType() {

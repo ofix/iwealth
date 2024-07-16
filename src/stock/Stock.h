@@ -23,12 +23,14 @@ struct ShareIndustry {
 };
 
 enum class KlineType {
-    Day = 0,      // 日K线
-    Week = 1,     // 周K线
-    Month = 2,    // 月K线
-    Quarter = 3,  // 季度K线
-    Year = 4,     // 年K线
-    All = 5       // 以上所有K线
+    MINUTE = 0,    // 分时图
+    FIVE_DAY = 1,  // 近5日分时图
+    Day = 2,       // 日K线
+    Week = 3,      // 周K线
+    Month = 4,     // 月K线
+    Quarter = 5,   // 季度K线
+    Year = 6,      // 年K线
+    All = 7        // 以上所有K线
 };
 
 enum class DataProvider {
@@ -186,6 +188,20 @@ struct MonitorShare {
 struct uiKlineRange {
     int begin;  // 起始K线下标
     int end;    // 结束K线下标
+};
+
+// (五日)分时图绘制
+struct minuteKline {
+    time_t timestamp;       // 交易时间戳
+    std::string time;       // 交易时间
+    double price;           // 价格
+    double avg_price;       // 分时均价
+    double change_amount;   // 涨跌额
+    double change_rate;     // 涨跌幅
+    uint64_t volume;        // 成交量
+    double amount;          // 成交额
+    uint64_t total_volume;  // 累计成交量
+    double total_amount;    // 累计成交额
 };
 
 struct uiKline {

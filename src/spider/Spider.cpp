@@ -13,7 +13,6 @@
 #include "stock/StockDataStorage.h"
 #include "util/EasyLogger.h"
 
-
 Spider::Spider(StockDataStorage* storage)
     : m_pStockStorage(storage),
       m_posStart(0),

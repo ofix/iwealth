@@ -19,8 +19,7 @@ class SpiderShareKline : public Spider {
     void CrawlSync(Share* pShare, KlineType kline_type);
     void OnRequestTimer(uint32_t timer_id, void* args);
     static bool IsNaN(const std::string& data);
-    static bool ParseKlineBaidu(const std::string& kline, uiKline* uiKline);
-    static bool ParseKlineEastMoney(const std::string& kline, uiKline* uiKline);
+
     void MergeShareKlines(const KlineType kline_type = KlineType::Day);
     size_t GetKlineCount(const std::vector<std::vector<uiKline>>& multi_klines);
     std::string GetProviderName(DataProvider provider) const;
@@ -39,6 +38,7 @@ class SpiderShareKline : public Spider {
     std::string GetKlineUrl(const DataProvider provider,      // 供应商
                             const KlineType kline_type,       // K线类型
                             const std::string& share_code,    // 股票代码
+                            const std::string& share_name,    // 股票名称
                             const Market market,              // 股票市场
                             const std::string& end_date = ""  // 结束日期
     );
@@ -47,9 +47,9 @@ class SpiderShareKline : public Spider {
     int GetEastMoneyMarketCode(const Market market);
 
     // 解析响应
-    std::vector<uiKline> ParseResponse(conn_t* conn);
-    void ParseResponseFinanceBaidu(conn_t* conn, std::vector<uiKline>& uiKlines);
-    void ParseResponseEastMoney(conn_t* conn, std::vector<uiKline>& uiKlines);
+    void ParseBaiduMinuteKline(conn_t* conn, std::vector<std::vector<minuteKline>>& minute_klines);
+    void ParseBaiduDayKline(conn_t* conn, std::vector<uiKline>& uiKlines);
+    void ParseEastMoneyDayKline(conn_t* conn, std::vector<uiKline>& uiKlines);
 
     void SingleResponseCallback(conn_t* conn);
     void ConcurrentResponseCallback(conn_t* conn);
@@ -59,4 +59,5 @@ class SpiderShareKline : public Spider {
     std::unordered_map<std::string, std::vector<std::vector<uiKline>>> m_concurrent_week_klines_adjust;
     std::unordered_map<std::string, std::vector<uiKline>> m_concurrent_month_klines_adjust;
     std::unordered_map<std::string, std::vector<uiKline>> m_concurrent_year_klines_adjust;
+    std::vector<std::vector<minuteKline>> m_minute_klines;  // 当天分时图/五日分时图
 };
