@@ -193,6 +193,10 @@ std::string SpiderShareKline::GetKlineTypeFinanceBaidu(const KlineType kline_typ
         return "quarter";
     } else if (kline_type == KlineType::Year) {
         return "year";
+    } else if (kline_type == KlineType::MINUTE) {
+        return "minute";
+    } else if (kline_type == KlineType::FIVE_DAY) {
+        return "five_day";
     }
     return "";
 }
@@ -221,8 +225,13 @@ std::string SpiderShareKline::GetKlineUrl(const DataProvider provider,    // 供
     } else if (provider == DataProvider::EastMoney) {
         int market_code = GetEastMoneyMarketCode(market);
         int east_money_kline_type = GetKlineTypeEastMoney(kline_type);
-        std::string url = KLINE_URL_EAST_MONEY(share_code, market_code, east_money_kline_type);
-        return url;
+        if (kline_type == KlineType::MINUTE) {
+            return KLINE_URL_EAST_MONEY_MINUTE(share_code, market_code);
+        } else if (kline_type == KlineType::FIVE_DAY) {
+            return KLINE_URL_EAST_MONEY_FIVE_DAY(share_code, market_code);
+        } else {
+            return KLINE_URL_EAST_MONEY(share_code, market_code, east_money_kline_type);
+        }
     }
     return "";
 }
@@ -322,6 +331,27 @@ void SpiderShareKline::ParseBaiduDayKline(conn_t* conn, std::vector<uiKline>& ui
     }
 }
 
+void SpiderShareKline::ParseEastMoneyMinuteKline(conn_t* conn, std::vector<std::vector<minuteKline>>& minute_klines) {
+    json _response = json::parse(conn->response);
+    std::string data = _response["data"]["trends"];
+    std::vector<std::string> rows = split(data, ";");
+    std::vector<minuteKline> one_day_minute_klines;
+    for (size_t i = 0; i < rows.size(); i++) {
+        minuteKline minute_kline;
+        std::vector<std::string> fields = split(rows[i], ",");  // 时间
+        minute_kline.time = std::stod(fields[1]);               // 成交时间
+        minute_kline.price = std::stod(fields[2]);              // 成交价格
+        minute_kline.avg_price = std::stod(fields[3]);          // 成交均价
+        minute_kline.change_amount = std::stod(fields[4]);      // 涨跌额
+        minute_kline.change_rate = std::stod(fields[5]);        // 涨跌幅
+        minute_kline.volume = std::stod(fields[6]);             // 成交量
+        minute_kline.amount = std::stod(fields[7]);             // 成交额
+        minute_kline.total_volume = std::stod(fields[8]);       // 累计成交量
+        minute_kline.total_amount = std::stod(fields[9]);       // 累计成交额
+        one_day_minute_klines.push_back(minute_kline);
+    }
+}
+
 // 解析东方财富返回数据
 void SpiderShareKline::ParseEastMoneyDayKline(conn_t* conn, std::vector<uiKline>& uiKlines) {
     json _response = json::parse(conn->response);
@@ -378,6 +408,7 @@ void SpiderShareKline::ConcurrentResponseCallback(conn_t* conn) {
         if (pExtra->type == KlineType::MINUTE || pExtra->type == KlineType::FIVE_DAY) {
             m_minute_klines.empty();
             ParseBaiduMinuteKline(conn, m_minute_klines);
+            conn->reuse = false;
         } else {
             std::vector<uiKline> multi_kline = {};
             ParseBaiduDayKline(conn, multi_kline);
@@ -393,9 +424,14 @@ void SpiderShareKline::ConcurrentResponseCallback(conn_t* conn) {
         }
 
     } else if (pExtra->provider == DataProvider::EastMoney) {  // 东方财富只需要请求一次，即可获取所有数据
-        std::vector<uiKline> multi_kline = {};
-        ParseEastMoneyDayKline(conn, multi_kline);
-        this->m_concurrent_day_klines_adjust[share_code].push_back(multi_kline);
+        if (pExtra->type == KlineType::MINUTE || pExtra->type == KlineType::FIVE_DAY) {
+            m_minute_klines.empty();
+            ParseEastMoneyMinuteKline(conn, m_minute_klines);
+        } else {
+            std::vector<uiKline> multi_kline = {};
+            ParseEastMoneyDayKline(conn, multi_kline);
+            this->m_concurrent_day_klines_adjust[share_code].push_back(multi_kline);
+        }
         conn->reuse = false;
     }
 }

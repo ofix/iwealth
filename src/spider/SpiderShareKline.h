@@ -49,6 +49,7 @@ class SpiderShareKline : public Spider {
     // 解析响应
     void ParseBaiduMinuteKline(conn_t* conn, std::vector<std::vector<minuteKline>>& minute_klines);
     void ParseBaiduDayKline(conn_t* conn, std::vector<uiKline>& uiKlines);
+    void ParseEastMoneyMinuteKline(conn_t* conn, std::vector<std::vector<minuteKline>>& minute_klines);
     void ParseEastMoneyDayKline(conn_t* conn, std::vector<uiKline>& uiKlines);
 
     void SingleResponseCallback(conn_t* conn);

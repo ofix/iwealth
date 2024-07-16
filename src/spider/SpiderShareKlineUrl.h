@@ -38,6 +38,29 @@
         "&new_Format=1"                                              \
         "&finClientType=pc"
 
+// 东方财富分时K线
+#define KLINE_URL_EAST_MONEY_MINUTE(share_code, market)              \
+    "https://83.push2.eastmoney.com/api/qt/stock/trends2/"           \
+    "sse?fields1=f1,f2,f3,f4,f5,f6,f7,f8,f9,f10,f11,f12,f13,f14,f17" \
+    "&fields2=f51,f52,f53,f54,f55,f56,f57,f58"                       \
+    "&mpi=1000"                                                      \
+    "&secid=" +                                                      \
+        std::to_string(market) + "." + share_code +                  \
+        "&ndays=1"                                                   \
+        "&iscr=0"                                                    \
+        "&iscca=0"
+// 东方财富5日分时K线
+#define KLINE_URL_EAST_MONEY_FIVE_DAY(share_code, market)            \
+    "https://48.push2.eastmoney.com/api/qt/stock/trends2/"           \
+    "sse?fields1=f1,f2,f3,f4,f5,f6,f7,f8,f9,f10,f11,f12,f13,f14,f17" \
+    "&fields2=f51,f52,f53,f54,f55,f56,f57,f58"                       \
+    "&mpi=1000"                                                      \
+    "&secid=" +                                                      \
+        std::to_string(market) + "." + share_code +                  \
+        "&ndays=5"                                                   \
+        "&iscr=0"                                                    \
+        "&iscca=0"
+
 // 东方财富行情中心 https://quote.eastmoney.com/concept/sz300729.html
 #define KLINE_URL_EAST_MONEY(share_code, market, kline_type) \
     "https://push2his.eastmoney.com/api/qt/stock/kline/get"  \
