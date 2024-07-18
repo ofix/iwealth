@@ -81,36 +81,21 @@ uint8_t SpiderShareBriefInfo::GetIndustryLevel(const std::string& industry_name)
 void SpiderShareBriefInfo::ConcurrentFetchBriefInfo() {
     std::vector<Share>& shares =
         m_pStockStorage->m_market_shares;  // 此次必须使用引用或者指针，否则跨线程传递，访问局部变量会出现段错误
-    std::list<std::string> urls;
-    std::vector<void*> user_data = {};
-    RequestStatistics* pStatistics = NewRequestStatistics(shares.size(), DataProvider::EastMoney);
-    if (pStatistics == nullptr) {
-        return;
-    }
+    std::vector<CrawlRequest> requests;
     for (size_t i = 0; i < shares.size(); i++) {
-        urls.emplace_back(GetRequestUrl(shares[i]));
+        CrawlRequest request;
+        request.url = GetRequestUrl(shares[i]);
         BriefInfoCrawlExtra* pExtra = new BriefInfoCrawlExtra();
         if (!pExtra) {
             std::cout << "[error]: bad memory alloc BriefInfoCrawlExtra" << std::endl;
             return;
         }
         pExtra->share = &shares[i];
-        pExtra->statistics = pStatistics;
-        user_data.emplace_back(static_cast<void*>(pExtra));
+        request.pExtra = pExtra;
+        requests.push_back(request);
     }
-    std::function<void(conn_t*)> callback =
-        std::bind(&SpiderShareBriefInfo::ConcurrentResponseCallback, this, std::placeholders::_1);
     try {
-        if (m_synchronize) {
-            HttpConcurrentGet("EastMoney::BriefInfo", urls, callback, user_data, 6);
-        } else {
-            // 启动新线程进行并发请求
-            std::thread crawl_thread(std::bind(
-                static_cast<void (*)(const std::string&, const std::list<std::string>&, std::function<void(conn_t*)>&,
-                                     const std::vector<void*>&, int, int)>(HttpConcurrentGet),
-                "EastMoney::BriefInfo", urls, callback, user_data, 6, CURL_HTTP_VERSION_1_1));
-            crawl_thread.detach();
-        }
+        StartDetachThread(requests);
         std::function<void(uint32_t, void*)> timer_cb = [=](uint32_t timer_id, void* args) {
             OnTimerFetchBriefInfo(timer_id, args);
         };

@@ -6,6 +6,7 @@
 #include "spider/SpiderConceptListEastMoney.h"
 #include "spider/SpiderShareCategory.h"
 #include "spider/SpiderShareKline.h"
+#include "spider/SpiderShareKlineProvider.h"
 #include "spider/SpiderShareQuote.h"
 #include "stock/Stock.h"
 #include "stock/StockDataStorage.h"
@@ -113,16 +114,16 @@ void KlineTest() {
 
     uiKline ui_kline;
     std::vector<std::string> fields = split(error_kline, ",");
-    ui_kline.day = fields[1];                                                                    // 时间
-    ui_kline.price_open = std::stod(fields[2]);                                                  // 开盘价
-    ui_kline.price_close = std::stod(fields[3]);                                                 // 收盘价
-    ui_kline.volume = SpiderShareKline::IsNaN(fields[4]) ? 0 : std::stoull(fields[4]);           // 成交量
-    ui_kline.price_max = SpiderShareKline::IsNaN(fields[5]) ? 0.0 : std::stod(fields[5]);        // 最高价
-    ui_kline.price_min = SpiderShareKline::IsNaN(fields[6]) ? 0.0 : std::stod(fields[6]);        // 最低价
-    ui_kline.amount = SpiderShareKline::IsNaN(fields[7]) ? 0.0 : std::stod(fields[7]);           // 成交额
-    ui_kline.change_amount = SpiderShareKline::IsNaN(fields[8]) ? 0.0 : std::stod(fields[8]);    // 涨跌额
-    ui_kline.change_rate = SpiderShareKline::IsNaN(fields[9]) ? 0.0 : std::stod(fields[9]);      // 涨跌幅
-    ui_kline.turnover_rate = SpiderShareKline::IsNaN(fields[10]) ? 0.0 : std::stod(fields[10]);  // 换手率
+    ui_kline.day = fields[1];                                                                            // 时间
+    ui_kline.price_open = std::stod(fields[2]);                                                          // 开盘价
+    ui_kline.price_close = std::stod(fields[3]);                                                         // 收盘价
+    ui_kline.volume = SpiderShareKlineProvider::IsNaN(fields[4]) ? 0 : std::stoull(fields[4]);           // 成交量
+    ui_kline.price_max = SpiderShareKlineProvider::IsNaN(fields[5]) ? 0.0 : std::stod(fields[5]);        // 最高价
+    ui_kline.price_min = SpiderShareKlineProvider::IsNaN(fields[6]) ? 0.0 : std::stod(fields[6]);        // 最低价
+    ui_kline.amount = SpiderShareKlineProvider::IsNaN(fields[7]) ? 0.0 : std::stod(fields[7]);           // 成交额
+    ui_kline.change_amount = SpiderShareKlineProvider::IsNaN(fields[8]) ? 0.0 : std::stod(fields[8]);    // 涨跌额
+    ui_kline.change_rate = SpiderShareKlineProvider::IsNaN(fields[9]) ? 0.0 : std::stod(fields[9]);      // 涨跌幅
+    ui_kline.turnover_rate = SpiderShareKlineProvider::IsNaN(fields[10]) ? 0.0 : std::stod(fields[10]);  // 换手率
 }
 
 void TestDateTime() {

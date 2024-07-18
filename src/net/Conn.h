@@ -3,6 +3,7 @@
 #include <functional>
 #include <string>
 #include <vector>
+#include "curl.h"
 #include "net/RequestStatistics.h"
 
 struct upload_info_t {
@@ -10,6 +11,37 @@ struct upload_info_t {
     long file_size;
     std::string file_name;
     std::string file_path;
+};
+
+struct CrawlExtra {
+    RequestStatistics* statistics;  // 统计信息
+};
+
+class SpiderShareKlineProvider;
+struct KlineCrawlExtra : CrawlExtra {
+    SpiderShareKlineProvider* pProvider;
+    KlineType type;  // K线类型，日/周/月/季度/年K线
+    Market market;   // 深交所/北交所/上交所
+    Share* share;    // StockDataStorage::m_market_shares 元素，
+                     // 下载完数据不能释放此指针指向的对象
+};
+
+struct QuoteCrawlExtra : CrawlExtra {
+    Market market;  // 深交所/北交所/上交所
+};
+
+struct BriefInfoCrawlExtra : CrawlExtra {
+    Share* share;  //
+};
+
+struct CrawlRequest {
+    std::string url;     // 请求URL
+    CrawlExtra* pExtra;  // 用户额外数据
+};
+
+struct CategoryCrawlExtra : CrawlExtra {
+    ShareCategoryType category_type;  // 板块类型(概念/行业/区域)
+    std::string category_name;        // 板块名称
 };
 
 struct conn_t {

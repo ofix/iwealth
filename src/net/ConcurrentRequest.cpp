@@ -267,67 +267,30 @@ void ConcurrentRequest::Run() {
     curl_global_cleanup();
 }
 
-// 通常情况下，这个函数在独立的分离线程工作
-void HttpConcurrentGet(const std::string& thread_name,
-                       const std::list<std::string>& urls,
+bool HttpConcurrentGet(const std::vector<CrawlRequest>& requests,
                        std::function<void(conn_t*)>& callback,
-                       void* user_extra,
                        int concurrent_size,
+                       std::string thread_name,
+                       RequestStatistics* pStatistics,
                        int http_version) {
     ConcurrentRequest request(thread_name, concurrent_size);
     std::list<conn_t*> connections;
-    for (auto url : urls) {
+    for (auto request : requests) {
         conn_t* pConn = new conn_t();  // 必须堆上分配，否则_CurlClose删除conn会报错！
         if (!pConn) {
             gLogger->log("%s line %d error", __FILE__, __LINE__);
-            break;
+            return false;
         }
-        pConn->url = url;
+        pConn->url = request.url;
         pConn->http_version = http_version;
         pConn->method = "GET";
         pConn->callback = callback;
-        pConn->extra = user_extra;
+        pConn->extra = request.pExtra;
         pConn->debug = false;
-        pConn->statistics = static_cast<CrawlExtra*>(user_extra)->statistics;
+        pConn->statistics = pStatistics;
         connections.push_back(pConn);
     }
     request.AddConnectionList(connections);
     request.Run();
-}
-
-// 通常情况下，这个函数在独立的分离线程工作
-void HttpConcurrentGet(const std::string& thread_name,
-                       const std::list<std::string>& urls,
-                       std::function<void(conn_t*)>& callback,
-                       const std::vector<void*>& user_extra,
-                       int concurrent_size,
-                       int http_version) {
-    ConcurrentRequest request(thread_name, concurrent_size);
-    std::list<conn_t*> connections;
-    size_t i = 0;
-    for (auto url : urls) {
-        conn_t* pConn = new conn_t();  // 必须堆上分配，否则_CurlClose删除conn会报错！
-        if (!pConn) {
-            gLogger->log("%s line %d error", __FILE__, __LINE__);
-            break;
-        }
-        pConn->url = url;
-        pConn->http_version = http_version;
-        pConn->method = "GET";
-        pConn->callback = callback;
-        pConn->extra = user_extra[i];
-        pConn->debug = false;
-        pConn->statistics = static_cast<CrawlExtra*>(user_extra[i])->statistics;
-        connections.push_back(pConn);
-        i++;
-    }
-    request.AddConnectionList(connections);
-    request.Run();
-}
-
-// 通常情况下，这个函数在独立的分离线程工作
-void HttpConcurrentGet(const std::string& thread_name, const std::list<conn_t*>& connections, int concurrent_size) {
-    ConcurrentRequest request(thread_name, concurrent_size);
-    request.AddConnectionList(connections);
-    request.Run();
+    return true;
 }

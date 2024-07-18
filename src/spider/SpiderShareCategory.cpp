@@ -62,13 +62,7 @@ void SpiderShareCategory::ParseCategories(std::string& data) {
 // https://2.push2.eastmoney.com/api/qt/clist/get?pn=1&pz=2000&po=1&np=1fltt=2&invt=2&dect=1&wbp2u=|0|0|0|web&fid=f3&fs=b:BK0169+f:!50&fields=f12,f14
 // https://2.push2.eastmoney.com/api/qt/clist/get?pn=1&pz=20000&po=1&np=1&fltt=2&invt=2&dect=1&fid=f3&fs=b:BK0169&fields=f3,f12,f14
 void SpiderShareCategory::FetchCategoryShares(nlohmann::json& categories, ShareCategoryType type) {
-    std::list<std::string> urls = {};
-    std::vector<void*> user_data = {};
-
-    RequestStatistics* pStatistics = NewRequestStatistics(categories.size(), DataProvider::EastMoney);
-    if (pStatistics == nullptr) {
-        return;
-    }
+    std::vector<CrawlRequest> requests = {};
     for (json::iterator it = categories.begin(); it != categories.end(); ++it) {
         std::string category_key = GetCategoryKey((*it)["key"]);
         std::string category_name = (*it)["title"];
@@ -85,7 +79,8 @@ void SpiderShareCategory::FetchCategoryShares(nlohmann::json& categories, ShareC
             "&fs=b:" +
             category_key +  // 查询那个板块
             "&fields=f3,f12,f14";
-        urls.push_back(url);
+        CrawlRequest request;
+        request.url = url;
         CategoryCrawlExtra* pExtra = new CategoryCrawlExtra();
         if (!pExtra) {
             std::cout << "[error]: bad memory alloc CategoryCrawlExtra" << std::endl;
@@ -93,23 +88,10 @@ void SpiderShareCategory::FetchCategoryShares(nlohmann::json& categories, ShareC
         }
         pExtra->category_name = category_name;
         pExtra->category_type = type;
-        pExtra->statistics = pStatistics;
-        user_data.push_back(static_cast<void*>(pExtra));
+        request.pExtra = pExtra;
+        requests.push_back(request);
     }
-    // 发送并发请求
-    std::function<void(conn_t*)> callback =
-        std::bind(&SpiderShareCategory::ConcurrentResponseCallback, this, std::placeholders::_1);
-    std::string thread_name = "EastMoney::" + GetCategoryTypeName(type);
-    if (m_synchronize) {
-        HttpConcurrentGet(thread_name, urls, callback, user_data, 3);
-    } else {
-        // 启动新线程进行并发请求
-        std::thread crawl_thread(std::bind(
-            static_cast<void (*)(const std::string&, const std::list<std::string>&, std::function<void(conn_t*)>&,
-                                 const std::vector<void*>&, int, int)>(HttpConcurrentGet),
-            thread_name, urls, callback, user_data, 3, CURL_HTTP_VERSION_1_1));
-        crawl_thread.detach();
-    }
+    StartDetachThread(requests);
 }
 
 std::string SpiderShareCategory::GetCategoryTypeName(ShareCategoryType type) {

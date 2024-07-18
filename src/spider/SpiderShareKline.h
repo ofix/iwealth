@@ -22,7 +22,7 @@ class SpiderShareKline : public Spider {
 
     void MergeShareKlines(const KlineType kline_type = KlineType::Day);
     size_t GetKlineCount(const std::vector<std::vector<uiKline>>& multi_klines);
-    std::string GetProviderName(DataProvider provider) const;
+    // std::string GetProviderName(DataProvider provider) const;
     static void DumpKline(uiKline& kline);
 
    protected:
@@ -31,28 +31,7 @@ class SpiderShareKline : public Spider {
                           std::unordered_map<std::string, std::vector<uiKline>>& target_klines);
     void MergeShareKlines(std::unordered_map<std::string, std::vector<uiKline>>& concurrent_klines,
                           std::unordered_map<std::string, std::vector<uiKline>>& target_klines);
-    void SingleCrawl(std::vector<KlineCrawlTask>& tasks, KlineType kline_type);
     void ConurrentCrawl(std::vector<KlineCrawlTask>& tasks, KlineType kline_type);
-    // 百度财经
-    std::string GetKlineTypeFinanceBaidu(const KlineType kline_type);
-    std::string GetKlineUrl(const DataProvider provider,      // 供应商
-                            const KlineType kline_type,       // K线类型
-                            const std::string& share_code,    // 股票代码
-                            const std::string& share_name,    // 股票名称
-                            const Market market,              // 股票市场
-                            const std::string& end_date = ""  // 结束日期
-    );
-    // 东方财富
-    int GetKlineTypeEastMoney(const KlineType kline_type);
-    int GetEastMoneyMarketCode(const Market market);
-
-    // 解析响应
-    void ParseBaiduMinuteKline(conn_t* conn, std::vector<std::vector<minuteKline>>& minute_klines);
-    void ParseBaiduDayKline(conn_t* conn, std::vector<uiKline>& uiKlines);
-    void ParseEastMoneyMinuteKline(conn_t* conn, std::vector<std::vector<minuteKline>>& minute_klines);
-    void ParseEastMoneyDayKline(conn_t* conn, std::vector<uiKline>& uiKlines);
-
-    void SingleResponseCallback(conn_t* conn);
     void ConcurrentResponseCallback(conn_t* conn);
 
    private:

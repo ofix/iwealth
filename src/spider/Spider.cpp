@@ -10,8 +10,10 @@
 #include "spider/Spider.h"
 #include <curl.h>
 #include <mutex>
+#include "net/ConcurrentRequest.h"
 #include "stock/StockDataStorage.h"
 #include "util/EasyLogger.h"
+
 
 Spider::Spider(StockDataStorage* storage)
     : m_pStockStorage(storage),
@@ -19,6 +21,7 @@ Spider::Spider(StockDataStorage* storage)
       m_posEnd(-1),
       m_concurrentMode(false),
       m_synchronize(false),
+      m_statistics(false),
       m_debug(false),
       m_timeStart(std::chrono::milliseconds(0)),
       m_timeEnd(std::chrono::milliseconds(0)),
@@ -31,6 +34,8 @@ Spider::Spider(StockDataStorage* storage, bool concurrent)
       m_posEnd(-1),
       m_concurrentMode(concurrent),
       m_synchronize(false),
+      m_statistics(false),
+      m_debug(false),
       m_timeStart(std::chrono::milliseconds(0)),
       m_timeEnd(std::chrono::milliseconds(0)),
       m_timeConsume(0) {
@@ -118,14 +123,39 @@ void Spider::UpdateRequestStatistics() {
     }
 }
 
+// 启动线程
+bool Spider::StartDetachThread(std::vector<CrawlRequest>& requests, int concurrent_size, std::string thread_name) {
+    std::function<void(conn_t*)> callback = std::bind(&Spider::ConcurrentResponseCallback, this, std::placeholders::_1);
+    // 启动新线程进行并发请求
+    // std::thread crawl_thread(std::bind(
+    //     static_cast<void (*)(const std::string&, const std::list<std::string>&, std::function<void(conn_t*)>&,
+    //                          const std::vector<void*>&, int, int)>(HttpConcurrentGet),
+    //     provider_name, urls, callback, user_data, 3, CURL_HTTP_VERSION_1_1));
+
+    // 使用lambda表达式来封装函数和参数
+    RequestStatistics* pStatistics = NewRequestStatistics(requests.size());
+    std::thread crawl_thread([requests, callback, concurrent_size, thread_name, pStatistics]() mutable {
+        HttpConcurrentGet(requests, callback, concurrent_size, thread_name, pStatistics, CURL_HTTP_VERSION_1_1);
+    });
+    crawl_thread.detach();
+}
+
+std::string Spider::GetProviderName(DataProvider provider) {
+    if (provider == DataProvider::EastMoney) {
+        return "EastMoney";
+    } else if (provider == DataProvider::FinanceBaidu) {
+        return "Baidu";
+    }
+    return "Unknown";
+}
+
 // 一个线程对应一个请求统计
-RequestStatistics* Spider::NewRequestStatistics(uint32_t request_count, DataProvider provider) {
+RequestStatistics* Spider::NewRequestStatistics(uint32_t request_count) {
     RequestStatistics* pStatistics = new RequestStatistics();
     if (!pStatistics) {
         gLogger->log("[ConcurrentCrawl] allocate memory failed");
         return nullptr;
     }
-    pStatistics->provider = provider;
     pStatistics->request_count += request_count;
     m_statisticsList.push_back(pStatistics);
     return pStatistics;

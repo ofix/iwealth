@@ -35,35 +35,23 @@ void SpiderShareQuote::DoCrawl() {
 
 void SpiderShareQuote::ConcurrentCrawl() {
     m_unique_shares.clear();
-    std::list<std::string> urls;
-    std::vector<void*> user_data;
     std::vector<int> market_code = {1, 2, 6, 1789};
-    RequestStatistics* pStatistics = NewRequestStatistics(4, DataProvider::Hexun);
+    std::vector<CrawlRequest> requests = {};
     for (int code : market_code) {
-        urls.push_back(GetFetchUrl(code));
+        CrawlRequest request;
+        request.url = GetFetchUrl(code);
         QuoteCrawlExtra* pExtra = new QuoteCrawlExtra();
         if (!pExtra) {
             std::cout << "[error]: bad memory alloc CrawlExtra" << std::endl;
             return;
         }
         pExtra->market = GetMarket(code);
-        pExtra->statistics = pStatistics;
-        user_data.push_back(static_cast<void*>(pExtra));
+        request.pExtra = pExtra;
+        requests.push_back(request);
     }
 
     // 发送并发请求
-    std::function<void(conn_t*)> callback =
-        std::bind(&SpiderShareQuote::ConcurrentResponseCallback, this, std::placeholders::_1);
-    if (m_synchronize) {
-        HttpConcurrentGet("Hexun", urls, callback, user_data, 4);
-    } else {
-        // 启动新线程进行并发请求
-        std::thread crawl_thread(std::bind(
-            static_cast<void (*)(const std::string&, const std::list<std::string>&, std::function<void(conn_t*)>&,
-                                 const std::vector<void*>&, int, int)>(HttpConcurrentGet),
-            "Hexun", urls, callback, user_data, 4, CURL_HTTP_VERSION_1_1));
-        crawl_thread.detach();
-    }
+    StartDetachThread(requests, 4);
 }
 
 void SpiderShareQuote::ConcurrentResponseCallback(conn_t* conn) {

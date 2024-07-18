@@ -33,16 +33,9 @@ class ConcurrentRequest {
     std::string m_last_request_url;  // 上一次请求的URL完整地址，防止接口403报错，无法从conn->url中获取到
 };
 
-void HttpConcurrentGet(const std::string& thread_name,
-                       const std::list<std::string>& urls,
+bool HttpConcurrentGet(const std::vector<CrawlRequest>& requests,
                        std::function<void(conn_t*)>& callback,
-                       void* user_extra,
                        int concurrent_size = 3,
+                       std::string thread_name = "",
+                       RequestStatistics* pStatistics = nullptr,
                        int http_version = CURL_HTTP_VERSION_1_1);
-void HttpConcurrentGet(const std::string& thread_name,
-                       const std::list<std::string>& urls,
-                       std::function<void(conn_t*)>& callback,
-                       const std::vector<void*>& user_extra,
-                       int concurrent_size = 3,
-                       int http_version = CURL_HTTP_VERSION_1_1);
-void HttpConcurrentGet(const std::string& thread_name, const std::list<conn_t*>& connections, int concurrent_size = 3);

@@ -5,7 +5,6 @@
 #include <list>
 #include <string>
 #include <thread>
-#include "curl.h"
 #include "net/Conn.h"
 
 #define BUF_SIZE 1024

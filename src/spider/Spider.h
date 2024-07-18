@@ -1,34 +1,10 @@
 #pragma once
 #include <chrono>
 #include <string>
+#include "net/Conn.h"
 #include "net/Request.h"
 #include "net/RequestStatistics.h"
 #include "stock/Stock.h"
-
-struct CrawlExtra {
-    RequestStatistics* statistics;  // 统计信息
-};
-
-struct KlineCrawlExtra : CrawlExtra {
-    DataProvider provider;  // K线爬取网站标识
-    KlineType type;         // K线类型，日/周/月/季度/年K线
-    Market market;          // 深交所/北交所/上交所
-    Share* share;           // StockDataStorage::m_market_shares 元素，
-                            // 下载完数据不能释放此指针指向的对象
-};
-
-struct QuoteCrawlExtra : CrawlExtra {
-    Market market;  // 深交所/北交所/上交所
-};
-
-struct BriefInfoCrawlExtra : CrawlExtra {
-    Share* share;  //
-};
-
-struct CategoryCrawlExtra : CrawlExtra {
-    ShareCategoryType category_type;  // 板块类型(概念/行业/区域)
-    std::string category_name;        // 板块名称
-};
 
 struct KlineCrawlTask {
     DataProvider provider;
@@ -50,11 +26,15 @@ class Spider {
     bool HasFinish();
     double GetProgress();
     bool IsConcurrentMode() const;
+    bool StartDetachThread(std::vector<CrawlRequest>& requests,
+                           int concurrent_size = 3,
+                           std::string thread_name = "");  // 启动线程
     std::string GetTimeConsumed() const;
     static std::string UrlEncode(const std::string& decoded);
     static std::string UrlDecode(const std::string& encoded);
+    static std::string GetProviderName(DataProvider provider);
     void UpdateRequestStatistics();
-    RequestStatistics* NewRequestStatistics(uint32_t request_count, DataProvider provider = DataProvider::EastMoney);
+    RequestStatistics* NewRequestStatistics(uint32_t request_count);
 
    protected:
     virtual void DoCrawl();
@@ -66,6 +46,7 @@ class Spider {
     size_t m_posEnd;                                             // 股票爬取的结束下标
     bool m_concurrentMode;                                       // 是否是并发请求模式
     bool m_synchronize;                                          // 是否是同步爬虫
+    bool m_statistics;                                           // 是否统计
     bool m_debug;                                                // 是否打印爬虫调试信息
     std::chrono::high_resolution_clock::time_point m_timeStart;  // 爬取起始时间
     std::chrono::high_resolution_clock::time_point m_timeEnd;    // 爬取结束时间

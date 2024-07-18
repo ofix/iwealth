@@ -5,7 +5,6 @@
 #include "stock/Stock.h"
 
 struct RequestStatistics {
-    DataProvider provider;  // K线爬取网站，东方财富|百度财经|腾讯财经|新浪财经|和讯网，只需初始化一次
     std::atomic<uint32_t> request_count;  // 请求总数，只需初始化一次
     ////
     std::atomic<size_t> recv_bytes_last;  // 上次采样间隔接收的字节总数,存在多个线程同时读写
