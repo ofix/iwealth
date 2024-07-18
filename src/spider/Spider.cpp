@@ -14,7 +14,6 @@
 #include "stock/StockDataStorage.h"
 #include "util/EasyLogger.h"
 
-
 Spider::Spider(StockDataStorage* storage)
     : m_pStockStorage(storage),
       m_posStart(0),
@@ -124,7 +123,7 @@ void Spider::UpdateRequestStatistics() {
 }
 
 // 启动线程
-bool Spider::StartDetachThread(std::vector<CrawlRequest>& requests, int concurrent_size, std::string thread_name) {
+void Spider::StartDetachThread(std::vector<CrawlRequest>& requests, std::string thread_name, int concurrent_size) {
     std::function<void(conn_t*)> callback = std::bind(&Spider::ConcurrentResponseCallback, this, std::placeholders::_1);
     // 启动新线程进行并发请求
     // std::thread crawl_thread(std::bind(
@@ -138,6 +137,12 @@ bool Spider::StartDetachThread(std::vector<CrawlRequest>& requests, int concurre
         HttpConcurrentGet(requests, callback, concurrent_size, thread_name, pStatistics, CURL_HTTP_VERSION_1_1);
     });
     crawl_thread.detach();
+}
+
+void Spider::Start(std::vector<CrawlRequest>& requests, std::string thread_name, int concurrent_size) {
+    std::function<void(conn_t*)> callback = std::bind(&Spider::ConcurrentResponseCallback, this, std::placeholders::_1);
+    RequestStatistics* pStatistics = NewRequestStatistics(requests.size());
+    HttpConcurrentGet(requests, callback, concurrent_size, thread_name, pStatistics);
 }
 
 std::string Spider::GetProviderName(DataProvider provider) {

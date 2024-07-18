@@ -95,7 +95,7 @@ void SpiderShareBriefInfo::ConcurrentFetchBriefInfo() {
         requests.push_back(request);
     }
     try {
-        StartDetachThread(requests);
+        StartDetachThread(requests, "brief_east_money");
         std::function<void(uint32_t, void*)> timer_cb = [=](uint32_t timer_id, void* args) {
             OnTimerFetchBriefInfo(timer_id, args);
         };

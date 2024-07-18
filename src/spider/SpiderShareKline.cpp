@@ -63,7 +63,7 @@ void SpiderShareKline::CrawlSync(Share* pShare, KlineType kline_type) {
     pExtra->share = pShare;
     request.pExtra = pExtra;
     requests.push_back(request);
-    StartDetachThread(requests, 1);
+    Start(requests, "sync_kline", 1);
     MergeShareKlines(m_concurrent_day_klines_adjust, m_pStockStorage->m_day_klines_adjust);
 }
 
@@ -104,7 +104,7 @@ void SpiderShareKline::ConurrentCrawl(std::vector<KlineCrawlTask>& tasks, KlineT
             requests.push_back(request);
         }
         pos_start = pos_end + 1;
-        StartDetachThread(requests);  // 启动分离线程
+        StartDetachThread(requests, GetProviderName(tasks[i].provider));  // 启动分离线程
     }
     // 启动定时器更新打印速度，并打印爬取进度,以下两种方法绑定成员函数都是OK的
     // std::function<void(uint32_t, void*)> timerCallback =

@@ -91,7 +91,7 @@ void SpiderShareCategory::FetchCategoryShares(nlohmann::json& categories, ShareC
         request.pExtra = pExtra;
         requests.push_back(request);
     }
-    StartDetachThread(requests);
+    StartDetachThread(requests, "quote_east_money");
 }
 
 std::string SpiderShareCategory::GetCategoryTypeName(ShareCategoryType type) {

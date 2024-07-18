@@ -26,9 +26,10 @@ class Spider {
     bool HasFinish();
     double GetProgress();
     bool IsConcurrentMode() const;
-    bool StartDetachThread(std::vector<CrawlRequest>& requests,
-                           int concurrent_size = 3,
-                           std::string thread_name = "");  // 启动线程
+    void StartDetachThread(std::vector<CrawlRequest>& requests,
+                           std::string thread_name = "",
+                           int concurrent_size = 3);  // 启动线程
+    void Start(std::vector<CrawlRequest>& requests, std::string thread_name, int concurrent_size);
     std::string GetTimeConsumed() const;
     static std::string UrlEncode(const std::string& decoded);
     static std::string UrlDecode(const std::string& encoded);

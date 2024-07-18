@@ -51,7 +51,7 @@ void SpiderShareQuote::ConcurrentCrawl() {
     }
 
     // 发送并发请求
-    StartDetachThread(requests, 4);
+    Start(requests, "quote_hexun", 4);
 }
 
 void SpiderShareQuote::ConcurrentResponseCallback(conn_t* conn) {
