@@ -23,7 +23,7 @@ RichKlineCtrl::RichKlineCtrl(StockDataStorage* pStorage, const wxPoint& pos, con
 }
 
 void RichKlineCtrl::Init() {
-    m_iMode = KLINE_MODE_DAY;
+    m_mode = KlineType::Day;
     m_klineWidth = 5;
     m_klineSpan = m_klineWidth * 0.8;
     m_shareCode = "";
@@ -56,30 +56,9 @@ void RichKlineCtrl::LoadKlines(const std::string& share_code, const KlineType& k
             }
             m_pKlines = &m_dayKlines;
         }
-        if (kline_type == KlineType::Day) {
-            m_pKlines = &m_dayKlines;
-        } else if (kline_type == KlineType::Week) {
-            if (m_weekKlines.size() == 0) {
-                // 根据日K线计算周K线
-            }
-            m_pKlines = &m_weekKlines;
-        } else if (kline_type == KlineType::Month) {
-            if (m_monthKlines.size() == 0) {
-                // 根据日K线计算月K线
-            }
-            m_pKlines = &m_monthKlines;
-        } else if (kline_type == KlineType::Quarter) {
-            if (m_quarterKlines.size() == 0) {
-                // 根据日K线计算季K线
-            }
-            m_pKlines = &m_quarterKlines;
-        } else if (kline_type == KlineType::Year) {
-            if (m_yearKlines.size() == 0) {
-                // 根据日K线计算年K线
-            }
-            m_pKlines = &m_yearKlines;
-        }
     }
+
+    SetMode(kline_type);
 
     m_klineRng = GetKlineRangeZoomIn(m_pKlines->size(), m_width, m_klineWidth, m_klineSpan);
 
@@ -90,20 +69,47 @@ void RichKlineCtrl::LoadKlines(const std::string& share_code, const KlineType& k
 }
 
 /**
- *@param iMode int the Kline draw mode
+ *@param mode KlineType the Kline draw mode
  */
-void RichKlineCtrl::SetMode(int iMode) {
-    if (!(iMode & (KLINE_MODES))) {
-        return;
+bool RichKlineCtrl::SetMode(KlineType mode) {
+    m_mode = mode;
+    if (mode == KlineType::MINUTE) {
+        if (m_minuteKlines.size() == 0) {  // 加载分时图
+        }
+        m_pMinuteKlines = &m_minuteKlines;
+    } else if (mode == KlineType::FIVE_DAY) {
+        if (m_fiveDayKlines.size() == 0) {  // 加载5日分时图
+        }
+        m_pMinuteKlines = &m_fiveDayKlines;
+    } else if (mode == KlineType::Day) {
+        if (m_dayKlines.size() == 0) {  // 加载日K线图
+        }
+        m_pKlines = &m_dayKlines;
+    } else if (mode == KlineType::Week) {
+        if (m_weekKlines.size() == 0) {  // 根据日K线计算周K线
+        }
+        m_pKlines = &m_weekKlines;
+    } else if (mode == KlineType::Month) {
+        if (m_monthKlines.size() == 0) {  // 根据日K线计算月K线
+        }
+        m_pKlines = &m_monthKlines;
+    } else if (mode == KlineType::Quarter) {
+        if (m_quarterKlines.size() == 0) {  // 根据日K线计算季K线
+        }
+        m_pKlines = &m_quarterKlines;
+    } else if (mode == KlineType::Year) {
+        if (m_yearKlines.size() == 0) {  // 根据日K线计算年K线
+        }
+        m_pKlines = &m_yearKlines;
     }
-    m_iMode = iMode;
+    return true;
 }
 
 /**
  *@return int the Kline draw mode
  */
-int RichKlineCtrl::GetMode() const {
-    return m_iMode;
+KlineType RichKlineCtrl::GetMode() const {
+    return m_mode;
 }
 
 int RichKlineCtrl::GetInnerWidth() {
@@ -275,6 +281,18 @@ wxPoint RichKlineCtrl::GetCrossLinePt(long n) {
 void RichKlineCtrl::OnPaint(wxDC* pDC) {
     pDC->SetBackground(*wxBLACK_BRUSH);
     pDC->Clear();
+    if (m_mode == KlineType::MINUTE) {
+        DrawMinuteKlines(pDC);
+    } else if (m_mode == KlineType::FIVE_DAY) {
+        DrawFiveDayMinuteKlines(pDC);
+    } else if (m_mode == KlineType::Day || m_mode == KlineType::Week || m_mode == KlineType::Month ||
+               m_mode == KlineType::Quarter || m_mode == KlineType::Year) {
+        DrawDayKlines(pDC);
+    }
+}
+
+// 日K线|周K线|月K线|季K线|年K线
+void RichKlineCtrl::DrawDayKlines(wxDC* pDC) {
     float rect_price_max = GetRectMaxPrice(*m_pKlines, m_klineRng.begin, m_klineRng.end);
     float rect_price_min = GetRectMinPrice(*m_pKlines, m_klineRng.begin, m_klineRng.end);
     int visible_klines = m_klineRng.end - m_klineRng.begin + 1;
@@ -660,4 +678,55 @@ bool RichKlineCtrl::HasEmaCurve() {
         }
     }
     return false;
+}
+
+////////////////////// 分时图相关函数  //////////////////////
+void RichKlineCtrl::DrawMinuteKlines(wxDC* pDC) {
+}
+void RichKlineCtrl::DrawMinuteKlineBackground(wxDC* pDC) {
+    wxColor clr(255, 0, 0);
+    const int nrows = 16;
+    const int ncols = 2;
+    int row_height = (m_height - (nrows + 1)) / nrows;
+    int col_width = (m_width - (ncols + 1)) / ncols;
+
+    wxPen solid_pen(clr, 1, wxPENSTYLE_SOLID);
+    pDC->SetPen(solid_pen);
+    // 绘制横向实线
+    wxPoint pt_start = m_pos;
+    wxPoint pt_end = wxPoint(m_pos.x + m_width, m_pos.y);
+    for (int i = 0; i < 3; i++) {
+        pDC->DrawLine(pt_start, pt_end);
+        pt_start.y += (row_height + 1) * nrows / 2;
+        pt_end.y += (row_height + 1) * nrows / 2;
+    }
+    // 绘制竖线实线
+    pt_start = m_pos;
+    pt_end = wxPoint(m_pos.x, m_pos.y + m_height);
+    for (int i = 0; i < 3; i++) {
+        pDC->DrawLine(pt_start, pt_end);
+        pt_start.x += col_width;
+        pt_end.x += col_width;
+    }
+
+    // 绘制横向虚线
+    wxPen dot_pen(clr, 1, wxPENSTYLE_LONG_DASH);
+    pDC->SetPen(dot_pen);
+    pt_start = wxPoint(m_pos.x, m_pos.y + 1 + row_height);
+    pt_end = wxPoint(m_pos.x + m_width, m_pos.y + 1 + row_height);
+    for (int i = 1; i <= nrows; i++) {
+        if (i == 8 || i == 16) {
+            continue;  // 跳过实线绘制
+        }
+        pDC->DrawLine(pt_start, pt_end);
+        pt_start.y += (row_height + 1) * i;
+        pt_end.y += (row_height + 1) * i;
+    }
+}
+
+void RichKlineCtrl::DrawMinuteKlineCurves(wxDC* pDC) {
+}
+
+////////////////////// 5日分时图相关函数  //////////////////////
+void RichKlineCtrl::DrawFiveDayMinuteKlines(wxDC* pDC) {
 }
