@@ -396,16 +396,17 @@ void StockDataStorage::LoadLocalFileShareNames() {
     }
 }
 
-void StockDataStorage::FetchKlineSync(const std::string& share_code, const KlineType kline_type) {
+bool StockDataStorage::FetchKlineSync(const std::string& share_code, const KlineType kline_type) {
     Share* pShare = FindShare(share_code);
     if (pShare) {
-        FetchKlineSync(pShare, kline_type);
+        return FetchKlineSync(pShare, kline_type);
     }
+    return false;
 }
 
-void StockDataStorage::FetchKlineSync(Share* pShare, const KlineType kline_type) {
+bool StockDataStorage::FetchKlineSync(Share* pShare, const KlineType kline_type) {
     SpiderShareKline* pSpider = static_cast<SpiderShareKline*>(GetSpider(SpiderType::HistoryKline));
-    pSpider->CrawlSync(pShare, kline_type);
+    return pSpider->CrawlSync(pShare, kline_type);
 }
 
 bool StockDataStorage::SaveShareKlines(const std::string& share_code, const KlineType kline_type) {
@@ -485,6 +486,9 @@ bool StockDataStorage::LoadShareKlines(std::vector<uiKline>* pKlines, const std:
 }
 
 bool StockDataStorage::SaveShareKlinesInCsvFile(const std::string& file_path, const std::vector<uiKline>& klines) {
+    if (klines.size() == 0) {
+        return false;
+    }
     std::string lines = "";
     for (const auto& kline : klines) {
         std::string line = "";

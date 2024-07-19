@@ -12,7 +12,7 @@ class ConcurrentRequest {
     virtual ~ConcurrentRequest();
     void AddConnection(conn_t* connection);
     void AddConnectionList(const std::list<conn_t*>& connections);
-    void Run();
+    bool Run();
     std::string GetThreadPrefix() const;
 
    private:
@@ -22,6 +22,7 @@ class ConcurrentRequest {
     static void _SetCommonOptions(conn_t* conn);
     static void _SetMiscOptions(conn_t* conn);
     static void _CurlClose(conn_t* conn);
+    static void _CurlCloseRequestFailed(conn_t* conn);
     static size_t _CurlOnResponseBodyRecv(void* ptr, size_t size, size_t nmemb, void* data);
     static size_t _CurlOnResponseHeaderRecv(void* ptr, size_t size, size_t nmemb, void* data);
 

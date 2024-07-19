@@ -14,7 +14,7 @@
 #include "util/EasyLogger.h"
 
 ConcurrentRequest::ConcurrentRequest(const std::string& thread_name, int concurrent_size)
-    : m_thread_name(thread_name), m_concurrent_size(concurrent_size), m_last_request_url("") {
+    : m_thread_name(thread_name), m_concurrent_size(concurrent_size), m_request_size(0), m_last_request_url("") {
 }
 
 ConcurrentRequest::ConcurrentRequest(const std::string& thread_name,
@@ -23,6 +23,7 @@ ConcurrentRequest::ConcurrentRequest(const std::string& thread_name,
     : m_thread_name(thread_name),
       m_concurrent_size(concurrent_size),
       m_connections(connections),
+      m_request_size(connections.size()),
       m_last_request_url("") {
 }
 
@@ -31,6 +32,7 @@ ConcurrentRequest::~ConcurrentRequest() {
 
 void ConcurrentRequest::AddConnection(conn_t* connection) {
     m_connections.push_back(connection);
+    m_request_size += 1;
 }
 
 void ConcurrentRequest::AddConnectionList(const std::list<conn_t*>& connections) {
@@ -82,6 +84,17 @@ void ConcurrentRequest::_CurlClose(conn_t* conn) {
     }
     if (conn) {
         delete conn;
+    }
+}
+
+void ConcurrentRequest::_CurlCloseRequestFailed(conn_t* conn) {
+    curl_easy_cleanup(conn->easy_curl);
+    if (conn->curl_header_list) {
+        curl_slist_free_all(conn->curl_header_list);
+        conn->curl_header_list = NULL;
+    }
+    if (conn->response.length() > 0) {
+        conn->response.clear();
     }
 }
 
@@ -177,11 +190,14 @@ std::string ConcurrentRequest::GetThreadPrefix() const {
     return "[" + m_thread_name + "] ";
 }
 
-void ConcurrentRequest::Run() {
+bool ConcurrentRequest::Run() {
     CURLM* cm;
     CURLMsg* msg;
     int msgs_left = -1;
     int request_no = 0;
+    int request_success = 0;
+    int request_fail = 0;
+    int request_total = m_request_size;
 
     curl_global_init(CURL_GLOBAL_ALL);
     cm = curl_multi_init();
@@ -224,32 +240,33 @@ void ConcurrentRequest::Run() {
                 curl_multi_remove_handle(cm, easy_curl);
                 if (!conn->reuse) {  // 如果没有子请求复用，释放资源
                     //////// 请求统计 /////////
-                    if (conn->http_code == 200 && !response_parse_error) {
+                    if (conn->http_code == 200) {
                         if (pStatistics != nullptr) {
                             pStatistics->success_requests += 1;
                         }
-                    } else {
-                        if (pStatistics != nullptr) {
-                            if (curl_easy_getinfo(conn->easy_curl, CURLINFO_EFFECTIVE_URL, &conn->url) == CURLE_OK) {
-                                std::cout << std::setfill('0') << std::setw(3) << request_no << ": " << conn->url
-                                          << ", http_code = " << conn->http_code << std::endl;
-                            }
-                            pStatistics->failed_requests += 1;
-                        }
-                    }
-                    if (pStatistics != nullptr) {
+                        request_success += 1;
                         std::cout << GetThreadPrefix() << "success: " << pStatistics->success_requests
                                   << ", failed: " << pStatistics->failed_requests
                                   << ", total: " << pStatistics->request_count << std::endl;
+                        _CurlClose(conn);  // 修正windows下提前关闭conn，导致上面统计报错的问题
+                    } else {
+                        if (pStatistics != nullptr) {
+                            pStatistics->failed_requests += 1;
+                        }
+                        request_fail += 1;
+                        if (curl_easy_getinfo(conn->easy_curl, CURLINFO_EFFECTIVE_URL, &conn->url) == CURLE_OK) {
+                            std::cout << std::setfill('0') << std::setw(3) << request_no << ": " << conn->url
+                                      << ", http_code = " << conn->http_code << std::endl;
+                        }
+                        _CurlCloseRequestFailed(conn);
                     }
-                    _CurlClose(conn);  // 修正windows下提前关闭conn，导致上面统计报错的问题
                     //////////////////////////
                 } else {  // 如果复用，需要重置response
                     conn->response.clear();
                     AddConnection(conn);  // 再次发送子请求
                 }
                 AddNewRequest(cm);
-                finished = (pStatistics->success_requests + pStatistics->failed_requests) >= pStatistics->request_count;
+                finished = request_success + request_fail >= request_total;
             } else {
                 std::cerr << GetThreadPrefix() << "E:CURLMsg " << msg->msg << std::endl;
             }
@@ -263,8 +280,10 @@ void ConcurrentRequest::Run() {
             }
         }
     }
+
     curl_multi_cleanup(cm);
     curl_global_cleanup();
+    return request_fail > 0 ? false : true;
 }
 
 bool HttpConcurrentGet(const std::vector<CrawlRequest>& requests,
@@ -286,11 +305,10 @@ bool HttpConcurrentGet(const std::vector<CrawlRequest>& requests,
         pConn->method = "GET";
         pConn->callback = callback;
         pConn->extra = request.pExtra;
-        pConn->debug = false;
+        pConn->debug = true;
         pConn->statistics = pStatistics;
         connections.push_back(pConn);
     }
     request.AddConnectionList(connections);
-    request.Run();
-    return true;
+    return request.Run();
 }

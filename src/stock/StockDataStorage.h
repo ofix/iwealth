@@ -82,8 +82,8 @@ class StockDataStorage {
     bool IsLocalDataFileExpired(const std::string& file_path);
     Spider* GetSpider(SpiderType type);
 
-    void FetchKlineSync(const std::string& share_code, const KlineType kline_type);
-    void FetchKlineSync(Share* pShare, const KlineType kline_type);
+    bool FetchKlineSync(const std::string& share_code, const KlineType kline_type);
+    bool FetchKlineSync(Share* pShare, const KlineType kline_type);
 
    protected:
     void FetchQuoteIndustryProvince();     // 爬取行情数据+板块数据

@@ -16,13 +16,12 @@ class SpiderShareKline : public Spider {
     SpiderShareKline(StockDataStorage* storage, bool concurrent);
     virtual ~SpiderShareKline();
     void Crawl(KlineType type = KlineType::Day);
-    void CrawlSync(Share* pShare, KlineType kline_type);
+    bool CrawlSync(Share* pShare, KlineType kline_type);
     void OnRequestTimer(uint32_t timer_id, void* args);
-    static bool IsNaN(const std::string& data);
 
+    SpiderShareKlineProvider* GetKlineProvider(DataProvider provider);
     void MergeShareKlines(const KlineType kline_type = KlineType::Day);
     size_t GetKlineCount(const std::vector<std::vector<uiKline>>& multi_klines);
-    // std::string GetProviderName(DataProvider provider) const;
     static void DumpKline(uiKline& kline);
 
    protected:

@@ -69,7 +69,10 @@ void RichPanelKline::SetShareCode(const std::string& share_code) {
     m_share_code = share_code;
     StockDataStorage* pStorage = static_cast<RichApplication*>(wxTheApp)->GetStockDataStorage();
     if (!pStorage->IsLocalFileShareKlinesExist(share_code)) {
-        pStorage->FetchKlineSync(share_code, KlineType::Day);
+        // 数据有可能加载失败,需要提示用户！
+        bool result = pStorage->FetchKlineSync(share_code, KlineType::Day);
+        if (!result) {  // 数据加载失败提示用户
+        }
         pStorage->SaveShareKlines(share_code, KlineType::Day);
     }
     m_pKlineCtrl->LoadKlines(share_code);

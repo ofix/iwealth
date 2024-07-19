@@ -60,12 +60,13 @@ void Spider::Crawl() {
     m_timeConsume = std::chrono::duration_cast<std::chrono::milliseconds>(m_timeEnd - m_timeStart);
 }
 
-void Spider::CrawlSync() {
+bool Spider::CrawlSync() {
     m_synchronize = true;
     m_timeStart = std::chrono::high_resolution_clock::now();
     DoCrawl();
     m_timeEnd = std::chrono::high_resolution_clock::now();
     m_timeConsume = std::chrono::duration_cast<std::chrono::milliseconds>(m_timeEnd - m_timeStart);
+    return true;
 }
 
 void Spider::DoCrawl() {
@@ -123,7 +124,10 @@ void Spider::UpdateRequestStatistics() {
 }
 
 // 启动线程
-void Spider::StartDetachThread(std::vector<CrawlRequest>& requests, std::string thread_name, int concurrent_size) {
+void Spider::StartDetachThread(std::vector<CrawlRequest>& requests,
+                               std::string thread_name,
+                               int concurrent_size,
+                               int http_version) {
     std::function<void(conn_t*)> callback = std::bind(&Spider::ConcurrentResponseCallback, this, std::placeholders::_1);
     // 启动新线程进行并发请求
     // std::thread crawl_thread(std::bind(
@@ -133,16 +137,19 @@ void Spider::StartDetachThread(std::vector<CrawlRequest>& requests, std::string 
 
     // 使用lambda表达式来封装函数和参数
     RequestStatistics* pStatistics = NewRequestStatistics(requests.size());
-    std::thread crawl_thread([requests, callback, concurrent_size, thread_name, pStatistics]() mutable {
-        HttpConcurrentGet(requests, callback, concurrent_size, thread_name, pStatistics, CURL_HTTP_VERSION_1_1);
+    std::thread crawl_thread([requests, callback, concurrent_size, thread_name, pStatistics, http_version]() mutable {
+        HttpConcurrentGet(requests, callback, concurrent_size, thread_name, pStatistics, http_version);
     });
     crawl_thread.detach();
 }
 
-void Spider::Start(std::vector<CrawlRequest>& requests, std::string thread_name, int concurrent_size) {
+bool Spider::Start(std::vector<CrawlRequest>& requests,
+                   std::string thread_name,
+                   int concurrent_size,
+                   int http_version) {
     std::function<void(conn_t*)> callback = std::bind(&Spider::ConcurrentResponseCallback, this, std::placeholders::_1);
     RequestStatistics* pStatistics = NewRequestStatistics(requests.size());
-    HttpConcurrentGet(requests, callback, concurrent_size, thread_name, pStatistics);
+    return HttpConcurrentGet(requests, callback, concurrent_size, thread_name, pStatistics, http_version);
 }
 
 std::string Spider::GetProviderName(DataProvider provider) {

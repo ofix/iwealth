@@ -34,26 +34,30 @@ void SpiderShareKline::Crawl(KlineType kline_type) {
     DoCrawl(kline_type);
 }
 
-void SpiderShareKline::CrawlSync(Share* pShare, KlineType kline_type) {
-    std::vector<DataProvider> providers = {
-        DataProvider::FinanceBaidu,
-        DataProvider::EastMoney,
-    };
-    std::vector<DataProvider> data_providers;
-    int iProvider = rand_int(0, providers.size() - 1);
-    DataProvider provider = providers[iProvider];
-    if (kline_type == KlineType::MINUTE || kline_type == KlineType::FIVE_DAY) {
-        provider = DataProvider::FinanceBaidu;
-    }
-    std::vector<CrawlRequest> requests = {};
-    CrawlRequest request;
+SpiderShareKlineProvider* SpiderShareKline::GetKlineProvider(DataProvider provider) {
     SpiderShareKlineProvider* pProvider = nullptr;
     if (provider == DataProvider::FinanceBaidu) {
         pProvider = new SpiderShareKlineProviderBaidu();
     } else if (provider == DataProvider::EastMoney) {
         pProvider = new SpiderShareKlineProviderEastMoney();
     }
+    return pProvider;
+}
 
+bool SpiderShareKline::CrawlSync(Share* pShare, KlineType kline_type) {
+    std::vector<DataProvider> providers = {
+        DataProvider::FinanceBaidu,
+        DataProvider::EastMoney,
+    };
+    std::vector<DataProvider> data_providers;
+    // int iProvider = rand_int(0, providers.size() - 1);
+    DataProvider provider = providers[0];  // 强制使用EastMoney
+    if (kline_type == KlineType::MINUTE || kline_type == KlineType::FIVE_DAY) {
+        provider = DataProvider::FinanceBaidu;
+    }
+    std::vector<CrawlRequest> requests = {};
+    CrawlRequest request;
+    SpiderShareKlineProvider* pProvider = GetKlineProvider(provider);
     request.url = pProvider->GetKlineUrl(kline_type, pShare->code, pShare->name, pShare->market);
 
     KlineCrawlExtra* pExtra = new KlineCrawlExtra();
@@ -63,8 +67,16 @@ void SpiderShareKline::CrawlSync(Share* pShare, KlineType kline_type) {
     pExtra->share = pShare;
     request.pExtra = pExtra;
     requests.push_back(request);
-    Start(requests, "sync_kline", 1);
-    MergeShareKlines(m_concurrent_day_klines_adjust, m_pStockStorage->m_day_klines_adjust);
+    bool result = Start(requests, "sync_kline", 1);
+    if (pExtra) {
+        std::cout << "释放 pExtra" << std::endl;
+        delete pExtra;
+        pExtra = nullptr;
+    }
+    if (result) {
+        MergeShareKlines(m_concurrent_day_klines_adjust, m_pStockStorage->m_day_klines_adjust);
+    }
+    return result;
 }
 
 void SpiderShareKline::DoCrawl(KlineType kline_type) {
@@ -85,12 +97,7 @@ void SpiderShareKline::ConurrentCrawl(std::vector<KlineCrawlTask>& tasks, KlineT
         priority += tasks[i].priority;
         pos_end = std::round((shares.size() - 1) * priority);
         std::string provider_name = GetProviderName(tasks[i].provider);
-        SpiderShareKlineProvider* pProvider = nullptr;
-        if (tasks[i].provider == DataProvider::FinanceBaidu) {
-            pProvider = new SpiderShareKlineProviderBaidu();
-        } else if (tasks[i].provider == DataProvider::EastMoney) {
-            pProvider = new SpiderShareKlineProviderEastMoney();
-        }
+        SpiderShareKlineProvider* pProvider = GetKlineProvider(tasks[i].provider);
         std::vector<CrawlRequest> requests = {};
         for (size_t j = pos_start; j <= pos_end; j++) {
             CrawlRequest request;
@@ -148,6 +155,11 @@ void SpiderShareKline::ConcurrentResponseCallback(conn_t* conn) {
                 conn->reuse = true;  // 需要复用
             } else {
                 conn->reuse = false;
+                if (pExtra != nullptr) {
+                    delete pExtra;
+                    pExtra = nullptr;
+                    std::cout << "释放 pExtra (2)" << std::endl;
+                }
             }
             this->m_concurrent_day_klines_adjust[share_code].push_back(multi_kline);
         } else {

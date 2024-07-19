@@ -19,7 +19,7 @@ class Spider {
     std::string Fetch(const std::string& url, int http_version = CURL_HTTP_VERSION_1_1);
     virtual ~Spider();
     void Crawl();      // 异步爬取
-    void CrawlSync();  // 同步爬取
+    bool CrawlSync();  // 同步爬取
     void Stop();
     void Pause();
     void SetCrawlRange(size_t start_pos, size_t end_pos);
@@ -28,8 +28,12 @@ class Spider {
     bool IsConcurrentMode() const;
     void StartDetachThread(std::vector<CrawlRequest>& requests,
                            std::string thread_name = "",
-                           int concurrent_size = 3);  // 启动线程
-    void Start(std::vector<CrawlRequest>& requests, std::string thread_name, int concurrent_size);
+                           int concurrent_size = 3,
+                           int http_version = CURL_HTTP_VERSION_1_1);  // 启动线程
+    bool Start(std::vector<CrawlRequest>& requests,
+               std::string thread_name,
+               int concurrent_size = 3,
+               int http_version = CURL_HTTP_VERSION_1_1);
     std::string GetTimeConsumed() const;
     static std::string UrlEncode(const std::string& decoded);
     static std::string UrlDecode(const std::string& encoded);

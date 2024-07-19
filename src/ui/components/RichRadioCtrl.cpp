@@ -34,6 +34,7 @@ RichRadioCtrl::RichRadioCtrl(const std::vector<std::string>& options,  // 需要
     m_clrBackground = wxColor(0, 0, 0);
     m_clrTextDefault = wxColor(180, 180, 180);
     m_clrTextActive = wxColor(233, 223, 0);
+    SetBackgroundColour(m_clrBackground);
     for (size_t i = 0; i < options.size(); i++) {
         wxStaticText* option_ctrl = new wxStaticText(this, wxNewId(), CN(options[i]));
         option_ctrl->SetBackgroundColour(m_clrBackground);
