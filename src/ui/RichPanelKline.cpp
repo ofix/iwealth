@@ -66,16 +66,10 @@ RichPanelKline::~RichPanelKline() {
 }
 
 void RichPanelKline::SetShareCode(const std::string& share_code) {
-    m_share_code = share_code;
-    StockDataStorage* pStorage = static_cast<RichApplication*>(wxTheApp)->GetStockDataStorage();
-    if (!pStorage->IsLocalFileShareKlinesExist(share_code)) {
-        // 数据有可能加载失败,需要提示用户！
-        bool result = pStorage->FetchKlineSync(share_code, KlineType::Day);
-        if (!result) {  // 数据加载失败提示用户
-        }
-        pStorage->SaveShareKlines(share_code, KlineType::Day);
+    bool result = m_pKlineCtrl->LoadKlines(share_code);
+    if (!result) {  // 数据有可能加载失败，弹窗提示用户
     }
-    m_pKlineCtrl->LoadKlines(share_code);
+    StockDataStorage* pStorage = static_cast<RichApplication*>(wxTheApp)->GetStockDataStorage();
     m_pShare = pStorage->FindShare(share_code);
     if (m_pShare != nullptr) {  // 更新股票名称
         m_pShareNameCtrl->SetLabel(CN(m_pShare->name));

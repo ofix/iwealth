@@ -184,7 +184,7 @@ Spider* StockDataStorage::GetSpider(SpiderType type) {
         case SpiderType::BriefInfo: {
             return new SpiderShareBriefInfo(this);
         }
-        case SpiderType::HistoryKline: {
+        case SpiderType::Kline: {
             return new SpiderShareKline(this);
         }
         default:
@@ -405,8 +405,36 @@ bool StockDataStorage::FetchKlineSync(const std::string& share_code, const Kline
 }
 
 bool StockDataStorage::FetchKlineSync(Share* pShare, const KlineType kline_type) {
-    SpiderShareKline* pSpider = static_cast<SpiderShareKline*>(GetSpider(SpiderType::HistoryKline));
+    SpiderShareKline* pSpider = static_cast<SpiderShareKline*>(GetSpider(SpiderType::Kline));
     return pSpider->CrawlSync(pShare, kline_type);
+}
+
+// 检查本地日K线数据文件是否过期
+bool StockDataStorage::IsLocalFileShareDayKlineExpired(const std::string& share_code) {
+    std::string file_path = GetFilePathShareKline(share_code);
+    return IsLocalDataFileExpired(file_path);
+}
+
+// 带缓存功能的日K线数据加载
+bool StockDataStorage::QueryShareDayKline(const std::string& share_code, std::vector<uiKline>& day_klines) {
+    if (!IsLocalFileShareKlinesExist(share_code)) {
+        // 同步加载完整前复权日K线数据
+    } else {
+        if (IsLocalFileShareDayKlineExpired(share_code)) {
+            // 同步加载增量前复权日K线数据
+        } else {
+            // 检查内存cache是否有数据,没有
+            if (m_day_klines_adjust.find(share_code) != m_day_klines_adjust.end()) {
+                return &m_day_klines_adjust[share_code];
+            }
+            // LoadLocalShareDayKlines();  // 加载本地
+        }
+    }
+    return true;
+}
+
+// 带缓存功能的分时K线数据加载
+bool StockDataStorage::QueryShareMinuteKline(const std::string& share_code, std::vector<minuteKline>& minute_klines) {
 }
 
 bool StockDataStorage::SaveShareKlines(const std::string& share_code, const KlineType kline_type) {
@@ -452,8 +480,8 @@ std::string StockDataStorage::GetFilePathShareKline(const std::string& share_cod
     return FileTool::CurrentPath() + "data" + DIR_SEPARATOR + "day" + DIR_SEPARATOR + share_code + ".csv";
 }
 
-// 加载本地股票历史K线数据
-bool StockDataStorage::LoadShareKlines(std::vector<uiKline>* pKlines, const std::string& share_code) {
+// 加载本地股票前复权日K线数据
+bool StockDataStorage::LoadLocalShareDayKlines(std::vector<uiKline>* pKlines, const std::string& share_code) {
     if (!IsLocalFileShareKlinesExist(share_code)) {
         return false;
     }

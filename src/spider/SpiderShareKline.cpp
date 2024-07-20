@@ -50,7 +50,7 @@ bool SpiderShareKline::CrawlSync(Share* pShare, KlineType kline_type) {
         DataProvider::EastMoney,
     };
     std::vector<DataProvider> data_providers;
-    // int iProvider = rand_int(0, providers.size() - 1);
+    int iProvider = rand_int(0, providers.size() - 1);
     DataProvider provider = providers[0];  // 强制使用EastMoney
     if (kline_type == KlineType::MINUTE || kline_type == KlineType::FIVE_DAY) {
         provider = DataProvider::FinanceBaidu;

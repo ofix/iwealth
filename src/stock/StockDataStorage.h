@@ -32,7 +32,7 @@ class StockDataStorage {
         Concept,           // 概念板块爬虫
         IndustryProvince,  // 行业|地区板块联合爬虫
         BriefInfo,         // 股票基本信息(曾用名)爬虫
-        HistoryKline,      // 历史K线爬虫
+        Kline,             // 分时/五日分时/日K线爬虫
     };
     enum DumpType {
         Quote = 0,  // 打印行情信息
@@ -55,7 +55,13 @@ class StockDataStorage {
     std::vector<uiKline>* GetShareKlines(const std::string& share_code, const KlineType kline_type);
     std::string GetFilePathShareKline(const std::string& share_code);
     bool IsLocalFileShareKlinesExist(const std::string& share_code);
-    bool LoadShareKlines(std::vector<uiKline>* pKlines, const std::string& share_code);
+    bool LoadLocalShareDayKlines(std::vector<uiKline>* pKlines, const std::string& share_code);
+    // 检查本地日K线数据文件是否过期
+    bool IsLocalFileShareDayKlineExpired(const std::string& share_code);
+    // 带缓存功能的日K线数据加载
+    bool QueryShareDayKline(const std::string& share_code, std::vector<uiKline>& day_klines);
+    // 带缓存功能的分时K线数据加载
+    bool QueryShareMinuteKline(const std::string& share_code, std::vector<minuteKline>& minute_klines);
 
     Share* FindShare(const std::string& share_code);
     bool ClearShares();                             // 清空股票

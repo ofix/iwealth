@@ -22,7 +22,7 @@ class RichKlineCtrl {
     bool SetMode(KlineType mode);  // Minute|Five Day Minute|Day|Week|Month|Quarter|Year
     KlineType GetMode() const;
 
-    void LoadKlines(const std::string& share_code, const KlineType& kline_type = KlineType::Day);
+    bool LoadKlines(const std::string& share_code, const KlineType& kline_type = KlineType::Day);
 
     void OnPaint(wxDC* pDC);
     void DrawMinuteKlines(wxDC* pDC);         // 分时图
@@ -84,6 +84,7 @@ class RichKlineCtrl {
     wxPoint GetCrossLinePt(long n);
 
    protected:
+    void RemoveCache();
     KlineType m_mode;  // Minute|Five Day Minute|Day|Week|Month|Quarter|Year
     wxPoint m_pos;     // 起始位置
     int m_width;
@@ -98,7 +99,6 @@ class RichKlineCtrl {
 
     StockDataStorage* m_pStorage;               // 股票存储中心
     std::string m_shareCode;                    // 股票代码
-    std::string m_oldShareCode;                 // 上一个股票代码
     std::vector<uiKline>* m_pKlines;            // 当前绘制的K线数据
     std::vector<minuteKline>* m_pMinuteKlines;  // 当前绘制的分时图数据
     std::vector<uiKline> m_dayKlines;           // 日K线缓存

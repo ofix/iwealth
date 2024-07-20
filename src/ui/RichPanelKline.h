@@ -46,8 +46,7 @@ class RichPanelKline : public RichPanel {
     wxPoint m_ptVolumeBarCtrl;
     wxSize m_sizeVolumeBarCtrl;
 
-    std::string m_share_code;  // 当前显示的股票代码
-    Share* m_pShare;           // 当前显示的股票指针
+    Share* m_pShare;  // 当前显示的股票指针
 
    private:
     DECLARE_EVENT_TABLE()

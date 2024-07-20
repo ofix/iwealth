@@ -36,58 +36,52 @@ bool StockKlines::GetYear(const std::string& day, int& year) {
 
 std::vector<uiKline> StockKlines::GetPeriodKlines(const std::vector<uiKline>& day_klines,
                                                   std::function<bool(const std::string&, int&)> period_func) {
-    std::vector<uiKline> period_klines;
-    uiKline period_kline;
+    std::vector<uiKline> _klines;
+    uiKline _kline;
     int prev_period = 0, this_period = 0, prev_period_price_close = 0.0;
     std::string period_start_day = "";
     std::string period_day = "";
 
     period_start_day = day_klines[0].day;
-    period_kline = day_klines[0];
+    _kline = day_klines[0];
     period_func(period_start_day, prev_period);
     prev_period_price_close = (day_klines[0]).price_min;  // 将第一天上市的最低价(发行价)作为基准价
 
     for (size_t i = 1; i < day_klines.size(); i++) {
         uiKline day_kline = day_klines[i];
-        period_day = day_kline.day;
-        GetYearWeek(day_kline.day, this_period);
-        if (this_period != prev_period) {                              //保存上一周的周K线
-            period_kline.price_close = day_klines[i - 1].price_close;  // 将上一个交易日的收盘价作为周收盘价
-            period_kline.day = period_start_day;                       // 周开盘日期
-            period_kline.change_rate =
-                (period_kline.price_close - prev_period_price_close) / prev_period_price_close;  // 周涨跌幅
-            period_kline.change_amount = period_kline.price_close - prev_period_price_close;     // 周涨跌额
-            period_klines.push_back(period_kline);
-            prev_period_price_close = day_klines[i - 1].price_close;  // 将上一个交易日的收盘价作为周收盘价
+        period_func(day_kline.day, this_period);  // 当前是第几周，第几月, 第几季，第几年
+        if (this_period != prev_period) {         // 保存上一周的周K线
+            _kline.price_close = day_klines[i - 1].price_close;  // 将上一个交易日的收盘价作为周期收盘价
+            _kline.day = period_start_day;                       // 周期开盘日是周期第一天
+            _kline.change_rate = (_kline.price_close - prev_period_price_close) / prev_period_price_close;  // 周涨跌幅
+            _kline.change_amount = _kline.price_close - prev_period_price_close;  // 周涨跌额
+            _klines.push_back(_kline);
+            prev_period_price_close = _kline.price_close;  // 将上一个交易日的收盘价作为周收盘价
             //////////// 初始化本周K线数据
             period_start_day = day_kline.day;
             prev_period = this_period;
-            period_kline = day_kline;
+            _kline = day_kline;
         } else {
-            period_kline.market_cap = day_kline.market_cap;         // 股票市值
-            period_kline.volume += day_kline.volume;                // 周期成交量
-            period_kline.amount += day_kline.amount;                // 周期成交额
-            period_kline.turnover_rate += day_kline.turnover_rate;  // 周期换手率
-            // period_kline.price_close = day_kline.price_close;    // 周期收盘价
-            if (day_kline.price_max > period_kline.price_max) {
-                period_kline.price_max = day_kline.price_max;
+            _kline.market_cap = day_kline.market_cap;         // 股票市值
+            _kline.volume += day_kline.volume;                // 周期成交量
+            _kline.amount += day_kline.amount;                // 周期成交额
+            _kline.turnover_rate += day_kline.turnover_rate;  // 周期换手率
+            if (day_kline.price_max > _kline.price_max) {
+                _kline.price_max = day_kline.price_max;
             }
-            if (day_kline.price_min < period_kline.price_min) {
-                period_kline.price_min = day_kline.price_min;
+            if (day_kline.price_min < _kline.price_min) {
+                _kline.price_min = day_kline.price_min;
             }
         }
     }
 
-    //////////
-    if (period_start_day != period_day) {
-        period_kline.price_close = day_klines[day_klines.size() - 1].price_close;  // 周收盘价是最后一个交易日的收盘价
-        period_kline.change_rate =
-            (period_kline.price_close - prev_period_price_close) / prev_period_price_close;  // 周涨跌幅
-        period_kline.change_amount = period_kline.price_close - prev_period_price_close;     // 周涨跌额
-        period_klines.push_back(period_kline);
-    }
+    ////////// 剩余未添加的记录 ////////
 
-    return period_klines;
+    _kline.price_close = day_klines[day_klines.size() - 1].price_close;  // 周收盘价是最后一个交易日的收盘价
+    _kline.change_rate = (_kline.price_close - prev_period_price_close) / prev_period_price_close;  // 周涨跌幅
+    _kline.change_amount = _kline.price_close - prev_period_price_close;                            // 周涨跌额
+    _klines.push_back(_kline);
+    return _klines;
 }
 
 // 计算周K线

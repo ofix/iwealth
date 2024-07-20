@@ -13,6 +13,7 @@
 #include <wx/graphics.h>
 #include "formula/FormulaEma.h"
 #include "stock/StockDataStorage.h"
+#include "ui/RichApplication.h"
 
 RichKlineCtrl::~RichKlineCtrl() {
 }
@@ -38,22 +39,53 @@ void RichKlineCtrl::Init() {
     m_crossLine = NO_CROSS_LINE;
 }
 
-void RichKlineCtrl::LoadKlines(const std::string& share_code, const KlineType& kline_type) {
-    m_shareCode = share_code;
-    // 新的股票代码K线，需要清空之前的，否则直接复用
-    if (m_shareCode != m_oldShareCode) {
-        // 有可能重复加载，所以需要清空就数据
-        m_dayKlines.clear();
-        m_pKlines = nullptr;
-        m_emaCurves.clear();
+void RichKlineCtrl::RemoveCache() {
+    m_dayKlines.clear();
+    m_weekKlines.clear();
+    m_monthKlines.clear();
+    m_quarterKlines.clear();
+    m_yearKlines.clear();
+    m_minuteKlines.clear();
+    m_fiveDayKlines.clear();
+}
+
+/**
+ * @brief 1. 日K线需要保存到磁盘上，周K线|月K线|季K线|年K线通过日K线计算得来
+ * 2. 分时K线实时请求，并缓存到内存中，采用LRU算法进行淘汰，保留最多200个股票分时图
+ * 分时图占用内存为 4*60*200 = 48000/1000 = 1MB左右
+ *
+ * @param share_code
+ * @param kline_type
+ */
+bool RichKlineCtrl::LoadKlines(const std::string& share_code, const KlineType& kline_type) {
+    if (m_shareCode != share_code) {  // 加载不同股票的分时和K线图前，需清空缓存数据
+        m_shareCode = share_code;
+        RemoveCache();
     }
+    // 检查 kline_type 和 share_code
+    StockDataStorage* pStorage = static_cast<RichApplication*>(wxTheApp)->GetStockDataStorage();
+    if (!pStorage->IsLocalFileShareKlinesExist(share_code)) {
+        // 数据有可能加载失败,需要提示用户！
+        bool result = pStorage->FetchKlineSync(share_code, KlineType::Day);
+        if (!result) {  // 数据加载失败提示用户
+            return false;
+        }
+        pStorage->SaveShareKlines(share_code, KlineType::Day);
+    }
+
+    // 新的股票代码K线，需要清空之前的，否则直接复用
+    // 有可能重复加载，所以需要清空就数据
+    m_dayKlines.clear();
+    m_pKlines = nullptr;
+    m_emaCurves.clear();
+
     if (kline_type == KlineType::Day || kline_type == KlineType::Week || kline_type == KlineType::Month ||
         kline_type == KlineType::Quarter || kline_type == KlineType::Year) {
         if (m_dayKlines.size() == 0) {
-            bool result = m_pStorage->LoadShareKlines(&m_dayKlines, share_code);  // 加载日K线
-            if (!result) {
-                std::cout << "load share " + share_code + " klines error!" << std::endl;
-            }
+            // bool result = m_pStorage->LoadShareKlines(&m_dayKlines, share_code);  // 加载日K线
+            // if (!result) {
+            //     std::cout << "load share " + share_code + " klines error!" << std::endl;
+            // }
             m_pKlines = &m_dayKlines;
         }
     }
