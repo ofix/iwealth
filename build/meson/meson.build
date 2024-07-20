@@ -117,6 +117,7 @@ gui_sources = [
     'formula/FormulaEma.cpp',
     'formula/FormulaBase.cpp',
     'stock/StockDataStorage.cpp',
+    'stock/StockKlineCache.cpp',
     'spider/SpiderShareBriefInfo.cpp',
     'spider/SpiderConceptListEastMoney.cpp',
     'spider/SpiderShareQuote.cpp',
@@ -139,7 +140,8 @@ gui_sources = [
     'util/ConsoleTable.cpp',
     'util/EasyLogger.cpp',
     'util/FileTool.cpp',
-    'util/Global.cpp'
+    'util/Global.cpp',
+    'util/RichResult.cpp'
 ]
 
 full_gui_sources = []
