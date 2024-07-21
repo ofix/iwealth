@@ -118,6 +118,7 @@ gui_sources = [
     'formula/FormulaBase.cpp',
     'stock/StockDataStorage.cpp',
     'stock/StockKlineCache.cpp',
+    'stock/StockMemoryKline.cpp',
     'spider/SpiderShareBriefInfo.cpp',
     'spider/SpiderConceptListEastMoney.cpp',
     'spider/SpiderShareQuote.cpp',
