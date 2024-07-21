@@ -85,7 +85,7 @@ class StockDataStorage {
     };
 
     void SetFetchResultOk(FetchResult result);
-    bool IsLocalDataFileExpired(const std::string& file_path);
+    // bool IsLocalDataFileExpired(const std::string& file_path);
     Spider* GetSpider(SpiderType type);
 
     bool FetchKlineSync(const std::string& share_code, const KlineType kline_type);
@@ -152,15 +152,15 @@ class StockDataStorage {
     // 省份->[股票1,股票2] hash映射表
     ShareCategory m_category_provinces;
     // 市场个股前复权历史K线
-    std::unordered_map<std::string, std::vector<uiKline>> m_day_klines_adjust;
-    std::unordered_map<std::string, std::vector<uiKline>> m_week_klines_adjust;
-    std::unordered_map<std::string, std::vector<uiKline>> m_month_klines_adjust;
-    std::unordered_map<std::string, std::vector<uiKline>> m_year_klines_adjust;
+    // std::unordered_map<std::string, std::vector<uiKline>> m_day_klines_adjust;
+    // std::unordered_map<std::string, std::vector<uiKline>> m_week_klines_adjust;
+    // std::unordered_map<std::string, std::vector<uiKline>> m_month_klines_adjust;
+    // std::unordered_map<std::string, std::vector<uiKline>> m_year_klines_adjust;
     // 市场个股不复权历史K线
-    std::unordered_map<std::string, std::vector<uiKline>> m_day_klines;
-    std::unordered_map<std::string, std::vector<uiKline>> m_week_klines;
-    std::unordered_map<std::string, std::vector<uiKline>> m_month_klines;
-    std::unordered_map<std::string, std::vector<uiKline>> m_year_klines;
+    // std::unordered_map<std::string, std::vector<uiKline>> m_day_klines;
+    // std::unordered_map<std::string, std::vector<uiKline>> m_week_klines;
+    // std::unordered_map<std::string, std::vector<uiKline>> m_month_klines;
+    // std::unordered_map<std::string, std::vector<uiKline>> m_year_klines;
 
     // 统计信息
     std::unordered_map<Market, int> m_market_share_count;  // 分市场股票数量统计
