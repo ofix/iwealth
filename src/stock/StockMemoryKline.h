@@ -11,8 +11,9 @@ class StockMemoryKline {
    public:
     StockMemoryKline(int capacity_size = 300);
     ~StockMemoryKline();
-    void AddKlines(const std::string& share_code, const std::vector<T>& klines);
-    std::vector<T>* QueryKlines(const std::string& share_code);
+    void SetCapacitySize(int capacity_size);
+    void Add(const std::string& share_code, const std::vector<T>& klines);
+    std::vector<T>* Query(const std::string& share_code);
 
    private:
     int m_capacity_size;

@@ -9,7 +9,12 @@ StockMemoryKline<T>::~StockMemoryKline() {
 }
 
 template <typename T>
-void StockMemoryKline<T>::AddKlines(const std::string& share_code, const std::vector<T>& klines) {
+void StockMemoryKline<T>::SetCapacitySize(int capacity_size) {
+    m_capacity_size = capacity_size;
+}
+
+template <typename T>
+void StockMemoryKline<T>::Add(const std::string& share_code, const std::vector<T>& klines) {
     // 如果超过容量限制，先移除最老的元素
     if (m_klines_queue.size() >= m_capacity_size) {
         std::string share_code = m_klines_queue.front();
@@ -21,7 +26,7 @@ void StockMemoryKline<T>::AddKlines(const std::string& share_code, const std::ve
 }
 
 template <typename T>
-std::vector<T>* StockMemoryKline<T>::QueryKlines(const std::string& share_code) {
+std::vector<T>* StockMemoryKline<T>::Query(const std::string& share_code) {
     if (m_klines_map.find(share_code) != m_klines_map.end()) {
         return &m_klines_map[share_code];
     }
