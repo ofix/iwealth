@@ -10,7 +10,7 @@ template <typename T>
 class StockMemoryKline {
    public:
     StockMemoryKline(int capacity_size = 300);
-    ~StockMemoryKline();
+    virtual ~StockMemoryKline();
     void SetCapacitySize(int capacity_size);
     void Add(const std::string& share_code, const std::vector<T>& klines);
     std::vector<T>* Query(const std::string& share_code);

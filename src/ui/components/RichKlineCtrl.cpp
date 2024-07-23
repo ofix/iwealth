@@ -64,14 +64,14 @@ bool RichKlineCtrl::LoadKlines(const std::string& share_code, const KlineType& k
     }
     // 检查 kline_type 和 share_code
     StockDataStorage* pStorage = static_cast<RichApplication*>(wxTheApp)->GetStockDataStorage();
-    if (!pStorage->IsLocalFileShareKlinesExist(share_code)) {
-        // 数据有可能加载失败,需要提示用户！
-        bool result = pStorage->FetchKlineSync(share_code, KlineType::Day);
-        if (!result) {  // 数据加载失败提示用户
-            return false;
-        }
-        pStorage->SaveShareKlines(share_code, KlineType::Day);
-    }
+    // if (!pStorage->IsLocalFileShareKlinesExist(share_code)) {
+    //     // 数据有可能加载失败,需要提示用户！
+    //     bool result = pStorage->FetchKlineSync(share_code, KlineType::Day);
+    //     if (!result) {  // 数据加载失败提示用户
+    //         return false;
+    //     }
+    //     // pStorage->SaveShareKlines(share_code, KlineType::Day);
+    // }
 
     // 新的股票代码K线，需要清空之前的，否则直接复用
     // 有可能重复加载，所以需要清空就数据
@@ -105,11 +105,11 @@ bool RichKlineCtrl::LoadKlines(const std::string& share_code, const KlineType& k
  */
 bool RichKlineCtrl::SetMode(KlineType mode) {
     m_mode = mode;
-    if (mode == KlineType::MINUTE) {
+    if (mode == KlineType::Minute) {
         if (m_minuteKlines.size() == 0) {  // 加载分时图
         }
         m_pMinuteKlines = &m_minuteKlines;
-    } else if (mode == KlineType::FIVE_DAY) {
+    } else if (mode == KlineType::FiveDay) {
         if (m_fiveDayKlines.size() == 0) {  // 加载5日分时图
         }
         m_pMinuteKlines = &m_fiveDayKlines;
@@ -313,9 +313,9 @@ wxPoint RichKlineCtrl::GetCrossLinePt(long n) {
 void RichKlineCtrl::OnPaint(wxDC* pDC) {
     pDC->SetBackground(*wxBLACK_BRUSH);
     pDC->Clear();
-    if (m_mode == KlineType::MINUTE) {
+    if (m_mode == KlineType::Minute) {
         DrawMinuteKlines(pDC);
-    } else if (m_mode == KlineType::FIVE_DAY) {
+    } else if (m_mode == KlineType::FiveDay) {
         DrawFiveDayMinuteKlines(pDC);
     } else if (m_mode == KlineType::Day || m_mode == KlineType::Week || m_mode == KlineType::Month ||
                m_mode == KlineType::Quarter || m_mode == KlineType::Year) {

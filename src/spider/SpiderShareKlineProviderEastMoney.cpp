@@ -15,13 +15,14 @@ std::string SpiderShareKlineProviderEastMoney::GetKlineUrl(const KlineType kline
                                                            const std::string& share_code,      // 股票代码
                                                            const std::string& /*share_name*/,  // 股票名称
                                                            const Market market,                // 股票市场
-                                                           const std::string& /*end_date*/     // 结束日期
+                                                           const std::string& /*end_date*/,    // 结束日期
+                                                           const int /*count*/                 // 每次请求K线数量
 ) {
     int market_code = GetMarketCode(market);
     int east_money_kline_type = ConvertKlineType(kline_type);
-    if (kline_type == KlineType::MINUTE) {
+    if (kline_type == KlineType::Minute) {
         return KLINE_URL_EAST_MONEY_MINUTE(share_code, market_code);
-    } else if (kline_type == KlineType::FIVE_DAY) {
+    } else if (kline_type == KlineType::FiveDay) {
         return KLINE_URL_EAST_MONEY_FIVE_DAY(share_code, market_code);
     } else {
         return KLINE_URL_EAST_MONEY(share_code, market_code, east_money_kline_type);
@@ -62,12 +63,11 @@ int SpiderShareKlineProviderEastMoney::ConvertKlineType(const KlineType kline_ty
     return 0;
 }
 
-void SpiderShareKlineProviderEastMoney::ParseMinuteKline(conn_t* conn,
-                                                         std::vector<std::vector<minuteKline>>& minute_klines) {
-    json _response = json::parse(conn->response);
+void SpiderShareKlineProviderEastMoney::ParseMinuteKline(const std::string& response,
+                                                         std::vector<minuteKline>& minute_klines) {
+    json _response = json::parse(response);
     std::string data = _response["data"]["trends"];
     std::vector<std::string> rows = split(data, ";");
-    std::vector<minuteKline> one_day_minute_klines;
     for (size_t i = 0; i < rows.size(); i++) {
         minuteKline minute_kline;
         std::vector<std::string> fields = split(rows[i], ",");  // 时间
@@ -80,12 +80,12 @@ void SpiderShareKlineProviderEastMoney::ParseMinuteKline(conn_t* conn,
         minute_kline.amount = std::stod(fields[7]);             // 成交额
         minute_kline.total_volume = std::stod(fields[8]);       // 累计成交量
         minute_kline.total_amount = std::stod(fields[9]);       // 累计成交额
-        one_day_minute_klines.push_back(minute_kline);
+        minute_klines.push_back(minute_kline);                  // 可能包含5天的分时图
     }
-    minute_klines.push_back(one_day_minute_klines);
 }
-void SpiderShareKlineProviderEastMoney::ParseDayKline(conn_t* conn, std::vector<uiKline>& uiKlines) {
-    json _response = json::parse(conn->response);
+
+void SpiderShareKlineProviderEastMoney::ParseDayKline(const std::string& response, std::vector<uiKline>& uiKlines) {
+    json _response = json::parse(response);
     json klines = _response["data"]["klines"];
     if (klines != "") {
         for (json::iterator it = klines.begin(); it != klines.end(); ++it) {

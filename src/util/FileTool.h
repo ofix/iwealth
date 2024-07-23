@@ -26,6 +26,7 @@ class FileTool {
     static std::string MultiRegexReplace(const std::string& text,
                                          const std::map<std::string, std::string>& replacement_map);
     static std::ifstream& GetLine(std::ifstream& ifs, std::string& line);
+    static std::string GetLastLineOfFile(const std::string& filename);
 };
 
 #endif  // FILETOOL_H

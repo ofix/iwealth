@@ -16,19 +16,26 @@ class SpiderShareKline : public Spider {
     SpiderShareKline(StockDataStorage* storage, bool concurrent);
     virtual ~SpiderShareKline();
     void Crawl(KlineType type = KlineType::Day);
-    bool CrawlSync(Share* pShare, KlineType kline_type);
+    bool CrawlSync(Share* pShare, KlineType kline_type, std::vector<uiKline>& day_klines);
+    bool CrawlMinuteKlineSync(Share* pShare, std::vector<minuteKline>& minute_klines);
+    bool CrawlFiveDayMinuteKlineSync(Share* pShare, std::vector<minuteKline>& five_day_minute_klines);
+    bool CrawlDayKlineSync(Share* pShare, std::vector<uiKline>& day_klines);
+    bool CrawlIncrementDayKlineSync(Share* pShare,
+                                    const std::string end_day,
+                                    const int ndays,
+                                    std::vector<uiKline>& day_klines);
     void OnRequestTimer(uint32_t timer_id, void* args);
 
     SpiderShareKlineProvider* GetKlineProvider(DataProvider provider);
-    void MergeShareKlines(const KlineType kline_type = KlineType::Day);
+    // void MergeShareKlines(const KlineType kline_type = KlineType::Day);
     size_t GetKlineCount(const std::vector<std::vector<uiKline>>& multi_klines);
     static void DumpKline(uiKline& kline);
 
    protected:
     virtual void DoCrawl(KlineType type = KlineType::Day);
     void MergeShareKlines(std::unordered_map<std::string, std::vector<std::vector<uiKline>>>& concurrent_klines,
-                          std::unordered_map<std::string, std::vector<uiKline>>& target_klines);
-    void MergeShareKlines(std::unordered_map<std::string, std::vector<uiKline>>& concurrent_klines,
+                          std::vector<uiKline>& target_klines);
+    void MergeShareKlines(std::unordered_map<std::string, std::vector<std::vector<uiKline>>>& concurrent_klines,
                           std::unordered_map<std::string, std::vector<uiKline>>& target_klines);
     void ConurrentCrawl(std::vector<KlineCrawlTask>& tasks, KlineType kline_type);
     void ConcurrentResponseCallback(conn_t* conn);

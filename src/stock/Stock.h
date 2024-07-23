@@ -23,14 +23,14 @@ struct ShareIndustry {
 };
 
 enum class KlineType {
-    MINUTE = 0,    // 分时图
-    FIVE_DAY = 1,  // 近5日分时图
-    Day = 2,       // 日K线
-    Week = 3,      // 周K线
-    Month = 4,     // 月K线
-    Quarter = 5,   // 季度K线
-    Year = 6,      // 年K线
-    All = 7        // 以上所有K线
+    Minute = 0,   // 分时图
+    FiveDay = 1,  // 近5日分时图
+    Day = 2,      // 日K线
+    Week = 3,     // 周K线
+    Month = 4,    // 月K线
+    Quarter = 5,  // 季度K线
+    Year = 6,     // 年K线
+    All = 7       // 以上所有K线
 };
 
 enum class DataProvider {

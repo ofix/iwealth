@@ -98,6 +98,20 @@ long long diff_seconds(const std::string& start_time, const std::string& end_tim
 }
 
 /**
+ * @param start_time 开始时间，格式要求 "2024-06-20" 这种形式
+ * @param end_time   结束时间，格式要求 "2024-06-21" 这种形式
+ * @result int: 时间间隔的天数
+ */
+
+int diff_days(const std::string& start_time, const std::string& end_time) {
+    long long seconds = diff_seconds(start_time, end_time);
+    if (seconds == -1) {
+        return -1;
+    }
+    return static_cast<int>(seconds / (60 * 60 * 24));
+}
+
+/**
  * @brief  获取最近交易日交易日期，只考虑周末，暂不考虑中国节假日带来的影响
  * @param days 交易日天数，如果是-1，则表示最近交易日的上一个交易日，默认是0，则表示最近交易日或者当天交易日
  * @return 交易日期 格式 YYYY-mm-dd,比如 2024-03-05

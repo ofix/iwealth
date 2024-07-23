@@ -1,6 +1,7 @@
 #include "ui/components/RichGridTable.h"
 #include <algorithm>
 #include "ui/RichHelper.h"
+#include "util/Global.h"
 
 RichGridTable::RichGridTable(RichGridTableDataType type, StockDataStorage* pStorage)
     : wxGridTableBase(), m_dataType(type), m_pStorage(pStorage) {
@@ -423,27 +424,27 @@ wxString RichGridTable::GetValue(int row, int col) {
                 case 2:
                     return CN(share.name);  // 股票名称
                 case 3:
-                    return CN(convertDouble(share.change_rate) + '%');  // 涨幅
+                    return CN(convert_double(share.change_rate) + '%');  // 涨幅
                 case 4:
-                    return CN(convertDouble(share.price_now));  // 当前价
+                    return CN(convert_double(share.price_now));  // 当前价
                 case 5:
-                    return CN(convertDouble(share.price_yesterday_close));  // 昨天收盘价
+                    return CN(convert_double(share.price_yesterday_close));  // 昨天收盘价
                 case 6:
-                    return CN(convertDouble(share.price_open));  // 开盘价
+                    return CN(convert_double(share.price_open));  // 开盘价
                 case 7:
-                    return CN(convertDouble(share.price_max));  // 最高价
+                    return CN(convert_double(share.price_max));  // 最高价
                 case 8:
-                    return CN(convertDouble(share.price_min));  // 最低价
+                    return CN(convert_double(share.price_min));  // 最低价
                 case 9:
                     return RichUnit(share.amount);  // 成交额
                 case 10:
                     return RichUnit(share.volume);  // 成交量
                 case 11:
-                    return CN(convertDouble(share.turnover_rate) + '%');  // 换手率
+                    return CN(convert_double(share.turnover_rate) + '%');  // 换手率
                 case 12:
-                    return CN(convertDouble(share.price_amplitude) + '%');  // 振幅
+                    return CN(convert_double(share.price_amplitude) + '%');  // 振幅
                 case 13:
-                    return CN(convertDouble(share.qrr));  // 量比
+                    return CN(convert_double(share.qrr));  // 量比
                 case 14:
                     return CN(share.industry_name);  // 行业
                 case 15:

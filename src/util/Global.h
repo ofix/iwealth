@@ -49,6 +49,7 @@ unsigned char to_hex(unsigned char x);
 unsigned char from_hex(unsigned char x);
 std::string url_encode_utf8(const std::string& str);
 std::string url_decode_utf8(const std::string& str);
+std::string convert_double(double digit, int precision = 2);
 
 // 16进制转10进制模板函数
 template <typename T>

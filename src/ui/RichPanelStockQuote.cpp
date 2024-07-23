@@ -119,12 +119,12 @@ void RichPanelStockQuote::OnGridQuoteHeaderDblClick(wxGridEvent& event) {
 void RichPanelStockQuote::LoadStockMarketQuote() {
     StockDataStorage* pStorage = static_cast<RichApplication*>(wxTheApp)->GetStockDataStorage();
     if (pStorage->IsQuoteDataReady()) {
-        std::vector<Share> shares = pStorage->GetMarketAllShares();
+        std::vector<Share>* pShares = pStorage->GetStockAllShares();
         long irow = 0;
-        m_gridCtrlQuote->GetTable()->InsertRows(0, shares.size());  // 必须增加这一行，通知视图表格模型数据已变更
+        m_gridCtrlQuote->GetTable()->InsertRows(0, pShares->size());  // 必须增加这一行，通知视图表格模型数据已变更
         wxColor clr_green(57, 227, 101);
         wxColor clr_red(255, 0, 0);
-        for (Share& share : shares) {
+        for (Share& share : *pShares) {
             if (share.change_rate > 0) {
                 m_gridCtrlQuote->SetCellTextColour(irow, 3, clr_red);
                 m_gridCtrlQuote->SetCellTextColour(irow, 4, clr_red);

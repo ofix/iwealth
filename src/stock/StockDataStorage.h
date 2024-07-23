@@ -16,6 +16,7 @@ class SpiderConceptListEastMoney;
 class SpiderShareKline;
 class SpiderShareCategory;
 class Spider;
+class StockShareKline;
 class StockDataStorage {
    public:
     enum class FetchResult {
@@ -42,32 +43,28 @@ class StockDataStorage {
     void Init();                        // 初始化操作
     size_t GetStockMarketShareCount();  // 获取市场股票数量
     size_t GetStockMarketShareCountByLocation(const std::string&& location);
-    std::vector<Share> GetMarketAllShares();
     std::vector<Share>* GetStockAllShares();
     std::string GetStockDataSaveDir();
-    void InsertShareNameToTrie(const std::string& share_name, const std::string& share_code);  // 插入股票
-    std::vector<Share*> SearchShares(const std::string& prefix);
-    bool SaveShareNames();  // 保存股票曾用名和名称到文件
+
+    // 保存股票曾用名和名称到文件
+    bool SaveShareNames();
+    // 保存股票基本信息
     bool SaveShareBriefInfo(ShareBriefInfo* pBriefInfo, const std::string& share_code);
-    bool SaveShareKlines(const KlineType kline_type);
-    bool SaveShareKlines(const std::string& share_code, const KlineType kline_type);
-    bool SaveShareKlinesInCsvFile(const std::string& file_path, const std::vector<uiKline>& klines);
-    std::vector<uiKline>* GetShareKlines(const std::string& share_code, const KlineType kline_type);
-    std::string GetFilePathShareKline(const std::string& share_code);
-    bool IsLocalFileShareKlinesExist(const std::string& share_code);
-    bool LoadLocalShareDayKlines(std::vector<uiKline>* pKlines, const std::string& share_code);
-    // 检查本地日K线数据文件是否过期
-    bool IsLocalFileShareDayKlineExpired(const std::string& share_code);
-    // 带缓存功能的日K线数据加载
-    bool QueryShareDayKline(const std::string& share_code, std::vector<uiKline>& day_klines);
-    // 带缓存功能的分时K线数据加载
-    bool QueryShareMinuteKline(const std::string& share_code, std::vector<minuteKline>& minute_klines);
 
+    // 插入股票到Trie树
+    void InsertShareNameToTrie(const std::string& share_name, const std::string& share_code);
+    // 根据股票代号精确查找股票
     Share* FindShare(const std::string& share_code);
-    bool ClearShares();                             // 清空股票
-    bool DeleteShares(size_t pos, size_t numRows);  // 删除股票
-
+    // 模糊搜索股票
+    std::vector<Share*> SearchShares(const std::string& prefix);
+    // 清空股票
+    bool ClearShares();
+    // 删除股票
+    bool DeleteShares(size_t pos, size_t numRows);
+    // 打印所有股票
     void PrintAllShares(std::vector<Share>& all_shares);
+
+    // 异步抓取数据相关
     inline bool IsQuoteDataReady() const {
         return m_fetch_quote_data_ok;
     };
@@ -85,11 +82,7 @@ class StockDataStorage {
     };
 
     void SetFetchResultOk(FetchResult result);
-    // bool IsLocalDataFileExpired(const std::string& file_path);
     Spider* GetSpider(SpiderType type);
-
-    bool FetchKlineSync(const std::string& share_code, const KlineType kline_type);
-    bool FetchKlineSync(Share* pShare, const KlineType kline_type);
 
    protected:
     void FetchQuoteIndustryProvince();     // 爬取行情数据+板块数据
@@ -118,8 +111,6 @@ class StockDataStorage {
     void HashShares();  // code->Share* 映射
 
    protected:
-    bool SaveShareKlines(const std::string& dir_path,
-                         const std::unordered_map<std::string, std::vector<uiKline>>& klines);
     // 数据存储
     std::string m_data_dir;                // 数据保存根目录
     std::string m_path_share_quote;        // 股票行情数据文件路径
@@ -151,16 +142,7 @@ class StockDataStorage {
     ShareCategory m_category_industries;
     // 省份->[股票1,股票2] hash映射表
     ShareCategory m_category_provinces;
-    // 市场个股前复权历史K线
-    // std::unordered_map<std::string, std::vector<uiKline>> m_day_klines_adjust;
-    // std::unordered_map<std::string, std::vector<uiKline>> m_week_klines_adjust;
-    // std::unordered_map<std::string, std::vector<uiKline>> m_month_klines_adjust;
-    // std::unordered_map<std::string, std::vector<uiKline>> m_year_klines_adjust;
-    // 市场个股不复权历史K线
-    // std::unordered_map<std::string, std::vector<uiKline>> m_day_klines;
-    // std::unordered_map<std::string, std::vector<uiKline>> m_week_klines;
-    // std::unordered_map<std::string, std::vector<uiKline>> m_month_klines;
-    // std::unordered_map<std::string, std::vector<uiKline>> m_year_klines;
+    StockShareKline* m_stock_share_kline;
 
     // 统计信息
     std::unordered_map<Market, int> m_market_share_count;  // 分市场股票数量统计

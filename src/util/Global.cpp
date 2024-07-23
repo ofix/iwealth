@@ -299,3 +299,9 @@ std::string url_decode_utf8(const std::string& str) {
     }
     return result;
 }
+
+std::string convert_double(double digit, int precision) {
+    std::stringstream sstream;
+    sstream << std::fixed << std::setprecision(precision) << digit;
+    return sstream.str();
+}

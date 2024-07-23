@@ -5,6 +5,7 @@
 #include <vector>
 #include "curl.h"
 #include "net/RequestStatistics.h"
+#include "stock/Stock.h"
 
 struct upload_info_t {
     FILE* file_src;
@@ -24,6 +25,15 @@ struct KlineCrawlExtra : CrawlExtra {
     Market market;   // 深交所/北交所/上交所
     Share* share;    // StockDataStorage::m_market_shares 元素，
                      // 下载完数据不能释放此指针指向的对象
+};
+
+struct MinuteKlineCrawlExtra : CrawlExtra {
+    SpiderShareKlineProvider* pProvider;
+    KlineType type;  // K线类型，日/周/月/季度/年K线
+    Market market;   // 深交所/北交所/上交所
+    Share* share;    // StockDataStorage::m_market_shares 元素，
+                     // 下载完数据不能释放此指针指向的对象
+    std::vector<minuteKline>* ptr_minute_klines;
 };
 
 struct QuoteCrawlExtra : CrawlExtra {

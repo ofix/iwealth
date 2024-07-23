@@ -10,6 +10,7 @@ bool between_time_period(const std::string& start_time, const std::string& end_t
 std::string now(const std::string& format = "%Y-%m-%d %H:%M:%S");
 // 检查两个时间字符串间隔的秒数
 long long diff_seconds(const std::string& start_time, const std::string& end_time);
+int diff_days(const std::string& start_time, const std::string& end_time);
 // 获取最近交易日
 std::string get_nearest_trade_day(int days = 0);
 // 检查日期是否是中国节假日

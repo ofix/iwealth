@@ -199,10 +199,11 @@ void TestKlineDownload() {
     SpiderShareKline* spiderKline = new SpiderShareKline(m_pStockStorage);
     Share* pShare = new Share();
     if (pShare) {
+        std::vector<uiKline> klines;
         pShare->code = "002252";
         pShare->name = "上海莱士";
         pShare->market = Market::ShenZhen;
-        spiderKline->CrawlSync(pShare, KlineType::Day);
+        spiderKline->CrawlSync(pShare, KlineType::Day, klines);
         // for (size_t i = 0; i < klines.size(); i++) {
         //     SpiderShareKline::DumpKline(klines[i]);
         // }

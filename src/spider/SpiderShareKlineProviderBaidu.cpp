@@ -15,16 +15,17 @@ std::string SpiderShareKlineProviderBaidu::GetKlineUrl(const KlineType kline_typ
                                                        const std::string& share_code,  // 股票代码
                                                        const std::string& share_name,  // 股票名称
                                                        const Market /*market*/,        // 股票市场
-                                                       const std::string& end_date     // 结束日期
+                                                       const std::string& end_date,    // 结束日期
+                                                       const int count                 // 每次请求K线数量
 ) {
-    if (kline_type == KlineType::MINUTE) {
+    if (kline_type == KlineType::Minute) {
         return KLINE_URL_FINANCE_BAIDU_MINUTE(share_code);
-    } else if (kline_type == KlineType::FIVE_DAY) {
+    } else if (kline_type == KlineType::FiveDay) {
         return KLINE_URL_FINANCE_BAIDU_FIVE_DAY(share_code, share_name);
     } else {
         std::string extra = "";
         if (end_date != "") {
-            extra = "&end_time=" + end_date + "&count=3000";
+            extra = "&end_time=" + end_date + "&count=" + std::to_string(count);
         }
         std::string baidu_kline_type = ConvertKlineType(kline_type);
         std::string url = KLINE_URL_FINANCE_BAIDU(share_code, baidu_kline_type, extra);
@@ -48,21 +49,20 @@ std::string SpiderShareKlineProviderBaidu::ConvertKlineType(const KlineType klin
         return "quarter";
     } else if (kline_type == KlineType::Year) {
         return "year";
-    } else if (kline_type == KlineType::MINUTE) {
+    } else if (kline_type == KlineType::Minute) {
         return "minute";
-    } else if (kline_type == KlineType::FIVE_DAY) {
+    } else if (kline_type == KlineType::FiveDay) {
         return "five_day";
     }
     return "";
 }
-void SpiderShareKlineProviderBaidu::ParseMinuteKline(conn_t* conn,
-                                                     std::vector<std::vector<minuteKline>>& minute_klines) {
-    json _response = json::parse(conn->response);
+void SpiderShareKlineProviderBaidu::ParseMinuteKline(const std::string& response,
+                                                     std::vector<minuteKline>& minute_klines) {
+    json _response = json::parse(response);
     json days = _response["Result"]["newMarketData"]["marketData"];
     for (json::iterator it = days.begin(); it != days.end(); ++it) {
         std::string data = (*it)["p"];
         std::vector<std::string> rows = split(data, ";");
-        std::vector<minuteKline> one_day_minute_klines;
         for (size_t i = 0; i < rows.size(); i++) {
             minuteKline minute_kline;
             std::vector<std::string> fields = split(rows[i], ",");  // 时间
@@ -75,13 +75,12 @@ void SpiderShareKlineProviderBaidu::ParseMinuteKline(conn_t* conn,
             minute_kline.amount = std::stod(fields[7]);             // 成交额
             minute_kline.total_volume = std::stod(fields[8]);       // 累计成交量
             minute_kline.total_amount = std::stod(fields[9]);       // 累计成交额
-            one_day_minute_klines.push_back(minute_kline);
+            minute_klines.push_back(minute_kline);                  // 可能包含5天的分时图
         }
-        minute_klines.push_back(one_day_minute_klines);  // 可能包含5天的分时图
     }
 }
-void SpiderShareKlineProviderBaidu::ParseDayKline(conn_t* conn, std::vector<uiKline>& uiKlines) {
-    json _response = json::parse(conn->response);
+void SpiderShareKlineProviderBaidu::ParseDayKline(const std::string& response, std::vector<uiKline>& uiKlines) {
+    json _response = json::parse(response);
     std::string data = _response["Result"]["newMarketData"]["marketData"];
     if (data != "") {
         std::vector<std::string> rows = split(data, ";");

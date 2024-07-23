@@ -15,12 +15,13 @@
 #include "spider/SpiderShareCategory.h"
 #include "spider/SpiderShareKline.h"
 #include "spider/SpiderShareQuote.h"
+#include "stock/StockShareKline.h"
 #include "ui/RichApplication.h"
-#include "ui/RichHelper.h"
 #include "util/DateTime.h"
 #include "util/EasyLogger.h"
 #include "util/FileTool.h"
 #include "util/Timer.h"
+
 
 using json = nlohmann::json;
 
@@ -38,6 +39,7 @@ StockDataStorage::StockDataStorage()
     m_path_category_concept = m_data_dir + "stock_concept.csv";
     m_path_share_names = m_data_dir + "stock_share_names.csv";
     m_path_brief_dir = m_data_dir + "brief" + DIR_SEPARATOR;
+    m_stock_share_kline = new StockShareKline(this);
     Init();
 }
 
@@ -93,8 +95,8 @@ void StockDataStorage::LoadLocalFileShare() {
     // 检查 股票行情文件/概念板块映射文件/行业板块映射文件/股票曾用名映射文件 是否存在
     if (FileTool::IsFileExists(m_path_share_quote) && FileTool::IsFileExists(m_path_category_province) &&
         FileTool::IsFileExists(m_path_category_industry)) {
-        if (IsLocalDataFileExpired(m_path_share_quote)) {  // 过期了要求拉取数据
-            if (between_time_period("09:00", "09:29")) {   // 这个时间段不能拉取,只加载本地过期数据
+        if (m_stock_share_kline->IsLocalFileExpired(m_path_share_quote)) {  // 过期了要求拉取数据
+            if (between_time_period("09:00", "09:29")) {  // 这个时间段不能拉取,只加载本地过期数据
                 LoadLocalFileQuote(m_path_share_quote, m_market_shares);  // 步骤1. 恢复 m_market_shares 数据
             } else {
                 // 为了效率，LoadLocalFileQuote 和 FetchQuoteSync 做的事情一样，不能同时使用，会导致数据重复
@@ -395,176 +397,6 @@ void StockDataStorage::LoadLocalFileShareNames() {
             InsertShareNameToTrie(share_name, share_code);
         }
     }
-}
-
-bool StockDataStorage::FetchKlineSync(const std::string& share_code, const KlineType kline_type) {
-    Share* pShare = FindShare(share_code);
-    if (pShare) {
-        return FetchKlineSync(pShare, kline_type);
-    }
-    return false;
-}
-
-bool StockDataStorage::FetchKlineSync(Share* pShare, const KlineType kline_type) {
-    SpiderShareKline* pSpider = static_cast<SpiderShareKline*>(GetSpider(SpiderType::Kline));
-    return pSpider->CrawlSync(pShare, kline_type);
-}
-
-// 检查本地日K线数据文件是否过期
-// bool StockDataStorage::IsLocalFileShareDayKlineExpired(const std::string& share_code) {
-//     std::string file_path = GetFilePathShareKline(share_code);
-//     return IsLocalDataFileExpired(file_path);
-// }
-
-// 带缓存功能的日K线数据加载
-bool StockDataStorage::QueryShareDayKline(const std::string& share_code, std::vector<uiKline>& day_klines) {
-    if (!IsLocalFileShareKlinesExist(share_code)) {
-        // 同步加载完整前复权日K线数据
-    } else {
-        if (IsLocalFileShareDayKlineExpired(share_code)) {
-            // 同步加载增量前复权日K线数据
-        } else {
-            // 检查内存cache是否有数据,没有
-            if (m_day_klines_adjust.find(share_code) != m_day_klines_adjust.end()) {
-                return &m_day_klines_adjust[share_code];
-            }
-            // LoadLocalShareDayKlines();  // 加载本地
-        }
-    }
-    return true;
-}
-
-// 带缓存功能的分时K线数据加载
-bool StockDataStorage::QueryShareMinuteKline(const std::string& share_code, std::vector<minuteKline>& minute_klines) {
-}
-
-bool StockDataStorage::SaveShareKlines(const std::string& share_code, const KlineType kline_type) {
-    std::string dir_path = FileTool::CurrentPath() + "data/";
-    std::unordered_map<std::string, std::vector<uiKline>>* kline_map;
-    if (kline_type == KlineType::Day) {
-        dir_path += "day";
-        kline_map = &m_day_klines_adjust;
-    } else if (kline_type == KlineType::Week) {
-        dir_path += "week";
-        kline_map = &m_week_klines_adjust;
-    } else if (kline_type == KlineType::Month) {
-        dir_path += "month";
-        kline_map = &m_month_klines_adjust;
-    } else if (kline_type == KlineType::Year) {
-        dir_path += "year";
-        kline_map = &m_year_klines_adjust;
-    }
-    if (kline_map->find(share_code) != kline_map->end()) {
-        std::string file_path = dir_path + DIR_SEPARATOR + share_code + ".csv";
-        return SaveShareKlinesInCsvFile(file_path, (*kline_map)[share_code]);
-    }
-    return false;
-}
-
-std::vector<uiKline>* StockDataStorage::GetShareKlines(const std::string& share_code, const KlineType /*kline_type*/) {
-    if (m_day_klines_adjust.find(share_code) != m_day_klines_adjust.end()) {
-        return &m_day_klines_adjust[share_code];
-    }
-    return nullptr;
-}
-
-bool StockDataStorage::IsLocalFileShareKlinesExist(const std::string& share_code) {
-    // 检查文件是否存在
-    std::string file_path = GetFilePathShareKline(share_code);
-    if (!FileTool::IsFileExists(file_path)) {
-        return false;
-    }
-    return true;
-}
-
-std::string StockDataStorage::GetFilePathShareKline(const std::string& share_code) {
-    return FileTool::CurrentPath() + "data" + DIR_SEPARATOR + "day" + DIR_SEPARATOR + share_code + ".csv";
-}
-
-// 加载本地股票前复权日K线数据
-bool StockDataStorage::LoadLocalShareDayKlines(std::vector<uiKline>* pKlines, const std::string& share_code) {
-    if (!IsLocalFileShareKlinesExist(share_code)) {
-        return false;
-    }
-    std::string file_path = GetFilePathShareKline(share_code);
-    std::string lines = FileTool::LoadFile(file_path);
-    std::vector<std::string> klines = split(lines, "\n");
-    for (auto& kline : klines) {
-        if (kline.length() < 10) {
-            break;
-        }
-        // 检查最后一个字符是否是\r,需要排除掉，否则会导致通过share_code无法找到Share*,进而股票行业和地域无法显示
-        if (kline[kline.size() - 1] == '\r') {
-            kline.pop_back();
-        }
-        std::vector<std::string> fields = split(kline, ",");
-        uiKline ui_kline;
-        ui_kline.day = fields[0];
-        ui_kline.price_open = std::stod(fields[1]);     // 开盘价
-        ui_kline.price_close = std::stod(fields[2]);    // 收盘价
-        ui_kline.price_max = std::stod(fields[3]);      // 最高价
-        ui_kline.price_min = std::stod(fields[4]);      // 最低价
-        ui_kline.volume = std::stoull(fields[5]);       // 成交量
-        ui_kline.amount = std::stod(fields[6]);         // 成交额
-        ui_kline.change_amount = std::stod(fields[7]);  // 涨跌额
-        ui_kline.change_rate = std::stod(fields[8]);    // 涨跌幅
-        ui_kline.turnover_rate = std::stod(fields[9]);  // 换手率
-        pKlines->push_back(ui_kline);
-    }
-    return true;
-}
-
-bool StockDataStorage::SaveShareKlinesInCsvFile(const std::string& file_path, const std::vector<uiKline>& klines) {
-    if (klines.size() == 0) {
-        return false;
-    }
-    std::string lines = "";
-    for (const auto& kline : klines) {
-        std::string line = "";
-        line += kline.day + ",";
-        line += convertDouble(kline.price_open) + ",";
-        line += convertDouble(kline.price_close) + ",";
-        line += convertDouble(kline.price_max) + ",";
-        line += convertDouble(kline.price_min) + ",";
-        line += std::to_string(kline.volume) + ",";
-        line += convertDouble(kline.amount) + ",";
-        line += convertDouble(kline.change_amount) + ",";
-        line += convertDouble(kline.change_rate) + ",";
-        line += convertDouble(kline.turnover_rate) + "\n";
-        lines += line;
-    }
-    return FileTool::SaveFile(file_path, lines);
-}
-
-bool StockDataStorage::SaveShareKlines(const KlineType kline_type) {
-    std::string dir_path = FileTool::CurrentPath() + "data/";
-    if (kline_type == KlineType::Day) {
-        dir_path += "day";
-        return SaveShareKlines(dir_path, m_day_klines_adjust);
-    } else if (kline_type == KlineType::Week) {
-        dir_path += "week";
-        return SaveShareKlines(dir_path, m_week_klines_adjust);
-    } else if (kline_type == KlineType::Month) {
-        dir_path += "month";
-        return SaveShareKlines(dir_path, m_month_klines_adjust);
-    } else if (kline_type == KlineType::Year) {
-        dir_path += "year";
-        return SaveShareKlines(dir_path, m_year_klines_adjust);
-    }
-    return false;
-}
-
-bool StockDataStorage::SaveShareKlines(const std::string& dir_path,
-                                       const std::unordered_map<std::string, std::vector<uiKline>>& klines) {
-    for (const auto& pair : klines) {
-        std::string file_path = dir_path + DIR_SEPARATOR + pair.first + ".csv";
-        SaveShareKlinesInCsvFile(file_path, pair.second);
-    }
-    return true;
-}
-
-std::vector<Share> StockDataStorage::GetMarketAllShares() {
-    return m_market_shares;
 }
 
 std::vector<Share>* StockDataStorage::GetStockAllShares() {
