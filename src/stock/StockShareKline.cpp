@@ -5,16 +5,9 @@
 #include "util/DateTime.h"
 #include "util/FileTool.h"
 #include "util/Global.h"
+#include "util/RichResult.h"
 
-StockShareKline::StockShareKline(StockDataStorage* pStorage)
-    : m_pStorage(pStorage),
-      m_minute_klines(300),
-      m_fiveday_klines(300),
-      m_day_kline_adjust(300),
-      m_week_kline_adjust(300),
-      m_month_kline_adjust(300),
-      m_quarter_kline_adjust(300),
-      m_year_kline_adjust(300) {
+StockShareKline::StockShareKline(StockDataStorage* pStorage) : m_pStorage(pStorage) {
 }
 
 StockShareKline::~StockShareKline() {

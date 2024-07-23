@@ -118,7 +118,6 @@ gui_sources = [
     'formula/FormulaBase.cpp',
     'stock/StockDataStorage.cpp',
     'stock/StockShareKline.cpp',
-    'stock/StockMemoryKline.cpp',
     'spider/SpiderShareBriefInfo.cpp',
     'spider/SpiderConceptListEastMoney.cpp',
     'spider/SpiderShareQuote.cpp',
@@ -141,6 +140,7 @@ gui_sources = [
     'util/EasyLogger.cpp',
     'util/FileTool.cpp',
     'util/Global.cpp',
+    'util/RichResult.cpp',
     'util/RichResult.cpp'
 ]
 
@@ -186,7 +186,6 @@ console_sources = [
     'stock/Stock.cpp',
     'stock/StockDataStorage.cpp',
     'stock/StockShareKline.cpp',
-    'stock/StockMemoryKline.cpp',
     'spider/SpiderShareBriefInfo.cpp',
     'spider/SpiderConceptListEastMoney.cpp',
     'spider/SpiderShareQuote.cpp',
@@ -210,7 +209,8 @@ console_sources = [
     'util/ConsoleTable.cpp',
     'util/EasyLogger.cpp',
     'util/FileTool.cpp',
-    'util/Global.cpp'
+    'util/Global.cpp',
+    'util/RichResult.cpp'
 ]
 full_console_sources = []
 foreach file : console_sources
