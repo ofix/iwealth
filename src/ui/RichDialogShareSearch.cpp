@@ -156,7 +156,7 @@ void RichDialogShareSearch::OnSearchShare(wxCommandEvent& event) {
     wxString input = m_textCtrlKeyword->GetValue();
     std::string keyword = input.utf8_string();  // Trie只支持utf8字符串
     // 必须先设置 Keyword，然后调用SetTable，否则 表格行数为0，无法显示搜索结果
-    ShareListGridTable* pGridTable = CreateShareListGridTable();
+    ShareListGridTable* pGridTable = static_cast<ShareListGridTable*>(m_gridShareList->GetTable());
     pGridTable->SetSearchKeyword(keyword);
     m_gridShareList->SetTable(pGridTable);
     m_gridShareList->SelectRow(0);  // 选中第一行

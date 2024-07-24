@@ -134,7 +134,6 @@ void RichMainFrame::OnKeyDown(wxKeyEvent& event) {
 
 // 处理按键按下事件
 void RichMainFrame::OnChar(wxKeyEvent& event) {
-    std::cout << "RichMainFrame::OnChar " << std::endl;
     int key_code = event.GetKeyCode();
     if (key_code != 8) {
         wxChar key = event.GetUnicodeKey();
@@ -143,10 +142,6 @@ void RichMainFrame::OnChar(wxKeyEvent& event) {
         m_dlgShareSearch->SetKeyword(keyword);
         AdjustDlgShareSearchPostion();
         m_dlgShareSearch->Show();
-        // 如果行情数据表格有选中行，取消选中
-        // if (m_panelStockQuote->GetGridCtrl()->IsSelection()) {
-        //     m_panelStockQuote->GetGridCtrl()->ClearSelection();
-        // }
     }
     event.Skip();
 }

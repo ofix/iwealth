@@ -95,7 +95,7 @@ RichResult StockDataStorage::LoadShareQuote() {
     RichResult result;
     if (FileTool::IsFileExists(m_path_share_quote) && FileTool::IsFileExists(m_path_category_province) &&
         FileTool::IsFileExists(m_path_category_industry)) {
-        if (StockShareKline::IsLocalFileExist(m_path_share_quote)) {  // 过期了要求拉取数据
+        if (StockShareKline::IsLocalFileExpired(m_path_share_quote)) {  // 过期了要求拉取数据
             if (between_time_period("09:00", "09:29")) {  // 这个时间段不能拉取,只加载本地过期股票行情数据
                 result = LoadLocalShareQuoteFile(m_path_share_quote, m_market_shares);
                 if (!result.Ok()) {
