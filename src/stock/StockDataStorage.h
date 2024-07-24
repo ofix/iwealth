@@ -88,8 +88,9 @@ class StockDataStorage {
         return m_fetch_old_name_ok;
     };
 
-    void SetAsyncFetchResult(AsyncFetchResult result);
     Spider* GetSpider(SpiderType type);
+    RichResult QueryKlines(const std::string& share_code, KlineType kline_type, std::vector<uiKline>* klines);
+    RichResult QueryMinuteKlines(const std::string& share_code, KlineType kline_type, std::vector<minuteKline>* klines);
 
    protected:
     RichResult LoadShareQuote();  // 初始化加载股票行情数据
@@ -105,14 +106,14 @@ class StockDataStorage {
     void FetchShareBriefInfo();         // 爬取股票[曾用名/员工数等基本信息]
     void OnTimeout(uint32_t timer_id, void* args);
     void OnTimerFetchShareQuoteData(uint32_t timer_id, void* args);
+    void SetAsyncFetchResult(AsyncFetchResult result);
 
     bool SaveShareQuoteToFile();  // 保存行情数据到本地文件
     bool SaveShareCategoryToFile(
         ShareCategoryType type,
         std::unordered_map<std::string, std::vector<std::string>>* categories);  // 保存板块信息到本地文件
-
-    void HashShares();                     // code->Share* 映射
-    void DumpStorage(DumpType dump_type);  // 打印信息
+    void HashShares();                                                           // code->Share* 映射
+    void DumpStorage(DumpType dump_type);                                        // 打印信息
     std::string DumpQuoteData(std::vector<Share>& shares);
 
    protected:
@@ -150,7 +151,7 @@ class StockDataStorage {
     ShareCategory m_category_industries;
     // 省份->[股票1,股票2] hash映射表
     ShareCategory m_category_provinces;
-    StockShareKline* m_stock_share_kline;
+    StockShareKline* m_stock_klines;
 
     // 统计信息
     std::unordered_map<Market, int> m_market_share_count;  // 分市场股票数量统计

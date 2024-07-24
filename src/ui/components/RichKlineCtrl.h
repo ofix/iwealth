@@ -19,7 +19,7 @@ class RichKlineCtrl {
                   const wxSize& size = wxDefaultSize);
     virtual ~RichKlineCtrl();
     void Init();
-    bool SetMode(KlineType mode);  // Minute|Five Day Minute|Day|Week|Month|Quarter|Year
+    void SetMode(KlineType mode);  // Minute|Five Day Minute|Day|Week|Month|Quarter|Year
     KlineType GetMode() const;
 
     bool LoadKlines(const std::string& share_code, const KlineType& kline_type = KlineType::Day);

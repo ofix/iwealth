@@ -39,7 +39,7 @@ StockDataStorage::StockDataStorage(bool gui_mode)
     m_path_category_concept = m_data_dir + "stock_concept.csv";
     m_path_share_names = m_data_dir + "stock_share_names.csv";
     m_path_brief_dir = m_data_dir + "brief" + DIR_SEPARATOR;
-    m_stock_share_kline = new StockShareKline(this);
+    m_stock_klines = new StockShareKline(this);
 }
 
 StockDataStorage::~StockDataStorage() {
@@ -518,6 +518,33 @@ RichResult StockDataStorage::LoadLocalShareQuoteFile(std::string& path, std::vec
 bool StockDataStorage::ClearShares() {
     m_market_shares.clear();
     return true;
+}
+
+RichResult StockDataStorage::QueryKlines(const std::string& share_code,
+                                         KlineType kline_type,
+                                         std::vector<uiKline>* klines) {
+    if (kline_type == KlineType::Day) {
+        return m_stock_klines->QueryDayKlines(share_code, klines);
+    } else if (kline_type == KlineType::Week) {
+        return m_stock_klines->QueryWeekKlines(share_code, klines);
+    } else if (kline_type == KlineType::Month) {
+        return m_stock_klines->QueryMonthKlines(share_code, klines);
+    } else if (kline_type == KlineType::Quarter) {
+        return m_stock_klines->QueryQuarterKlines(share_code, klines);
+    } else if (kline_type == KlineType::Year) {
+        return m_stock_klines->QueryYearKlines(share_code, klines);
+    }
+    return Error(RichStatus::DATA_NOT_FOUND);
+}
+
+RichResult StockDataStorage::QueryMinuteKlines(const std::string& share_code,
+                                               KlineType kline_type,
+                                               std::vector<minuteKline>* klines) {
+    if (kline_type == KlineType::Minute) {
+        return m_stock_klines->QueryMinuteKlines(share_code, klines);
+    } else if (kline_type == KlineType::FiveDay) {
+        return m_stock_klines->QueryFiveDayMinuteKlines(share_code, klines);
+    }
 }
 
 // 删除股票

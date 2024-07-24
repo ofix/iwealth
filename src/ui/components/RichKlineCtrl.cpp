@@ -38,16 +38,6 @@ void RichKlineCtrl::Init() {
     m_crossLine = NO_CROSS_LINE;
 }
 
-void RichKlineCtrl::RemoveCache() {
-    m_dayKlines.clear();
-    m_weekKlines.clear();
-    m_monthKlines.clear();
-    m_quarterKlines.clear();
-    m_yearKlines.clear();
-    m_minuteKlines.clear();
-    m_fiveDayKlines.clear();
-}
-
 /**
  * @brief 1. 日K线需要保存到磁盘上，周K线|月K线|季K线|年K线通过日K线计算得来
  * 2. 分时K线实时请求，并缓存到内存中，采用LRU算法进行淘汰，保留最多200个股票分时图
@@ -59,35 +49,14 @@ void RichKlineCtrl::RemoveCache() {
 bool RichKlineCtrl::LoadKlines(const std::string& share_code, const KlineType& kline_type) {
     if (m_shareCode != share_code) {  // 加载不同股票的分时和K线图前，需清空缓存数据
         m_shareCode = share_code;
-        RemoveCache();
     }
-    // 检查 kline_type 和 share_code
-    // if (!pStorage->IsLocalFileShareKlinesExist(share_code)) {
-    //     // 数据有可能加载失败,需要提示用户！
-    //     bool result = pStorage->FetchKlineSync(share_code, KlineType::Day);
-    //     if (!result) {  // 数据加载失败提示用户
-    //         return false;
-    //     }
-    //     // pStorage->SaveShareKlines(share_code, KlineType::Day);
-    // }
 
-    // 新的股票代码K线，需要清空之前的，否则直接复用
-    // 有可能重复加载，所以需要清空就数据
-    m_dayKlines.clear();
-    m_pKlines = nullptr;
+    if (kline_type == KlineType::Minute || kline_type == KlineType::FiveDay) {
+        m_pStorage->QueryMinuteKlines(share_code, kline_type, m_pMinuteKlines);
+    } else {
+        m_pStorage->QueryKlines(share_code, kline_type, m_pKlines);
+    }
     m_emaCurves.clear();
-
-    if (kline_type == KlineType::Day || kline_type == KlineType::Week || kline_type == KlineType::Month ||
-        kline_type == KlineType::Quarter || kline_type == KlineType::Year) {
-        if (m_dayKlines.size() == 0) {
-            // bool result = m_pStorage->LoadShareKlines(&m_dayKlines, share_code);  // 加载日K线
-            // if (!result) {
-            //     std::cout << "load share " + share_code + " klines error!" << std::endl;
-            // }
-            m_pKlines = &m_dayKlines;
-        }
-    }
-
     SetMode(kline_type);
 
     m_klineRng = GetKlineRangeZoomIn(m_pKlines->size(), m_width, m_klineWidth, m_klineSpan);
@@ -101,38 +70,8 @@ bool RichKlineCtrl::LoadKlines(const std::string& share_code, const KlineType& k
 /**
  *@param mode KlineType the Kline draw mode
  */
-bool RichKlineCtrl::SetMode(KlineType mode) {
+void RichKlineCtrl::SetMode(KlineType mode) {
     m_mode = mode;
-    if (mode == KlineType::Minute) {
-        if (m_minuteKlines.size() == 0) {  // 加载分时图
-        }
-        m_pMinuteKlines = &m_minuteKlines;
-    } else if (mode == KlineType::FiveDay) {
-        if (m_fiveDayKlines.size() == 0) {  // 加载5日分时图
-        }
-        m_pMinuteKlines = &m_fiveDayKlines;
-    } else if (mode == KlineType::Day) {
-        if (m_dayKlines.size() == 0) {  // 加载日K线图
-        }
-        m_pKlines = &m_dayKlines;
-    } else if (mode == KlineType::Week) {
-        if (m_weekKlines.size() == 0) {  // 根据日K线计算周K线
-        }
-        m_pKlines = &m_weekKlines;
-    } else if (mode == KlineType::Month) {
-        if (m_monthKlines.size() == 0) {  // 根据日K线计算月K线
-        }
-        m_pKlines = &m_monthKlines;
-    } else if (mode == KlineType::Quarter) {
-        if (m_quarterKlines.size() == 0) {  // 根据日K线计算季K线
-        }
-        m_pKlines = &m_quarterKlines;
-    } else if (mode == KlineType::Year) {
-        if (m_yearKlines.size() == 0) {  // 根据日K线计算年K线
-        }
-        m_pKlines = &m_yearKlines;
-    }
-    return true;
 }
 
 /**
