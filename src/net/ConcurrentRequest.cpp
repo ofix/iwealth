@@ -305,7 +305,7 @@ bool HttpConcurrentGet(const std::vector<CrawlRequest>& requests,
         pConn->method = "GET";
         pConn->callback = callback;
         pConn->extra = request.pExtra;
-        pConn->debug = true;
+        pConn->debug = false;
         pConn->statistics = pStatistics;
         connections.push_back(pConn);
     }

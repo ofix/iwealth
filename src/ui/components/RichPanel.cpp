@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////////////
-// Name:        iwealth/ui/commponents/RichPanel.cpp
+// Name:        iwealth/src/ui/commponents/RichPanel.cpp
 // Purpose:     iwealth common panel ancestoer, add panel type support
 // Author:      songhuabiao
 // Modified by:
@@ -11,13 +11,14 @@
 #include "ui/components/RichPanel.h"
 
 RichPanel::RichPanel(PanelType type,
+                     StockDataStorage* pStorage,
                      wxWindow* parent,
                      wxWindowID id,
                      const wxPoint& pos,
                      const wxSize& size,
                      long style,
                      const wxString& name)
-    : wxWindow(parent, id, pos, size, style, name), m_type(type) {
+    : wxWindow(parent, id, pos, size, style, name), m_type(type), m_pStorage(pStorage) {
 }
 
 PanelType RichPanel::GetType() {

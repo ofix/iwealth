@@ -9,6 +9,7 @@
 
 #include <vector>
 #include "stock/Stock.h"
+#include "stock/StockDataStorage.h"
 #include "ui/components/RichGrid.h"
 #include "ui/components/ShareListGridTable.h"
 
@@ -16,7 +17,8 @@
 
 class RichDialogShareSearch : public wxDialog {
    public:
-    RichDialogShareSearch(wxWindow* parent,
+    RichDialogShareSearch(StockDataStorage* pStorage,
+                          wxWindow* parent,
                           wxWindowID id,
                           const wxString& title,
                           const wxPoint& pos = wxDefaultPosition,
@@ -58,7 +60,7 @@ class RichDialogShareSearch : public wxDialog {
    private:
     //(*Handlers(RichDialogShareSearch)
     //*)
-
+    StockDataStorage* m_pStorage;
     DECLARE_EVENT_TABLE()
 };
 

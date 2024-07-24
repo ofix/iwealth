@@ -1,25 +1,18 @@
-///////////////////////////////////////////////////////////////////////////////
-// Name:        iwealth/ui/WealthMainFrame.h
-// Purpose:     GUI main frame
-// Author:      songhuabiao
-// Modified by:
-// Created:     2024-05-13
-// Copyright:   (C) Copyright 2024, Wealth Corporation, All Rights Reserved.
-// Licence:     GNU GENERAL PUBLIC LICENSE, Version 3
-///////////////////////////////////////////////////////////////////////////////
-#pragma once
+#ifndef RICH_MAIN_FRAME_H
+#define RICH_MAIN_FRAME_H
+
 #include <wx/wxprec.h>
 #ifndef WX_PRECOMP
 #include <wx/wx.h>
 #endif
 
 #include <wx/listctrl.h>
+#include "stock/StockDataStorage.h"
 #include "ui/RichDialogShareSearch.h"
 #include "ui/RichPanelKline.h"
 #include "ui/RichPanelStockQuote.h"
 #include "ui/events/RichShareSearchEvent.h"
 
-class RichApplication;
 class RichMainFrame : public wxFrame {
    public:
     RichMainFrame(wxWindow* parent,
@@ -27,6 +20,9 @@ class RichMainFrame : public wxFrame {
                   const wxPoint& pos = wxDefaultPosition,
                   const wxSize& size = wxDefaultSize);
     virtual ~RichMainFrame();
+    StockDataStorage* GetStockDataStorage();
+    void LoadQuote();
+
     void OnClose(wxCloseEvent& event);
     void OnIconize(wxIconizeEvent& event);
     void OnMaximize(wxMaximizeEvent& event);
@@ -59,6 +55,9 @@ class RichMainFrame : public wxFrame {
     std::vector<RichPanel*> m_panelStack;  // 视图栈
     RichPanel* m_panelCurrent;             // 当前视图
     size_t m_panelPos;                     // 当前位置
+    StockDataStorage* m_pStorage;
     RichDialogShareSearch* m_dlgShareSearch;
     DECLARE_EVENT_TABLE()
 };
+
+#endif

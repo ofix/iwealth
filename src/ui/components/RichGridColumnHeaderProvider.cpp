@@ -1,5 +1,4 @@
 #include "ui/components/RichGridColumnHeaderProvider.h"
-#include "ui/RichApplication.h"
 
 RichGridColumnHeaderProvider::RichGridColumnHeaderProvider() : m_headerRenderer() {
 }

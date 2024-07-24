@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////////////
-// Name:        iwealth/ui/commponents/RichRadioCtrl.cpp
+// Name:        iwealth/src/ui/commponents/RichRadioCtrl.cpp
 // Purpose:     NO KEYBOARD AND MOUSE FOCUS radio control
 // Author:      songhuabiao
 // Modified by:

@@ -7,6 +7,7 @@
 class RichPanelStockQuote : public RichPanel {
    public:
     RichPanelStockQuote(PanelType type,
+                        StockDataStorage* pStorage,
                         wxWindow* parent,
                         wxWindowID id = wxID_ANY,
                         const wxPoint& pos = wxDefaultPosition,

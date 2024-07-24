@@ -5,6 +5,7 @@
 
 enum class RichStatus {
     Ok = 1,
+    REPEAT_INIT,          // 重复初始化
     PARAMETER_ERROR,      // 参数错误
     NETWORK_ERROR,        // 网络错误
     PARSE_ERROR,          // 数据解析错误

@@ -1,3 +1,13 @@
+///////////////////////////////////////////////////////////////////////////////
+// Name:        iwealth/src/util/EasyLogger.cpp
+// Purpose:     simple log class for debugging
+// Author:      songhuabiao
+// Modified by:
+// Created:     2024-05-16 18:33
+// Copyright:   (C) Copyright 2024, Wealth Corporation, All Rights Reserved.
+// Licence:     GNU GENERAL PUBLIC LICENSE, Version 3
+///////////////////////////////////////////////////////////////////////////////
+
 #include "util/EasyLogger.h"
 
 const string EasyLogger::m_fileName = "iwealth.log";

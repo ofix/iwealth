@@ -1,5 +1,5 @@
-#ifndef RICHKLINEINFOCTRL_H
-#define RICHKLINEINFOCTRL_H
+#ifndef RICH_KLINE_INFO_CTRL_H
+#define RICH_KLINE_INFO_CTRL_H
 
 #include <wx/control.h>
 #include <wx/datetime.h>

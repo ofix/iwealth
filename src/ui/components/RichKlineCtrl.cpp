@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////////////
-// Name:        iwealth/ui/components/RichRichKlineCtrl.cpp
+// Name:        iwealth/src/ui/components/RichRichKlineCtrl.cpp
 // Purpose:     the main kline control
 // Author:      songhuabiao
 // Modified by:
@@ -13,7 +13,6 @@
 #include <wx/graphics.h>
 #include "formula/FormulaEma.h"
 #include "stock/StockDataStorage.h"
-#include "ui/RichApplication.h"
 
 RichKlineCtrl::~RichKlineCtrl() {
 }
@@ -63,7 +62,6 @@ bool RichKlineCtrl::LoadKlines(const std::string& share_code, const KlineType& k
         RemoveCache();
     }
     // 检查 kline_type 和 share_code
-    StockDataStorage* pStorage = static_cast<RichApplication*>(wxTheApp)->GetStockDataStorage();
     // if (!pStorage->IsLocalFileShareKlinesExist(share_code)) {
     //     // 数据有可能加载失败,需要提示用户！
     //     bool result = pStorage->FetchKlineSync(share_code, KlineType::Day);

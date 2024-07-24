@@ -27,7 +27,6 @@
 #include "wx/clipbrd.h"
 #endif  // wxUSE_CLIPBOARD
 
-#include "ui/RichApplication.h"
 #include "ui/components/RichGridCellStringRenderer.h"
 #include "ui/components/ShareListGridTable.h"
 #include "util/FileTool.h"

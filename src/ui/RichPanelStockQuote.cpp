@@ -1,9 +1,18 @@
+///////////////////////////////////////////////////////////////////////////////
+// Name:        iwealth/src/ui/RichPanelStockQuote.cpp
+// Purpose:     stock quote panel,display at application start-up phase
+// Author:      songhuabiao
+// Modified by:
+// Created:     2024-07-13 19:00
+// Copyright:   (C) Copyright 2024, Wealth Corporation, All Rights Reserved.
+// Licence:     GNU GENERAL PUBLIC LICENSE, Version 3
+///////////////////////////////////////////////////////////////////////////////
+
 #include "ui/RichPanelStockQuote.h"
 #include <wx/colour.h>
 #include <wx/intl.h>
 #include <wx/string.h>
 #include "spider/SpiderShareQuote.h"
-#include "ui/RichApplication.h"
 #include "ui/RichHelper.h"
 #include "ui/components/RichGridCellStringRenderer.h"
 #include "ui/components/RichGridColumnHeaderProvider.h"
@@ -16,20 +25,20 @@ BEGIN_EVENT_TABLE(RichPanelStockQuote, wxPanel)
 END_EVENT_TABLE()
 
 RichPanelStockQuote::RichPanelStockQuote(PanelType type,
+                                         StockDataStorage* pStorage,
                                          wxWindow* parent,
                                          wxWindowID id,
                                          const wxPoint& pos,
                                          const wxSize& size)
-    : RichPanel(type, parent, id, pos, size, wxTAB_TRAVERSAL | wxWANTS_CHARS, _T("PanelQuote")) {
+    : RichPanel(type, pStorage, parent, id, pos, size, wxTAB_TRAVERSAL | wxWANTS_CHARS, _T("PanelQuote")) {
     m_gridCtrlQuote = new RichGrid(this, ID_GRIDCTRL_QUOTA, wxPoint(0, 0), size);
 
-    StockDataStorage* pStorage = static_cast<RichApplication*>(wxTheApp)->GetStockDataStorage();
     // 自定义数据来源，解决直接排序的效率问题，避免字符串排序
     m_gridCtrlQuote->SetTable(new RichGridTable(RichGridTableDataType::Stock, pStorage));
     // 自定义表格头渲染，解决排序没有指示器的问题
     m_gridCtrlQuote->GetTable()->SetAttrProvider(new RichGridColumnHeaderProvider());
 
-    m_gridCtrlQuote->SetFont(RichApplication::GetDefaultFont(14));
+    m_gridCtrlQuote->SetFont(RichHelper::GetDefaultFont(14));
 
     /// wxPanel 自适应 wxFrame，通过 wxSizer 即可实现
     wxSizer* sizer = new wxBoxSizer(wxHORIZONTAL);
@@ -41,7 +50,7 @@ RichPanelStockQuote::RichPanelStockQuote(PanelType type,
     m_gridCtrlQuote->SetDefaultCellTextColour(wxColour(192, 192, 192));
     m_gridCtrlQuote->SetDefaultCellAlignment(wxALIGN_RIGHT, wxALIGN_CENTER);
     m_gridCtrlQuote->SetDefaultRowSize(25);
-    m_gridCtrlQuote->SetDefaultCellFont(RichApplication::GetDefaultFont());
+    m_gridCtrlQuote->SetDefaultCellFont(RichHelper::GetDefaultFont());
     // 自定义单元格渲染器，解决行选中无法独立设置每个单元格的文字颜色
     m_gridCtrlQuote->SetDefaultRenderer(new RichGridCellStringRenderer());
 
@@ -58,7 +67,7 @@ RichPanelStockQuote::RichPanelStockQuote(PanelType type,
 
     // 标签行列设置
     m_gridCtrlQuote->SetLabelBackgroundColour(background_clr);
-    m_gridCtrlQuote->SetLabelFont(RichApplication::GetDefaultFont(14));
+    m_gridCtrlQuote->SetLabelFont(RichHelper::GetDefaultFont(14));
     m_gridCtrlQuote->SetLabelTextColour(wxColour(192, 192, 192));
     m_gridCtrlQuote->SetColLabelAlignment(wxALIGN_RIGHT, wxALIGN_CENTRE);
     // m_gridCtrlQuote->SetRowLabelAlignment(wxALIGN_CENTER, wxALIGN_CENTRE);
@@ -77,10 +86,10 @@ RichPanelStockQuote::RichPanelStockQuote(PanelType type,
         m_gridCtrlQuote->SetColSize(icol, colWidth);
         icol++;
     }
-    wxGridCellAttr* pAlignLeftAttr = new wxGridCellAttr(
-        wxColour(192, 192, 192), wxColor(0, 0, 0), RichApplication::GetDefaultFont(14), wxALIGN_LEFT, wxALIGN_CENTRE);
+    wxGridCellAttr* pAlignLeftAttr = new wxGridCellAttr(wxColour(192, 192, 192), wxColor(0, 0, 0),
+                                                        RichHelper::GetDefaultFont(14), wxALIGN_LEFT, wxALIGN_CENTRE);
     wxGridCellAttr* pAlignCenterAttr = new wxGridCellAttr(
-        wxColour(192, 192, 192), wxColor(0, 0, 0), RichApplication::GetDefaultFont(14), wxALIGN_CENTER, wxALIGN_CENTRE);
+        wxColour(192, 192, 192), wxColor(0, 0, 0), RichHelper::GetDefaultFont(14), wxALIGN_CENTER, wxALIGN_CENTRE);
     m_gridCtrlQuote->SetColAttr(0, pAlignCenterAttr);
     m_gridCtrlQuote->SetColAttr(1, pAlignLeftAttr);
     m_gridCtrlQuote->SetColAttr(2, pAlignLeftAttr);
@@ -117,9 +126,8 @@ void RichPanelStockQuote::OnGridQuoteHeaderDblClick(wxGridEvent& event) {
 
 // 加载市场当前行情并显示
 void RichPanelStockQuote::LoadStockMarketQuote() {
-    StockDataStorage* pStorage = static_cast<RichApplication*>(wxTheApp)->GetStockDataStorage();
-    if (pStorage->IsQuoteDataReady()) {
-        std::vector<Share>* pShares = pStorage->GetStockAllShares();
+    if (m_pStorage->IsQuoteDataReady()) {
+        std::vector<Share>* pShares = m_pStorage->GetStockAllShares();
         long irow = 0;
         m_gridCtrlQuote->GetTable()->InsertRows(0, pShares->size());  // 必须增加这一行，通知视图表格模型数据已变更
         wxColor clr_green(57, 227, 101);

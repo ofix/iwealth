@@ -55,28 +55,28 @@ void TestLevelTree() {
 }
 
 void TestSpiderConceptListEastMoney() {
-    StockDataStorage* m_pStockStorage = new StockDataStorage(nullptr);
+    StockDataStorage* m_pStockStorage = new StockDataStorage();
     m_pStockStorage->Init();
     SpiderConceptListEastMoney* spiderEastMoney = new SpiderConceptListEastMoney(m_pStockStorage);
     spiderEastMoney->Crawl();
 }
 
 void TestSpiderShareKline() {
-    StockDataStorage* m_pStockStorage = new StockDataStorage(nullptr);
+    StockDataStorage* m_pStockStorage = new StockDataStorage();
     m_pStockStorage->Init();
     SpiderShareKline* spiderKline = new SpiderShareKline(m_pStockStorage, true);
     spiderKline->Crawl(KlineType::Day);
 }
 
 void TestSpiderShareCategory() {
-    StockDataStorage* m_pStockStorage = new StockDataStorage(nullptr);
+    StockDataStorage* m_pStockStorage = new StockDataStorage();
     m_pStockStorage->Init();
     SpiderShareCategory* spiderShareCategory = new SpiderShareCategory(m_pStockStorage, true);
     spiderShareCategory->Crawl();
 }
 
 void TestSpiderQuote() {
-    StockDataStorage* m_pStockStorage = new StockDataStorage(nullptr);
+    StockDataStorage* m_pStockStorage = new StockDataStorage();
     m_pStockStorage->Init();
     SpiderShareQuote* spiderHexun = new SpiderShareQuote(m_pStockStorage);
     spiderHexun->Crawl();
@@ -195,7 +195,7 @@ void TestChinesePinYin() {
 }
 
 void TestKlineDownload() {
-    StockDataStorage* m_pStockStorage = new StockDataStorage(nullptr);
+    StockDataStorage* m_pStockStorage = new StockDataStorage();
     SpiderShareKline* spiderKline = new SpiderShareKline(m_pStockStorage);
     Share* pShare = new Share();
     if (pShare) {

@@ -1,3 +1,13 @@
+///////////////////////////////////////////////////////////////////////////////
+// Name:        iwealth/src/util/Timer.cpp
+// Purpose:     common timer based on time wheel
+// Author:      songhuabiao
+// Modified by:
+// Created:     2024-06-14 19:48
+// Copyright:   (C) Copyright 2024, Wealth Corporation, All Rights Reserved.
+// Licence:     GNU GENERAL PUBLIC LICENSE, Version 3
+///////////////////////////////////////////////////////////////////////////////
+
 #include "util/Timer.h"
 #include <chrono>
 #include <iostream>

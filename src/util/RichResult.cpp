@@ -1,4 +1,12 @@
-#include "util/RichResult.h"
+///////////////////////////////////////////////////////////////////////////////
+// Name:        iwealth/src/util/RichResult.cpp
+// Purpose:     global function result type
+// Author:      songhuabiao
+// Modified by:
+// Created:     2024-07-13 19:00
+// Copyright:   (C) Copyright 2024, Wealth Corporation, All Rights Reserved.
+// Licence:     GNU GENERAL PUBLIC LICENSE, Version 3
+///////////////////////////////////////////////////////////////////////////////
 
 #include "util/RichResult.h"
 
@@ -37,6 +45,8 @@ std::string RichResult::What() {
         return "文件解析错误";
     } else if (status == RichStatus::SHARE_NOT_EXIST) {
         return "股票不存在";
+    } else if (status == RichStatus::REPEAT_INIT) {
+        return "重复初始化";
     }
     return "";
 }

@@ -1,16 +1,15 @@
 ///////////////////////////////////////////////////////////////////////////////
-// Name:        src/ui/RichPanelKline.cpp
-// Purpose:     Day/Week/Month/Quoter/Year Kline panel
+// Name:        iwealth/src/ui/RichPanelKline.cpp
+// Purpose:     minute/five day minute/day/week/month/quarter/year kline panel
 // Author:      songhuabiao
 // Modified by:
-// Created:     2024-07-13 19:00
+// Created:     2024-06-14 19:00
 // Copyright:   (C) Copyright 2024, Wealth Corporation, All Rights Reserved.
 // Licence:     GNU GENERAL PUBLIC LICENSE, Version 3
 ///////////////////////////////////////////////////////////////////////////////
 
 #include "ui/RichPanelKline.h"
 #include <wx/dcbuffer.h>
-#include "ui/RichApplication.h"
 #include "ui/RichHelper.h"
 
 const long RichPanelKline::ID_SHARE_NAME_CTRL = wxNewId();
@@ -27,8 +26,13 @@ EVT_KEY_DOWN(RichPanelKline::OnKeyDown)
 EVT_ERASE_BACKGROUND(RichPanelKline::OnBackground)
 END_EVENT_TABLE()
 
-RichPanelKline::RichPanelKline(PanelType type, wxWindow* parent, wxWindowID id, const wxPoint& pos, const wxSize& size)
-    : RichPanel(type, parent, id, pos, size, wxTAB_TRAVERSAL | wxWANTS_CHARS, _T("Panel_Kline")) {
+RichPanelKline::RichPanelKline(PanelType type,
+                               StockDataStorage* pStorage,
+                               wxWindow* parent,
+                               wxWindowID id,
+                               const wxPoint& pos,
+                               const wxSize& size)
+    : RichPanel(type, pStorage, parent, id, pos, size, wxTAB_TRAVERSAL | wxWANTS_CHARS, _T("Panel_Kline")) {
     // 股票名称
     m_pShareNameCtrl = new wxStaticText(this, ID_SHARE_NAME_CTRL, wxT(""), wxPoint(2, 2), wxSize(40, 24));
     m_pShareNameCtrl->SetForegroundColour(wxColor(200, 200, 200));
@@ -42,7 +46,6 @@ RichPanelKline::RichPanelKline(PanelType type, wxWindow* parent, wxWindowID id, 
     m_ptKlineCtrl = wxPoint(2, 30);
     m_sizeKlineCtrl = size;
     m_sizeKlineCtrl.DecBy(wxSize(0, 30));  // 这里不能使用DecTo,会导致RichKlineCtrl控件宽度为0
-    StockDataStorage* pStorage = static_cast<RichApplication*>(wxTheApp)->GetStockDataStorage();
     m_pKlineCtrl = new RichKlineCtrl(pStorage, m_ptKlineCtrl, m_sizeKlineCtrl);
     // 成交量/成交额附图
     m_pVolumeBarCtrl = new RichVolumeBarCtrl(m_pKlineCtrl);
@@ -69,8 +72,7 @@ void RichPanelKline::SetShareCode(const std::string& share_code) {
     bool result = m_pKlineCtrl->LoadKlines(share_code);
     if (!result) {  // 数据有可能加载失败，弹窗提示用户
     }
-    StockDataStorage* pStorage = static_cast<RichApplication*>(wxTheApp)->GetStockDataStorage();
-    m_pShare = pStorage->FindShare(share_code);
+    m_pShare = m_pStorage->FindShare(share_code);
     if (m_pShare != nullptr) {  // 更新股票名称
         m_pShareNameCtrl->SetLabel(CN(m_pShare->name));
     }

@@ -1,11 +1,19 @@
+///////////////////////////////////////////////////////////////////////////////
+// Name:        iwealth/src/ui/RichMainFrame.h
+// Purpose:     GUI main entry
+// Author:      songhuabiao
+// Modified by:
+// Created:     2024-05-13 20:33
+// Copyright:   (C) Copyright 2024, Wealth Corporation, All Rights Reserved.
+// Licence:     GNU GENERAL PUBLIC LICENSE, Version 3
+///////////////////////////////////////////////////////////////////////////////
+
 #include "ui/RichMainFrame.h"
-#include <wx/app.h>
 #include <wx/artprov.h>
 #include <wx/listctrl.h>
 #include <wx/platinfo.h>
 #include <vector>
 #include "stock/StockDataStorage.h"
-#include "ui/RichApplication.h"
 #include "util/Global.h"
 
 const long RichMainFrame::ID_PANEL_STOCK_QUOTE = wxNewId();
@@ -18,6 +26,11 @@ EVT_THREAD(ID_ASYNC_PROCESS_ERROR, RichMainFrame::OnThreadError)
 END_EVENT_TABLE()
 
 RichMainFrame::RichMainFrame(wxWindow* parent, wxWindowID id, const wxPoint& /*point*/, const wxSize& /*size*/) {
+    // 必须先实例化 StockDataStorage，否则RichPanel子类创建会失败
+    // 数据加载放在窗口显示之后，不阻塞窗口初始化
+    m_pStorage = new StockDataStorage(true);
+    m_pStorage->SetEventHandler(this);
+
     Create(parent, id, _("东方巴菲特"), wxDefaultPosition, wxDefaultSize, wxDEFAULT_FRAME_STYLE | wxWANTS_CHARS,
            _T("id"));
     SetClientSize(wxSize(1024, 580));
@@ -56,8 +69,8 @@ RichMainFrame::RichMainFrame(wxWindow* parent, wxWindowID id, const wxPoint& /*p
     Bind(wxEVT_ICONIZE, &RichMainFrame::OnIconize, this);
     Bind(wxEVT_MAXIMIZE, &RichMainFrame::OnMaximize, this);
     // 初始化主窗口面板
-    RichPanelStockQuote* panelQuote =
-        new RichPanelStockQuote(PanelType::Quote, this, ID_PANEL_STOCK_QUOTE, wxPoint(384, 48), wxSize(1240, 600));
+    RichPanelStockQuote* panelQuote = new RichPanelStockQuote(PanelType::Quote, m_pStorage, this, ID_PANEL_STOCK_QUOTE,
+                                                              wxPoint(384, 48), wxSize(1240, 600));
     panelQuote->LoadStockMarketQuote();
     panelQuote->GetGridCtrl()->Bind(wxEVT_CHAR, &RichMainFrame::OnChar, this);
     panelQuote->GetGridCtrl()->Bind(wxEVT_GRID_CELL_LEFT_CLICK, &RichMainFrame::OnGridCellLeftClick, this);
@@ -67,12 +80,25 @@ RichMainFrame::RichMainFrame(wxWindow* parent, wxWindowID id, const wxPoint& /*p
     AddPanelToStack(panelQuote);
 
     m_dlgShareSearch = new RichDialogShareSearch(
-        this, ID_DIALOG_SHARE_SEARCH, _T("股票精灵"), wxDefaultPosition, wxDefaultSize,
+        m_pStorage, this, ID_DIALOG_SHARE_SEARCH, _T("股票精灵"), wxDefaultPosition, wxDefaultSize,
         (wxDEFAULT_DIALOG_STYLE & ~(wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER)) | wxBORDER_NONE);  // 移除默认标题栏
     m_dlgShareSearch->ReLayout(wxSize(290, 380));
     m_dlgShareSearch->Show(false);  // 默认隐藏
 
-    Maximize();  // 初始化最大化
+    Maximize();  // 主窗口最大化
+}
+
+void RichMainFrame::LoadQuote() {
+    RichResult result = m_pStorage->Init();
+    if (!result.Ok()) {
+        wxMessageBox(result.What());
+    }
+    RichPanelStockQuote* panelQuote = static_cast<RichPanelStockQuote*>(m_panelCurrent);
+    panelQuote->LoadStockMarketQuote();
+}
+
+StockDataStorage* RichMainFrame::GetStockDataStorage() {
+    return m_pStorage;
 }
 
 void RichMainFrame::OnClose(wxCloseEvent& event) {
@@ -181,7 +207,7 @@ void RichMainFrame::ShowKlinePanel(const std::string& share_code) {
     } else {
         wxPoint pos = m_panelCurrent->GetPosition();
         wxSize size = m_panelCurrent->GetSize();
-        RichPanelKline* panelKline = new RichPanelKline(PanelType::Kline, this, ID_PANEL_KLINE, pos, size);
+        RichPanelKline* panelKline = new RichPanelKline(PanelType::Kline, m_pStorage, this, ID_PANEL_KLINE, pos, size);
         panelKline->SetShareCode(share_code);
         AddPanelToStack(panelKline);
     }

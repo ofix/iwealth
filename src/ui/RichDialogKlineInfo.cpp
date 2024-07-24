@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
-// Name:        src/ui/RichRichDialogKlineInfo.cpp
-// Purpose:     GUI main frame
+// Name:        src/ui/RichDialogKlineInfo.cpp
+// Purpose:     dialog for display day kline information
 // Author:      songhuabiao
 // Modified by:
 // Created:     2024-05-14 16:59

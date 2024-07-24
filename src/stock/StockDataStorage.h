@@ -44,9 +44,10 @@ class StockDataStorage {
     enum DumpType {
         Quote = 0,  // 打印行情信息
     };
-    StockDataStorage(wxEvtHandler* event_handler);
+    StockDataStorage(bool gui_mode = false);
     virtual ~StockDataStorage();
-    RichResult Init();                  // 初始化操作
+    RichResult Init();  // 初始化操作
+    void SetEventHandler(wxEvtHandler* event_handler);
     size_t GetStockMarketShareCount();  // 获取市场股票数量
     size_t GetStockMarketShareCountByLocation(const std::string&& location);
     std::vector<Share>* GetStockAllShares();
@@ -115,6 +116,7 @@ class StockDataStorage {
     std::string DumpQuoteData(std::vector<Share>& shares);
 
    protected:
+    bool m_inGuiMode;                      // GUI模式下初始化
     bool m_inited;                         // 防止重复初始化
     wxEvtHandler* m_eventHandler;          // 基于事件消息和主窗口进行异步通信,
                                            // 通过依赖注入解决相互依赖的问题，达到解耦的目的

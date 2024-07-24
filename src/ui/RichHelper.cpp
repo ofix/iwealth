@@ -1,3 +1,13 @@
+///////////////////////////////////////////////////////////////////////////////
+// Name:        iwealth/src/ui/RichHelper.h
+// Purpose:     help functions for GUI
+// Author:      songhuabiao
+// Modified by:
+// Created:     2024-05-19 18:07
+// Copyright:   (C) Copyright 2024, Wealth Corporation, All Rights Reserved.
+// Licence:     GNU GENERAL PUBLIC LICENSE, Version 3
+///////////////////////////////////////////////////////////////////////////////
+
 #include "ui/RichHelper.h"
 #include "util/Global.h"
 
@@ -16,4 +26,10 @@ wxString RichUnit(double num) {
         result = std::to_string(static_cast<int>(num));
     }
     return CN(result);
+}
+
+wxFont RichHelper::GetDefaultFont(int font_size) {
+    wxFont defaultFont(font_size, wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL, false, _T("微软雅黑"),
+                       wxFONTENCODING_DEFAULT);
+    return defaultFont;
 }

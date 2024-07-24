@@ -1,3 +1,13 @@
+///////////////////////////////////////////////////////////////////////////////
+// Name:        iwealth/src/util/ConsoleTable.cpp
+// Purpose:     beatified console table
+// Author:      songhuabiao
+// Modified by:
+// Created:     2024-05-16 09:33
+// Copyright:   (C) Copyright 2024, Wealth Corporation, All Rights Reserved.
+// Licence:     GNU GENERAL PUBLIC LICENSE, Version 3
+///////////////////////////////////////////////////////////////////////////////
+
 #include "util/ConsoleTable.h"
 
 ConsoleTable::ConsoleTable(std::vector<std::vector<std::string>>& data)
@@ -6,7 +16,8 @@ ConsoleTable::ConsoleTable(std::vector<std::vector<std::string>>& data)
       m_max_col_width(60),
       m_align(ConsoleTable::Align::left),
       m_valign(ConsoleTable::Valign::middle),
-      m_layout(ConsoleTable::Layout::adaptive) {}
+      m_layout(ConsoleTable::Layout::adaptive) {
+}
 ConsoleTable& ConsoleTable::setMaxColumnWidth(size_t max_column_width) {
     m_max_col_width = max_column_width;
     return *this;
@@ -65,8 +76,7 @@ size_t ConsoleTable::getColumnWidth(uint16_t column_index) {
     return m_max_col_width;
 }
 
-ConsoleTable& ConsoleTable::setColumnColor(uint16_t column_index,
-                                           ConsoleTable::Color color) {
+ConsoleTable& ConsoleTable::setColumnColor(uint16_t column_index, ConsoleTable::Color color) {
     m_column_colors.insert({column_index, color});
     return *this;
 }
@@ -132,9 +142,7 @@ void ConsoleTable::printTable() {
 bool ConsoleTable::needPrintTableBoder(size_t row_index) {
     size_t i = 0;
 
-    for (; i < m_table.expanded_heights.size() &&
-           (row_index + 1) > m_table.expanded_heights[i];
-         i++)
+    for (; i < m_table.expanded_heights.size() && (row_index + 1) > m_table.expanded_heights[i]; i++)
         ;
     if (m_table.expanded_heights[i] == (row_index + 1)) {
         return true;
@@ -216,8 +224,7 @@ void ConsoleTable::layoutTable() {
         size_t expanded_height = 0;
         for (size_t j = 0; j < table[i].size(); j++) {
             Cell cell = table[i][j];
-            std::vector<std::string> format_cells =
-                fillCell(cell, m_table.col_widths[j], row_heights[i]);
+            std::vector<std::string> format_cells = fillCell(cell, m_table.col_widths[j], row_heights[i]);
             for (size_t k = 0; k < format_cells.size(); k++) {
                 m_table.cells[rows_count + k][j] = format_cells[k];
             }
@@ -234,9 +241,7 @@ void ConsoleTable::layoutTable() {
  * @author songhuabiao@greatwall.com.cn
  */
 void ConsoleTable::printTableBorder() {
-    std::cout << repeat_chars('-', m_table.col_total_width +
-                                       m_table.col_widths.size() * m_table.padding + 3)
-              << "\n";
+    std::cout << repeat_chars('-', m_table.col_total_width + m_table.col_widths.size() * m_table.padding + 3) << "\n";
 }
 
 /**
@@ -290,9 +295,7 @@ ConsoleTable::Cell ConsoleTable::layoutCell(std::string& str, uint16_t column_in
  *              -----------
  * @author songhuabiao@greatwall.com.cn
  */
-std::vector<std::string> ConsoleTable::fillCell(ConsoleTable::Cell& cell,
-                                                size_t width,
-                                                size_t nrows) {
+std::vector<std::string> ConsoleTable::fillCell(ConsoleTable::Cell& cell, size_t width, size_t nrows) {
     std::vector<std::string> result = {};
     size_t lines = cell.lines.size();
     if (m_valign == ConsoleTable::Valign::top) {

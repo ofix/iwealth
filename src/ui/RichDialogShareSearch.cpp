@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
-// Name:        src/ui/RichDialogShareSearch.cpp
-// Purpose:     iwealth global share search dialog
+// Name:        iwealth/src/ui/RichDialogShareSearch.cpp
+// Purpose:     global share search dialog
 // Author:      songhuabiao
 // Modified by:
 // Created:     2024-06-13 18:00
@@ -14,7 +14,6 @@
 #include <wx/string.h>
 #include <chrono>
 #include "stock/StockDataStorage.h"
-#include "ui/RichApplication.h"
 #include "ui/RichHelper.h"
 #include "ui/components/RichGridCellStringRenderer.h"
 #include "ui/components/ShareListGridCellStringRenderer.h"
@@ -30,18 +29,20 @@ BEGIN_EVENT_TABLE(RichDialogShareSearch, wxDialog)
 
 END_EVENT_TABLE()
 
-RichDialogShareSearch::RichDialogShareSearch(wxWindow* parent,
+RichDialogShareSearch::RichDialogShareSearch(StockDataStorage* pStorage,
+                                             wxWindow* parent,
                                              wxWindowID id,
                                              const wxString& title,
                                              const wxPoint& pos,
                                              const wxSize& size,
                                              long style,
-                                             const wxString& name) {
+                                             const wxString& name)
+    : m_pStorage(pStorage) {
     Create(parent, id, title, pos, size, style, name);
 
     // 自定义标题栏标题
     m_statictext_title = new wxStaticText(this, ID_STATICTEXT_TITLE, _T("按键精灵"), wxPoint(5, 5), wxDefaultSize);
-    m_statictext_title->SetFont(RichApplication::GetDefaultFont(12));
+    m_statictext_title->SetFont(RichHelper::GetDefaultFont(12));
     // 自定义右侧关闭按钮
     m_bitmapbutton_close = wxBitmapButton::NewCloseButton(this, ID_BITMAPBUTTON_CLOSE);
     m_bitmapbutton_close->SetPosition(wxPoint(255, 5));
@@ -53,16 +54,16 @@ RichDialogShareSearch::RichDialogShareSearch(wxWindow* parent,
     m_textCtrlKeyword->Bind(wxEVT_TEXT, &RichDialogShareSearch::OnSearchShare, this);
     m_textCtrlKeyword->Bind(wxEVT_TEXT_ENTER, &RichDialogShareSearch::OnExitSearchShare, this);
     m_textCtrlKeyword->Bind(wxEVT_KEY_DOWN, &RichDialogShareSearch::OnKeyDown, this);
-    m_textCtrlKeyword->SetFont(RichApplication::GetDefaultFont(11));
+    m_textCtrlKeyword->SetFont(RichHelper::GetDefaultFont(11));
 
     /////////////////////////////////////////////////
     // 股票列表组件
     m_gridShareList = new RichGrid(this, ID_RICHGRID_SHARELIST, wxPoint(5, 75), wxSize(200, 148));
     // 必须优先设置Table，否则设置wxGrid属性会失败！
     m_gridShareList->SetTable(CreateShareListGridTable());
-    m_gridShareList->SetFont(RichApplication::GetDefaultFont(12));
+    m_gridShareList->SetFont(RichHelper::GetDefaultFont(12));
     m_gridShareList->SetDefaultCellAlignment(wxALIGN_LEFT, wxALIGN_CENTER);
-    m_gridShareList->SetDefaultCellFont(RichApplication::GetDefaultFont());
+    m_gridShareList->SetDefaultCellFont(RichHelper::GetDefaultFont());
     m_gridShareList->SetDefaultRenderer(new ShareListGridCellStringRenderer());  // 采用默认的单元格渲染器
     m_gridShareList->SetDefaultRowSize(25);                                      // 设置默认行高
 
@@ -99,8 +100,7 @@ RichDialogShareSearch::RichDialogShareSearch(wxWindow* parent,
 }
 
 ShareListGridTable* RichDialogShareSearch::CreateShareListGridTable() {
-    StockDataStorage* pStorage = static_cast<RichApplication*>(wxTheApp)->GetStockDataStorage();
-    return new ShareListGridTable(pStorage);
+    return new ShareListGridTable(m_pStorage);
 }
 
 void RichDialogShareSearch::OnGridCellLeftClick(wxGridEvent& event) {
@@ -173,7 +173,7 @@ void RichDialogShareSearch::OnExitSearchShare(wxCommandEvent& /*event*/) {
         // 发送自定义事件
         RichShareSearchEvent search_event(wxEVT_RICH_SHARE_SEARCH, GetId());
         search_event.SetShareCode(_share_code);
-        RichMainFrame* pMainFrame = static_cast<RichApplication*>(wxTheApp)->GetMainFrame();
+        wxWindow* pMainFrame = wxTheApp->GetMainTopWindow();
         wxPostEvent(pMainFrame, search_event);
     }
 

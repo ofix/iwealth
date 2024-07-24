@@ -23,9 +23,10 @@
 
 using json = nlohmann::json;
 
-StockDataStorage::StockDataStorage(wxEvtHandler* event_handler)
-    : m_inited(false),
-      m_eventHandler(event_handler),
+StockDataStorage::StockDataStorage(bool gui_mode)
+    : m_inGuiMode(gui_mode),
+      m_inited(false),
+      m_eventHandler(nullptr),
       m_fetch_quote_data_ok(false),
       m_fetch_klines_ok(false),
       m_fetch_financial_data_ok(false),
@@ -42,6 +43,10 @@ StockDataStorage::StockDataStorage(wxEvtHandler* event_handler)
 }
 
 StockDataStorage::~StockDataStorage() {
+}
+
+void StockDataStorage::SetEventHandler(wxEvtHandler* event_handler) {
+    m_eventHandler = event_handler;
 }
 
 // 爬虫简单工厂
@@ -76,10 +81,12 @@ Spider* StockDataStorage::GetSpider(SpiderType type) {
 RichResult StockDataStorage::Init() {
     if (!m_inited) {
         m_inited = true;
-        if (m_eventHandler) {  // GUI模式下加载行情数据，控制台模式跳过
+        if (m_inGuiMode) {  // GUI模式下加载行情数据，控制台模式跳过
             return LoadShareQuote();
         }
+        return Success();
     }
+    return Error(RichStatus::REPEAT_INIT);
 }
 
 // 加载股票行情数据

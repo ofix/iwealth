@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////////////
-// Name:        iwealth/ui/events/RichShareSearchEvent.cpp
+// Name:        iwealth/src/ui/events/RichShareSearchEvent.cpp
 // Purpose:     custom radio control selection event
 // Author:      songhuabiao
 // Modified by:

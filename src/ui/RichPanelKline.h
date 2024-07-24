@@ -1,5 +1,5 @@
-#ifndef PANELKLINE_H
-#define PANELKLINE_H
+#ifndef RICH_PANEL_KLINE_H
+#define RICH_PANEL_KLINE_H
 
 #include <string>
 #include <vector>
@@ -13,6 +13,7 @@
 class RichPanelKline : public RichPanel {
    public:
     RichPanelKline(PanelType type,
+                   StockDataStorage* pStorage,
                    wxWindow* parent,
                    wxWindowID id = wxID_ANY,
                    const wxPoint& pos = wxDefaultPosition,

@@ -1,5 +1,7 @@
-#ifndef RICHHELPER_H
-#define RICHHELPER_H
+#ifndef RICH_HELPER_H
+#define RICH_HELPER_H
+
+#include <wx/font.h>
 #include <wx/string.h>
 #include <string>
 
@@ -7,4 +9,9 @@
 
 wxString RichUnit(double num);
 
-#endif  // RICHHELPER_H
+class RichHelper {
+   public:
+    static wxFont GetDefaultFont(int font_size = 12);
+};
+
+#endif  // RICH_HELPER_H

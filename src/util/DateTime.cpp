@@ -1,3 +1,13 @@
+///////////////////////////////////////////////////////////////////////////////
+// Name:        iwealth/src/util/DateTime.cpp
+// Purpose:     date time global help functions
+// Author:      songhuabiao
+// Modified by:
+// Created:     2024-05-17 12:33
+// Copyright:   (C) Copyright 2024, Wealth Corporation, All Rights Reserved.
+// Licence:     GNU GENERAL PUBLIC LICENSE, Version 3
+///////////////////////////////////////////////////////////////////////////////
+
 #include "util/DateTime.h"
 #include <chrono>
 #include <ctime>

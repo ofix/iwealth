@@ -1,4 +1,5 @@
-#pragma once
+#ifndef COLOR_H
+#define COLOR_H
 
 #define RST "\033[0m"
 #define FRED "\033[1;31m"
@@ -19,3 +20,5 @@
 
 #define BOLD(x) "\x1B[1m" x RST
 #define UNDERLINE(x) "\x1B[4m" x RST
+
+#endif

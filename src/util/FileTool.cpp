@@ -1,9 +1,9 @@
 ///////////////////////////////////////////////////////////////////////////////
-// Name:        iwealth/src/util/file_tool.cpp
-// Purpose:     GUI main frame
+// Name:        iwealth/src/util/FileTool.cpp
+// Purpose:     file related operations
 // Author:      songhuabiao
 // Modified by:
-// Created:     2024-05-16-09.33
+// Created:     2024-06-14 19:48
 // Copyright:   (C) Copyright 2024, Wealth Corporation, All Rights Reserved.
 // Licence:     GNU GENERAL PUBLIC LICENSE, Version 3
 ///////////////////////////////////////////////////////////////////////////////
