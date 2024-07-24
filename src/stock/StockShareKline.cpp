@@ -149,14 +149,14 @@ RichResult StockShareKline::SaveShareDayKline(const std::string& share_code, con
     }
     bool result = FileTool::SaveFile(file_path, lines);
     if (!result) {
-        return Error(RichStatus::WRITE_FAILURE);
+        return Error(RichStatus::FILE_WRITE_FAILED);
     }
     return Success();
 }
 
 RichResult StockShareKline::SaveIncrementalDayKlines(const std::string& share_code,
                                                      const std::vector<uiKline>& klines) {
-    return Error(RichStatus::WRITE_FAILURE);
+    return Error(RichStatus::FILE_WRITE_FAILED);
 }
 
 RichResult StockShareKline::FetchDayKlines(const std::string& share_code, std::vector<uiKline>& day_klines) {

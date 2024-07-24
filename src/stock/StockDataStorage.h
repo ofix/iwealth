@@ -7,8 +7,10 @@
 #include "search/Trie.h"
 #include "stock/ShareCategory.h"
 #include "stock/Stock.h"
+#include "util/RichResult.h"
 
 const int ID_QUOTE_DATA_READY = 100000;
+const int ID_ASYNC_PROCESS_ERROR = 100001;
 
 class SpiderShareQuote;
 class SpiderShareBriefInfo;
@@ -19,12 +21,16 @@ class Spider;
 class StockShareKline;
 class StockDataStorage {
    public:
-    enum class FetchResult {
+    enum class AsyncFetchType {
         QuoteData = 0,
         Klines,
         FinancialData,
         BusinessAnalysis,
         OldNames,
+    };
+    struct AsyncFetchResult {
+        AsyncFetchType type;
+        RichResult state;
     };
     enum class SpiderType {
         Quote,             // 行情数据爬虫
@@ -38,9 +44,9 @@ class StockDataStorage {
     enum DumpType {
         Quote = 0,  // 打印行情信息
     };
-    StockDataStorage();
+    StockDataStorage(wxEvtHandler* event_handler);
     virtual ~StockDataStorage();
-    void Init();                        // 初始化操作
+    RichResult Init();                  // 初始化操作
     size_t GetStockMarketShareCount();  // 获取市场股票数量
     size_t GetStockMarketShareCountByLocation(const std::string&& location);
     std::vector<Share>* GetStockAllShares();
@@ -81,37 +87,37 @@ class StockDataStorage {
         return m_fetch_old_name_ok;
     };
 
-    void SetFetchResultOk(FetchResult result);
+    void SetAsyncFetchResult(AsyncFetchResult result);
     Spider* GetSpider(SpiderType type);
 
    protected:
-    void FetchQuoteIndustryProvince();     // 爬取行情数据+板块数据
-    void FetchQuoteSync();                 // 爬取行情数据
-    void FetchKline();                     // 爬取股票历史K线数据
-    void FetchFinancial();                 // 爬取股票年报数据
-    void FetchBusinessAnalysis();          // 爬取股票经营分析内容
-    void FetchBriefInfo();                 // 爬取股票[曾用名/员工数等基本信息]
-    void DumpStorage(DumpType dump_type);  // 打印信息
+    RichResult LoadShareQuote();  // 初始化加载股票行情数据
+    RichResult LoadLocalShareQuoteFile(std::string& path, std::vector<Share>& shares);  // 加载本地行情数据文件
+    RichResult LoadLocalShareCategoryFile(ShareCategoryType type,
+                                          const std::string& file_path,
+                                          ShareCategory& share_categories);  // 加载本地板块->股票映射文件
 
-    std::string DumpQuoteData(std::vector<Share>& shares);
-    void SaveQuote();  // 保存行情数据到本地文件
-    void SaveCategory(ShareCategoryType type,
-                      std::unordered_map<std::string, std::vector<std::string>>* categories);  // 保存板块信息到本地文件
+    RichResult LoadLocalShareNamesFile();  // 加载本地股票曾用名和名称
 
-    bool LoadLocalFileQuote(std::string& path, std::vector<Share>& shares);  // 加载本地行情数据文件
-    void LoadLocalFileCategory(ShareCategoryType type,
-                               const std::string& file_path,
-                               ShareCategory& share_categories);  // 加载本地板块->股票映射文件
-    void LoadLocalFileShare();       // 加载本地 日K线/周K线/月K线/季度K线/年K线文件
-    void LoadLocalFileShareNames();  // 加载本地股票曾用名和名称
-
+    void FetchQuoteIndustryProvince();  // 爬取行情数据+板块数据
+    RichResult FetchShareQuoteSync();   // 爬取行情数据
+    void FetchShareBriefInfo();         // 爬取股票[曾用名/员工数等基本信息]
     void OnTimeout(uint32_t timer_id, void* args);
     void OnTimerFetchShareQuoteData(uint32_t timer_id, void* args);
 
-    void HashShares();  // code->Share* 映射
+    bool SaveShareQuoteToFile();  // 保存行情数据到本地文件
+    bool SaveShareCategoryToFile(
+        ShareCategoryType type,
+        std::unordered_map<std::string, std::vector<std::string>>* categories);  // 保存板块信息到本地文件
+
+    void HashShares();                     // code->Share* 映射
+    void DumpStorage(DumpType dump_type);  // 打印信息
+    std::string DumpQuoteData(std::vector<Share>& shares);
 
    protected:
-    // 数据存储
+    bool m_inited;                         // 防止重复初始化
+    wxEvtHandler* m_eventHandler;          // 基于事件消息和主窗口进行异步通信,
+                                           // 通过依赖注入解决相互依赖的问题，达到解耦的目的
     std::string m_data_dir;                // 数据保存根目录
     std::string m_path_share_quote;        // 股票行情数据文件路径
     std::string m_path_category_province;  // 股票省份数据文件路径
@@ -125,7 +131,7 @@ class StockDataStorage {
     Trie m_trie;                           // 股票[简称/曾用名]->关系映射
 
     // 行情数据是否OK
-    bool m_inited;                      // 防止重复初始化
+
     bool m_fetch_quote_data_ok;         // 行情数据是否爬取完成
     bool m_fetch_klines_ok;             // 股票历史K线是否爬取完成
     bool m_fetch_financial_data_ok;     // 股票年报数据是否爬取完成

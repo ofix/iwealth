@@ -53,6 +53,7 @@ class RichMainFrame : public wxFrame {
     void OnAbout(wxCommandEvent& event);
     // this is called when the event from the thread is received
     void OnStorageDataReady(wxThreadEvent& event);
+    void OnThreadError(wxThreadEvent& event);
 
    private:
     std::vector<RichPanel*> m_panelStack;  // 视图栈

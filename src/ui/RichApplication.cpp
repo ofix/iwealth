@@ -4,24 +4,30 @@
 //(*AppHeaders
 #include <wx/image.h>
 #include "ui/RichMainFrame.h"
+#include "util/RichResult.h"
 //*)
 
 wxIMPLEMENT_APP(RichApplication);
 
 bool RichApplication::OnInit() {
-    m_pStockStorage = new StockDataStorage();
-    if (m_pStockStorage) {
-        m_pStockStorage->Init();
-    }
-    //(*AppInitialize
     bool wxsOK = true;
     wxInitAllImageHandlers();
     if (wxsOK) {
         m_pFrame = new RichMainFrame(NULL, wxID_ANY);
         m_pFrame->Show();
         SetTopWindow(m_pFrame);
+        m_pStockStorage = new StockDataStorage(m_pFrame);
+        if (m_pStockStorage) {
+            RichResult result = m_pStockStorage->Init();
+            if (!result.Ok()) {
+                wxMessageBox(result.What());
+            } else {
+                if (m_pStockStorage->IsQuoteDataReady()) {  //本地行情数据已经是最新的，立即刷新窗口显示
+                    m_pFrame->Refresh();
+                }
+            }
+        }
     }
-    //*)
     return true;
 }
 

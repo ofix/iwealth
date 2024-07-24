@@ -122,7 +122,7 @@ class SpiderShareQuote : public Spider {
 ### 函数没有返回值导致 Ilegal Instruction 错误
 
 ```cpp
-bool StockDataStorage::LoadLocalFileQuote(std::string& path, std::vector<Share>& shares) {
+bool StockDataStorage::LoadLocalShareQuoteFile(std::string& path, std::vector<Share>& shares) {
     try {
         std::string json_data = FileTool::LoadFile(path);
         json arr = json::parse(json_data);

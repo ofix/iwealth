@@ -14,6 +14,7 @@ const long RichMainFrame::ID_PANEL_KLINE = wxNewId();
 
 BEGIN_EVENT_TABLE(RichMainFrame, wxFrame)
 EVT_THREAD(ID_QUOTE_DATA_READY, RichMainFrame::OnStorageDataReady)
+EVT_THREAD(ID_ASYNC_PROCESS_ERROR, RichMainFrame::OnThreadError)
 END_EVENT_TABLE()
 
 RichMainFrame::RichMainFrame(wxWindow* parent, wxWindowID id, const wxPoint& /*point*/, const wxSize& /*size*/) {
@@ -216,6 +217,11 @@ void RichMainFrame::OnStorageDataReady(wxThreadEvent& event) {
         RichPanelStockQuote* panelQuote = static_cast<RichPanelStockQuote*>(m_panelCurrent);
         panelQuote->LoadStockMarketQuote();
     }
+}
+
+void RichMainFrame::OnThreadError(wxThreadEvent& event) {
+    wxString error = event.GetString();
+    wxMessageBox(error);
 }
 
 void RichMainFrame::OnExit(wxCommandEvent& event) {
