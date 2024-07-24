@@ -89,8 +89,10 @@ class StockDataStorage {
     };
 
     Spider* GetSpider(SpiderType type);
-    RichResult QueryKlines(const std::string& share_code, KlineType kline_type, std::vector<uiKline>* klines);
-    RichResult QueryMinuteKlines(const std::string& share_code, KlineType kline_type, std::vector<minuteKline>* klines);
+    RichResult QueryKlines(const std::string& share_code, KlineType kline_type, std::vector<uiKline>** klines);
+    RichResult QueryMinuteKlines(const std::string& share_code,
+                                 KlineType kline_type,
+                                 std::vector<minuteKline>** klines);
 
    protected:
     RichResult LoadShareQuote();  // 初始化加载股票行情数据

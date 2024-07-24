@@ -522,7 +522,7 @@ bool StockDataStorage::ClearShares() {
 
 RichResult StockDataStorage::QueryKlines(const std::string& share_code,
                                          KlineType kline_type,
-                                         std::vector<uiKline>* klines) {
+                                         std::vector<uiKline>** klines) {
     if (kline_type == KlineType::Day) {
         return m_stock_klines->QueryDayKlines(share_code, klines);
     } else if (kline_type == KlineType::Week) {
@@ -539,7 +539,7 @@ RichResult StockDataStorage::QueryKlines(const std::string& share_code,
 
 RichResult StockDataStorage::QueryMinuteKlines(const std::string& share_code,
                                                KlineType kline_type,
-                                               std::vector<minuteKline>* klines) {
+                                               std::vector<minuteKline>** klines) {
     if (kline_type == KlineType::Minute) {
         return m_stock_klines->QueryMinuteKlines(share_code, klines);
     } else if (kline_type == KlineType::FiveDay) {

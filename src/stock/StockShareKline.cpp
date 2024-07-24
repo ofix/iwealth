@@ -13,63 +13,62 @@ StockShareKline::StockShareKline(StockDataStorage* pStorage) : m_pStorage(pStora
 StockShareKline::~StockShareKline() {
 }
 
-RichResult StockShareKline::QueryMinuteKlines(const std::string& share_code, std::vector<minuteKline>* minute_klines) {
+RichResult StockShareKline::QueryMinuteKlines(const std::string& share_code, std::vector<minuteKline>** minute_klines) {
     std::vector<minuteKline>* pMinuteKlines = m_minute_klines.Query(share_code);
     if (pMinuteKlines) {
-        minute_klines = pMinuteKlines;
+        *minute_klines = pMinuteKlines;
         return Success();
     }
     // 缓存不存在
-    RichResult result = FetchMinuteKlines(share_code, *minute_klines);
+    std::vector<minuteKline> temp_klines;
+    RichResult result = FetchMinuteKlines(share_code, temp_klines);
     if (result.Ok()) {
-        m_minute_klines.Add(share_code, *minute_klines);  // 缓存最近300条记录
-    } else {
-        minute_klines->clear();  // 如果请求出错，删除错误数据
+        m_minute_klines.Add(share_code, temp_klines);  // 缓存最近300条记录
     }
+    *minute_klines = m_minute_klines.Query(share_code);
 
     return result;
 }
 
 RichResult StockShareKline::QueryFiveDayMinuteKlines(const std::string& share_code,
-                                                     std::vector<minuteKline>* five_day_minute_klines) {
+                                                     std::vector<minuteKline>** five_day_minute_klines) {
     std::vector<minuteKline>* pFiveDayKlines = m_fiveday_klines.Query(share_code);
     if (pFiveDayKlines) {
-        five_day_minute_klines = pFiveDayKlines;
+        *five_day_minute_klines = pFiveDayKlines;
         return Success();
     }
     // 缓存不存在
-    RichResult result = FetchFiveDayMinuteKlines(share_code, *five_day_minute_klines);
+    std::vector<minuteKline> temp_klines;
+    RichResult result = FetchFiveDayMinuteKlines(share_code, temp_klines);
     if (result.Ok()) {
-        m_fiveday_klines.Add(share_code, *five_day_minute_klines);  // 缓存最近300条记录
-    } else {
-        five_day_minute_klines->clear();  // 如果请求出错，删除错误数据
+        m_fiveday_klines.Add(share_code, temp_klines);  // 缓存最近300条记录
     }
-
+    *five_day_minute_klines = m_fiveday_klines.Query(share_code);
     return result;
 }
 
-RichResult StockShareKline::QueryYearKlines(const std::string& share_code, std::vector<uiKline>* year_klines) {
+RichResult StockShareKline::QueryYearKlines(const std::string& share_code, std::vector<uiKline>** year_klines) {
     return QueryPeriodKlines(share_code, year_klines, m_year_kline_adjust, StockShareKline::GenerateYearKlines);
 }
 
-RichResult StockShareKline::QueryQuarterKlines(const std::string& share_code, std::vector<uiKline>* quarter_klines) {
+RichResult StockShareKline::QueryQuarterKlines(const std::string& share_code, std::vector<uiKline>** quarter_klines) {
     return QueryPeriodKlines(share_code, quarter_klines, m_quarter_kline_adjust,
                              StockShareKline::GenerateQuarterKlines);
 }
 
-RichResult StockShareKline::QueryMonthKlines(const std::string& share_code, std::vector<uiKline>* month_klines) {
+RichResult StockShareKline::QueryMonthKlines(const std::string& share_code, std::vector<uiKline>** month_klines) {
     return QueryPeriodKlines(share_code, month_klines, m_month_kline_adjust, StockShareKline::GenerateMonthKlines);
 }
 
-RichResult StockShareKline::QueryWeekKlines(const std::string& share_code, std::vector<uiKline>* week_klines) {
+RichResult StockShareKline::QueryWeekKlines(const std::string& share_code, std::vector<uiKline>** week_klines) {
     return QueryPeriodKlines(share_code, week_klines, m_week_kline_adjust, StockShareKline::GenerateWeekKLines);
 }
 
-RichResult StockShareKline::QueryDayKlines(const std::string& share_code, std::vector<uiKline>* ptr_day_klines) {
+RichResult StockShareKline::QueryDayKlines(const std::string& share_code, std::vector<uiKline>** ptr_day_klines) {
     // 检查内存缓存是否存在
     std::vector<uiKline>* pDayKlines = m_day_kline_adjust.Query(share_code);
     if (pDayKlines) {
-        ptr_day_klines = pDayKlines;
+        *ptr_day_klines = pDayKlines;
         return Success();
     }
 
@@ -100,30 +99,31 @@ RichResult StockShareKline::QueryDayKlines(const std::string& share_code, std::v
         return result;
     }
     m_day_kline_adjust.Add(share_code, day_klines);  // 缓存到内存
-
+    *ptr_day_klines = m_day_kline_adjust.Query(share_code);
     return result;
 }
 
 RichResult StockShareKline::QueryPeriodKlines(
     const std::string& share_code,
-    std::vector<uiKline>* period_klines,
+    std::vector<uiKline>** period_klines,
     StockMemoryKline<uiKline>& memory_cache,
     std::function<std::vector<uiKline>(const std::vector<uiKline>& day_klines)> generate_callback) {
     std::vector<uiKline>* ptr_cache_klines = memory_cache.Query(share_code);
     if (ptr_cache_klines) {
-        period_klines = ptr_cache_klines;
+        *period_klines = ptr_cache_klines;
         return Success();
     }
     // 检查日K线缓存，如果不存在或者过期，需要重新拉取
     std::vector<uiKline>* ptr_day_klines;
-    RichResult result = QueryDayKlines(share_code, ptr_day_klines);
+    RichResult result = QueryDayKlines(share_code, &ptr_day_klines);
     if (!result.Ok()) {
         return result;
     }
     // 根据最新的日K线，计算 周/月/季/年K线
-    m_day_kline_adjust.Add(share_code, *ptr_day_klines);  // 缓存到内存
-    *period_klines = generate_callback(*ptr_day_klines);  // 计算数据
-    memory_cache.Add(share_code, *period_klines);         // 将计算好的 周/月/季/年K线缓存到内存中
+    m_day_kline_adjust.Add(share_code, *ptr_day_klines);                   // 缓存到内存
+    std::vector<uiKline> tmp_klines = generate_callback(*ptr_day_klines);  // 计算数据
+    memory_cache.Add(share_code, tmp_klines);  // 将计算好的 周/月/季/年K线缓存到内存中
+    *period_klines = memory_cache.Query(share_code);
     return Success();
 }
 
@@ -234,7 +234,11 @@ RichResult StockShareKline::LoadLocalDayKline(const std::string share_code, std:
     std::vector<std::string> klines = split(lines, "\n");
     bool data_dirty = false;
     for (auto& kline : klines) {
-        if (kline.length() < 10) {
+        size_t size = kline.length();
+        if (size == 0) {
+            continue;
+        }
+        if (size < 10) {
             data_dirty = true;
             break;
         }

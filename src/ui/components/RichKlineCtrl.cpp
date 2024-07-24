@@ -52,9 +52,10 @@ bool RichKlineCtrl::LoadKlines(const std::string& share_code, const KlineType& k
     }
 
     if (kline_type == KlineType::Minute || kline_type == KlineType::FiveDay) {
-        m_pStorage->QueryMinuteKlines(share_code, kline_type, m_pMinuteKlines);
+        m_pStorage->QueryMinuteKlines(share_code, kline_type, &m_pMinuteKlines);
     } else {
-        m_pStorage->QueryKlines(share_code, kline_type, m_pKlines);
+        m_pStorage->QueryKlines(share_code, kline_type, &m_pKlines);
+        std::cout << "kline size = " << m_pKlines->size() << std::endl;
     }
     m_emaCurves.clear();
     SetMode(kline_type);
@@ -283,6 +284,13 @@ void RichKlineCtrl::DrawDayKlines(wxDC* pDC) {
             DrawCrossLine(pDC, m_crossLinePt.x, m_crossLinePt.y, m_width, m_height * 0.7);
         }
     }
+}
+
+void RichKlineCtrl::DrawMinuteKlineCurves(wxDC* pDC) {
+}
+
+////////////////////// 5日分时图相关函数  //////////////////////
+void RichKlineCtrl::DrawFiveDayMinuteKlines(wxDC* pDC) {
 }
 
 /**
@@ -691,11 +699,4 @@ void RichKlineCtrl::DrawMinuteKlineBackground(wxDC* pDC) {
         pt_start.y += (row_height + 1) * i;
         pt_end.y += (row_height + 1) * i;
     }
-}
-
-void RichKlineCtrl::DrawMinuteKlineCurves(wxDC* pDC) {
-}
-
-////////////////////// 5日分时图相关函数  //////////////////////
-void RichKlineCtrl::DrawFiveDayMinuteKlines(wxDC* pDC) {
 }

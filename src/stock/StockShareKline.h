@@ -13,21 +13,21 @@ class StockShareKline {
    public:
     StockShareKline(StockDataStorage* pStorage);
     ~StockShareKline();
-    RichResult QueryMinuteKlines(const std::string& share_code, std::vector<minuteKline>* minute_klines);
+    RichResult QueryMinuteKlines(const std::string& share_code, std::vector<minuteKline>** minute_klines);
     RichResult QueryFiveDayMinuteKlines(const std::string& share_code,
-                                        std::vector<minuteKline>* five_day_minute_klines);
-    RichResult QueryYearKlines(const std::string& share_code, std::vector<uiKline>* year_klines);
-    RichResult QueryQuarterKlines(const std::string& share_code, std::vector<uiKline>* quarter_klines);
-    RichResult QueryMonthKlines(const std::string& share_code, std::vector<uiKline>* month_klines);
-    RichResult QueryWeekKlines(const std::string& share_code, std::vector<uiKline>* week_klines);
-    RichResult QueryDayKlines(const std::string& share_code, std::vector<uiKline>* day_klines);
+                                        std::vector<minuteKline>** five_day_minute_klines);
+    RichResult QueryYearKlines(const std::string& share_code, std::vector<uiKline>** year_klines);
+    RichResult QueryQuarterKlines(const std::string& share_code, std::vector<uiKline>** quarter_klines);
+    RichResult QueryMonthKlines(const std::string& share_code, std::vector<uiKline>** month_klines);
+    RichResult QueryWeekKlines(const std::string& share_code, std::vector<uiKline>** week_klines);
+    RichResult QueryDayKlines(const std::string& share_code, std::vector<uiKline>** day_klines);
     static bool IsLocalFileExist(const std::string file_path);
     static bool IsLocalFileExpired(const std::string file_path);
 
    protected:
     RichResult QueryPeriodKlines(
         const std::string& share_code,
-        std::vector<uiKline>* period_klines,
+        std::vector<uiKline>** period_klines,
         StockMemoryKline<uiKline>& memory_cache,
         std::function<std::vector<uiKline>(const std::vector<uiKline>& day_klines)> generate_callback);
     RichResult LoadLocalDayKline(const std::string file_path, std::vector<uiKline>& day_klines);

@@ -101,11 +101,6 @@ class RichKlineCtrl {
     std::string m_shareCode;                    // 股票代码
     std::vector<uiKline>* m_pKlines;            // 当前绘制的K线数据
     std::vector<minuteKline>* m_pMinuteKlines;  // 当前绘制的分时图数据
-    std::vector<uiKline> m_dayKlines;           // 日K线缓存
-    std::vector<uiKline> m_weekKlines;          // 周K线缓存
-    std::vector<uiKline> m_monthKlines;         // 月K线缓存
-    std::vector<uiKline> m_quarterKlines;       // 季K线缓存
-    std::vector<uiKline> m_yearKlines;          // 年K线缓存
     std::vector<ShareEmaCurve> m_emaCurves;     // 指数移动平均线
     std::vector<minuteKline> m_minuteKlines;    // 分时图
     std::vector<minuteKline> m_fiveDayKlines;   // 5日分时图
