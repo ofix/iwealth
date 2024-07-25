@@ -47,12 +47,17 @@ void RichKlineCtrl::Init() {
  * @param kline_type
  */
 bool RichKlineCtrl::LoadKlines(const std::string& share_code, const KlineType& kline_type) {
+    if (share_code == "") {
+        return false;
+    }
+
     if (m_shareCode != share_code) {  // 加载不同股票的分时和K线图前，需清空缓存数据
         m_shareCode = share_code;
     }
 
     if (kline_type == KlineType::Minute || kline_type == KlineType::FiveDay) {
         m_pStorage->QueryMinuteKlines(share_code, kline_type, &m_pMinuteKlines);
+        std::cout << "minute kline size = " << m_pKlines->size() << std::endl;
     } else {
         m_pStorage->QueryKlines(share_code, kline_type, &m_pKlines);
         std::cout << "kline size = " << m_pKlines->size() << std::endl;
@@ -66,6 +71,16 @@ bool RichKlineCtrl::LoadKlines(const std::string& share_code, const KlineType& k
     AddEmaCurve(99, wxColor(255, 0, 255));
     AddEmaCurve(255, wxColor(255, 255, 0));
     AddEmaCurve(905, wxColor(0, 255, 0));
+    return true;
+}
+
+// 股票代码保持不变，切换K线类型
+bool RichKlineCtrl::LoadKlines(const KlineType& kline_type) {
+    return LoadKlines(m_shareCode, kline_type);
+}
+
+std::string RichKlineCtrl::GetShareCode() const {
+    return m_shareCode;
 }
 
 /**

@@ -10,6 +10,7 @@
 #include "spider/SpiderShareQuote.h"
 #include "stock/Stock.h"
 #include "stock/StockDataStorage.h"
+#include "stock/StockShareKline.h"
 #include "util/DateTime.h"
 #include "util/FileTool.h"
 #include "util/Global.h"
@@ -127,24 +128,38 @@ void KlineTest() {
 }
 
 void TestDateTime() {
-    bool result = between_time_period("09:00", "10:36");
-    std::cout << "between_time_period " << result << std::endl;
-    std::string year = now("%Y");
-    std::string month = now("%Y-%m");
-    std::string day = now("%Y-%m-%d");
-    std::string hour = now("%Y-%m-%d %H");
-    std::string minute = now("%Y-%m-%d %H:%M");
-    std::string second = now("%Y-%m-%d %H:%M:%S");
-    std::cout << "  year = " << year << std::endl;
-    std::cout << " month = " << month << std::endl;
-    std::cout << "   day = " << day << std::endl;
-    std::cout << "  hour = " << hour << std::endl;
-    std::cout << "minute = " << minute << std::endl;
-    std::cout << "second = " << second << std::endl;
-    std::string start_time = second;
-    std::string end_time = now("%Y-%m-%d ") + "10:35:00";
-    std::cout << start_time << "-" << end_time << " diff " << diff_seconds(start_time, end_time) << " seconds"
-              << std::endl;
+    std::vector<std::string> date = {"2004-06-24", "2024-07-25", "2022-01-01", "2023-02-01", "2023-12-10"};
+
+    for (auto& day : date) {
+        struct tm _tm1;
+        struct tm _tm2;
+        if (!_strptime(day.c_str(), "%Y-%m-%d", &_tm1)) {
+            continue;
+        }
+        if (!strptime(day.c_str(), "%Y-%m-%d", &_tm2)) {
+            continue;
+        }
+        std::cout << "+++ [" << day << "], tm.yday=" << _tm1.tm_yday << ", tm.wday=" << _tm1.tm_wday << std::endl;
+        std::cout << "--- [" << day << "], tm.yday=" << _tm2.tm_yday << ", tm.wday=" << _tm2.tm_wday << std::endl;
+    }
+    // bool result = between_time_period("09:00", "10:36");
+    // std::cout << "between_time_period " << result << std::endl;
+    // std::string year = now("%Y");
+    // std::string month = now("%Y-%m");
+    // std::string day = now("%Y-%m-%d");
+    // std::string hour = now("%Y-%m-%d %H");
+    // std::string minute = now("%Y-%m-%d %H:%M");
+    // std::string second = now("%Y-%m-%d %H:%M:%S");
+    // std::cout << "  year = " << year << std::endl;
+    // std::cout << " month = " << month << std::endl;
+    // std::cout << "   day = " << day << std::endl;
+    // std::cout << "  hour = " << hour << std::endl;
+    // std::cout << "minute = " << minute << std::endl;
+    // std::cout << "second = " << second << std::endl;
+    // std::string start_time = second;
+    // std::string end_time = now("%Y-%m-%d ") + "10:35:00";
+    // std::cout << start_time << "-" << end_time << " diff " << diff_seconds(start_time, end_time) << " seconds"
+    //           << std::endl;
 }
 
 void TestFile() {
@@ -217,6 +232,14 @@ void TestUrlEncode() {
     std::cout << encode_name << std::endl;
 }
 
+void TestFileTool() {
+    std::string share_code = "002008";
+    std::string file_path = StockShareKline::GetFilePathOfDayKline(share_code);
+    std::string line = "";
+    bool result = FileTool::GetLastLineOfFile(file_path, line);
+    std::cout << "last_line: " << line << std::endl;
+}
+
 int main(int /*argc*/, char** /*argv*/) {
     // TestSpiderConceptListEastMoney();
     // TestTimer();
@@ -228,6 +251,7 @@ int main(int /*argc*/, char** /*argv*/) {
     // TestTrie();
     // TestChinesePinYin();
     // TestKlineDownload();
-    TestUrlEncode();
+    // TestUrlEncode();
+    TestFileTool();
     std::cin.get();
 }

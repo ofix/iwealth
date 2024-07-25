@@ -77,8 +77,8 @@ RichResult StockShareKline::QueryDayKlines(const std::string& share_code, std::v
     RichResult result;
     if (FileTool::IsFileExists(file_path)) {
         if (IsLocalFileExpired(file_path)) {
-            result = FetchIncrementalDayKlines(file_path, day_klines);  // 增量爬取
-            if (!result.Ok()) {                                         // 爬取增量K线数据失败
+            result = FetchIncrementalDayKlines(share_code, day_klines);  // 增量爬取
+            if (!result.Ok()) {                                          // 爬取增量K线数据失败
                 return result;
             }
             result = SaveIncrementalDayKlines(share_code, day_klines);  // 保存到文件
@@ -120,7 +120,6 @@ RichResult StockShareKline::QueryPeriodKlines(
         return result;
     }
     // 根据最新的日K线，计算 周/月/季/年K线
-    m_day_kline_adjust.Add(share_code, *ptr_day_klines);                   // 缓存到内存
     std::vector<uiKline> tmp_klines = generate_callback(*ptr_day_klines);  // 计算数据
     memory_cache.Add(share_code, tmp_klines);  // 将计算好的 周/月/季/年K线缓存到内存中
     *period_klines = memory_cache.Query(share_code);
@@ -174,8 +173,9 @@ RichResult StockShareKline::FetchIncrementalDayKlines(const std::string& share_c
     SpiderShareKline* pSpiderKline = new SpiderShareKline(nullptr);
     std::string end_date = now("%Y-%m-%d");
     std::string file_path = GetFilePathOfDayKline(share_code);
-    std::string last_line = FileTool::GetLastLineOfFile(file_path);
-    if (last_line == "") {  // 错误
+    std::string last_line = "";
+    bool result = FileTool::GetLastLineOfFile(file_path, last_line);
+    if (!result || last_line == "") {  // 错误
         return Error(RichStatus::FILE_DIRTY);
     }
     std::string start_date = last_line.substr(0, 10);
@@ -183,7 +183,7 @@ RichResult StockShareKline::FetchIncrementalDayKlines(const std::string& share_c
     if (ndays == -1) {
         return Error(RichStatus::INNER_ERROR);
     }
-    bool result = pSpiderKline->CrawlIncrementDayKlineSync(pShare, end_date, ndays, day_klines);
+    result = pSpiderKline->CrawlIncrementDayKlineSync(pShare, end_date, ndays, day_klines);
     if (!result) {
         return Error(RichStatus::NETWORK_ERROR);
     }
@@ -312,7 +312,7 @@ std::string StockShareKline::GetFilePathOfDayKline(const std::string& share_code
 
 bool StockShareKline::GetYearWeek(const std::string& day, int& week) {
     struct tm day_tm;
-    if (!strptime(day.c_str(), "%Y-%m-%d", &day_tm)) {
+    if (!_strptime(day.c_str(), "%Y-%m-%d", &day_tm)) {
         return false;
     }
     week = day_tm.tm_yday / 7 + 1;

@@ -10,32 +10,64 @@
 
 #include "util/DateTime.h"
 #include <chrono>
+#include <clocale>
 #include <ctime>
 #include <iomanip>
 #include <iostream>
 #include <unordered_map>
 
-/// @brief windows不存在strptime函数
+/// @brief windows不存在_strptime函数
 /// @param s 日期字符串
 /// @param f 日期格式化字符串
 /// @param tm struct tm日期结构指针
 /// @return 格式化好的日期字符串
-extern "C" char* strptime(const char* s, const char* f, struct tm* tm) {
+extern "C" char* _strptime(const char* s, const char* f, struct tm* tm) {
     // Isn't the C++ standard lib nice? std::get_time is defined such that its
-    // format parameters are the exact same as strptime. Of course, we have to
+    // format parameters are the exact same as _strptime. Of course, we have to
     // create a string stream first, and imbue it with the current C locale, and
     // we also have to make sure we return the right things if it fails, or
     // if it succeeds, but this is still far simpler an implementation than any
     // of the versions in any of the C standard libraries.
     std::istringstream input(s);
-    input.imbue(std::locale(setlocale(LC_ALL, nullptr)));
+    char* _local = setlocale(LC_ALL, nullptr);
+    input.imbue(std::locale(_local));
     input >> std::get_time(tm, f);
     if (input.fail()) {
         return nullptr;
     }
+    // 修正 tm_yday 不正确的问题
+    tm->tm_yday = day_of_year(tm->tm_year + 1900, tm->tm_mon + 1, tm->tm_mday);
+    tm->tm_wday = week_of_day(tm->tm_year + 1900, tm->tm_mon + 1, tm->tm_mday);
     return (char*)(s + input.tellg());
 }
 
+int day_of_year(int year, int month, int day) {
+    static int days[] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+    // If current year is a leap year and the date
+    // given is after the 28th of February then
+    // it must include the 29th February
+    if (month > 2 && year % 4 == 0 && (year % 100 != 0 || year % 400 == 0)) {
+        ++day;
+    }
+    // Add the days in the previous months
+    while (month-- > 1) {
+        day = day + days[month - 1];
+    }
+    return day - 1;
+}
+
+int week_of_day(int year, int month, int day) {
+    if (month == 1 || month == 2) {
+        month += 12;
+        year--;
+    }
+    // 使用基姆拉尔森计算公式
+    int week = (day + 2 * month + 3 * (month + 1) / 5 + year + year / 4 - year / 100 + year / 400) % 7;
+    if (week == 6) {
+        return 0;
+    }
+    return week + 1;
+}
 /**
  * @param start_time 开始时间，格式要求 "09:00" 这种形式
  * @param end_time   结束时间，格式要求 "09:30" 这种形式
@@ -96,8 +128,8 @@ bool is_trade_day(const std::string& day) {
  */
 long long diff_seconds(const std::string& start_time, const std::string& end_time) {
     struct tm time1, time2;
-    if (!strptime(start_time.c_str(), "%Y-%m-%d %H:%M:%S", &time1) ||
-        !strptime(end_time.c_str(), "%Y-%m-%d %H:%M:%S", &time2)) {
+    if (!_strptime(start_time.c_str(), "%Y-%m-%d %H:%M:%S", &time1) ||
+        !_strptime(end_time.c_str(), "%Y-%m-%d %H:%M:%S", &time2)) {
         return -1;
     }
 
@@ -244,7 +276,7 @@ bool is_chinese_holiday(std::string day) {
 int compare_time(const std::string& time1, const std::string& time2) {
     std::tm tm1, tm2;
 
-    if (!strptime(time1.c_str(), "%Y-%m-%d %H:%M:%S", &tm1) || !strptime(time2.c_str(), "%Y-%m-%d %H:%M:%S", &tm2)) {
+    if (!_strptime(time1.c_str(), "%Y-%m-%d %H:%M:%S", &tm1) || !_strptime(time2.c_str(), "%Y-%m-%d %H:%M:%S", &tm2)) {
         return -1;
     }
 

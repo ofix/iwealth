@@ -23,6 +23,7 @@ class StockShareKline {
     RichResult QueryDayKlines(const std::string& share_code, std::vector<uiKline>** day_klines);
     static bool IsLocalFileExist(const std::string file_path);
     static bool IsLocalFileExpired(const std::string file_path);
+    static std::string GetFilePathOfDayKline(const std::string& share_code);
 
    protected:
     RichResult QueryPeriodKlines(
@@ -31,8 +32,6 @@ class StockShareKline {
         StockMemoryKline<uiKline>& memory_cache,
         std::function<std::vector<uiKline>(const std::vector<uiKline>& day_klines)> generate_callback);
     RichResult LoadLocalDayKline(const std::string file_path, std::vector<uiKline>& day_klines);
-
-    std::string GetFilePathOfDayKline(const std::string& share_code);
     // 日K线数据存储
     RichResult SaveShareDayKline(const std::string& share_code, const std::vector<uiKline>& klines);
     RichResult SaveIncrementalDayKlines(const std::string& share_code, const std::vector<uiKline>& klines);

@@ -205,7 +205,7 @@ bool UserFavoriteShare::CalcAllFavoriteSharesChangeRate() {
     //         // 计算最近 5 日的涨跌幅
     //         std::string fiveDaysAgo = currentDate;
     //         struct tm timeInfo;
-    //         if (strptime(fiveDaysAgo.c_str(), "%Y-%m-%d", &timeInfo)) {
+    //         if (_strptime(fiveDaysAgo.c_str(), "%Y-%m-%d", &timeInfo)) {
     //             timeInfo.tm_mday -= 5;
     //             mktime(&timeInfo);
     //             fiveDaysAgo = std::to_string(timeInfo.tm_year + 1900) + "-" + std::to_string(timeInfo.tm_mon + 1) +
@@ -233,7 +233,7 @@ bool UserFavoriteShare::CalcAllFavoriteSharesChangeRate() {
     //         // 计算最近 1 个月的涨跌幅
     //         std::string oneMonthAgo = currentDate;
     //         struct tm timeInfo2;
-    //         if (strptime(oneMonthAgo.c_str(), "%Y-%m-%d", &timeInfo2)) {
+    //         if (_strptime(oneMonthAgo.c_str(), "%Y-%m-%d", &timeInfo2)) {
     //             timeInfo2.tm_mon -= 1;
     //             mktime(&timeInfo2);
     //             oneMonthAgo = std::to_string(timeInfo2.tm_year + 1900) + "-" + std::to_string(timeInfo2.tm_mon + 1) +

@@ -9,6 +9,7 @@
 #include "ui/components/RichPanel.h"
 #include "ui/components/RichRadioCtrl.h"
 #include "ui/components/RichVolumeBarCtrl.h"
+#include "ui/events/RichRadioEvent.h"
 
 class RichPanelKline : public RichPanel {
    public:
@@ -27,6 +28,7 @@ class RichPanelKline : public RichPanel {
     void OnSize(wxSizeEvent& event);
     void OnKeyDown(wxKeyEvent& event);
     void OnLeftMouseDown(wxMouseEvent& event);
+    void OnKlineChanged(RichRadioEvent& event);
 
    protected:
     RichKlineCtrl* m_pKlineCtrl;
@@ -38,7 +40,7 @@ class RichPanelKline : public RichPanel {
     std::vector<uiKline>* m_pKlines;  // 当前需要显示的K线
    protected:
     static const long ID_SHARE_NAME_CTRL;
-    static const long ID_RAIDO_CTRL;
+    static const long ID_RADIO_CTRL;
     static const long ID_KLINE_CTRL;
     static const long ID_DIALOG_KLINE_INFO;
 

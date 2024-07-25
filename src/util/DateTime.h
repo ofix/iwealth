@@ -3,7 +3,11 @@
 
 #include <string>
 
-extern "C" char* strptime(const char* s, const char* f, struct tm* tm);
+extern "C" char* _strptime(const char* s, const char* f, struct tm* tm);
+// 计算某一天属于一年中的第几天
+int day_of_year(int year, int month, int day);
+// 计算某一天星期几
+int week_of_day(int year, int month, int day);
 // 检查当前时间是否在指定时间范围
 bool between_time_period(const std::string& start_time, const std::string& end_time);
 // 获取当前时间字符串，支持格式化

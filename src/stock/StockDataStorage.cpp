@@ -524,14 +524,19 @@ RichResult StockDataStorage::QueryKlines(const std::string& share_code,
                                          KlineType kline_type,
                                          std::vector<uiKline>** klines) {
     if (kline_type == KlineType::Day) {
+        std::cout << "日K线" << std::endl;
         return m_stock_klines->QueryDayKlines(share_code, klines);
     } else if (kline_type == KlineType::Week) {
+        std::cout << "周K线" << std::endl;
         return m_stock_klines->QueryWeekKlines(share_code, klines);
     } else if (kline_type == KlineType::Month) {
+        std::cout << "月K线" << std::endl;
         return m_stock_klines->QueryMonthKlines(share_code, klines);
     } else if (kline_type == KlineType::Quarter) {
+        std::cout << "季K线" << std::endl;
         return m_stock_klines->QueryQuarterKlines(share_code, klines);
     } else if (kline_type == KlineType::Year) {
+        std::cout << "年K线" << std::endl;
         return m_stock_klines->QueryYearKlines(share_code, klines);
     }
     return Error(RichStatus::DATA_NOT_FOUND);

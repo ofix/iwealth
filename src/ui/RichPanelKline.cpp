@@ -15,7 +15,7 @@
 const long RichPanelKline::ID_SHARE_NAME_CTRL = wxNewId();
 const long RichPanelKline::ID_KLINE_CTRL = wxNewId();
 const long RichPanelKline::ID_DIALOG_KLINE_INFO = wxNewId();
-const long RichPanelKline::ID_RAIDO_CTRL = wxNewId();
+const long RichPanelKline::ID_RADIO_CTRL = wxNewId();
 
 // 以下函数实现必须写，否则会爆错误 undefined reference to 'vtable for RichKlineCtrl'
 BEGIN_EVENT_TABLE(RichPanelKline, RichPanel)
@@ -24,6 +24,7 @@ EVT_SIZE(RichPanelKline::OnSize)
 EVT_LEFT_DOWN(RichPanelKline::OnLeftMouseDown)
 EVT_KEY_DOWN(RichPanelKline::OnKeyDown)
 EVT_ERASE_BACKGROUND(RichPanelKline::OnBackground)
+EVT_RICH_RADIO(RichPanelKline::ID_RADIO_CTRL, RichPanelKline::OnKlineChanged)
 END_EVENT_TABLE()
 
 RichPanelKline::RichPanelKline(PanelType type,
@@ -38,8 +39,8 @@ RichPanelKline::RichPanelKline(PanelType type,
     m_pShareNameCtrl->SetForegroundColour(wxColor(200, 200, 200));
 
     // 日/周/月/季/年 K线
-    std::vector<std::string> options = {"分时", "日线", "周线", "月线", "季线", "年线"};
-    m_pRadioCtrl = new RichRadioCtrl(options, 1, this, ID_RAIDO_CTRL, wxPoint(42, 2), wxSize(600, 28));
+    std::vector<std::string> options = {"分时", "五日", "日线", "周线", "月线", "季线", "年线"};
+    m_pRadioCtrl = new RichRadioCtrl(options, 2, this, ID_RADIO_CTRL, wxPoint(42, 2), wxSize(600, 28));
     // 事件绑定， Radio 控件将始终获取鼠标键盘焦点
     m_pRadioCtrl->Bind(wxEVT_LEFT_UP, &RichPanelKline::OnLeftMouseDown, this);
     // K线主图
@@ -109,4 +110,16 @@ void RichPanelKline::OnLeftMouseDown(wxMouseEvent& event) {
     m_pKlineCtrl->OnLeftMouseDown(event);
     Refresh();
     event.Skip();
+}
+
+void RichPanelKline::OnKlineChanged(RichRadioEvent& event) {
+    int selection = event.GetSelection();
+    bool result = m_pKlineCtrl->LoadKlines(static_cast<KlineType>(selection));
+    if (!result) {  // 数据有可能加载失败，弹窗提示用户
+    }
+    m_pShare = m_pStorage->FindShare(m_pKlineCtrl->GetShareCode());
+    if (m_pShare != nullptr) {  // 更新股票名称
+        m_pShareNameCtrl->SetLabel(CN(m_pShare->name));
+    }
+    this->Refresh();
 }

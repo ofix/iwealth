@@ -23,6 +23,8 @@ class RichKlineCtrl {
     KlineType GetMode() const;
 
     bool LoadKlines(const std::string& share_code, const KlineType& kline_type = KlineType::Day);
+    bool LoadKlines(const KlineType& kline_type);
+    std::string GetShareCode() const;
 
     void OnPaint(wxDC* pDC);
     void DrawMinuteKlines(wxDC* pDC);         // 分时图

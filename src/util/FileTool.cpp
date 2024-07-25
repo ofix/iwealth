@@ -314,17 +314,42 @@ std::ifstream& FileTool::GetLine(std::ifstream& ifs, std::string& line) {
     return ifs;
 }
 
-std::string FileTool::GetLastLineOfFile(const std::string& filename) {
-    std::ifstream file(filename);
-    if (!file.is_open()) {
-        return "";
-    }
+bool FileTool::GetLastLineOfFile(const std::string& filename, std::string& line) {
+    // std::ifstream file(filename);
+    // if (!file.is_open()) {
+    //     return "";
+    // }
 
-    std::string line, lastLine;
-    while (std::getline(file, line)) {
-        lastLine = line;
-    }
+    // std::string line, lastLine;
+    // while (std::getline(file, line)) {
+    //     lastLine = line;
+    // }
 
-    file.close();
-    return lastLine;
+    // file.close();
+    // return lastLine;
+    std::ifstream ifs;
+    char buffer[512];  // 一行最大512个字符
+    ifs.open(filename);
+    if (ifs.is_open()) {
+        ifs.seekg(-512, std::ios_base::end);  // 定位到文件末尾往前 1024 个字节
+        ifs.read(buffer, 512);
+        int start_pos = 0;
+        int end_pos = ifs.gcount() - 1;
+        while (buffer[end_pos] == '\n' || buffer[end_pos] == '\r') {  // 过滤末尾的\n或者\r
+            end_pos--;
+        }
+        for (int i = end_pos; i >= 0; i--) {  // 遍历实际读取的字节数
+            if (buffer[i] == '\n') {
+                start_pos = i + 1;
+                break;
+            }
+        }
+        line = "";
+        for (int i = start_pos; i <= end_pos; i++) {
+            line += buffer[i];
+        }
+        ifs.close();
+        return true;
+    }
+    return false;
 }
