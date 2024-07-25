@@ -155,7 +155,34 @@ RichResult StockShareKline::SaveShareDayKline(const std::string& share_code, con
 
 RichResult StockShareKline::SaveIncrementalDayKlines(const std::string& share_code,
                                                      const std::vector<uiKline>& klines) {
-    return Error(RichStatus::FILE_WRITE_FAILED);
+    if (klines.size() == 0) {
+        return Error(RichStatus::PARAMETER_ERROR);
+    }
+    std::string file_path = GetFilePathOfDayKline(share_code);
+    std::string lines = "";
+    for (const auto& kline : klines) {
+        std::string line = "";
+        line += kline.day + ",";
+        line += convert_double(kline.price_open) + ",";
+        line += convert_double(kline.price_close) + ",";
+        line += convert_double(kline.price_max) + ",";
+        line += convert_double(kline.price_min) + ",";
+        line += std::to_string(kline.volume) + ",";
+        line += convert_double(kline.amount) + ",";
+        line += convert_double(kline.change_amount) + ",";
+        line += convert_double(kline.change_rate) + ",";
+        line += convert_double(kline.turnover_rate) + "\n";
+        lines += line;
+    }
+    std::ofstream out;
+    out.open(file_path, std::ios::app);  // 以追加模式打开文件
+    if (out.is_open()) {
+        out << lines;
+        out.close();
+        return Success();
+    } else {
+        return Error(RichStatus::FILE_WRITE_FAILED);
+    }
 }
 
 RichResult StockShareKline::FetchDayKlines(const std::string& share_code, std::vector<uiKline>& day_klines) {
@@ -171,7 +198,7 @@ RichResult StockShareKline::FetchDayKlines(const std::string& share_code, std::v
 RichResult StockShareKline::FetchIncrementalDayKlines(const std::string& share_code, std::vector<uiKline>& day_klines) {
     Share* pShare = m_pStorage->FindShare(share_code);
     SpiderShareKline* pSpiderKline = new SpiderShareKline(nullptr);
-    std::string end_date = now("%Y-%m-%d");
+    std::string end_date = get_day_from_now(1);  // 请求需要明天的日期，才能下载当天的K线
     std::string file_path = GetFilePathOfDayKline(share_code);
     std::string last_line = "";
     bool result = FileTool::GetLastLineOfFile(file_path, last_line);
@@ -180,12 +207,20 @@ RichResult StockShareKline::FetchIncrementalDayKlines(const std::string& share_c
     }
     std::string start_date = last_line.substr(0, 10);
     int ndays = diff_days(start_date, end_date);
-    if (ndays == -1) {
+    if (ndays <= 0) {
         return Error(RichStatus::INNER_ERROR);
     }
-    result = pSpiderKline->CrawlIncrementDayKlineSync(pShare, end_date, ndays, day_klines);
+    std::vector<uiKline> tmp_klines;
+    result = pSpiderKline->CrawlIncrementDayKlineSync(pShare, end_date, ndays + 1, tmp_klines);
     if (!result) {
         return Error(RichStatus::NETWORK_ERROR);
+    }
+    for (size_t i = 0; i < tmp_klines.size(); i++) {
+        uiKline kline = tmp_klines[i];
+        if (kline.day == start_date) {
+            day_klines.assign(tmp_klines.begin() + i, tmp_klines.end());
+            break;
+        }
     }
     return Success();
 }

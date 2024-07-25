@@ -93,6 +93,22 @@ std::string now(const std::string& format) {
     return oss.str();
 }
 
+/**
+ * @brief  基于当天日期计算未来/过去的某一天日期
+ * @param ndays 从当天算起，间隔天数
+ * @return std::string YYYY-mm-dd 格式，比如 2024-07-25
+ */
+std::string get_day_from_now(int ndays) {
+    // using namespace std::literals::chrono_literals;
+    auto clock = std::chrono::system_clock::now();
+    clock += std::chrono::hours(24 * ndays);  // 24h
+    auto rawtime = std::chrono::system_clock::to_time_t(clock);
+
+    char buffer[80] = {};
+    std::strftime(buffer, 80, "%04Y-%m-%d", std::localtime(&rawtime));
+    return std::string(buffer);
+}
+
 std::string format_time(std::time_t t, const std::string format) {
     std::tm* localTime = std::localtime(&t);
     std::ostringstream oss;
@@ -140,17 +156,30 @@ long long diff_seconds(const std::string& start_time, const std::string& end_tim
 }
 
 /**
- * @param start_time 开始时间，格式要求 "2024-06-20" 这种形式
- * @param end_time   结束时间，格式要求 "2024-06-21" 这种形式
+ * @param start_day 开始时间，格式要求 "2024-06-20" 这种形式
+ * @param end_day  结束时间，格式要求 "2024-06-21" 这种形式
  * @result int: 时间间隔的天数
  */
 
-int diff_days(const std::string& start_time, const std::string& end_time) {
-    long long seconds = diff_seconds(start_time, end_time);
-    if (seconds == -1) {
+int diff_days(const std::string& start_day, const std::string& end_day) {
+    struct tm t1, t2;
+    if (!_strptime(start_day.c_str(), "%Y-%m-%d", &t1) || !_strptime(end_day.c_str(), "%Y-%m-%d", &t2)) {
         return -1;
     }
-    return static_cast<int>(seconds / (60 * 60 * 24));
+    // 时分秒，并不会被正确初始化
+    t1.tm_hour = 0;
+    t1.tm_min = 0;
+    t1.tm_sec = 0;
+    t2.tm_hour = 0;
+    t2.tm_min = 0;
+    t2.tm_sec = 0;
+
+    time_t time1 = mktime(&t1);
+    time_t time2 = mktime(&t2);
+
+    double diff_seconds = difftime(time2, time1);
+    int days = static_cast<int>(diff_seconds / (60 * 60 * 24));
+    return days;
 }
 
 /**

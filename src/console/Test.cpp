@@ -136,9 +136,9 @@ void TestDateTime() {
         if (!_strptime(day.c_str(), "%Y-%m-%d", &_tm1)) {
             continue;
         }
-        if (!strptime(day.c_str(), "%Y-%m-%d", &_tm2)) {
-            continue;
-        }
+        // if (!strptime(day.c_str(), "%Y-%m-%d", &_tm2)) {
+        //     continue;
+        // }
         std::cout << "+++ [" << day << "], tm.yday=" << _tm1.tm_yday << ", tm.wday=" << _tm1.tm_wday << std::endl;
         std::cout << "--- [" << day << "], tm.yday=" << _tm2.tm_yday << ", tm.wday=" << _tm2.tm_wday << std::endl;
     }

@@ -12,9 +12,12 @@ int week_of_day(int year, int month, int day);
 bool between_time_period(const std::string& start_time, const std::string& end_time);
 // 获取当前时间字符串，支持格式化
 std::string now(const std::string& format = "%Y-%m-%d %H:%M:%S");
+// 基于当天日期计算未来/过去的某一天日期
+std::string get_day_from_now(int ndays = 1);
 // 检查两个时间字符串间隔的秒数
 long long diff_seconds(const std::string& start_time, const std::string& end_time);
-int diff_days(const std::string& start_time, const std::string& end_time);
+// 计算两个日期之间相隔的天数
+int diff_days(const std::string& start_day, const std::string& end_day);
 // 获取最近交易日
 std::string get_nearest_trade_day(int days = 0);
 // 检查日期是否是中国节假日
