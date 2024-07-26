@@ -17,6 +17,7 @@ class SpiderShareBriefInfo;
 class SpiderConceptListEastMoney;
 class SpiderShareKline;
 class SpiderShareCategory;
+class SpiderCompositeIndex;
 class Spider;
 class StockShareKline;
 class StockDataStorage {
@@ -164,6 +165,7 @@ class StockDataStorage {
     friend class SpiderConceptListEastMoney;  // 东方财富题材概念列表爬虫
     friend class SpiderShareKline;            // 百度财经股票历史K线数据爬虫
     friend class SpiderShareCategory;         // 地域板块/概念板块/行业版块数据爬虫
+    friend class SpiderCompositeIndex;        // 各大股指行情和成分股信息爬虫
 };
 
 #endif  // StockDataStorage_H

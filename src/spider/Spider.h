@@ -1,10 +1,13 @@
-#pragma once
+#ifndef SPIDER_H
+#define SPIDER_H
+
 #include <chrono>
 #include <string>
 #include "net/Conn.h"
 #include "net/Request.h"
 #include "net/RequestStatistics.h"
 #include "stock/Stock.h"
+#include "util/Macro.h"
 
 struct KlineCrawlTask {
     DataProvider provider;
@@ -58,3 +61,5 @@ class Spider {
     std::chrono::milliseconds m_timeConsume;                     // 爬虫消耗的时间
     std::vector<RequestStatistics*> m_statisticsList;            // 爬取统计
 };
+
+#endif

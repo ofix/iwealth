@@ -112,11 +112,7 @@ bool SpiderShareKline::CrawlSync(Share* pShare, KlineType kline_type, std::vecto
     request.pExtra = pExtra;
     requests.push_back(request);
     bool result = Start(requests, "sync_kline", 1);
-    if (pExtra) {
-        std::cout << "释放 pExtra" << std::endl;
-        delete pExtra;
-        pExtra = nullptr;
-    }
+    DELETE_RESOURCE(pExtra);
     if (result) {
         MergeShareKlines(m_concurrent_day_klines_adjust, period_klines);
     }
