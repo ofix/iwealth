@@ -41,22 +41,6 @@ class RichKlineCtrl {
 
     void DrawMinuteKlineBackground(wxDC* pDC);
     void DrawMinuteKlineCurves(wxDC* pDC);
-
-    void DrawKline(wxDC* pDC,
-                   int nKLine,
-                   int visibleKLineCount,
-                   float price_open,
-                   float price_close,
-                   float price_max,
-                   float price_min,
-                   float rect_price_high,
-                   float rect_price_low,
-                   int minX,
-                   int minY,
-                   int maxX,
-                   int maxY,
-                   int lineWidth,
-                   int lineSpan);
     void DrawCrossLine(wxDC* pDC, int centerX, int centerY, int w, int h);  // 光标十字线
     void DrawAnalysisBar(wxDC* pDC);
     void DrawEmaCurves(wxDC* pDC,
@@ -108,10 +92,11 @@ class RichKlineCtrl {
     std::vector<minuteKline> m_fiveDayKlines;   // 5日分时图
 
     uiKlineRange m_klineRng;
-    int m_paddingTop;        // padding top for klines control
-    int m_paddingBottom;     // padding bottom for klines control
-    int m_paddingRight;      // padding right for klines control
-    bool m_showAnalysisBar;  // if true, draw volume,MCDA,KDJ index
+    int m_visibleKlineCount;  // 可见的K线数量
+    int m_paddingTop;         // padding top for klines control
+    int m_paddingBottom;      // padding bottom for klines control
+    int m_paddingRight;       // padding right for klines control
+    bool m_showAnalysisBar;   // if true, draw volume,MCDA,KDJ index
     int m_analysisType;
     friend class RichDialogKlineInfo;
     friend class RichVolumeBarCtrl;

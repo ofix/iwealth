@@ -104,8 +104,9 @@ std::string get_day_from_now(int ndays) {
     clock += std::chrono::hours(24 * ndays);  // 24h
     auto rawtime = std::chrono::system_clock::to_time_t(clock);
 
+    std::tm* local_time = std::localtime(&rawtime);
     char buffer[80] = {};
-    std::strftime(buffer, 80, "%04Y-%m-%d", std::localtime(&rawtime));
+    std::strftime(buffer, 80, "%Y-%m-%d", local_time);
     return std::string(buffer);
 }
 
