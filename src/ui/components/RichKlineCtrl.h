@@ -60,6 +60,9 @@ class RichKlineCtrl {
     bool HasEmaCurve();
     float GetRectMinPrice(std::vector<uiKline>& uiKlines, int begin, int end);
     float GetRectMaxPrice(std::vector<uiKline>& uiKlines, int begin, int end);
+    float GetRectMinPrice(std::vector<minuteKline>& minuteKlines, int begin, int end);
+    float GetRectMaxPrice(std::vector<minuteKline>& minuteKlines, int begin, int end);
+    void CalcMinuteKlineAvgPrice(std::vector<minuteKline>& minuteKlines, std::vector<double>& avg_price);
     uiKlineRange GetKlineRangeZoomIn(long totalKLines,
                                      long widthContainer,
                                      int16_t klineWidth = 5,

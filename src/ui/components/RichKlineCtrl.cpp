@@ -679,6 +679,16 @@ void RichKlineCtrl::DrawMinuteKlines(wxDC* pDC) {
     pPtList->Clear();
     delete pPtList;
     pPtList = nullptr;
+    // 绘制均线
+}
+
+void RichKlineCtrl::CalcMinuteKlineAvgPrice(std::vector<minuteKline>& minuteKlines, std::vector<double>& avg_price) {
+    double price = 0.0;
+    int nklines = 0;
+    for (const auto& kline : minuteKlines) {
+        nklines += 1;
+        avg_price.push_back(kline.price / nklines);
+    }
 }
 
 void RichKlineCtrl::DrawMinuteKlineBackground(wxDC* pDC) {
