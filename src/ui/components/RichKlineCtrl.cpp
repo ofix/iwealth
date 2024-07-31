@@ -630,9 +630,57 @@ bool RichKlineCtrl::HasEmaCurve() {
     return false;
 }
 
+float RichKlineCtrl::GetRectMinPrice(std::vector<minuteKline>& minuteKlines, int begin, int end) {
+    float min = 100000000;
+    for (int i = begin; i <= end; i++) {
+        if (minuteKlines.at(i).price_min < min) {
+            min = minuteKlines.at(i).price_min;
+        }
+    }
+    return min;
+}
+float RichKlineCtrl::GetRectMaxPrice(std::vector<minuteKline>& minuteKlines, int begin, int end) {
+    float max = -100000000;
+    for (int i = begin; i <= end; i++) {
+        if (minuteKlines.at(i).price_max > max) {
+            max = minuteKlines.at(i).price_max;
+        }
+    }
+    return max;
+}
+
 ////////////////////// 分时图相关函数  //////////////////////
 void RichKlineCtrl::DrawMinuteKlines(wxDC* pDC) {
+    // 绘制曲线
+    pDC->SetPen(wxPen(wxColor(255, 255, 0)));
+    wxPointList* pPtList = new wxPointList();
+    int nKline = 0;
+    size_t nKlines = m_pMinuteKlines->size() - 1;
+    double x, y;
+    double wRect = GetInnerWidth();
+    double hRect = GetInnerHeight();
+    double rect_price_max = GetRectMaxPrice(*m_pMinuteKlines, 0, nKlines - 1);
+    double rect_price_min = GetRectMinPrice(*m_pMinuteKlines, 0, nKlines - 1);
+    double hPrice = rect_price_max - rect_price_min;
+    double hScale = hRect / hPrice;
+
+    for (size_t i = 0; i < nKlines; i++) {
+        double ema_price = curve.ema_price.at(i);
+        // 定义样条曲线的控制点
+        x = static_cast<int>(nKline * wRect / nKlines);
+        y = static_cast<int>((rect_price_max - ema_price) * hScale + 0);
+        wxPoint* pt = new wxPoint(x, y);
+        pPtList->Append(pt);
+        nKline += 1;
+    }
+    // 使用三次样条曲线绘制平滑曲线
+    pDC->DrawSpline(pPtList);
+    pPtList->DeleteContents(true);
+    pPtList->Clear();
+    delete pPtList;
+    pPtList = nullptr;
 }
+
 void RichKlineCtrl::DrawMinuteKlineBackground(wxDC* pDC) {
     wxColor clr(255, 0, 0);
     const int nrows = 16;
