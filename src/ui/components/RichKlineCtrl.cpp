@@ -24,8 +24,9 @@ RichKlineCtrl::RichKlineCtrl(StockDataStorage* pStorage, const wxPoint& pos, con
 
 void RichKlineCtrl::Init() {
     m_mode = KlineType::Day;
-    m_klineWidth = 5;
+    m_klineWidth = 7;
     m_klineSpan = m_klineWidth * 0.8;
+    m_scaleKlineSize = 0;
     m_shareCode = "";
     m_klineRng.begin = 0;
     m_klineRng.end = 0;
@@ -184,6 +185,20 @@ float RichKlineCtrl::GetRectMaxPrice(std::vector<uiKline>& uiKlines, int begin, 
     return max;
 }
 
+void RichKlineCtrl::CalcLineWidth() {
+    double w = m_width / m_klineCount;
+    if (m_klineCount * 2 < m_width) {  // 需要显示的K线数量 < 显示容器宽度的一半
+        int m_klineWidth = w * 0.75;
+        int m_klineSpan = w * 0.25;
+        if (m_klineWidth > 1 && m_klineWidth % 2 == 0) {
+            m_klineWidth -= 1;
+        }
+        m_klineCount = m_width / (m_klineWidth + m_klineWidth)
+    } else {
+        int m_klineWidth = w;
+        int m_klineSpan = 0;
+    }
+}
 /**
  *@todo 获取K线的范围
  *@param long totalKLines //总共的K线数

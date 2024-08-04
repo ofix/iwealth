@@ -71,6 +71,7 @@ class RichKlineCtrl {
     uiKlineRange GetKlineRangeZoomOut(long totalKLines,
                                       long crossLine = NO_CROSS_LINE);  // 以十字线为中心，否则右侧缩放
     wxPoint GetCrossLinePt(long n);
+    void CalcLineWidth();
 
    protected:
     void RemoveCache();
@@ -81,6 +82,8 @@ class RichKlineCtrl {
     int m_curKline;         // the current k line under the cursor
     int m_klineWidth;       // single k line width
     int m_klineSpan;        // span between two single k line
+    int m_klineCount;       // 当前绘制的K线数量
+    int m_scaleKlineSize;   // 每次放大/缩小的K线数量
     float m_rectPriceMax;   // the maximum price in the drawing rect
     float m_rectPriceMin;   // the minimum price in the drawing rect
     wxPoint m_crossLinePt;  // the current k line mouse point
