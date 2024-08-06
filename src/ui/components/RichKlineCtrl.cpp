@@ -193,7 +193,7 @@ void RichKlineCtrl::CalcLineWidth() {
         if (m_klineWidth > 1 && m_klineWidth % 2 == 0) {
             m_klineWidth -= 1;
         }
-        m_klineCount = m_width / (m_klineWidth + m_klineWidth)
+        m_klineCount = m_width / (m_klineWidth + m_klineWidth);
     } else {
         int m_klineWidth = w;
         int m_klineSpan = 0;
@@ -648,8 +648,8 @@ bool RichKlineCtrl::HasEmaCurve() {
 float RichKlineCtrl::GetRectMinPrice(std::vector<minuteKline>& minuteKlines, int begin, int end) {
     float min = 100000000;
     for (int i = begin; i <= end; i++) {
-        if (minuteKlines.at(i).price_min < min) {
-            min = minuteKlines.at(i).price_min;
+        if (minuteKlines.at(i).price < min) {
+            min = minuteKlines.at(i).price;
         }
     }
     return min;
@@ -657,8 +657,8 @@ float RichKlineCtrl::GetRectMinPrice(std::vector<minuteKline>& minuteKlines, int
 float RichKlineCtrl::GetRectMaxPrice(std::vector<minuteKline>& minuteKlines, int begin, int end) {
     float max = -100000000;
     for (int i = begin; i <= end; i++) {
-        if (minuteKlines.at(i).price_max > max) {
-            max = minuteKlines.at(i).price_max;
+        if (minuteKlines.at(i).price > max) {
+            max = minuteKlines.at(i).price;
         }
     }
     return max;
@@ -679,15 +679,15 @@ void RichKlineCtrl::DrawMinuteKlines(wxDC* pDC) {
     double hPrice = rect_price_max - rect_price_min;
     double hScale = hRect / hPrice;
 
-    for (size_t i = 0; i < nKlines; i++) {
-        double ema_price = curve.ema_price.at(i);
-        // 定义样条曲线的控制点
-        x = static_cast<int>(nKline * wRect / nKlines);
-        y = static_cast<int>((rect_price_max - ema_price) * hScale + 0);
-        wxPoint* pt = new wxPoint(x, y);
-        pPtList->Append(pt);
-        nKline += 1;
-    }
+    // for (size_t i = 0; i < nKlines; i++) {
+    //     double ema_price = curve.ema_price.at(i);
+    //     // 定义样条曲线的控制点
+    //     x = static_cast<int>(nKline * wRect / nKlines);
+    //     y = static_cast<int>((rect_price_max - ema_price) * hScale + 0);
+    //     wxPoint* pt = new wxPoint(x, y);
+    //     pPtList->Append(pt);
+    //     nKline += 1;
+    // }
     // 使用三次样条曲线绘制平滑曲线
     pDC->DrawSpline(pPtList);
     pPtList->DeleteContents(true);
