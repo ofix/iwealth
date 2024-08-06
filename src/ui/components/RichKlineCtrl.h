@@ -71,7 +71,7 @@ class RichKlineCtrl {
     uiKlineRange GetKlineRangeZoomOut(long totalKLines,
                                       long crossLine = NO_CROSS_LINE);  // 以十字线为中心，否则右侧缩放
     wxPoint GetCrossLinePt(long n);
-    void CalcLineWidth();
+    void CalcVisibleKlineWidth();
 
    protected:
     void RemoveCache();
