@@ -26,23 +26,29 @@ class RichKlineCtrl {
     bool LoadKlines(const KlineType& kline_type);
     std::string GetShareCode() const;
 
-    void OnPaint(wxDC* pDC);
-    void DrawMinuteKlines(wxDC* pDC);         // 分时图
-    void DrawFiveDayMinuteKlines(wxDC* pDC);  // 5日分时图
-    void DrawDayKlines(wxDC* pDC);            // 日K线|周K线|月K线|季K线|年K线
     void OnBackground(wxEraseEvent& event);
     void OnSize(wxSizeEvent& event);
     void OnKeyDown(wxKeyEvent& event);
     void OnLeftMouseDown(wxMouseEvent& event);
+    void ZoomIn();   // 放大K线图
+    void ZoomOut();  // 以十字线为中心，否则右侧缩放
+    void CalcVisibleKlineWidth();
+    wxPoint GetCrossLinePt(long n);
+
+    // 绘制函数
+    void OnPaint(wxDC* pDC);
 
    protected:
     int GetInnerWidth();
     int GetInnerHeight();
+    float GetRectMinPrice(std::vector<uiKline>& uiKlines, int begin, int end);
+    float GetRectMaxPrice(std::vector<uiKline>& uiKlines, int begin, int end);
+    float GetRectMinPrice(std::vector<minuteKline>& minuteKlines, int begin, int end);
+    float GetRectMaxPrice(std::vector<minuteKline>& minuteKlines, int begin, int end);
 
-    void DrawMinuteKlineBackground(wxDC* pDC);
-    void DrawMinuteKlineCurves(wxDC* pDC);
+    // 日K线|周K线|月K线|季K线|年K线
+    void DrawDayKlines(wxDC* pDC);
     void DrawCrossLine(wxDC* pDC, int centerX, int centerY, int w, int h);  // 光标十字线
-    void DrawAnalysisBar(wxDC* pDC);
     void DrawEmaCurves(wxDC* pDC,
                        int visibleKLineCount,
                        float rect_price_max,
@@ -53,25 +59,19 @@ class RichKlineCtrl {
                        int maxY,
                        int klineWidth,
                        int klineSpan);                            // 绘制所有EMA曲线
-    bool HideEmaCurve(int n);                                     // 隐藏周期为n的EMA平滑移动价格曲线
     bool ShowEmaCurve(int n);                                     // 显示周期为n的EMA平滑移动价格曲线
+    bool HideEmaCurve(int n);                                     // 隐藏周期为n的EMA平滑移动价格曲线
     bool AddEmaCurve(int n, wxColor color, bool visible = true);  // 添加周期为n的EMA平滑移动价格曲线
     bool DelEmaCurve(int n);                                      // 删除周期为n的EMA平滑移动价格曲线
-    bool HasEmaCurve();
-    float GetRectMinPrice(std::vector<uiKline>& uiKlines, int begin, int end);
-    float GetRectMaxPrice(std::vector<uiKline>& uiKlines, int begin, int end);
-    float GetRectMinPrice(std::vector<minuteKline>& minuteKlines, int begin, int end);
-    float GetRectMaxPrice(std::vector<minuteKline>& minuteKlines, int begin, int end);
+    bool HasEmaCurve();                                           // 判断是否显示EMA曲线
+
+    // 分时图/5日分时图
     void CalcMinuteKlineAvgPrice(std::vector<minuteKline>& minuteKlines, std::vector<double>& avg_price);
-    uiKlineRange GetKlineRangeZoomIn(long totalKLines,
-                                     long widthContainer,
-                                     int16_t klineWidth = 5,
-                                     int16_t klineSpan = 2,
-                                     long crossLine = NO_CROSS_LINE);  // 放大K线图
-    uiKlineRange GetKlineRangeZoomOut(long totalKLines,
-                                      long crossLine = NO_CROSS_LINE);  // 以十字线为中心，否则右侧缩放
-    wxPoint GetCrossLinePt(long n);
-    void CalcVisibleKlineWidth();
+    void DrawFiveDayMinuteKlines(wxDC* pDC);    // 5日分时图
+    void DrawMinuteKlines(wxDC* pDC);           // 分时图
+    void DrawMinuteKlineBackground(wxDC* pDC);  // 分时图背景
+    void DrawMinuteKlineCurves(wxDC* pDC);      // 分时图曲线
+    void DrawAnalysisBar(wxDC* pDC);
 
    protected:
     void RemoveCache();
@@ -79,14 +79,13 @@ class RichKlineCtrl {
     wxPoint m_pos;     // 起始位置
     int m_width;
     int m_height;
-    int m_curKline;         // the current k line under the cursor
-    int m_klineWidth;       // single k line width
-    int m_klineSpan;        // span between two single k line
-    int m_klineCount;       // 当前绘制的K线数量
-    int m_scaleKlineSize;   // 每次放大/缩小的K线数量
-    float m_rectPriceMax;   // the maximum price in the drawing rect
-    float m_rectPriceMin;   // the minimum price in the drawing rect
-    wxPoint m_crossLinePt;  // the current k line mouse point
+    int m_curKline;           // the current k line under the cursor
+    double m_klineWidth;      // K线宽度，有可能为小数
+    double m_klineSpan;       // K线间距，当K线数量超过屏幕像素，间距为0
+    int m_visibleKlineCount;  // 可见的K线数量
+    float m_rectPriceMax;     // the maximum price in the drawing rect
+    float m_rectPriceMin;     // the minimum price in the drawing rect
+    wxPoint m_crossLinePt;    // the current k line mouse point
     int m_crossLine;
 
     StockDataStorage* m_pStorage;               // 股票存储中心
@@ -98,11 +97,11 @@ class RichKlineCtrl {
     std::vector<minuteKline> m_fiveDayKlines;   // 5日分时图
 
     uiKlineRange m_klineRng;
-    int m_visibleKlineCount;  // 可见的K线数量
-    int m_paddingTop;         // padding top for klines control
-    int m_paddingBottom;      // padding bottom for klines control
-    int m_paddingRight;       // padding right for klines control
-    bool m_showAnalysisBar;   // if true, draw volume,MCDA,KDJ index
+
+    int m_paddingTop;        // padding top for klines control
+    int m_paddingBottom;     // padding bottom for klines control
+    int m_paddingRight;      // padding right for klines control
+    bool m_showAnalysisBar;  // if true, draw volume,MCDA,KDJ index
     int m_analysisType;
     friend class RichDialogKlineInfo;
     friend class RichVolumeBarCtrl;

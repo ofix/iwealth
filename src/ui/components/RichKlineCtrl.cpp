@@ -25,8 +25,8 @@ RichKlineCtrl::RichKlineCtrl(StockDataStorage* pStorage, const wxPoint& pos, con
 void RichKlineCtrl::Init() {
     m_mode = KlineType::Day;
     m_klineWidth = 7;
-    m_klineSpan = m_klineWidth * 0.8;
-    m_scaleKlineSize = 0;
+    m_klineSpan = 3;
+    m_visibleKlineCount = 120;
     m_shareCode = "";
     m_klineRng.begin = 0;
     m_klineRng.end = 0;
@@ -72,8 +72,6 @@ bool RichKlineCtrl::LoadKlines(const std::string& share_code, const KlineType& k
     m_klineRng.begin = (m_pKlines->size() - 1 > 120) ? m_pKlines->size() - 1 - 120 : 0;
     m_klineRng.end = m_pKlines->size() - 1;
 
-    // m_klineRng = GetKlineRangeZoomIn(m_pKlines->size(), m_width, m_klineWidth, m_klineSpan);
-
     // 添加 EMA 曲线的时候会自动计算相关数据
     // AddEmaCurve(99, wxColor(255, 0, 255));
     // AddEmaCurve(255, wxColor(255, 255, 0));
@@ -104,29 +102,150 @@ KlineType RichKlineCtrl::GetMode() const {
     return m_mode;
 }
 
+/**
+ * @func 获取第N条日K线的十字线位置
+ * @param long n 从左往右数第N条K线
+ * @param return wxPoint
+ * @author songhuabiao
+ */
+wxPoint RichKlineCtrl::GetCrossLinePt(long n) {
+    double x, y;
+    uiKline item = m_pKlines->at(n);
+    double hPrice = m_rectPriceMax - m_rectPriceMin;
+    y = m_paddingTop + (1 - (item.price_close - m_rectPriceMin) / hPrice) * GetInnerHeight();
+    x = (m_klineWidth + m_klineSpan) * (n - m_klineRng.begin) + m_klineWidth / 2;  // 一定可以显示完全
+    return wxPoint(x, y);
+}
+
+/**
+ *@todo 放大日/周/月/季/年K线,K线数量变少
+ *@return KlineRange
+ *@author songhuabiao
+ */
+void RichKlineCtrl::ZoomIn() {
+    if (m_crossLine == NO_CROSS_LINE) {
+        m_crossLine = m_pKlines->size() - 1;  // 放大中心为最右边K线
+    }
+    // 可见K线数量少于8，不再放大
+    if (m_klineRng.end <= m_klineRng.begin + 8) {
+        return;
+    }
+    // 计算放大中心两边的K线数量
+    double leftKlineCount = m_crossLine - m_klineRng.begin;
+    double rightKlineCount = m_klineRng.end - m_crossLine;
+    int removeKlineCount = (m_klineRng.end - m_klineRng.begin) / 2;
+    // 将当前可见范围内的的K线数量按照左右K线比例进行减少，减少的k线数量为当前显示K线数量的一半
+    m_klineRng.begin += removeKlineCount * (leftKlineCount) / (leftKlineCount + rightKlineCount);
+    m_klineRng.end -= removeKlineCount * (rightKlineCount) / (leftKlineCount + rightKlineCount);
+    m_visibleKlineCount = m_klineRng.end - m_klineRng.begin + 1;
+    CalcVisibleKlineWidth();
+}
+
+/**
+ * @todo 缩小日/周/月/季/年K线，K线数量变多
+ * @param int
+ */
+void RichKlineCtrl::ZoomOut() {
+    if (m_crossLine == NO_CROSS_LINE) {
+        m_crossLine = m_pKlines->size() - 1;  // 放大中心为最右边K线
+    }
+    // 可见K线数量已全部显示，不再缩小
+    if (m_klineRng.end - m_klineRng.begin >= m_pKlines->size()) {
+        return;
+    }
+    // 计算放大中心两边的K线数量
+    double leftKlineCount = m_crossLine - m_klineRng.begin;
+    double rightKlineCount = m_klineRng.end - m_crossLine;
+    int removeKlineCount = (m_klineRng.end - m_klineRng.begin) / 2;
+    // 将当前可见范围内的的K线数量按照左右K线比例进行减少，减少的k线数量为当前显示K线数量的一半
+    m_klineRng.begin -= removeKlineCount * (leftKlineCount) / (leftKlineCount + rightKlineCount);
+    m_klineRng.end += removeKlineCount * (rightKlineCount) / (leftKlineCount + rightKlineCount);
+    // 缩放后，显示K线范围有可能超过边界，必须加以限制
+    if (m_klineRng.begin < 0) {
+        m_klineRng.begin = 0;
+    }
+    if (m_klineRng.end > m_pKlines->size() - 1) {
+        m_klineRng.end = m_pKlines->size() - 1;
+    }
+    m_visibleKlineCount = m_klineRng.end - m_klineRng.begin + 1;
+    std::cout << "Range: " << m_klineRng.begin << "," << m_klineRng.end << "," << m_crossLine << std::endl;
+    CalcVisibleKlineWidth();
+}
+
+void RichKlineCtrl::OnBackground(wxEraseEvent& event) {
+    wxDC* pDC = event.GetDC();
+    pDC->SetBrush(wxBrush(wxColour(0, 0, 0)));
+}
+
+void RichKlineCtrl::OnSize(wxSizeEvent& event) {
+    wxSize size = event.GetSize();
+    m_width = size.GetWidth();
+    m_height = size.GetHeight();
+    // m_klineRng = GetKlineRangeZoomIn(m_pKlines->size(), m_width, m_klineWidth, m_klineSpan);
+}
+
+void RichKlineCtrl::OnKeyDown(wxKeyEvent& event) {
+    int max = m_pKlines->size();
+    int key = event.GetKeyCode();
+    if (key == WXK_LEFT) {
+        if (m_klineRng.begin == 0) {  // 左移
+            return;
+        }
+        if (m_crossLine == m_klineRng.begin) {
+            m_klineRng.begin -= 1;
+            m_klineRng.end -= 1;
+        } else if (m_crossLine >= m_klineRng.begin && m_crossLine <= m_klineRng.end) {
+            if (m_crossLine != 0) {
+                m_crossLine -= 1;
+                m_crossLinePt = GetCrossLinePt(m_crossLine);
+            }
+        }
+    } else if (key == WXK_RIGHT) {  // 右移
+        if (m_crossLine == m_klineRng.end && m_klineRng.end != max) {
+            m_klineRng.begin += 1;
+            m_klineRng.end += 1;
+        } else if (m_crossLine >= m_klineRng.begin && m_crossLine <= m_klineRng.end) {
+            if (m_crossLine != max - 1) {
+                m_crossLine += 1;
+                m_crossLinePt = GetCrossLinePt(m_crossLine);
+            }
+        }
+    } else if (key == WXK_UP) {  // 放大，K线数量变少
+        ZoomIn();
+    } else if (key == WXK_DOWN) {  // 缩小，K线数量变多
+        ZoomOut();
+    } else if (key == WXK_HOME) {
+        m_crossLine = m_klineRng.begin;
+    } else if (key == WXK_END) {
+        m_crossLine = m_klineRng.end;
+    } else if (key == WXK_ESCAPE) {
+        m_crossLine = NO_CROSS_LINE;
+    }
+
+    if (m_crossLine != NO_CROSS_LINE) {
+        if (m_crossLine >= m_klineRng.begin && m_crossLine <= m_klineRng.end) {
+            m_crossLinePt = GetCrossLinePt(m_crossLine);  // 修正十字线的位置
+        }
+    }
+}
+
+void RichKlineCtrl::OnLeftMouseDown(wxMouseEvent& event) {
+    if (event.LeftIsDown()) {  // 左键按下
+        long x, y;
+        event.GetPosition(&x, &y);
+        // 获取最靠近的K线
+        int k = x / (m_klineWidth + m_klineSpan);
+        m_crossLine = m_klineRng.begin + k;
+        m_crossLinePt = GetCrossLinePt(m_crossLine);
+    }
+}
+
 int RichKlineCtrl::GetInnerWidth() {
     return m_width - m_paddingRight;
 }
 
 int RichKlineCtrl::GetInnerHeight() {
     return m_height * 0.7 - m_paddingTop - m_paddingBottom;
-}
-
-/**
- * @func 绘制十字线
- * @param wxDC* pDC 设备绘制上下文
- * @param int centerX 十字线中心X坐标
- * @param int centerY 十字线中心Y坐标
- * @param int w 控件宽度
- * @param int h 控件高度
- * @author songhuabiao
- */
-void RichKlineCtrl::DrawCrossLine(wxDC* pDC, int centerX, int centerY, int w,
-                                  int h) {  // 光标十字线
-    wxPen dash_pen(wxColor(200, 200, 200), 1, wxPENSTYLE_DOT);
-    pDC->SetPen(dash_pen);
-    pDC->DrawLine(0, centerY, w, centerY);  // 横线
-    pDC->DrawLine(centerX, 0, centerX, h);  // 竖线
 }
 
 /**
@@ -158,6 +277,26 @@ float RichKlineCtrl::GetRectMinPrice(std::vector<uiKline>& uiKlines, int begin, 
     return min;
 }
 
+// 获取显示区域最低价格
+float RichKlineCtrl::GetRectMinPrice(std::vector<minuteKline>& minuteKlines, int begin, int end) {
+    float min = 100000000;
+    for (int i = begin; i <= end; i++) {
+        if (minuteKlines.at(i).price < min) {
+            min = minuteKlines.at(i).price;
+        }
+    }
+    return min;
+}
+// 获取显示区域最高价格
+float RichKlineCtrl::GetRectMaxPrice(std::vector<minuteKline>& minuteKlines, int begin, int end) {
+    float max = -100000000;
+    for (int i = begin; i <= end; i++) {
+        if (minuteKlines.at(i).price > max) {
+            max = minuteKlines.at(i).price;
+        }
+    }
+    return max;
+}
 /**
  *@todo 获取日K线最高价
  *@param vector<uiKline> uiKlines 日/周/月/季/年K线数据
@@ -188,18 +327,21 @@ float RichKlineCtrl::GetRectMaxPrice(std::vector<uiKline>& uiKlines, int begin, 
 }
 
 void RichKlineCtrl::CalcVisibleKlineWidth() {
-    double w = m_width / m_visibleKlineCount;
+    double w = static_cast<double>(m_width) / m_visibleKlineCount;
     if (m_visibleKlineCount * 2 < m_width) {  // 需要显示的K线数量 < 显示容器宽度的一半
-        int m_klineWidth = w * 0.75;
-        int m_klineSpan = w * 0.25;
-        if (m_klineWidth > 1 && m_klineWidth % 2 == 0) {
+        m_klineWidth = w * 0.8;
+        m_klineSpan = w * 0.2;
+
+        if (m_klineWidth > 3 && static_cast<int>(m_klineWidth) % 2 == 0) {
+            m_klineWidth = (int)std::round(m_klineWidth);
             m_klineWidth -= 1;
         }
         m_visibleKlineCount = m_width / (m_klineWidth + m_klineWidth);
     } else {
-        int m_klineWidth = w;
-        int m_klineSpan = 0;
+        m_klineWidth = w;
+        m_klineSpan = 0;
     }
+    // std::cout << "kline width: " << m_klineWidth << std::endl;
     // 根据K线宽度计算起始坐标和放大坐标
     if (m_crossLine == NO_CROSS_LINE) {
         m_klineRng.begin = m_pKlines->size() - m_visibleKlineCount;
@@ -208,88 +350,6 @@ void RichKlineCtrl::CalcVisibleKlineWidth() {
             m_klineRng.begin = 0;
         }
     }
-}
-/**
- *@todo 获取K线的范围
- *@param long totalKLines //总共的K线数
- *@param long rect 容器的宽度
- *@param int16_t klineWidth 日K线的宽度
- *@param int16_t klineSpan 日K线的间距
- *@param long crossLine 十字线所在位置
- *@return KlineRange
- *@author songhuabiao
- */
-uiKlineRange RichKlineCtrl::GetKlineRangeZoomIn(long totalKlines,
-                                                long rect,
-                                                int16_t klineWidth,
-                                                int16_t klineSpan,
-                                                long crossLine) {
-    uiKlineRange rng;
-    long count = rect / (klineWidth + klineSpan);
-    if (count > totalKlines) {
-        count = totalKlines - 1;
-    }
-    if (crossLine != NO_CROSS_LINE) {
-        long left = crossLine - m_klineRng.begin;
-        long right = m_klineRng.end - crossLine;
-        long removed = abs(left + right - count);
-        if (count > left + right) {  // more klines to be shown
-            rng.begin = m_klineRng.begin - removed * left / (left + right);
-            rng.end = m_klineRng.end + removed * right / (left + right);
-        } else {  // less klines to be shown
-            rng.begin = m_klineRng.begin + removed * left / (left + right);
-            rng.end = m_klineRng.end - removed * right / (left + right);
-        }
-    } else {
-        rng.begin = totalKlines - 1 - count;
-        rng.end = totalKlines - 1;
-    }
-
-    return rng;
-}
-
-/**
- * @todo 根据 十字线 位置，计算缩小查看的日K线可视范围
- * @param int
- */
-uiKlineRange RichKlineCtrl::GetKlineRangeZoomOut(long totalKLines, long crossLine) {
-    uiKlineRange rng;
-    if (crossLine != NO_CROSS_LINE) {
-        long left = crossLine - m_klineRng.begin;
-        long right = m_klineRng.end - crossLine;
-        rng.begin = m_klineRng.begin - 360 * left / (left + right);
-        rng.end = m_klineRng.end + 360 * right / (left + right);
-    } else {
-        rng.begin = m_klineRng.begin - 360;
-        rng.end = m_klineRng.end;
-    }
-    if (rng.begin <= 0) {
-        rng.begin = 0;
-    }
-    if (rng.end >= totalKLines - 1) {
-        rng.end = totalKLines - 1;
-    }
-    return rng;
-}
-
-/**
- * @func 获取第N条日K线的十字线位置
- * @param long n 从左往右数第N条K线
- * @param return wxPoint
- * @author songhuabiao
- */
-wxPoint RichKlineCtrl::GetCrossLinePt(long n) {
-    double x, y;
-    long total = m_klineRng.end - m_klineRng.begin;
-    uiKline item = m_pKlines->at(n);
-    double hPrice = m_rectPriceMax - m_rectPriceMin;
-    y = m_paddingTop + (1 - (item.price_close - m_rectPriceMin) / hPrice) * GetInnerHeight();
-    if (total > m_width) {  // 一屏幕已经显示不下了
-        x = (n - m_klineRng.begin) / total * m_width;
-    } else {
-        x = (m_klineWidth + m_klineSpan) * (n - m_klineRng.begin) + m_klineWidth / 2;
-    }
-    return wxPoint(x, y);
 }
 
 void RichKlineCtrl::OnPaint(wxDC* pDC) {
@@ -403,12 +463,23 @@ void RichKlineCtrl::DrawDayKlines(wxDC* pDC) {
     }
 }
 
-void RichKlineCtrl::DrawMinuteKlineCurves(wxDC* pDC) {
+/**
+ * @func 绘制十字线
+ * @param wxDC* pDC 设备绘制上下文
+ * @param int centerX 十字线中心X坐标
+ * @param int centerY 十字线中心Y坐标
+ * @param int w 控件宽度
+ * @param int h 控件高度
+ * @author songhuabiao
+ */
+void RichKlineCtrl::DrawCrossLine(wxDC* pDC, int centerX, int centerY, int w,
+                                  int h) {  // 光标十字线
+    wxPen dash_pen(wxColor(200, 200, 200), 1, wxPENSTYLE_DOT);
+    pDC->SetPen(dash_pen);
+    pDC->DrawLine(0, centerY, w, centerY);  // 横线
+    pDC->DrawLine(centerX, 0, centerX, h);  // 竖线
 }
 
-////////////////////// 5日分时图相关函数  //////////////////////
-void RichKlineCtrl::DrawFiveDayMinuteKlines(wxDC* pDC) {
-}
 
 /**
  * @brief 绘制EMA曲线
@@ -462,116 +533,7 @@ void RichKlineCtrl::DrawEmaCurves(wxDC* pDC,
     }
 }
 
-void RichKlineCtrl::OnBackground(wxEraseEvent& event) {
-    wxDC* pDC = event.GetDC();
-    pDC->SetBrush(wxBrush(wxColour(0, 0, 0)));
-}
 
-void RichKlineCtrl::OnSize(wxSizeEvent& event) {
-    wxSize size = event.GetSize();
-    m_width = size.GetWidth();
-    m_height = size.GetHeight();
-    m_klineRng = GetKlineRangeZoomIn(m_pKlines->size(), m_width, m_klineWidth, m_klineSpan);
-}
-
-void RichKlineCtrl::OnKeyDown(wxKeyEvent& event) {
-    int max = m_pKlines->size();
-    int key = event.GetKeyCode();
-    if (key == WXK_LEFT) {
-        if (m_klineRng.begin == 0) {  // 左移
-            return;
-        }
-        if (m_crossLine == m_klineRng.begin) {
-            m_klineRng.begin -= 1;
-            m_klineRng.end -= 1;
-        } else if (m_crossLine >= m_klineRng.begin && m_crossLine <= m_klineRng.end) {
-            if (m_crossLine != 0) {
-                m_crossLine -= 1;
-                m_crossLinePt = GetCrossLinePt(m_crossLine);
-            }
-        }
-    } else if (key == WXK_RIGHT) {  // 右移
-        if (m_crossLine == m_klineRng.end && m_klineRng.end != max) {
-            m_klineRng.begin += 1;
-            m_klineRng.end += 1;
-        } else if (m_crossLine >= m_klineRng.begin && m_crossLine <= m_klineRng.end) {
-            if (m_crossLine != max - 1) {
-                m_crossLine += 1;
-                m_crossLinePt = GetCrossLinePt(m_crossLine);
-            }
-        }
-    } else if (key == WXK_UP) {  // 放大，K线数量变少
-        if (m_crossLine == NO_CROSS_LINE) {
-            m_crossLine = m_pKlines->size() - 1;  // 放大中心为最右边K线
-        }
-        // 可见K线数量少于8，不再放大
-        if (m_klineRng.end <= m_klineRng.begin + 8) {
-            return;
-        }
-        // 计算放大中心两边的K线数量
-        double leftKlineCount = m_crossLine - m_klineRng.begin;
-        double rightKlineCount = m_klineRng.end - m_crossLine;
-        int removeKlineCount = (m_klineRng.end - m_klineRng.begin) / 2;
-        // 将当前可见范围内的的K线数量按照左右K线比例进行减少，减少的k线数量为当前显示K线数量的一半
-        m_klineRng.begin += removeKlineCount * (leftKlineCount) / (leftKlineCount + rightKlineCount);
-        m_klineRng.end -= removeKlineCount * (rightKlineCount) / (leftKlineCount + rightKlineCount);
-        CalcVisibleKlineWidth();
-    } else if (key == WXK_DOWN) {  // 缩小，K线数量变多
-        if (m_crossLine == NO_CROSS_LINE) {
-            m_crossLine = m_pKlines->size() - 1;  // 放大中心为最右边K线
-        }
-        // 可见K线数量已全部显示，不再缩小
-        if (m_klineRng.end - m_klineRng.begin >= m_pKlines->size()) {
-            return;
-        }
-        // 计算放大中心两边的K线数量
-        double leftKlineCount = m_crossLine - m_klineRng.begin;
-        double rightKlineCount = m_klineRng.end - m_crossLine;
-        int removeKlineCount = (m_klineRng.end - m_klineRng.begin) / 2;
-        // 将当前可见范围内的的K线数量按照左右K线比例进行减少，减少的k线数量为当前显示K线数量的一半
-        m_klineRng.begin -= removeKlineCount * (leftKlineCount) / (leftKlineCount + rightKlineCount);
-        m_klineRng.end += removeKlineCount * (rightKlineCount) / (leftKlineCount + rightKlineCount);
-        CalcVisibleKlineWidth();
-    } else if (key == WXK_HOME) {
-        m_crossLine = m_klineRng.begin;
-    } else if (key == WXK_END) {
-        m_crossLine = m_klineRng.end;
-    } else if (key == WXK_ESCAPE) {
-        m_crossLine = NO_CROSS_LINE;
-    }
-
-    if (m_crossLine != NO_CROSS_LINE) {
-        if (m_crossLine >= m_klineRng.begin && m_crossLine <= m_klineRng.end) {
-            m_crossLinePt = GetCrossLinePt(m_crossLine);  // 修正十字线的位置
-        }
-    }
-}
-
-void RichKlineCtrl::OnLeftMouseDown(wxMouseEvent& event) {
-    if (event.LeftIsDown()) {  // 左键按下
-        long x, y;
-        event.GetPosition(&x, &y);
-        if (this->m_klineWidth == 1) {
-            m_crossLinePt.x = x;
-            m_crossLinePt.y = y;
-            m_crossLine = m_klineRng.begin + x * (m_klineRng.end - m_klineRng.begin) / m_width;
-        } else {  // 获取最靠近的K线
-            int k = x / (m_klineWidth + m_klineSpan);
-            m_crossLine = m_klineRng.begin + k;
-            m_crossLinePt = GetCrossLinePt(m_crossLine);
-        }
-    }
-}
-// 隐藏周期为n的EMA平滑移动价格曲线
-bool RichKlineCtrl::HideEmaCurve(int n) {
-    for (auto& curve : m_emaCurves) {
-        if (curve.period == n) {
-            curve.visible = false;
-            return true;
-        }
-    }
-    return false;
-}
 // 显示周期为n的EMA平滑移动价格曲线
 bool RichKlineCtrl::ShowEmaCurve(int n) {
     for (auto& curve : m_emaCurves) {
@@ -582,6 +544,18 @@ bool RichKlineCtrl::ShowEmaCurve(int n) {
     }
     return false;
 }
+
+// 隐藏周期为n的EMA平滑移动价格曲线
+bool RichKlineCtrl::HideEmaCurve(int n) {
+    for (auto& curve : m_emaCurves) {
+        if (curve.period == n) {
+            curve.visible = false;
+            return true;
+        }
+    }
+    return false;
+}
+
 // 添加周期为n的EMA平滑移动价格曲线
 bool RichKlineCtrl::AddEmaCurve(int n, wxColor color, bool visible) {
     if (m_emaCurves.size() >= 8) {  // 一个界面最多显示8条EMA平滑移动价格曲线
@@ -597,6 +571,7 @@ bool RichKlineCtrl::AddEmaCurve(int n, wxColor color, bool visible) {
     m_emaCurves.push_back(curve);
     return true;
 }
+
 // 删除周期为n的EMA平滑移动价格曲线
 bool RichKlineCtrl::DelEmaCurve(int n) {
     auto it = std::remove_if(m_emaCurves.begin(), m_emaCurves.end(), [n](const ShareEmaCurve& curve) {
@@ -609,6 +584,7 @@ bool RichKlineCtrl::DelEmaCurve(int n) {
     return true;
 }
 
+// 检查是否有EMA平滑移动曲线显示
 bool RichKlineCtrl::HasEmaCurve() {
     if (m_emaCurves.size() == 0) {
         return false;
@@ -621,23 +597,20 @@ bool RichKlineCtrl::HasEmaCurve() {
     return false;
 }
 
-float RichKlineCtrl::GetRectMinPrice(std::vector<minuteKline>& minuteKlines, int begin, int end) {
-    float min = 100000000;
-    for (int i = begin; i <= end; i++) {
-        if (minuteKlines.at(i).price < min) {
-            min = minuteKlines.at(i).price;
-        }
+void RichKlineCtrl::CalcMinuteKlineAvgPrice(std::vector<minuteKline>& minuteKlines, std::vector<double>& avg_price) {
+    double price = 0.0;
+    int nklines = 0;
+    for (const auto& kline : minuteKlines) {
+        nklines += 1;
+        avg_price.push_back(kline.price / nklines);
     }
-    return min;
 }
-float RichKlineCtrl::GetRectMaxPrice(std::vector<minuteKline>& minuteKlines, int begin, int end) {
-    float max = -100000000;
-    for (int i = begin; i <= end; i++) {
-        if (minuteKlines.at(i).price > max) {
-            max = minuteKlines.at(i).price;
-        }
-    }
-    return max;
+
+void RichKlineCtrl::DrawMinuteKlineCurves(wxDC* pDC) {
+}
+
+////////////////////// 5日分时图相关函数  //////////////////////
+void RichKlineCtrl::DrawFiveDayMinuteKlines(wxDC* pDC) {
 }
 
 ////////////////////// 分时图相关函数  //////////////////////
@@ -671,15 +644,6 @@ void RichKlineCtrl::DrawMinuteKlines(wxDC* pDC) {
     delete pPtList;
     pPtList = nullptr;
     // 绘制均线
-}
-
-void RichKlineCtrl::CalcMinuteKlineAvgPrice(std::vector<minuteKline>& minuteKlines, std::vector<double>& avg_price) {
-    double price = 0.0;
-    int nklines = 0;
-    for (const auto& kline : minuteKlines) {
-        nklines += 1;
-        avg_price.push_back(kline.price / nklines);
-    }
 }
 
 void RichKlineCtrl::DrawMinuteKlineBackground(wxDC* pDC) {
