@@ -83,6 +83,7 @@ class RichKlineCtrl {
     double m_klineWidth;      // K线宽度，有可能为小数
     double m_klineSpan;       // K线间距，当K线数量超过屏幕像素，间距为0
     int m_visibleKlineCount;  // 可见的K线数量
+    int m_scaleStep;          // 缩放的K线数量
     float m_rectPriceMax;     // the maximum price in the drawing rect
     float m_rectPriceMin;     // the minimum price in the drawing rect
     wxPoint m_crossLinePt;    // the current k line mouse point

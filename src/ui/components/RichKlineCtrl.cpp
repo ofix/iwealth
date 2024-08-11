@@ -27,6 +27,7 @@ void RichKlineCtrl::Init() {
     m_klineWidth = 7;
     m_klineSpan = 3;
     m_visibleKlineCount = 120;
+    m_scaleStep = 40;
     m_shareCode = "";
     m_klineRng.begin = 0;
     m_klineRng.end = 0;
@@ -133,12 +134,25 @@ void RichKlineCtrl::ZoomIn() {
     // 计算放大中心两边的K线数量
     double leftKlineCount = m_crossLine - m_klineRng.begin;
     double rightKlineCount = m_klineRng.end - m_crossLine;
-    int removeKlineCount = (m_klineRng.end - m_klineRng.begin) / 2;
+
     // 将当前可见范围内的的K线数量按照左右K线比例进行减少，减少的k线数量为当前显示K线数量的一半
-    m_klineRng.begin += removeKlineCount * (leftKlineCount) / (leftKlineCount + rightKlineCount);
-    m_klineRng.end -= removeKlineCount * (rightKlineCount) / (leftKlineCount + rightKlineCount);
+    m_klineRng.begin += m_scaleStep * (leftKlineCount) / (leftKlineCount + rightKlineCount);
+    m_klineRng.end -= m_scaleStep * (rightKlineCount) / (leftKlineCount + rightKlineCount);
+
+    if (m_klineRng.end > m_pKlines->size() - 1) {
+        m_klineRng.end = m_pKlines->size() - 1;
+    }
+    if (m_klineRng.begin > m_klineRng.end) {
+        m_klineRng.begin = m_klineRng.end - 8;
+    }
     m_visibleKlineCount = m_klineRng.end - m_klineRng.begin + 1;
     CalcVisibleKlineWidth();
+    m_scaleStep = m_scaleStep / 2;
+    if (m_scaleStep < 40) {
+        m_scaleStep = 40;
+    }
+    std::cout << "[ZoomIn] range: " << m_klineRng.begin << "," << m_klineRng.end << ",cross: " << m_crossLine
+              << ",count:" << m_klineRng.end - m_klineRng.begin << ",step: " << m_scaleStep << std::endl;
 }
 
 /**
@@ -150,16 +164,16 @@ void RichKlineCtrl::ZoomOut() {
         m_crossLine = m_pKlines->size() - 1;  // 放大中心为最右边K线
     }
     // 可见K线数量已全部显示，不再缩小
-    if (m_klineRng.end - m_klineRng.begin >= m_pKlines->size()) {
+    if (m_klineRng.end - m_klineRng.begin + 1 == m_pKlines->size()) {
         return;
     }
+
     // 计算放大中心两边的K线数量
     double leftKlineCount = m_crossLine - m_klineRng.begin;
     double rightKlineCount = m_klineRng.end - m_crossLine;
-    int removeKlineCount = (m_klineRng.end - m_klineRng.begin) / 2;
     // 将当前可见范围内的的K线数量按照左右K线比例进行减少，减少的k线数量为当前显示K线数量的一半
-    m_klineRng.begin -= removeKlineCount * (leftKlineCount) / (leftKlineCount + rightKlineCount);
-    m_klineRng.end += removeKlineCount * (rightKlineCount) / (leftKlineCount + rightKlineCount);
+    m_klineRng.begin -= m_scaleStep * (leftKlineCount) / (leftKlineCount + rightKlineCount);
+    m_klineRng.end += m_scaleStep * (rightKlineCount) / (leftKlineCount + rightKlineCount);
     // 缩放后，显示K线范围有可能超过边界，必须加以限制
     if (m_klineRng.begin < 0) {
         m_klineRng.begin = 0;
@@ -168,8 +182,12 @@ void RichKlineCtrl::ZoomOut() {
         m_klineRng.end = m_pKlines->size() - 1;
     }
     m_visibleKlineCount = m_klineRng.end - m_klineRng.begin + 1;
-    std::cout << "Range: " << m_klineRng.begin << "," << m_klineRng.end << "," << m_crossLine << std::endl;
     CalcVisibleKlineWidth();
+    std::cout << "[ZoomOut] range: " << m_klineRng.begin << "," << m_klineRng.end << ",cross: " << m_crossLine
+              << ",count:" << m_klineRng.end - m_klineRng.begin << ",step: " << m_scaleStep << std::endl;
+    if (m_klineRng.begin != 0) {
+        m_scaleStep *= 2;
+    }
 }
 
 void RichKlineCtrl::OnBackground(wxEraseEvent& event) {
@@ -185,21 +203,23 @@ void RichKlineCtrl::OnSize(wxSizeEvent& event) {
 }
 
 void RichKlineCtrl::OnKeyDown(wxKeyEvent& event) {
-    int max = m_pKlines->size();
+    int max = m_pKlines->size() - 1;
     int key = event.GetKeyCode();
     if (key == WXK_LEFT) {
-        if (m_klineRng.begin == 0) {  // 左移
+        if (m_crossLine == NO_CROSS_LINE) {
+            m_crossLine = m_pKlines->size() - 1;
+            m_crossLinePt = GetCrossLinePt(m_crossLine);
             return;
         }
-        if (m_crossLine == m_klineRng.begin) {
+        if (m_crossLine == m_klineRng.begin && m_klineRng.begin > 0) {
             m_klineRng.begin -= 1;
             m_klineRng.end -= 1;
-        } else if (m_crossLine >= m_klineRng.begin && m_crossLine <= m_klineRng.end) {
-            if (m_crossLine != 0) {
-                m_crossLine -= 1;
-                m_crossLinePt = GetCrossLinePt(m_crossLine);
-            }
         }
+        if (m_crossLine > 0) {
+            m_crossLine -= 1;
+            m_crossLinePt = GetCrossLinePt(m_crossLine);
+        }
+        std::cout << "kline left: " << m_crossLine << std::endl;
     } else if (key == WXK_RIGHT) {  // 右移
         if (m_crossLine == m_klineRng.end && m_klineRng.end != max) {
             m_klineRng.begin += 1;
@@ -210,6 +230,7 @@ void RichKlineCtrl::OnKeyDown(wxKeyEvent& event) {
                 m_crossLinePt = GetCrossLinePt(m_crossLine);
             }
         }
+        std::cout << "kline right: " << m_crossLine << std::endl;
     } else if (key == WXK_UP) {  // 放大，K线数量变少
         ZoomIn();
     } else if (key == WXK_DOWN) {  // 缩小，K线数量变多
@@ -480,7 +501,6 @@ void RichKlineCtrl::DrawCrossLine(wxDC* pDC, int centerX, int centerY, int w,
     pDC->DrawLine(centerX, 0, centerX, h);  // 竖线
 }
 
-
 /**
  * @brief 绘制EMA曲线
  * @param pDC
@@ -532,7 +552,6 @@ void RichKlineCtrl::DrawEmaCurves(wxDC* pDC,
         }
     }
 }
-
 
 // 显示周期为n的EMA平滑移动价格曲线
 bool RichKlineCtrl::ShowEmaCurve(int n) {
