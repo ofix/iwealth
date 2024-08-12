@@ -5,6 +5,7 @@
 #include <wx/dcbuffer.h>
 #include <wx/dcclient.h>
 #include <wx/textfile.h>
+#include <stack>
 #include <vector>
 
 #include "stock/Stock.h"
@@ -71,7 +72,7 @@ class RichKlineCtrl {
     void DrawMinuteKlines(wxDC* pDC);           // 分时图
     void DrawMinuteKlineBackground(wxDC* pDC);  // 分时图背景
     void DrawMinuteKlineCurves(wxDC* pDC);      // 分时图曲线
-    void DrawAnalysisBar(wxDC* pDC);
+    void PrintDebugInfo(std::string& prefix="");   // 打印调试信息
 
    protected:
     void RemoveCache();
@@ -79,14 +80,15 @@ class RichKlineCtrl {
     wxPoint m_pos;     // 起始位置
     int m_width;
     int m_height;
-    int m_curKline;           // the current k line under the cursor
-    double m_klineWidth;      // K线宽度，有可能为小数
-    double m_klineSpan;       // K线间距，当K线数量超过屏幕像素，间距为0
-    int m_visibleKlineCount;  // 可见的K线数量
-    int m_scaleStep;          // 缩放的K线数量
-    float m_rectPriceMax;     // the maximum price in the drawing rect
-    float m_rectPriceMin;     // the minimum price in the drawing rect
-    wxPoint m_crossLinePt;    // the current k line mouse point
+    int m_curKline;                   // the current k line under the cursor
+    double m_klineInnerWidth;         // K线实际宽度，有可能为小数
+    double m_klineWidth;              // K线宽度，包含K线间距,有可能为小数
+    int m_visibleKlineCount;          // 可见的K线数量
+    std::stack<int> m_zoomStepStack;  // 每一次缩放的K线数量
+    int m_zoomStep;                   // 缩放的K线数量
+    float m_rectPriceMax;             // the maximum price in the drawing rect
+    float m_rectPriceMin;             // the minimum price in the drawing rect
+    wxPoint m_crossLinePt;            // the current k line mouse point
     int m_crossLine;
 
     StockDataStorage* m_pStorage;               // 股票存储中心

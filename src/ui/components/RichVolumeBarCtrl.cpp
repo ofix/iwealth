@@ -21,19 +21,17 @@ RichVolumeBarCtrl::~RichVolumeBarCtrl() {
 void RichVolumeBarCtrl::OnPaint(wxDC* pDC) {
     std::vector<uiKline>& klines = *(m_pKlineCtrl->m_pKlines);
     uiKlineRange& klineRng = m_pKlineCtrl->m_klineRng;
-    int span = m_pKlineCtrl->m_klineSpan;
     double hVolumeBar = m_pKlineCtrl->m_height * 0.3;
     double yVolumeBar = m_pKlineCtrl->m_height * 0.7;
     // get canvas height
     double max_volume = GetMaxVolumeInRange();
     // calc single volume bar width
-    long w = (long)(m_pKlineCtrl->GetInnerWidth() / (klineRng.end - klineRng.begin) - span);
-    w = GUARD(w, 1);
+    long w = m_pKlineCtrl->m_klineInnerWidth;
     std::vector<uiKline>::const_iterator it;
     int i = 0;
     for (it = klines.begin() + klineRng.begin; it != klines.begin() + klineRng.end; ++it, ++i) {
         // make sure i must be double or result would be error!
-        double x = (double)i / (klineRng.end - klineRng.begin) * m_pKlineCtrl->GetInnerWidth();
+        double x = (double)i * m_pKlineCtrl->m_klineWidth;
         double y = yVolumeBar + (1.0 - it->volume / max_volume) * hVolumeBar;
         double h = it->volume / max_volume * hVolumeBar;
         pDC->SetPen(*wxTRANSPARENT_PEN);
