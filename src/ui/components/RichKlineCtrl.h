@@ -58,8 +58,7 @@ class RichKlineCtrl {
                        int minY,
                        int maxX,
                        int maxY,
-                       int klineWidth,
-                       int klineSpan);                            // 绘制所有EMA曲线
+                       double klineWidth);                            // 绘制所有EMA曲线
     bool ShowEmaCurve(int n);                                     // 显示周期为n的EMA平滑移动价格曲线
     bool HideEmaCurve(int n);                                     // 隐藏周期为n的EMA平滑移动价格曲线
     bool AddEmaCurve(int n, wxColor color, bool visible = true);  // 添加周期为n的EMA平滑移动价格曲线
@@ -72,7 +71,7 @@ class RichKlineCtrl {
     void DrawMinuteKlines(wxDC* pDC);           // 分时图
     void DrawMinuteKlineBackground(wxDC* pDC);  // 分时图背景
     void DrawMinuteKlineCurves(wxDC* pDC);      // 分时图曲线
-    void PrintDebugInfo(std::string& prefix="");   // 打印调试信息
+    void PrintDebugInfo(std::string prefix="");   // 打印调试信息
 
    protected:
     void RemoveCache();
@@ -93,6 +92,7 @@ class RichKlineCtrl {
 
     StockDataStorage* m_pStorage;               // 股票存储中心
     std::string m_shareCode;                    // 股票代码
+    Share* m_pShare;                            // 股票指针
     std::vector<uiKline>* m_pKlines;            // 当前绘制的K线数据
     std::vector<minuteKline>* m_pMinuteKlines;  // 当前绘制的分时图数据
     std::vector<ShareEmaCurve> m_emaCurves;     // 指数移动平均线

@@ -178,3 +178,92 @@ Share::Share(const Share& other)
 bool Share::operator<(const Share& other) const {
     return code < other.code;
 }
+
+/**
+ * @todo 检查股票当天是否涨停
+ * @param kline 日K线
+ * @param pShare 股票
+ * @return boolean
+ */
+bool is_up_limit_price(uiKline& kline, Share* pShare) {
+    // 检查股票是否是ST股票
+    if (is_st_share(pShare)) {
+        if (kline.change_rate >= 0.05) {  // 检查涨幅是否达到5%
+            return true;                  // 涨停板
+        }
+        return false;
+    }
+
+    // 检查股票是否是上市第一天，名称中带N的，没有涨跌幅限制
+    if (pShare->name.find("N") == 0) {
+        return false;
+    }
+
+    if (pShare->market == Market::ShangHai || pShare->market == Market::ShenZhen) {
+        // 检查股票所在市场是否是深圳主板和上海主板，10%的涨幅限制
+        if (kline.change_rate >= 0.093) {
+            return true;
+        }
+        return false;
+    } else if (pShare->market == Market::ChuangYeBan || pShare->market == Market::KeChuangBan) {
+        // 检查股票所在市场是否是创业板或者科创板，20%的涨幅限制
+        if (kline.change_rate >= 0.1993) {
+            return true;
+        }
+        return false;
+    } else if (pShare->market == Market::BeiJiaoSuo) {
+        // 检查股票所在市场是否是北交所，30%的涨幅限制
+        if (kline.change_rate >= 0.2993) {
+            return true;
+        }
+        return false;
+    }
+}
+
+/**
+ * @todo 检查股票当天是否跌停
+ * @param kline 日K线
+ * @param pShare 股票
+ * @return boolean
+ */
+bool is_down_limit_price(uiKline& kline, Share* pShare) {
+    // 检查股票是否是ST股票
+    if (is_st_share(pShare)) {
+        if (kline.change_rate <= -0.05) {  // 检查涨幅是否达到5%
+            return true;                   // 跌停板
+        }
+        return false;
+    }
+
+    // 检查股票是否是上市第一天，名称中带N的，没有涨跌幅限制
+    if (pShare->name.find("N") == 0) {
+        return false;
+    }
+
+    if (pShare->market == Market::ShangHai || pShare->market == Market::ShenZhen) {
+        // 检查股票所在市场是否是深圳主板和上海主板，10%的跌幅限制
+        if (kline.change_rate <= -0.093) {
+            return true;
+        }
+        return false;
+    } else if (pShare->market == Market::ChuangYeBan || pShare->market == Market::KeChuangBan) {
+        // 检查股票所在市场是否是创业板或者科创板，20%的跌幅限制
+        if (kline.change_rate <= -0.1993) {
+            return true;
+        }
+        return false;
+    } else if (pShare->market == Market::BeiJiaoSuo) {
+        // 检查股票所在市场是否是北交所，30%的跌幅限制
+        if (kline.change_rate <= -0.2993) {
+            return true;
+        }
+        return false;
+    }
+}
+
+bool is_st_share(Share* pShare) {
+    if (pShare->name.find("ST") == 0) {  // 检查股票名称是否以"ST"开头
+        return true;
+    }
+    return false;
+}
