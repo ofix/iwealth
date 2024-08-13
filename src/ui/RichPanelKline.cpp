@@ -34,19 +34,22 @@ RichPanelKline::RichPanelKline(PanelType type,
                                const wxPoint& pos,
                                const wxSize& size)
     : RichPanel(type, pStorage, parent, id, pos, size, wxTAB_TRAVERSAL | wxWANTS_CHARS, _T("Panel_Kline")) {
+#define TOP_BAR_HEIGHT 18
     // 股票名称
-    m_pShareNameCtrl = new wxStaticText(this, ID_SHARE_NAME_CTRL, wxT(""), wxPoint(2, 2), wxSize(40, 24));
+    m_pShareNameCtrl =
+        new wxStaticText(this, ID_SHARE_NAME_CTRL, wxT("---"), wxPoint(2, 0), wxSize(64, TOP_BAR_HEIGHT));
+    m_pShareNameCtrl->SetBackgroundColour(wxColor(0, 0, 0));
     m_pShareNameCtrl->SetForegroundColour(wxColor(200, 200, 200));
 
     // 日/周/月/季/年 K线
     std::vector<std::string> options = {"分时", "五日", "日线", "周线", "月线", "季线", "年线"};
-    m_pRadioCtrl = new RichRadioCtrl(options, 2, this, ID_RADIO_CTRL, wxPoint(42, 2), wxSize(600, 28));
+    m_pRadioCtrl = new RichRadioCtrl(options, 2, this, ID_RADIO_CTRL, wxPoint(64, 0), wxSize(400, TOP_BAR_HEIGHT));
     // 事件绑定， Radio 控件将始终获取鼠标键盘焦点
     m_pRadioCtrl->Bind(wxEVT_LEFT_UP, &RichPanelKline::OnLeftMouseDown, this);
     // K线主图
-    m_ptKlineCtrl = wxPoint(2, 30);
+    m_ptKlineCtrl = wxPoint(2, TOP_BAR_HEIGHT + 2);
     m_sizeKlineCtrl = size;
-    m_sizeKlineCtrl.DecBy(wxSize(0, 30));  // 这里不能使用DecTo,会导致RichKlineCtrl控件宽度为0
+    m_sizeKlineCtrl.DecBy(wxSize(0, TOP_BAR_HEIGHT + 2));  // 这里不能使用DecTo,会导致RichKlineCtrl控件宽度为0
     m_pKlineCtrl = new RichKlineCtrl(pStorage, m_ptKlineCtrl, m_sizeKlineCtrl);
     // 成交量/成交额附图
     m_pVolumeBarCtrl = new RichVolumeBarCtrl(m_pKlineCtrl);

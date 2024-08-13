@@ -52,8 +52,8 @@ bool RichRadioCtrl::Layout() {
     if (m_optionCtrls.size() < 1) {
         return false;
     }
-    int x = GetPosition().x;
-    int y = GetPosition().y;
+    int x = 4;
+    int y = 0;
     wxClientDC dc(this);
     for (size_t i = 0; i < m_optionCtrls.size(); i++) {
         m_optionCtrls[i]->Move(x, y, 0);
@@ -104,5 +104,7 @@ void RichRadioCtrl::OnClick(wxMouseEvent& event) {
 
 void RichRadioCtrl::OnBackground(wxEraseEvent& event) {
     wxDC* pDC = event.GetDC();
-    pDC->SetBrush(wxBrush(wxColour(0, 0, 0)));
+    pDC->SetBrush(*wxBLACK_BRUSH);
+    wxSize size = GetSize();
+    pDC->DrawRectangle(wxPoint(0, 0), size);
 }

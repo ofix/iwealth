@@ -34,9 +34,8 @@ void RichKlineCtrl::Init() {
     m_curKline = -1;
     m_maxRectPrice = 0;
     m_minRectPrice = 0;
-    m_paddingTop = 10;
-    m_paddingBottom = 10;
-    m_paddingRight = 10;
+    m_paddingBottom = 16;
+    m_paddingRight = 48;
     m_crossLine = NO_CROSS_LINE;
 }
 
@@ -275,7 +274,7 @@ int RichKlineCtrl::GetInnerWidth() {
 }
 
 int RichKlineCtrl::GetInnerHeight() {
-    return m_height * 0.7 - m_paddingTop - m_paddingBottom;
+    return m_height * 0.7 - m_pos.y - m_paddingBottom;
 }
 
 /**
@@ -293,6 +292,7 @@ float RichKlineCtrl::GetRectMinPrice(std::vector<uiKline>& uiKlines, int begin, 
             m_minRectPriceIndex = i - begin;
         }
     }
+    m_minKlinePrice = min;
     if (HasEmaCurve()) {
         for (auto& curve : m_emaCurves) {
             if (curve.visible) {
@@ -323,6 +323,7 @@ float RichKlineCtrl::GetRectMaxPrice(std::vector<uiKline>& uiKlines, int begin, 
             m_maxRectPriceIndex = i - begin;
         }
     }
+    m_maxKlinePrice = max;
     if (HasEmaCurve()) {
         for (auto& curve : m_emaCurves) {
             if (curve.visible) {
@@ -369,18 +370,18 @@ wxPoint RichKlineCtrl::GetCrossLinePt(long n) {
     double x, y;
     uiKline item = m_pKlines->at(n);
     double hPrice = m_maxRectPrice - m_minRectPrice;
-    y = m_paddingTop + (1 - (item.price_close - m_minRectPrice) / hPrice) * GetInnerHeight();
+    y = m_pos.y + (1 - (item.price_close - m_minRectPrice) / hPrice) * GetInnerHeight();
     x = std::ceil((m_klineWidth) * (n - m_klineRng.begin) + m_klineInnerWidth / 2);  // 一定可以显示完全
     return wxPoint(x, y);
 }
 
 void RichKlineCtrl::CalcVisibleKlineWidth() {
-    m_klineWidth = static_cast<double>(m_width) / m_visibleKlineCount;
+    m_klineWidth = static_cast<double>(GetInnerWidth()) / m_visibleKlineCount;
     m_klineInnerWidth = m_klineWidth * 0.8;
     if (m_klineWidth > 1 && static_cast<int>(m_klineInnerWidth) % 2 == 0) {
         m_klineInnerWidth = (int)std::round(m_klineInnerWidth);
         m_klineInnerWidth -= 1;
-        if(m_klineInnerWidth < 1){
+        if (m_klineInnerWidth < 1) {
             m_klineInnerWidth = 1;
         }
     }
@@ -413,13 +414,13 @@ void RichKlineCtrl::OnPaint(wxDC* pDC) {
 
 // 绘制日K线|周K线|月K线|季K线|年K线背景图
 void RichKlineCtrl::DrawKlineBackground(wxDC* pDC, double min_price, double max_price) {
-    wxPen solid_pen(wxColor(255, 0, 0), 2, wxPENSTYLE_SOLID);
+    wxPen solid_pen(wxColor(255, 0, 0), 1, wxPENSTYLE_DOT);
     pDC->SetPen(solid_pen);
     pDC->SetBrush(*wxBLACK_BRUSH);
     int minX = 0;
-    int minY = m_paddingTop;
+    int minY = m_pos.y;
     int wRect = GetInnerWidth();
-    int hRect = GetInnerHeight() - m_paddingTop;
+    int hRect = GetInnerHeight() + m_paddingBottom;
     pDC->DrawRectangle(minX, minY, wRect, hRect);
     // 绘制横线和价格
     double avg_price = (max_price - min_price) / 6;
@@ -433,14 +434,14 @@ void RichKlineCtrl::DrawKlineBackground(wxDC* pDC, double min_price, double max_
         pDC->DrawLine(0, y, wRect, y);
     }
 
-    pDC->SetPen(*wxRED_PEN);
-    pDC->DrawText(convert_double(max_price, 2), wRect, minY);
+    pDC->SetTextForeground(wxColor(222, 222, 222));
+    pDC->DrawText(convert_double(max_price, 2), wRect + 4, minY - 8);
     y = minY;
     double price = max_price;
     for (int i = 0; i < 6; i++) {
         y = y + avg_height;
         price = price - avg_price;
-        pDC->DrawText(convert_double(price, 2), wRect, y);
+        pDC->DrawText(convert_double(price, 2), wRect + 4, y - 8);
     }
 }
 
@@ -454,9 +455,9 @@ void RichKlineCtrl::DrawDayKlines(wxDC* pDC) {
     int visible_klines = m_klineRng.end - m_klineRng.begin + 1;
 
     double hPrice = m_maxRectPrice - m_minRectPrice;
-    int minY = m_paddingTop;
-    int hRect = GetInnerHeight() - m_paddingTop;
-    int wRect = GetInnerWidth() - 0;
+    int minY = m_pos.y;
+    int hRect = GetInnerHeight();
+    int wRect = GetInnerWidth();
     double hZoomRatio = hRect / hPrice;
 
     uiKline kline;
@@ -566,8 +567,8 @@ void RichKlineCtrl::DrawDayKlines(wxDC* pDC) {
         }
         nKline++;
     }
-    DrawEmaCurves(pDC, visible_klines, m_maxRectPrice, m_minRectPrice, 0, m_paddingTop, GetInnerWidth(),
-                  GetInnerHeight(), m_klineWidth);
+    DrawEmaCurves(pDC, visible_klines, m_maxRectPrice, m_minRectPrice, 0, m_pos.y, GetInnerWidth(), GetInnerHeight(),
+                  m_klineWidth);
     DrawMinMaxRectPrice(pDC);
     if (m_crossLine != NO_CROSS_LINE) {
         DrawCrossLine(pDC, m_crossLinePt.x, m_crossLinePt.y, m_width, m_height * 0.7);
@@ -576,18 +577,18 @@ void RichKlineCtrl::DrawDayKlines(wxDC* pDC) {
 
 void RichKlineCtrl::DrawMinMaxRectPrice(wxDC* pDC) {
     double hPrice = m_maxRectPrice - m_minRectPrice;
-    int hRect = GetInnerHeight() - m_paddingTop;
+    int hRect = GetInnerHeight();
     double hZoomRatio = hRect / hPrice;
-    int minY = m_paddingTop;
+    int minY = m_pos.y;
 
     double min_x = m_minRectPriceIndex * m_klineWidth + m_klineInnerWidth / 2 + 1;
-    double min_y = (m_maxRectPrice - m_minRectPrice) * hZoomRatio + minY;
-    std::string min_text = "->" + convert_double(m_minRectPrice, 2);
+    double min_y = (m_maxRectPrice - m_minKlinePrice) * hZoomRatio + minY;
+    std::string min_text = convert_double(m_minKlinePrice, 2) + "->";
     wxString min_price_text(min_text);
 
     double max_x = m_maxRectPriceIndex * m_klineWidth + m_klineInnerWidth / 2 + 1;
-    double max_y = minY + 8;
-    std::string max_text = "<-" + convert_double(m_maxRectPrice, 2);
+    double max_y = (m_maxRectPrice - m_maxKlinePrice) * hZoomRatio + minY;
+    std::string max_text = "<-" + convert_double(m_maxKlinePrice, 2);
     wxString max_price_text(max_text);
 
     pDC->SetPen(wxPen(wxColor(220, 220, 220)));

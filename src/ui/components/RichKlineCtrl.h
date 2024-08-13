@@ -86,8 +86,10 @@ class RichKlineCtrl {
     int m_visibleKlineCount;          // 可见的K线数量
     std::stack<int> m_zoomStepStack;  // 每一次缩放的K线数量
     int m_zoomStep;                   // 缩放的K线数量
-    float m_minRectPrice;             // 可见K线中最低价
-    float m_maxRectPrice;             // 可见K线中最高价
+    float m_minRectPrice;             // 如果有EMA均线，K线高度需要变化
+    float m_maxRectPrice;             // 如果有EMA均线，K线高度需要变化
+    float m_minKlinePrice;            // 可见K线中最低价
+    float m_maxKlinePrice;            // 可见K线中最高价
     int m_minRectPriceIndex;          // 可见K线中最低价K线位置
     int m_maxRectPriceIndex;          // 可见K险种最高价K线位置
     int m_curKline;                   // 当前K线十字线
