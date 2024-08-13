@@ -218,6 +218,7 @@ bool is_up_limit_price(uiKline& kline, Share* pShare) {
         }
         return false;
     }
+    return false;
 }
 
 /**
@@ -259,6 +260,7 @@ bool is_down_limit_price(uiKline& kline, Share* pShare) {
         }
         return false;
     }
+    return false;
 }
 
 bool is_st_share(Share* pShare) {

@@ -18,7 +18,7 @@ RichKlineCtrl::~RichKlineCtrl() {
 }
 
 RichKlineCtrl::RichKlineCtrl(StockDataStorage* pStorage, const wxPoint& pos, const wxSize& size)
-    : m_pStorage(pStorage), m_pos(pos), m_width(size.GetWidth()), m_height(size.GetHeight()), m_pKlines(nullptr) {
+    : m_pos(pos), m_width(size.GetWidth()), m_height(size.GetHeight()), m_pStorage(pStorage), m_pKlines(nullptr) {
     Init();
 }
 
@@ -32,8 +32,8 @@ void RichKlineCtrl::Init() {
     m_klineRng.begin = 0;
     m_klineRng.end = 0;
     m_curKline = -1;
-    m_rectPriceMax = 0;
-    m_rectPriceMin = 0;
+    m_maxRectPrice = 0;
+    m_minRectPrice = 0;
     m_paddingTop = 10;
     m_paddingBottom = 10;
     m_paddingRight = 10;
@@ -116,9 +116,9 @@ void RichKlineCtrl::PrintDebugInfo(std::string prefix) {
     std::cout << ",Total:" << m_klineRng.end - m_klineRng.begin;
     if (m_zoomStepStack.size() > 0) {
         int step = m_zoomStepStack.top();
-        std::cout << ",Step: " << step << std::endl;
+        std::cout << ",Step: " << step;
     } else {
-        std::cout << ",Step: " << m_zoomStep << std::endl;
+        std::cout << ",Step: " << m_zoomStep;
     }
     std::cout << ",KlineWidth:" << m_klineWidth;
     std::cout << ",klineInnerWidth" << m_klineInnerWidth;
@@ -137,7 +137,6 @@ void RichKlineCtrl::ZoomIn() {
     if (m_klineRng.end <= m_klineRng.begin + 8) {
         return;
     }
-    int prevVisibleKlineCount = m_visibleKlineCount;
 
     // 计算放大中心两边的K线数量
     double leftKlineCount = m_crossLine - m_klineRng.begin;
@@ -191,7 +190,7 @@ void RichKlineCtrl::ZoomOut() {
         m_klineRng.begin = 0;
     }
     if (m_klineRng.end > m_pKlines->size() - 1) {
-        m_klineRng.end = m_pKlines->size() - 1;
+        m_klineRng.end = static_cast<int>(m_pKlines->size() - 1);
     }
 
     m_visibleKlineCount = m_klineRng.end - m_klineRng.begin + 1;
@@ -291,6 +290,7 @@ float RichKlineCtrl::GetRectMinPrice(std::vector<uiKline>& uiKlines, int begin, 
     for (int i = begin; i <= end; i++) {
         if (uiKlines.at(i).price_min < min) {
             min = uiKlines.at(i).price_min;
+            m_minRectPriceIndex = i - begin;
         }
     }
     if (HasEmaCurve()) {
@@ -304,8 +304,38 @@ float RichKlineCtrl::GetRectMinPrice(std::vector<uiKline>& uiKlines, int begin, 
             }
         }
     }
-    m_rectPriceMin = min;
+    m_minRectPrice = min;
     return min;
+}
+
+/**
+ *@todo 获取日K线最高价
+ *@param vector<uiKline> uiKlines 日/周/月/季/年K线数据
+ *@param int begin 开始位置
+ *@param int end 结束位置
+ *@author songhuabiao
+ */
+float RichKlineCtrl::GetRectMaxPrice(std::vector<uiKline>& uiKlines, int begin, int end) {
+    float max = -100000000;
+    for (int i = begin; i <= end; i++) {
+        if (uiKlines.at(i).price_max > max) {
+            max = uiKlines.at(i).price_max;
+            m_maxRectPriceIndex = i - begin;
+        }
+    }
+    if (HasEmaCurve()) {
+        for (auto& curve : m_emaCurves) {
+            if (curve.visible) {
+                for (int i = begin; i <= end; i++) {
+                    if (curve.ema_price.at(i) > max) {
+                        max = curve.ema_price.at(i);
+                    }
+                }
+            }
+        }
+    }
+    m_maxRectPrice = max;
+    return max;
 }
 
 // 获取显示区域最低价格
@@ -328,34 +358,6 @@ float RichKlineCtrl::GetRectMaxPrice(std::vector<minuteKline>& minuteKlines, int
     }
     return max;
 }
-/**
- *@todo 获取日K线最高价
- *@param vector<uiKline> uiKlines 日/周/月/季/年K线数据
- *@param int begin 开始位置
- *@param int end 结束位置
- *@author songhuabiao
- */
-float RichKlineCtrl::GetRectMaxPrice(std::vector<uiKline>& uiKlines, int begin, int end) {
-    float max = -100000000;
-    for (int i = begin; i <= end; i++) {
-        if (uiKlines.at(i).price_max > max) {
-            max = uiKlines.at(i).price_max;
-        }
-    }
-    if (HasEmaCurve()) {
-        for (auto& curve : m_emaCurves) {
-            if (curve.visible) {
-                for (int i = begin; i <= end; i++) {
-                    if (curve.ema_price.at(i) > max) {
-                        max = curve.ema_price.at(i);
-                    }
-                }
-            }
-        }
-    }
-    m_rectPriceMax = max;
-    return max;
-}
 
 /**
  * @func 获取第N条日K线的十字线位置
@@ -366,8 +368,8 @@ float RichKlineCtrl::GetRectMaxPrice(std::vector<uiKline>& uiKlines, int begin, 
 wxPoint RichKlineCtrl::GetCrossLinePt(long n) {
     double x, y;
     uiKline item = m_pKlines->at(n);
-    double hPrice = m_rectPriceMax - m_rectPriceMin;
-    y = m_paddingTop + (1 - (item.price_close - m_rectPriceMin) / hPrice) * GetInnerHeight();
+    double hPrice = m_maxRectPrice - m_minRectPrice;
+    y = m_paddingTop + (1 - (item.price_close - m_minRectPrice) / hPrice) * GetInnerHeight();
     x = std::ceil((m_klineWidth) * (n - m_klineRng.begin) + m_klineInnerWidth / 2);  // 一定可以显示完全
     return wxPoint(x, y);
 }
@@ -377,11 +379,14 @@ void RichKlineCtrl::CalcVisibleKlineWidth() {
     m_klineInnerWidth = m_klineWidth * 0.8;
     if (m_klineWidth > 1 && static_cast<int>(m_klineInnerWidth) % 2 == 0) {
         m_klineInnerWidth = (int)std::round(m_klineInnerWidth);
-        m_klineInnerWidth += 1;
+        m_klineInnerWidth -= 1;
+        if(m_klineInnerWidth < 1){
+            m_klineInnerWidth = 1;
+        }
     }
     // 根据K线宽度计算起始坐标和放大坐标
     if (m_crossLine == NO_CROSS_LINE) {
-        m_klineRng.begin = m_pKlines->size() - m_visibleKlineCount;
+        m_klineRng.begin = static_cast<int>(m_pKlines->size() - m_visibleKlineCount);
         m_klineRng.end = m_pKlines->size() - 1;
         if (m_klineRng.begin < 0) {
             m_klineRng.begin = 0;
@@ -398,20 +403,57 @@ void RichKlineCtrl::OnPaint(wxDC* pDC) {
         DrawFiveDayMinuteKlines(pDC);
     } else if (m_mode == KlineType::Day || m_mode == KlineType::Week || m_mode == KlineType::Month ||
                m_mode == KlineType::Quarter || m_mode == KlineType::Year) {
-        if(m_pKlines == nullptr || m_pKlines->size() == 0){
+        if (m_pKlines == nullptr || m_pKlines->size() == 0) {
+            DrawKlineBackground(pDC, 4, 20);
             return;
         }
         DrawDayKlines(pDC);
     }
 }
 
+// 绘制日K线|周K线|月K线|季K线|年K线背景图
+void RichKlineCtrl::DrawKlineBackground(wxDC* pDC, double min_price, double max_price) {
+    wxPen solid_pen(wxColor(255, 0, 0), 2, wxPENSTYLE_SOLID);
+    pDC->SetPen(solid_pen);
+    pDC->SetBrush(*wxBLACK_BRUSH);
+    int minX = 0;
+    int minY = m_paddingTop;
+    int wRect = GetInnerWidth();
+    int hRect = GetInnerHeight() - m_paddingTop;
+    pDC->DrawRectangle(minX, minY, wRect, hRect);
+    // 绘制横线和价格
+    double avg_price = (max_price - min_price) / 6;
+    double avg_height = hRect / 6;
+
+    double y = minY;
+    wxPen dash_pen(wxColor(89, 89, 89), 1, wxPENSTYLE_DOT);
+    pDC->SetPen(dash_pen);
+    for (int i = 0; i < 6; i++) {
+        y = y + avg_height;
+        pDC->DrawLine(0, y, wRect, y);
+    }
+
+    pDC->SetPen(*wxRED_PEN);
+    pDC->DrawText(convert_double(max_price, 2), wRect, minY);
+    y = minY;
+    double price = max_price;
+    for (int i = 0; i < 6; i++) {
+        y = y + avg_height;
+        price = price - avg_price;
+        pDC->DrawText(convert_double(price, 2), wRect, y);
+    }
+}
+
 // 日K线|周K线|月K线|季K线|年K线
 void RichKlineCtrl::DrawDayKlines(wxDC* pDC) {
-    float rect_price_max = GetRectMaxPrice(*m_pKlines, m_klineRng.begin, m_klineRng.end);
-    float rect_price_min = GetRectMinPrice(*m_pKlines, m_klineRng.begin, m_klineRng.end);
+    GetRectMaxPrice(*m_pKlines, m_klineRng.begin, m_klineRng.end);
+    GetRectMinPrice(*m_pKlines, m_klineRng.begin, m_klineRng.end);
+    // 绘制背景
+    DrawKlineBackground(pDC, m_minRectPrice, m_maxRectPrice);
+
     int visible_klines = m_klineRng.end - m_klineRng.begin + 1;
 
-    double hPrice = rect_price_max - rect_price_min;
+    double hPrice = m_maxRectPrice - m_minRectPrice;
     int minY = m_paddingTop;
     int hRect = GetInnerHeight() - m_paddingTop;
     int wRect = GetInnerWidth() - 0;
@@ -427,9 +469,9 @@ void RichKlineCtrl::DrawDayKlines(wxDC* pDC) {
             if (kline.price_open < kline.price_close) {  // 红盘
                 // 绘制K线实体
                 x1 = nKline * m_klineWidth;
-                y1 = (rect_price_max - kline.price_close) * hZoomRatio + minY;
+                y1 = (m_maxRectPrice - kline.price_close) * hZoomRatio + minY;
                 x2 = x1;
-                y2 = (rect_price_max - kline.price_open) * hZoomRatio + minY;
+                y2 = (m_maxRectPrice - kline.price_open) * hZoomRatio + minY;
                 pDC->SetPen(*wxRED_PEN);
                 pDC->SetBrush(*wxBLACK_BRUSH);
                 pDC->DrawLine(x1, y1, x2, y2);
@@ -437,9 +479,9 @@ void RichKlineCtrl::DrawDayKlines(wxDC* pDC) {
                 xShadow = x1;
             } else if (kline.price_open > kline.price_close) {  // 绿盘
                 x1 = nKline * m_klineWidth;
-                y1 = (rect_price_max - kline.price_open) * hZoomRatio + minY;
+                y1 = (m_maxRectPrice - kline.price_open) * hZoomRatio + minY;
                 x2 = x1;
-                y2 = (rect_price_max - kline.price_close) * hZoomRatio + minY;
+                y2 = (m_maxRectPrice - kline.price_close) * hZoomRatio + minY;
                 pDC->SetPen(wxPen(wxColor(84, 255, 255)));
                 pDC->SetBrush(wxBrush(wxColor(84, 255, 255)));
                 pDC->DrawLine(x1, y1, x2, y2);
@@ -447,7 +489,7 @@ void RichKlineCtrl::DrawDayKlines(wxDC* pDC) {
                 xShadow = x1;
             } else {  // 平盘或者一字板
                 x1 = nKline * m_klineWidth;
-                y1 = (rect_price_max - kline.price_open) * hZoomRatio + minY;
+                y1 = (m_maxRectPrice - kline.price_open) * hZoomRatio + minY;
                 x2 = x1 + m_klineInnerWidth;
                 y2 = y1;
                 if (is_up_limit_price(kline, m_pShare)) {
@@ -467,18 +509,18 @@ void RichKlineCtrl::DrawDayKlines(wxDC* pDC) {
                 xShadow = (x1 + x2) / 2;
             }
             // 绘制上影线
-            yShadowUp = (rect_price_max - kline.price_max) * hZoomRatio + minY;
+            yShadowUp = (m_maxRectPrice - kline.price_max) * hZoomRatio + minY;
             pDC->DrawLine(xShadow, yShadowUp, xShadow, y1);
             // 绘制下影线
-            yShadowDown = (rect_price_max - kline.price_min) * hZoomRatio + minY;
+            yShadowDown = (m_maxRectPrice - kline.price_min) * hZoomRatio + minY;
             pDC->DrawLine(xShadow, yShadowDown, xShadow, y2 - 1);
         } else {
             if (kline.price_open < kline.price_close) {  // 红盘
                 // 绘制K线实体
                 x1 = nKline * m_klineWidth;
-                y1 = (rect_price_max - kline.price_close) * hZoomRatio + minY;
+                y1 = (m_maxRectPrice - kline.price_close) * hZoomRatio + minY;
                 x2 = x1 + m_klineInnerWidth;
-                y2 = (rect_price_max - kline.price_open) * hZoomRatio + minY;
+                y2 = (m_maxRectPrice - kline.price_open) * hZoomRatio + minY;
                 pDC->SetPen(*wxRED_PEN);
                 pDC->SetBrush(*wxBLACK_BRUSH);
                 pDC->DrawRectangle(x1, y1, x2 - x1, y2 - y1);
@@ -486,9 +528,9 @@ void RichKlineCtrl::DrawDayKlines(wxDC* pDC) {
                 xShadow = (x1 + x2) / 2;
             } else if (kline.price_open > kline.price_close) {  // 绿盘
                 x1 = nKline * m_klineWidth;
-                y1 = (rect_price_max - kline.price_open) * hZoomRatio + minY;
+                y1 = (m_maxRectPrice - kline.price_open) * hZoomRatio + minY;
                 x2 = x1 + m_klineInnerWidth;
-                y2 = (rect_price_max - kline.price_close) * hZoomRatio + minY;
+                y2 = (m_maxRectPrice - kline.price_close) * hZoomRatio + minY;
                 pDC->SetPen(wxPen(wxColor(84, 255, 255)));
                 pDC->SetBrush(wxBrush(wxColor(84, 255, 255)));
                 pDC->DrawRectangle(x1, y1, x2 - x1, y2 - y1);
@@ -496,7 +538,7 @@ void RichKlineCtrl::DrawDayKlines(wxDC* pDC) {
                 xShadow = (x1 + x2) / 2;
             } else if (kline.price_open == kline.price_close) {
                 x1 = nKline * m_klineWidth;
-                y1 = (rect_price_max - kline.price_open) * hZoomRatio + minY;
+                y1 = (m_maxRectPrice - kline.price_open) * hZoomRatio + minY;
                 x2 = x1 + m_klineInnerWidth;
                 y2 = y1;
                 if (is_up_limit_price(kline, m_pShare)) {
@@ -516,20 +558,44 @@ void RichKlineCtrl::DrawDayKlines(wxDC* pDC) {
                 xShadow = (x1 + x2) / 2;
             }
             // 绘制上影线
-            yShadowUp = (rect_price_max - kline.price_max) * hZoomRatio + minY;
+            yShadowUp = (m_maxRectPrice - kline.price_max) * hZoomRatio + minY;
             pDC->DrawLine(xShadow, yShadowUp, xShadow, y1);
             // 绘制下影线
-            yShadowDown = (rect_price_max - kline.price_min) * hZoomRatio + minY;
+            yShadowDown = (m_maxRectPrice - kline.price_min) * hZoomRatio + minY;
             pDC->DrawLine(xShadow, yShadowDown, xShadow, y2 - 1);
         }
         nKline++;
     }
-
-    DrawEmaCurves(pDC, visible_klines, rect_price_max, rect_price_min, 0, m_paddingTop, GetInnerWidth(),
+    DrawEmaCurves(pDC, visible_klines, m_maxRectPrice, m_minRectPrice, 0, m_paddingTop, GetInnerWidth(),
                   GetInnerHeight(), m_klineWidth);
+    DrawMinMaxRectPrice(pDC);
     if (m_crossLine != NO_CROSS_LINE) {
         DrawCrossLine(pDC, m_crossLinePt.x, m_crossLinePt.y, m_width, m_height * 0.7);
     }
+}
+
+void RichKlineCtrl::DrawMinMaxRectPrice(wxDC* pDC) {
+    double hPrice = m_maxRectPrice - m_minRectPrice;
+    int hRect = GetInnerHeight() - m_paddingTop;
+    double hZoomRatio = hRect / hPrice;
+    int minY = m_paddingTop;
+
+    double min_x = m_minRectPriceIndex * m_klineWidth + m_klineInnerWidth / 2 + 1;
+    double min_y = (m_maxRectPrice - m_minRectPrice) * hZoomRatio + minY;
+    std::string min_text = "->" + convert_double(m_minRectPrice, 2);
+    wxString min_price_text(min_text);
+
+    double max_x = m_maxRectPriceIndex * m_klineWidth + m_klineInnerWidth / 2 + 1;
+    double max_y = minY + 8;
+    std::string max_text = "<-" + convert_double(m_maxRectPrice, 2);
+    wxString max_price_text(max_text);
+
+    pDC->SetPen(wxPen(wxColor(220, 220, 220)));
+    pDC->SetBrush(wxBrush(wxColor(220, 220, 220)));
+    pDC->DrawText(min_price_text, min_x, min_y);
+    pDC->DrawText(max_price_text, max_x, max_y);
+    std::cout << "min: " << m_minRectPriceIndex << "," << min_x << "," << min_y << "," << min_price_text << std::endl;
+    std::cout << "max: " << m_maxRectPriceIndex << "," << max_x << "," << max_y << "," << max_price_text << std::endl;
 }
 
 /**
@@ -553,8 +619,8 @@ void RichKlineCtrl::DrawCrossLine(wxDC* pDC, int centerX, int centerY, int w,
  * @brief 绘制EMA曲线
  * @param pDC
  * @param m_visibleKlineCount 可见矩形区域内K线总数目
- * @param rect_price_max 可见矩形区域最高价
- * @param rect_price_min 可见矩形区域最低价
+ * @param m_maxRectPrice 可见矩形区域最高价
+ * @param m_minRectPrice 可见矩形区域最低价
  * @param minX 可见矩形区域最小X坐标
  * @param minY 可见矩形区域最小Y坐标
  * @param maxX 可见矩形区域最大X坐标
@@ -564,14 +630,14 @@ void RichKlineCtrl::DrawCrossLine(wxDC* pDC, int centerX, int centerY, int w,
  */
 void RichKlineCtrl::DrawEmaCurves(wxDC* pDC,
                                   int m_visibleKlineCount,
-                                  float rect_price_max,
-                                  float rect_price_min,
+                                  float m_maxRectPrice,
+                                  float m_minRectPrice,
                                   int minX,
                                   int minY,
                                   int maxX,
                                   int maxY,
                                   double klineWidth) {
-    double hPrice = rect_price_max - rect_price_min;
+    double hPrice = m_maxRectPrice - m_minRectPrice;
     int hRect = maxY - minY;
     int wRect = maxX - minX;
     double hZoomRatio = hRect / hPrice;
@@ -585,7 +651,7 @@ void RichKlineCtrl::DrawEmaCurves(wxDC* pDC,
                 double ema_price = curve.ema_price.at(i);
                 // 定义样条曲线的控制点
                 x = static_cast<int>(nKline * klineWidth);
-                y = static_cast<int>((rect_price_max - ema_price) * hZoomRatio + minY);
+                y = static_cast<int>((m_maxRectPrice - ema_price) * hZoomRatio + minY);
                 wxPoint* pt = new wxPoint(x, y);
                 pPtList->Append(pt);
                 nKline += 1;
@@ -664,7 +730,6 @@ bool RichKlineCtrl::HasEmaCurve() {
 }
 
 void RichKlineCtrl::CalcMinuteKlineAvgPrice(std::vector<minuteKline>& minuteKlines, std::vector<double>& avg_price) {
-    double price = 0.0;
     int nklines = 0;
     for (const auto& kline : minuteKlines) {
         nklines += 1;
@@ -689,16 +754,16 @@ void RichKlineCtrl::DrawMinuteKlines(wxDC* pDC) {
     double x, y;
     double wRect = GetInnerWidth();
     double hRect = GetInnerHeight();
-    double rect_price_max = GetRectMaxPrice(*m_pMinuteKlines, 0, nKlines - 1);
-    double rect_price_min = GetRectMinPrice(*m_pMinuteKlines, 0, nKlines - 1);
-    double hPrice = rect_price_max - rect_price_min;
+    double m_maxRectPrice = GetRectMaxPrice(*m_pMinuteKlines, 0, nKlines - 1);
+    double m_minRectPrice = GetRectMinPrice(*m_pMinuteKlines, 0, nKlines - 1);
+    double hPrice = m_maxRectPrice - m_minRectPrice;
     double hZoomRatio = hRect / hPrice;
 
     // for (size_t i = 0; i < nKlines; i++) {
     //     double ema_price = curve.ema_price.at(i);
     //     // 定义样条曲线的控制点
     //     x = static_cast<int>(nKline * wRect / nKlines);
-    //     y = static_cast<int>((rect_price_max - ema_price) * hZoomRatio + 0);
+    //     y = static_cast<int>((m_maxRectPrice - ema_price) * hZoomRatio + 0);
     //     wxPoint* pt = new wxPoint(x, y);
     //     pPtList->Append(pt);
     //     nKline += 1;
