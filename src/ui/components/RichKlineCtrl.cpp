@@ -58,11 +58,17 @@ bool RichKlineCtrl::LoadKlines(const std::string& share_code, const KlineType& k
     }
 
     m_pShare = m_pStorage->FindShare(share_code);
+    RichResult status;
     if (kline_type == KlineType::Minute || kline_type == KlineType::FiveDay) {
-        m_pStorage->QueryMinuteKlines(share_code, kline_type, &m_pMinuteKlines);
+        status = m_pStorage->QueryMinuteKlines(share_code, kline_type, &m_pMinuteKlines);
     } else {
-        m_pStorage->QueryKlines(share_code, kline_type, &m_pKlines);
+        status = m_pStorage->QueryKlines(share_code, kline_type, &m_pKlines);
     }
+    if (!status.Ok()) {
+        std::cout << status.What() << std::endl;
+        return false;
+    }
+
     m_emaCurves.clear();
     SetMode(kline_type);
 
@@ -392,6 +398,9 @@ void RichKlineCtrl::OnPaint(wxDC* pDC) {
         DrawFiveDayMinuteKlines(pDC);
     } else if (m_mode == KlineType::Day || m_mode == KlineType::Week || m_mode == KlineType::Month ||
                m_mode == KlineType::Quarter || m_mode == KlineType::Year) {
+        if(m_pKlines == nullptr || m_pKlines->size() == 0){
+            return;
+        }
         DrawDayKlines(pDC);
     }
 }

@@ -71,11 +71,11 @@ RichPanelKline::~RichPanelKline() {
 
 void RichPanelKline::SetShareCode(const std::string& share_code) {
     bool result = m_pKlineCtrl->LoadKlines(share_code);
-    if (!result) {  // 数据有可能加载失败，弹窗提示用户
-    }
-    m_pShare = m_pStorage->FindShare(share_code);
-    if (m_pShare != nullptr) {  // 更新股票名称
-        m_pShareNameCtrl->SetLabel(CN(m_pShare->name));
+    if (result) {  // 数据有可能加载失败，弹窗提示用户
+        m_pShare = m_pStorage->FindShare(share_code);
+        if (m_pShare != nullptr) {  // 更新股票名称
+            m_pShareNameCtrl->SetLabel(CN(m_pShare->name));
+        }
     }
     this->Refresh();
 }
@@ -116,6 +116,7 @@ void RichPanelKline::OnKlineChanged(RichRadioEvent& event) {
     int selection = event.GetSelection();
     bool result = m_pKlineCtrl->LoadKlines(static_cast<KlineType>(selection));
     if (!result) {  // 数据有可能加载失败，弹窗提示用户
+        return;
     }
     m_pShare = m_pStorage->FindShare(m_pKlineCtrl->GetShareCode());
     if (m_pShare != nullptr) {  // 更新股票名称

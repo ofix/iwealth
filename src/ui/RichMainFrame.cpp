@@ -203,8 +203,8 @@ void RichMainFrame::ShowKlinePanel(const std::string& share_code) {
         wxPoint pos = m_panelCurrent->GetPosition();
         wxSize size = m_panelCurrent->GetSize();
         RichPanelKline* panelKline = new RichPanelKline(PanelType::Kline, m_pStorage, this, ID_PANEL_KLINE, pos, size);
-        panelKline->SetShareCode(share_code);
         AddPanelToStack(panelKline);
+        panelKline->SetShareCode(share_code);
     }
 }
 

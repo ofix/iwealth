@@ -19,6 +19,9 @@ RichVolumeBarCtrl::~RichVolumeBarCtrl() {
 }
 
 void RichVolumeBarCtrl::OnPaint(wxDC* pDC) {
+    if(m_pKlineCtrl->m_pKlines == nullptr || m_pKlineCtrl->m_pKlines->size() == 0){
+        return;
+    }
     std::vector<uiKline>& klines = *(m_pKlineCtrl->m_pKlines);
     uiKlineRange& klineRng = m_pKlineCtrl->m_klineRng;
     double hVolumeBar = m_pKlineCtrl->m_height * 0.3;
