@@ -39,6 +39,26 @@ void RichKlineCtrl::Init() {
     m_crossLine = NO_CROSS_LINE;
 }
 
+uiKline* RichKlineCtrl::GetCurrentKline() {
+    if (m_pKlines == nullptr) {
+        return nullptr;
+    }
+    if (m_crossLine == NO_CROSS_LINE) {
+        return &m_pKlines->at(m_pKlines->size() - 1);
+    }
+    return &m_pKlines->at(m_crossLine);
+}
+
+uiKline* RichKlineCtrl::GetPreviousKline() {
+    if (m_pKlines == nullptr) {
+        return nullptr;
+    }
+    if (m_crossLine == NO_CROSS_LINE) {
+        return &m_pKlines->at(m_pKlines->size() - 2);
+    }
+    return &m_pKlines->at(m_crossLine - 1);
+}
+
 /**
  * @brief 1. 日K线需要保存到磁盘上，周K线|月K线|季K线|年K线通过日K线计算得来
  * 2. 分时K线实时请求，并缓存到内存中，采用LRU算法进行淘汰，保留最多200个股票分时图
@@ -612,7 +632,7 @@ void RichKlineCtrl::DrawCrossLine(wxDC* pDC, int centerX, int centerY, int w,
                                   int h) {  // 光标十字线
     wxPen dash_pen(wxColor(200, 200, 200), 1, wxPENSTYLE_DOT);
     pDC->SetPen(dash_pen);
-    pDC->DrawLine(0, centerY, w, centerY);  // 横线
+    pDC->DrawLine(0, centerY, w, centerY);        // 横线
     pDC->DrawLine(centerX, m_pos.y, centerX, h);  // 竖线
 }
 

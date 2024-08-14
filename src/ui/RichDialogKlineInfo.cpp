@@ -9,85 +9,89 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 #include "ui/RichDialogKlineInfo.h"
-#include "ui/components/RichKlineCtrl.h"
+#include <wx/dcbuffer.h>
+#include "ui/RichHelper.h"
 
-RichDialogKlineInfo::RichDialogKlineInfo(RichKlineCtrl* pKlineCtrl,
-                                         wxWindow* parent,
-                                         wxWindowID id,
-                                         const wxPoint& pos,
-                                         const wxSize& size)
-    : wxDialog(parent, id, wxT(""), pos, size), m_pKlineCtrl(pKlineCtrl) {
-    // ctor
+BEGIN_EVENT_TABLE(RichDialogKlineInfo, wxDialog)
+EVT_PAINT(RichDialogKlineInfo::OnPaint)
+END_EVENT_TABLE()
+
+RichDialogKlineInfo::RichDialogKlineInfo(wxWindow* parent, wxWindowID id, const wxPoint& pos, const wxSize& size)
+    : wxDialog(parent, id, wxT(""), pos, size) {
+    // 必须调用此函数，否则无法重绘wxDialog及其子类
+    SetBackgroundStyle(wxBG_STYLE_PAINT);
 }
 
 RichDialogKlineInfo::~RichDialogKlineInfo() {
     // dtor
 }
 
-void RichDialogKlineInfo::OnDraw(wxDC& dc) {
-    uiKline cur = GetCurrentKlineInfo();
-    uiKline old = GetPrevKlineInfo();
+void RichDialogKlineInfo::OnPaint(wxPaintEvent& event) {
+    if (m_pKline == nullptr) {
+        return;
+    }
+    wxAutoBufferedPaintDC dc(this);
     dc.SetPen(wxPen(wxColor(255, 0, 0)));
     dc.SetBrush(*wxBLACK_BRUSH);
     dc.DrawRectangle(10, 40, 65, 340);
     int x = 10;
     int y = 40;
     int hFont = 21;
-    std::string day = FormatDay(cur.day);
-    std::string week = GetWeek(cur.day);
+    std::string day = FormatDay(m_pKline->day);
+    std::string week = GetWeek(m_pKline->day);
     // day
     dc.SetTextForeground(wxColor(210, 210, 210));
-    dc.DrawText("时间", x + 4, y + 4);
-    dc.DrawText(day, x + 4, y + hFont);
-    dc.DrawText(week, x + 4, y + hFont * 2);
-    dc.DrawText("开盘价", x + 4, y + hFont * 3);
-    dc.DrawText("最高价", x + 4, y + hFont * 5);
-    dc.DrawText("最低价", x + 4, y + hFont * 7);
-    dc.DrawText("收盘价", x + 4, y + hFont * 9);
-    dc.DrawText("涨幅", x + 4, y + hFont * 11);
-    dc.DrawText("振幅", x + 4, y + hFont * 13);
-    dc.DrawText("成交量", x + 4, y + hFont * 15);
-    dc.DrawText("成交额", x + 4, y + hFont * 17);
+    dc.DrawText(CN("时间"), x + 4, y + 4);
+    dc.DrawText(CN(day), x + 4, y + hFont);
+    dc.DrawText(CN(week), x + 4, y + hFont * 2);
+    dc.DrawText(CN("开盘价"), x + 4, y + hFont * 3);
+    dc.DrawText(CN("最高价"), x + 4, y + hFont * 5);
+    dc.DrawText(CN("最低价"), x + 4, y + hFont * 7);
+    dc.DrawText(CN("收盘价"), x + 4, y + hFont * 9);
+    dc.DrawText(CN("涨幅"), x + 4, y + hFont * 11);
+    dc.DrawText(CN("振幅"), x + 4, y + hFont * 13);
+    dc.DrawText(CN("成交量"), x + 4, y + hFont * 15);
+    dc.DrawText(CN("成交额"), x + 4, y + hFont * 17);
     // price open
-    if (cur.price_open < old.price_close) {
+    if (m_pKline->price_open < m_pPreviousKline->price_close) {
         dc.SetTextForeground(wxColor(0, 255, 0));
-    } else if (cur.price_open == old.price_close) {
+    } else if (m_pKline->price_open == m_pPreviousKline->price_close) {
         dc.SetTextForeground(wxColor(255, 255, 255));
     } else {
         dc.SetTextForeground(wxColor(255, 0, 0));
     }
     // text
-    // std::string::Format("%.2f",cur.price_open);
+    // std::string::Format("%.2f",m_pKline->price_open);
     dc.DrawText("1", x + 4, y + hFont * 4);
     // price max
-    if (cur.price_max < old.price_close) {
+    if (m_pKline->price_max < m_pPreviousKline->price_close) {
         dc.SetTextForeground(wxColor(0, 255, 0));
-    } else if (cur.price_max == old.price_close) {
+    } else if (m_pKline->price_max == m_pPreviousKline->price_close) {
         dc.SetTextForeground(wxColor(255, 255, 255));
     } else {
         dc.SetTextForeground(wxColor(255, 0, 0));
     }
-    // std::string::Format("%.2f",cur.price_max
+    // std::string::Format("%.2f",m_pKline->price_max
     dc.DrawText("1", x + 4, y + hFont * 6);
     // price min
-    if (cur.price_min < old.price_close) {
+    if (m_pKline->price_min < m_pPreviousKline->price_close) {
         dc.SetTextForeground(wxColor(0, 255, 0));
-    } else if (cur.price_min == old.price_close) {
+    } else if (m_pKline->price_min == m_pPreviousKline->price_close) {
         dc.SetTextForeground(wxColor(255, 255, 255));
     } else {
         dc.SetTextForeground(wxColor(255, 0, 0));
     }
-    // std::string::Format("%.2f",cur.price_min)
+    // std::string::Format("%.2f",m_pKline->price_min)
     dc.DrawText("1", x + 4, y + hFont * 8);
     // price close
-    if (cur.price_close < old.price_close) {
+    if (m_pKline->price_close < m_pPreviousKline->price_close) {
         dc.SetTextForeground(wxColor(0, 255, 0));
-    } else if (cur.price_close == old.price_close) {
+    } else if (m_pKline->price_close == m_pPreviousKline->price_close) {
         dc.SetTextForeground(wxColor(255, 255, 255));
     } else {
         dc.SetTextForeground(wxColor(255, 0, 0));
     }
-    // std::string::Format("%.2f",cur.price_close)
+    // std::string::Format("%.2f",m_pKline->price_close)
     dc.DrawText("1", x + 4, y + hFont * 10);
 }
 
@@ -96,6 +100,14 @@ std::string RichDialogKlineInfo::FormatDay(std::string date) {
     std::string month = date.substr(5, 2);
     std::string day = date.substr(8, 2);
     return year + "\r\n" + month + day;
+}
+
+void RichDialogKlineInfo::SetCurrentKline(uiKline* pKline) {
+    m_pKline = pKline;
+}
+
+void RichDialogKlineInfo::SetPreviousKline(uiKline* pKline) {
+    m_pPreviousKline = pKline;
 }
 
 std::string RichDialogKlineInfo::GetWeek(std::string /*date*/) {
@@ -134,24 +146,4 @@ std::string RichDialogKlineInfo::CalcWeek(int year, int month, int day) {
             return "星期日";
     }
     return "";
-}
-
-uiKline RichDialogKlineInfo::GetCurrentKlineInfo() {
-    int n;
-    if (m_pKlineCtrl->m_crossLine == NO_CROSS_LINE) {
-        n = m_pKlineCtrl->m_pKlines->size() - 1;
-    } else {
-        n = m_pKlineCtrl->m_crossLine;
-    }
-    return m_pKlineCtrl->m_pKlines->at(n);
-}
-
-uiKline RichDialogKlineInfo::GetPrevKlineInfo() {
-    int n;
-    if (m_pKlineCtrl->m_crossLine == NO_CROSS_LINE) {
-        n = m_pKlineCtrl->m_pKlines->size() - 1;
-    } else {
-        n = m_pKlineCtrl->m_crossLine;
-    }
-    return m_pKlineCtrl->m_pKlines->at((n - 1) >= 0 ? (n - 1) : 0);
 }

@@ -20,6 +20,8 @@ class RichKlineCtrl {
                   const wxSize& size = wxDefaultSize);
     virtual ~RichKlineCtrl();
     void Init();
+    uiKline* GetCurrentKline();    // 获取光标当前所在K线
+    uiKline* GetPreviousKline();   // 获取光标前一天所在K线
     void SetMode(KlineType mode);  // Minute|Five Day Minute|Day|Week|Month|Quarter|Year
     KlineType GetMode() const;
 

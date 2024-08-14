@@ -19,7 +19,7 @@ RichVolumeBarCtrl::~RichVolumeBarCtrl() {
 }
 
 void RichVolumeBarCtrl::OnPaint(wxDC* pDC) {
-    if(m_pKlineCtrl->m_pKlines == nullptr || m_pKlineCtrl->m_pKlines->size() == 0){
+    if (m_pKlineCtrl->m_pKlines == nullptr || m_pKlineCtrl->m_pKlines->size() == 0) {
         return;
     }
     std::vector<uiKline>& klines = *(m_pKlineCtrl->m_pKlines);
@@ -37,10 +37,12 @@ void RichVolumeBarCtrl::OnPaint(wxDC* pDC) {
         double x = (double)i * m_pKlineCtrl->m_klineWidth;
         double y = yVolumeBar + (1.0 - it->volume / max_volume) * hVolumeBar;
         double h = it->volume / max_volume * hVolumeBar;
-        pDC->SetPen(*wxTRANSPARENT_PEN);
+
         if (it->price_close >= it->price_open) {  // red bar
-            pDC->SetBrush(wxBrush(wxColor(255, 0, 0)));
+            pDC->SetPen(*wxRED_PEN);
+            pDC->SetBrush(*wxBLACK_BRUSH);
         } else {  // green bar
+            pDC->SetPen(*wxTRANSPARENT_PEN);
             pDC->SetBrush(wxBrush(wxColor(84, 255, 255)));
         }
         pDC->DrawRectangle(x, y, w, h);
