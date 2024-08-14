@@ -119,8 +119,8 @@ void RichKlineCtrl::PrintDebugInfo(std::string prefix) {
     } else {
         std::cout << ",Step: " << m_zoomStep;
     }
-    std::cout << ",KlineWidth:" << m_klineWidth;
-    std::cout << ",klineInnerWidth" << m_klineInnerWidth;
+    std::cout << ",KlineWidth: " << m_klineWidth;
+    std::cout << ",klineInnerWidth: " << m_klineInnerWidth;
     std::cout << ",CrossLine: " << m_crossLine << std::endl;
 }
 
@@ -371,7 +371,7 @@ wxPoint RichKlineCtrl::GetCrossLinePt(long n) {
     uiKline item = m_pKlines->at(n);
     double hPrice = m_maxRectPrice - m_minRectPrice;
     y = m_pos.y + (1 - (item.price_close - m_minRectPrice) / hPrice) * GetInnerHeight();
-    x = std::ceil((m_klineWidth) * (n - m_klineRng.begin) + m_klineInnerWidth / 2);  // 一定可以显示完全
+    x = static_cast<int>((m_klineWidth) * (n - m_klineRng.begin) + m_klineInnerWidth / 2);  // 一定可以显示完全
     return wxPoint(x, y);
 }
 
@@ -379,7 +379,7 @@ void RichKlineCtrl::CalcVisibleKlineWidth() {
     m_klineWidth = static_cast<double>(GetInnerWidth()) / m_visibleKlineCount;
     m_klineInnerWidth = m_klineWidth * 0.8;
     if (m_klineWidth > 1 && static_cast<int>(m_klineInnerWidth) % 2 == 0) {
-        m_klineInnerWidth = (int)std::round(m_klineInnerWidth);
+        m_klineInnerWidth = static_cast<int>(m_klineInnerWidth);
         m_klineInnerWidth -= 1;
         if (m_klineInnerWidth < 1) {
             m_klineInnerWidth = 1;
@@ -465,7 +465,7 @@ void RichKlineCtrl::DrawDayKlines(wxDC* pDC) {
     for (int i = m_klineRng.begin; i <= m_klineRng.end; i++) {
         kline = m_pKlines->at(i);
         double x1, y1, x2, y2;
-        double xShadow, yShadowUp, yShadowDown;  // 上影线,下影线(如果有的话)
+        int xShadow, yShadowUp, yShadowDown;  // 上影线,下影线(如果有的话)
         if (m_visibleKlineCount > wRect) {
             if (kline.price_open < kline.price_close) {  // 红盘
                 // 绘制K线实体
@@ -518,7 +518,7 @@ void RichKlineCtrl::DrawDayKlines(wxDC* pDC) {
         } else {
             if (kline.price_open < kline.price_close) {  // 红盘
                 // 绘制K线实体
-                x1 = nKline * m_klineWidth;
+                x1 = static_cast<int>(nKline * m_klineWidth);
                 y1 = (m_maxRectPrice - kline.price_close) * hZoomRatio + minY;
                 x2 = x1 + m_klineInnerWidth;
                 y2 = (m_maxRectPrice - kline.price_open) * hZoomRatio + minY;
@@ -528,7 +528,7 @@ void RichKlineCtrl::DrawDayKlines(wxDC* pDC) {
                 // 上下影线X坐标
                 xShadow = (x1 + x2) / 2;
             } else if (kline.price_open > kline.price_close) {  // 绿盘
-                x1 = nKline * m_klineWidth;
+                x1 = static_cast<int>(nKline * m_klineWidth);
                 y1 = (m_maxRectPrice - kline.price_open) * hZoomRatio + minY;
                 x2 = x1 + m_klineInnerWidth;
                 y2 = (m_maxRectPrice - kline.price_close) * hZoomRatio + minY;
@@ -538,7 +538,7 @@ void RichKlineCtrl::DrawDayKlines(wxDC* pDC) {
                 // 上下影线X坐标
                 xShadow = (x1 + x2) / 2;
             } else if (kline.price_open == kline.price_close) {
-                x1 = nKline * m_klineWidth;
+                x1 = static_cast<int>(nKline * m_klineWidth);
                 y1 = (m_maxRectPrice - kline.price_open) * hZoomRatio + minY;
                 x2 = x1 + m_klineInnerWidth;
                 y2 = y1;
@@ -613,7 +613,7 @@ void RichKlineCtrl::DrawCrossLine(wxDC* pDC, int centerX, int centerY, int w,
     wxPen dash_pen(wxColor(200, 200, 200), 1, wxPENSTYLE_DOT);
     pDC->SetPen(dash_pen);
     pDC->DrawLine(0, centerY, w, centerY);  // 横线
-    pDC->DrawLine(centerX, 0, centerX, h);  // 竖线
+    pDC->DrawLine(centerX, m_pos.y, centerX, h);  // 竖线
 }
 
 /**
