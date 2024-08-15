@@ -28,6 +28,7 @@ class RichKlineCtrl {
     bool LoadKlines(const std::string& share_code, const KlineType& kline_type = KlineType::Day);
     bool LoadKlines(const KlineType& kline_type);
     std::string GetShareCode() const;
+    Share* GetCurrentShare() const;
 
     void OnBackground(wxEraseEvent& event);
     void OnSize(wxSizeEvent& event);

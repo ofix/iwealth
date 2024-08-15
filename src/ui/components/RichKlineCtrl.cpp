@@ -112,6 +112,10 @@ std::string RichKlineCtrl::GetShareCode() const {
     return m_shareCode;
 }
 
+Share* RichKlineCtrl::GetCurrentShare() const {
+    return m_pShare;
+}
+
 /**
  *@param mode KlineType the Kline draw mode
  */

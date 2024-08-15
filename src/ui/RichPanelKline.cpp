@@ -54,7 +54,7 @@ RichPanelKline::RichPanelKline(PanelType type,
     // 成交量/成交额附图
     m_pVolumeBarCtrl = new RichVolumeBarCtrl(m_pKlineCtrl);
     // 日K线信息
-    m_pDialogKlineInfo = new RichDialogKlineInfo(this, ID_DIALOG_KLINE_INFO, pos, wxSize(200, 400));
+    m_pDialogKlineInfo = new RichDialogKlineInfo(this, ID_DIALOG_KLINE_INFO, pos, wxSize(150, 240));
     m_pDialogKlineInfo->Show(false);
     // 使用自动双缓冲
     SetBackgroundStyle(wxBG_STYLE_PAINT);
@@ -109,11 +109,15 @@ void RichPanelKline::OnKeyDown(wxKeyEvent& event) {
     RefreshRect(rect);  // 界面需要重绘
     uiKline* pCurrentKline = m_pKlineCtrl->GetCurrentKline();
     uiKline* pPreviousKline = m_pKlineCtrl->GetPreviousKline();
+    Share* pShare = m_pKlineCtrl->GetCurrentShare();
     m_pDialogKlineInfo->SetCurrentKline(pCurrentKline);
     m_pDialogKlineInfo->SetPreviousKline(pPreviousKline);
     m_pDialogKlineInfo->Move(10, 10);
     m_pDialogKlineInfo->Show(pCurrentKline == nullptr ? false : true);
+    m_pDialogKlineInfo->SetTitle(CN(pShare->name + "(" + pShare->code + ")"));
     m_pDialogKlineInfo->Refresh();
+
+    this->SetFocus();
     // 一定要最后调用
     event.Skip();
 }
