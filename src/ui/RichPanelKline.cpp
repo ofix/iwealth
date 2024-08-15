@@ -107,23 +107,29 @@ void RichPanelKline::OnKeyDown(wxKeyEvent& event) {
     rect.SetPosition(m_ptKlineCtrl);
     rect.SetSize(size);
     RefreshRect(rect);  // 界面需要重绘
+    ShowDialogKlineInfoIfNeeded();
+    this->SetFocus();
+    // 一定要最后调用
+    event.Skip();
+}
+
+void RichPanelKline::ShowDialogKlineInfoIfNeeded() {
     uiKline* pCurrentKline = m_pKlineCtrl->GetCurrentKline();
     uiKline* pPreviousKline = m_pKlineCtrl->GetPreviousKline();
     Share* pShare = m_pKlineCtrl->GetCurrentShare();
     m_pDialogKlineInfo->SetCurrentKline(pCurrentKline);
     m_pDialogKlineInfo->SetPreviousKline(pPreviousKline);
-    m_pDialogKlineInfo->Move(10, 10);
+    m_pDialogKlineInfo->Move(10, 60);
     m_pDialogKlineInfo->Show(pCurrentKline == nullptr ? false : true);
     m_pDialogKlineInfo->SetTitle(CN(pShare->name + "(" + pShare->code + ")"));
     m_pDialogKlineInfo->Refresh();
-
-    this->SetFocus();
-    // 一定要最后调用
-    event.Skip();
 }
+
 void RichPanelKline::OnLeftMouseDown(wxMouseEvent& event) {
     m_pKlineCtrl->OnLeftMouseDown(event);
     Refresh();
+    ShowDialogKlineInfoIfNeeded();
+    this->SetFocus();
     event.Skip();
 }
 

@@ -125,7 +125,7 @@ void RichDialogKlineInfo::OnPaint(wxPaintEvent& event) {
     ////////////////////////////////
     dc.DrawText(CN("成交量"), x, y + hFont * 8);
     rect.Offset(0, hFont);
-    dc.DrawLabel(CN(convert_double(m_pKline->volume)), rect, alignment);
+    dc.DrawLabel(RichUnit(m_pKline->volume), rect, alignment);
     ////////////////////////////////
     dc.DrawText(CN("成交额"), x, y + hFont * 9);
     rect.Offset(0, hFont);
