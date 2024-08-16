@@ -403,6 +403,30 @@ void StockDataStorage::HashShares() {
     }
 }
 
+// 获取当前显示的股票上一个股票
+Share* StockDataStorage::FindPrevShare(Share* pCurrentShare) {
+    if (pCurrentShare == nullptr) {
+        return nullptr;
+    }
+    if (pCurrentShare == &m_market_shares[0]) {
+        return &m_market_shares[m_market_shares.size() - 1];
+    }
+    std::ptrdiff_t current_pos = pCurrentShare - &m_market_shares[0];
+    return &m_market_shares[current_pos - 1];
+}
+
+// 获取当前显示的股票下一个股票
+Share* StockDataStorage::FindNextShare(Share* pCurrentShare) {
+    if (pCurrentShare == nullptr) {
+        return nullptr;
+    }
+    if (pCurrentShare == &m_market_shares[m_market_shares.size() - 1]) {
+        return &m_market_shares[0];
+    }
+    std::ptrdiff_t current_pos = pCurrentShare - &m_market_shares[0];
+    return &m_market_shares[current_pos + 1];
+}
+
 /// @brief 根据用户输入的前缀字符返回对应的股票指针列表
 std::vector<Share*> StockDataStorage::SearchShares(const std::string& prefix) {
     std::vector<std::string> share_codes = m_trie.listPrefixWith(prefix);

@@ -74,6 +74,7 @@ bool RichKlineCtrl::LoadKlines(const std::string& share_code, const KlineType& k
 
     if (m_shareCode != share_code) {  // 加载不同股票的分时和K线图前，需清空缓存数据
         m_shareCode = share_code;
+        m_crossLine = NO_CROSS_LINE;
     }
 
     m_pShare = m_pStorage->FindShare(share_code);
@@ -101,6 +102,23 @@ bool RichKlineCtrl::LoadKlines(const std::string& share_code, const KlineType& k
     AddEmaCurve(255, wxColor(255, 255, 0));
     AddEmaCurve(905, wxColor(0, 255, 0));
     return true;
+}
+// 上一个股票K线
+bool RichKlineCtrl::LoadPrevKlines() {
+    m_pShare = m_pStorage->FindPrevShare(m_pShare);
+    if (m_pShare == nullptr) {
+        return false;
+    }
+    return LoadKlines(m_pShare->code, m_mode);
+}
+
+// 下一个股票K线
+bool RichKlineCtrl::LoadNextKlines() {
+    m_pShare = m_pStorage->FindNextShare(m_pShare);
+    if (m_pShare == nullptr) {
+        return false;
+    }
+    return LoadKlines(m_pShare->code, m_mode);
 }
 
 // 股票代码保持不变，切换K线类型

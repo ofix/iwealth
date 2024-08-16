@@ -27,6 +27,8 @@ class RichKlineCtrl {
 
     bool LoadKlines(const std::string& share_code, const KlineType& kline_type = KlineType::Day);
     bool LoadKlines(const KlineType& kline_type);
+    bool LoadPrevKlines();
+    bool LoadNextKlines();
     std::string GetShareCode() const;
     Share* GetCurrentShare() const;
 

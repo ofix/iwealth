@@ -63,6 +63,10 @@ class StockDataStorage {
     void InsertShareNameToTrie(const std::string& share_name, const std::string& share_code);
     // 根据股票代号精确查找股票
     Share* FindShare(const std::string& share_code);
+    // 获取当前显示的股票上一个股票
+    Share* FindPrevShare(Share* pCurrentShare);
+    // 获取当前显示的股票下一个股票
+    Share* FindNextShare(Share* pCurrentShare);
     // 模糊搜索股票
     std::vector<Share*> SearchShares(const std::string& prefix);
     // 清空股票
@@ -155,7 +159,6 @@ class StockDataStorage {
     // 省份->[股票1,股票2] hash映射表
     ShareCategory m_category_provinces;
     StockShareKline* m_stock_klines;
-
     // 统计信息
     std::unordered_map<Market, int> m_market_share_count;  // 分市场股票数量统计
     // 爬虫友元类，减少数据拷贝

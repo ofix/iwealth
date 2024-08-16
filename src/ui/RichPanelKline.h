@@ -29,6 +29,7 @@ class RichPanelKline : public RichPanel {
     void OnKeyDown(wxKeyEvent& event);
     void OnLeftMouseDown(wxMouseEvent& event);
     void OnKlineChanged(RichRadioEvent& event);
+    void OnMouseWheel(wxMouseEvent& event);
     void ShowDialogKlineInfoIfNeeded();
 
    protected:

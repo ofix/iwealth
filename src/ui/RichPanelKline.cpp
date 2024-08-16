@@ -25,6 +25,7 @@ EVT_LEFT_DOWN(RichPanelKline::OnLeftMouseDown)
 EVT_KEY_DOWN(RichPanelKline::OnKeyDown)
 EVT_ERASE_BACKGROUND(RichPanelKline::OnBackground)
 EVT_RICH_RADIO(RichPanelKline::ID_RADIO_CTRL, RichPanelKline::OnKlineChanged)
+EVT_MOUSEWHEEL(RichPanelKline::OnMouseWheel)
 END_EVENT_TABLE()
 
 RichPanelKline::RichPanelKline(PanelType type,
@@ -75,7 +76,7 @@ RichPanelKline::~RichPanelKline() {
 void RichPanelKline::SetShareCode(const std::string& share_code) {
     bool result = m_pKlineCtrl->LoadKlines(share_code);
     if (result) {  // 数据有可能加载失败，弹窗提示用户
-        m_pShare = m_pStorage->FindShare(share_code);
+        m_pShare = m_pKlineCtrl->GetCurrentShare();
         if (m_pShare != nullptr) {  // 更新股票名称
             m_pShareNameCtrl->SetLabel(CN(m_pShare->name));
         }
@@ -111,6 +112,35 @@ void RichPanelKline::OnKeyDown(wxKeyEvent& event) {
     this->SetFocus();
     // 一定要最后调用
     event.Skip();
+}
+
+void RichPanelKline::OnMouseWheel(wxMouseEvent& event) {
+    int delta = event.GetWheelRotation();
+    if (delta > 0) {
+        bool result = m_pKlineCtrl->LoadPrevKlines();
+        if (result) {  // 数据有可能加载失败，弹窗提示用户
+            m_pShare = m_pKlineCtrl->GetCurrentShare();
+            if (m_pShare != nullptr) {  // 更新股票名称
+                m_pShareNameCtrl->SetLabel(CN(m_pShare->name));
+            }
+            if (m_pDialogKlineInfo->IsShown()) {  // 更新显示的K线详情
+                ShowDialogKlineInfoIfNeeded();
+            }
+        }
+        this->Refresh();
+    } else {
+        bool result = m_pKlineCtrl->LoadNextKlines();
+        if (result) {  // 数据有可能加载失败，弹窗提示用户
+            m_pShare = m_pKlineCtrl->GetCurrentShare();
+            if (m_pShare != nullptr) {  // 更新股票名称
+                m_pShareNameCtrl->SetLabel(CN(m_pShare->name));
+            }
+            if (m_pDialogKlineInfo->IsShown()) {  // 更新显示的K线详情
+                ShowDialogKlineInfoIfNeeded();
+            }
+        }
+        this->Refresh();
+    }
 }
 
 void RichPanelKline::ShowDialogKlineInfoIfNeeded() {
