@@ -22,7 +22,7 @@ BEGIN_EVENT_TABLE(RichPanelKline, RichPanel)
 EVT_PAINT(RichPanelKline::OnPaint)
 EVT_SIZE(RichPanelKline::OnSize)
 EVT_LEFT_DOWN(RichPanelKline::OnLeftMouseDown)
-EVT_KEY_DOWN(RichPanelKline::OnKeyDown)
+// EVT_KEY_DOWN(RichPanelKline::OnKeyDown)
 EVT_ERASE_BACKGROUND(RichPanelKline::OnBackground)
 EVT_RICH_RADIO(RichPanelKline::ID_RADIO_CTRL, RichPanelKline::OnKlineChanged)
 EVT_MOUSEWHEEL(RichPanelKline::OnMouseWheel)
@@ -59,6 +59,7 @@ RichPanelKline::RichPanelKline(PanelType type,
     m_pDialogKlineInfo->Show(false);
     // 使用自动双缓冲
     SetBackgroundStyle(wxBG_STYLE_PAINT);
+    Bind(wxEVT_KEY_DOWN, &RichPanelKline::OnKeyDown, this);
     // SetFocusIgnoringChildren();  // 忽略子窗口默认获取输入焦点，解决无法移动K线的问题
 }
 
@@ -111,7 +112,7 @@ void RichPanelKline::OnKeyDown(wxKeyEvent& event) {
     ShowDialogKlineInfoIfNeeded();
     this->SetFocus();
     // 一定要最后调用
-    event.Skip();
+    event.Skip(false);
 }
 
 void RichPanelKline::OnMouseWheel(wxMouseEvent& event) {

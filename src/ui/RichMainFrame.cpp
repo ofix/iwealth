@@ -75,8 +75,9 @@ RichMainFrame::RichMainFrame(wxWindow* parent, wxWindowID id, const wxPoint& /*p
     panelQuote->GetGridCtrl()->Bind(wxEVT_CHAR, &RichMainFrame::OnChar, this);
     panelQuote->GetGridCtrl()->Bind(wxEVT_GRID_CELL_LEFT_CLICK, &RichMainFrame::OnGridCellLeftClick, this);
     panelQuote->GetGridCtrl()->Bind(wxEVT_GRID_CELL_LEFT_DCLICK, &RichMainFrame::OnGridCellLeftDblClick, this);
-    panelQuote->GetGridCtrl()->Bind(wxEVT_KEY_DOWN, &RichMainFrame::OnKeyDown, this);
     Bind(wxEVT_RICH_SHARE_SEARCH, &RichMainFrame::OnSearchShare, this);
+    // 修正RichPanelKline 按下ESC按键，RichMainFrame::OnKeyDown 无法捕获的问题
+    Bind(wxEVT_CHAR_HOOK, &RichMainFrame::OnKeyDown, this);
     AddPanelToStack(panelQuote);
 
     m_dlgShareSearch = new RichDialogShareSearch(

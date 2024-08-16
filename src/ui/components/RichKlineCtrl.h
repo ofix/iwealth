@@ -24,6 +24,7 @@ class RichKlineCtrl {
     uiKline* GetPreviousKline();   // 获取光标前一天所在K线
     void SetMode(KlineType mode);  // Minute|Five Day Minute|Day|Week|Month|Quarter|Year
     KlineType GetMode() const;
+    bool IsFocus();
 
     bool LoadKlines(const std::string& share_code, const KlineType& kline_type = KlineType::Day);
     bool LoadKlines(const KlineType& kline_type);

@@ -290,7 +290,9 @@ void RichKlineCtrl::OnKeyDown(wxKeyEvent& event) {
     } else if (key == WXK_END) {
         m_crossLine = m_klineRng.end;
     } else if (key == WXK_ESCAPE) {
-        m_crossLine = NO_CROSS_LINE;
+        if (m_crossLine != NO_CROSS_LINE) {
+            m_crossLine = NO_CROSS_LINE;
+        }
     }
 
     if (m_crossLine != NO_CROSS_LINE) {
@@ -298,6 +300,10 @@ void RichKlineCtrl::OnKeyDown(wxKeyEvent& event) {
             m_crossLinePt = GetCrossLinePt(m_crossLine);  // 修正十字线的位置
         }
     }
+}
+
+bool RichKlineCtrl::IsFocus() {
+    return m_crossLine != NO_CROSS_LINE;
 }
 
 void RichKlineCtrl::OnLeftMouseDown(wxMouseEvent& event) {
