@@ -427,7 +427,7 @@ wxPoint RichKlineCtrl::GetCrossLinePt(long n) {
 }
 
 void RichKlineCtrl::CalcVisibleKlineWidth() {
-    if (m_pKlines.size() < 20) {
+    if (m_pKlines->size() < 20) {
         m_klineWidth = 10;
         m_klineInnerWidth = 7;
     } else {
