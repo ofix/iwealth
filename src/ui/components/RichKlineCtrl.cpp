@@ -313,6 +313,9 @@ void RichKlineCtrl::OnLeftMouseDown(wxMouseEvent& event) {
         // 获取最靠近的K线
         int k = x / m_klineWidth;
         m_crossLine = m_klineRng.begin + k;
+        if (m_crossLine > m_pKlines->size() - 1) {
+            m_crossLine = m_pKlines->size() - 1;
+        }
         m_crossLinePt = GetCrossLinePt(m_crossLine);
     }
 }
@@ -424,13 +427,18 @@ wxPoint RichKlineCtrl::GetCrossLinePt(long n) {
 }
 
 void RichKlineCtrl::CalcVisibleKlineWidth() {
-    m_klineWidth = static_cast<double>(GetInnerWidth()) / m_visibleKlineCount;
-    m_klineInnerWidth = m_klineWidth * 0.8;
-    if (m_klineWidth > 1 && static_cast<int>(m_klineInnerWidth) % 2 == 0) {
-        m_klineInnerWidth = static_cast<int>(m_klineInnerWidth);
-        m_klineInnerWidth -= 1;
-        if (m_klineInnerWidth < 1) {
-            m_klineInnerWidth = 1;
+    if (m_pKlines.size() < 20) {
+        m_klineWidth = 10;
+        m_klineInnerWidth = 7;
+    } else {
+        m_klineWidth = static_cast<double>(GetInnerWidth()) / m_visibleKlineCount;
+        m_klineInnerWidth = m_klineWidth * 0.8;
+        if (m_klineWidth > 1 && static_cast<int>(m_klineInnerWidth) % 2 == 0) {
+            m_klineInnerWidth = static_cast<int>(m_klineInnerWidth);
+            m_klineInnerWidth -= 1;
+            if (m_klineInnerWidth < 1) {
+                m_klineInnerWidth = 1;
+            }
         }
     }
     // 根据K线宽度计算起始坐标和放大坐标
@@ -686,6 +694,9 @@ void RichKlineCtrl::DrawEmaCurves(wxDC* pDC,
                                   int maxX,
                                   int maxY,
                                   double klineWidth) {
+    if (m_pKlines->size() <= 2) {  // 只有一条K线数据无法绘制EMA曲线
+        return;
+    }
     double hPrice = m_maxRectPrice - m_minRectPrice;
     int hRect = maxY - minY;
     int wRect = maxX - minX;

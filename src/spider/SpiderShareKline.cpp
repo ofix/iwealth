@@ -95,7 +95,7 @@ bool SpiderShareKline::CrawlSync(Share* pShare, KlineType kline_type, std::vecto
     };
     std::vector<DataProvider> data_providers;
     int iProvider = rand_int(0, providers.size() - 1);
-    DataProvider provider = providers[0];  // 强制使用EastMoney
+    DataProvider provider = providers[1];  // 强制使用 EastMoney
     if (kline_type == KlineType::Minute || kline_type == KlineType::FiveDay) {
         provider = DataProvider::FinanceBaidu;
     }
@@ -112,10 +112,10 @@ bool SpiderShareKline::CrawlSync(Share* pShare, KlineType kline_type, std::vecto
     request.pExtra = pExtra;
     requests.push_back(request);
     bool result = Start(requests, "sync_kline", 1);
-    DELETE_RESOURCE(pExtra);
     if (result) {
         MergeShareKlines(m_concurrent_day_klines_adjust, period_klines);
     }
+    DELETE_RESOURCE(pExtra);
     return result;
 }
 
