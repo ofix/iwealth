@@ -115,7 +115,6 @@ bool SpiderShareKline::CrawlSync(Share* pShare, KlineType kline_type, std::vecto
     if (result) {
         MergeShareKlines(m_concurrent_day_klines_adjust, period_klines);
     }
-    DELETE_RESOURCE(pExtra);
     return result;
 }
 
@@ -190,10 +189,7 @@ void SpiderShareKline::ConcurrentResponseCallback(conn_t* conn) {
             conn->reuse = true;  // 需要复用
         } else {
             conn->reuse = false;
-            if (pExtra != nullptr) {
-                delete pExtra;
-                pExtra = nullptr;
-            }
+            DELETE_RESOURCE(conn->extra);  // (跨) 线程删除
         }
         this->m_concurrent_day_klines_adjust[share_code].push_back(multi_kline);
     } else {

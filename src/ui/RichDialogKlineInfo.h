@@ -7,18 +7,16 @@
 #include <wx/dialog.h>
 #include <string>
 #include "stock/Stock.h"
+#include "ui/components/RichDialog.h"
 
-class RichDialogKlineInfo : public wxDialog {
+class RichDialogKlineInfo : public RichDialog {
    public:
     RichDialogKlineInfo(wxWindow* parent,
                         wxWindowID id,
                         const wxPoint& pos = wxDefaultPosition,
                         const wxSize& size = wxDefaultSize);
     virtual ~RichDialogKlineInfo();
-    void OnPaint(wxPaintEvent& event);
-    void OnLeftMouseDown(wxMouseEvent& event);
-    void OnLeftMouseMove(wxMouseEvent& event);
-    void OnLeftMouseUp(wxMouseEvent& event);
+    virtual void OnDrawClient(wxDC* pDC);
     void SetCurrentKline(uiKline* pKline);
     void SetPreviousKline(uiKline* pKline);
     std::string FormatDay(std::string);
@@ -32,15 +30,12 @@ class RichDialogKlineInfo : public wxDialog {
     // 绘制自定义关闭按钮
     void DrawCloseButton(wxDC* pDC);
     // 是否鼠标在关闭按钮位置上
+    bool IsInTitleBar(wxPoint& ptCursor);
     bool IsInCloseButton(wxPoint& ptCursor);
 
    protected:
     uiKline* m_pKline;
     uiKline* m_pPreviousKline;
-    wxRect m_rectCloseBtn;
-    wxColor m_titleForegroundColor;
-    wxColor m_titleBackgroundColor;
-    DECLARE_EVENT_TABLE()
 };
 
 #endif  // RICHKLINEINFOCTRL_H

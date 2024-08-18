@@ -55,6 +55,9 @@ uiKline* RichKlineCtrl::GetPreviousKline() {
     if (m_crossLine == NO_CROSS_LINE) {
         return &m_pKlines->at(m_pKlines->size() - 2);
     }
+    if (m_crossLine <= 0) {
+        return &m_pKlines->at(0);
+    }
     return &m_pKlines->at(m_crossLine - 1);
 }
 
@@ -238,7 +241,7 @@ void RichKlineCtrl::OnSize(wxSizeEvent& event) {
 }
 
 void RichKlineCtrl::OnKeyDown(wxKeyEvent& event) {
-    int max = m_pKlines->size() - 1;
+    int max = m_pKlines->size();
     int key = event.GetKeyCode();
     if (key == WXK_LEFT) {
         if (m_crossLine == NO_CROSS_LINE) {

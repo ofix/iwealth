@@ -155,7 +155,9 @@ void RichPanelKline::ShowDialogKlineInfoIfNeeded() {
     Share* pShare = m_pKlineCtrl->GetCurrentShare();
     m_pDialogKlineInfo->SetCurrentKline(pCurrentKline);
     m_pDialogKlineInfo->SetPreviousKline(pPreviousKline);
-    m_pDialogKlineInfo->Move(10, 60);
+    if (!m_pDialogKlineInfo->IsShown()) {
+        m_pDialogKlineInfo->Move(10, 60);
+    }
     m_pDialogKlineInfo->Show(pCurrentKline == nullptr ? false : true);
     m_pDialogKlineInfo->SetTitle(CN(pShare->name + "(" + pShare->code + ")"));
     m_pDialogKlineInfo->Refresh();

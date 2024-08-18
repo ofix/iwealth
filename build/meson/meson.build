@@ -103,6 +103,7 @@ gui_sources = [
     'ui/RichDialogShareSearch.cpp',
     'ui/components/RichKlineCtrl.cpp',
     'ui/RichDialogKlineInfo.cpp',
+    'ui/components/RichDialog.cpp',
     'ui/components/RichVolumeBarCtrl.cpp',
     'ui/components/RichGrid.cpp',
     'ui/components/RichGridCellStringRenderer.cpp',
