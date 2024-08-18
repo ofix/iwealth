@@ -123,14 +123,19 @@ void RichMainFrame::OnMaximize(wxMaximizeEvent& event) {
 
 // 全局处理 Alt+Tab 按键消息
 void RichMainFrame::OnKeyDown(wxKeyEvent& event) {
-    int key_code = event.GetKeyCode();
-    if (key_code == WXK_TAB && event.AltDown()) {
+    int key = event.GetKeyCode();
+    if (key == WXK_TAB && event.AltDown()) {
         std::cout << " alt+tab 按下了" << std::endl;
-    } else if (key_code == WXK_ESCAPE) {
+    } else if (key == WXK_ESCAPE) {
         PopPanelFromStack();
-    } else {
-        event.Skip();
+    } else if (key != WXK_ALT && key != WXK_TAB && key != WXK_LEFT && key != WXK_RIGHT && key != WXK_UP &&
+               key != WXK_DOWN && key != WXK_SHIFT && key != WXK_HOME && key != WXK_END && key != WXK_NUMPAD_END &&
+               key != WXK_NUMPAD_HOME && key != WXK_NUMPAD_PAGEUP && key != WXK_NUMPAD_PAGEDOWN &&
+               key != WXK_NUMPAD_LEFT && key != WXK_NUMPAD_RIGHT) {
+        OnChar(event);
     }
+    // 必须放在最后，否则RichPanelKline 无法响应按键消息
+    event.Skip();
 }
 
 // 处理按键按下事件

@@ -110,9 +110,14 @@ void RichPanelKline::OnKeyDown(wxKeyEvent& event) {
     rect.SetSize(size);
     RefreshRect(rect);  // 界面需要重绘
     ShowDialogKlineInfoIfNeeded();
-    this->SetFocus();
-    // 一定要最后调用
-    event.Skip(false);
+    int key = event.GetKeyCode();
+    if (key == WXK_LEFT || key == WXK_RIGHT || key == WXK_UP || key == WXK_DOWN) {
+        this->SetFocus();
+        event.Skip(true);
+    } else {
+        // 一定要最后调用
+        event.Skip(false);
+    }
 }
 
 void RichPanelKline::OnMouseWheel(wxMouseEvent& event) {

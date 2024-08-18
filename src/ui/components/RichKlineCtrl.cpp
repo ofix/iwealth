@@ -26,7 +26,6 @@ void RichKlineCtrl::Init() {
     m_mode = KlineType::Day;
     m_klineWidth = 7;
     m_visibleKlineCount = 120;
-    m_zoomStep = 40;
     m_shareCode = "";
     m_pShare = nullptr;
     m_klineRng.begin = 0;
@@ -155,12 +154,6 @@ KlineType RichKlineCtrl::GetMode() const {
 void RichKlineCtrl::PrintDebugInfo(std::string prefix) {
     std::cout << "[" << prefix << "] Range: " << m_klineRng.begin << "," << m_klineRng.end;
     std::cout << ",Total:" << m_klineRng.end - m_klineRng.begin;
-    if (m_zoomStepStack.size() > 0) {
-        int step = m_zoomStepStack.top();
-        std::cout << ",Step: " << step;
-    } else {
-        std::cout << ",Step: " << m_zoomStep;
-    }
     std::cout << ",KlineWidth: " << m_klineWidth;
     std::cout << ",klineInnerWidth: " << m_klineInnerWidth;
     std::cout << ",CrossLine: " << m_crossLine << std::endl;
@@ -182,27 +175,24 @@ void RichKlineCtrl::ZoomIn() {
     // 计算放大中心两边的K线数量
     double leftKlineCount = m_crossLine - m_klineRng.begin;
     double rightKlineCount = m_klineRng.end - m_crossLine;
+    // 取中心点左右两侧K线较多的一边进行延展，保住中心的地位
+    double size = leftKlineCount > rightKlineCount ? leftKlineCount : rightKlineCount;
+    m_klineRng.begin = m_crossLine - size / 2;
+    m_klineRng.end = m_crossLine + size / 2;
 
-    if (m_zoomStepStack.size() > 0) {
-        m_zoomStep = m_zoomStepStack.top();  // 获取顶部元素
-        m_zoomStepStack.pop();
-    } else {
-        m_zoomStep = m_visibleKlineCount / 2;
-    }
-
-    // 将当前可见范围内的的K线数量按照左右K线比例进行减少，减少的k线数量为当前显示K线数量的一半
-    m_klineRng.begin += m_zoomStep * (leftKlineCount) / (leftKlineCount + rightKlineCount);
-    m_klineRng.end -= m_zoomStep * (rightKlineCount) / (leftKlineCount + rightKlineCount);
-
-    if (m_klineRng.end > m_pKlines->size() - 1) {
-        m_klineRng.end = m_pKlines->size() - 1;
-    }
     if (m_klineRng.begin > m_klineRng.end) {
         m_klineRng.begin = m_klineRng.end - 8;
     }
+    // 边界处理
+    if (m_klineRng.begin < 0) {
+        m_klineRng.begin = 0;
+    }
+    if (m_klineRng.end > m_pKlines->size() - 1) {
+        m_klineRng.end = m_pKlines->size() - 1;
+    }
+
     m_visibleKlineCount = m_klineRng.end - m_klineRng.begin + 1;
     CalcVisibleKlineWidth();
-    PrintDebugInfo("ZoomIn");
 }
 
 /**
@@ -218,29 +208,22 @@ void RichKlineCtrl::ZoomOut() {
         return;
     }
 
-    int prevVisibleKlineCount = m_visibleKlineCount;
-
     // 计算放大中心两边的K线数量
     double leftKlineCount = m_crossLine - m_klineRng.begin;
     double rightKlineCount = m_klineRng.end - m_crossLine;
-    // 将当前可见范围内的的K线数量按照左右K线比例进行减少，减少的k线数量为当前显示K线数量的一半
-    m_klineRng.begin -= m_zoomStep * (leftKlineCount) / (leftKlineCount + rightKlineCount);
-    m_klineRng.end += m_zoomStep * (rightKlineCount) / (leftKlineCount + rightKlineCount);
-    // 缩放后，显示K线范围有可能超过边界，必须加以限制
+    // 取中心点左右两侧K线较多的一边进行延展，保住中心的地位
+    double size = leftKlineCount > rightKlineCount ? leftKlineCount : rightKlineCount;
+    m_klineRng.begin = m_crossLine - size * 2;
+    m_klineRng.end = m_crossLine + size * 2;
+    // 边界处理
     if (m_klineRng.begin < 0) {
         m_klineRng.begin = 0;
     }
     if (m_klineRng.end > m_pKlines->size() - 1) {
-        m_klineRng.end = static_cast<int>(m_pKlines->size() - 1);
+        m_klineRng.end = m_pKlines->size() - 1;
     }
-
     m_visibleKlineCount = m_klineRng.end - m_klineRng.begin + 1;
-    m_zoomStepStack.push(m_visibleKlineCount - prevVisibleKlineCount);
     CalcVisibleKlineWidth();
-    if (m_klineRng.begin != 0) {
-        m_zoomStep *= 2;
-    }
-    PrintDebugInfo("ZoomOut");
 }
 
 void RichKlineCtrl::OnBackground(wxEraseEvent& event) {
@@ -478,14 +461,15 @@ void RichKlineCtrl::DrawKlineBackground(wxDC* pDC, double min_price, double max_
     int wRect = GetInnerWidth();
     int hRect = GetInnerHeight() + m_paddingBottom;
     pDC->DrawRectangle(minX, minY, wRect, hRect);
+#define NLINES 14
     // 绘制横线和价格
-    double avg_price = (max_price - min_price) / 6;
-    double avg_height = hRect / 6;
+    double avg_price = (max_price - min_price) / NLINES;
+    double avg_height = hRect / NLINES;
 
     double y = minY;
-    wxPen dash_pen(wxColor(89, 89, 89), 1, wxPENSTYLE_DOT);
+    wxPen dash_pen(wxColor(39, 39, 39), 1, wxPENSTYLE_SHORT_DASH);
     pDC->SetPen(dash_pen);
-    for (int i = 0; i < 6; i++) {
+    for (int i = 0; i < NLINES; i++) {
         y = y + avg_height;
         pDC->DrawLine(0, y, wRect, y);
     }
@@ -494,7 +478,7 @@ void RichKlineCtrl::DrawKlineBackground(wxDC* pDC, double min_price, double max_
     pDC->DrawText(convert_double(max_price, 2), wRect + 4, minY - 8);
     y = minY;
     double price = max_price;
-    for (int i = 0; i < 6; i++) {
+    for (int i = 0; i < NLINES; i++) {
         y = y + avg_height;
         price = price - avg_price;
         pDC->DrawText(convert_double(price, 2), wRect + 4, y - 8);
@@ -651,8 +635,9 @@ void RichKlineCtrl::DrawMinMaxRectPrice(wxDC* pDC) {
     pDC->SetBrush(wxBrush(wxColor(220, 220, 220)));
     pDC->DrawText(min_price_text, min_x, min_y);
     pDC->DrawText(max_price_text, max_x, max_y);
-    std::cout << "min: " << m_minRectPriceIndex << "," << min_x << "," << min_y << "," << min_price_text << std::endl;
-    std::cout << "max: " << m_maxRectPriceIndex << "," << max_x << "," << max_y << "," << max_price_text << std::endl;
+    // std::cout << "min: " << m_minRectPriceIndex << "," << min_x << "," << min_y << "," << min_price_text <<
+    // std::endl; std::cout << "max: " << m_maxRectPriceIndex << "," << max_x << "," << max_y << "," << max_price_text
+    // << std::endl;
 }
 
 /**

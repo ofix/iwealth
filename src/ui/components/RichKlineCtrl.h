@@ -87,19 +87,17 @@ class RichKlineCtrl {
     wxPoint m_pos;     // 起始位置
     int m_width;
     int m_height;
-    double m_klineInnerWidth;         // K线实际宽度，有可能为小数
-    double m_klineWidth;              // K线宽度，包含K线间距,有可能为小数
-    int m_visibleKlineCount;          // 可见的K线数量
-    std::stack<int> m_zoomStepStack;  // 每一次缩放的K线数量
-    int m_zoomStep;                   // 缩放的K线数量
-    float m_minRectPrice;             // 如果有EMA均线，K线高度需要变化
-    float m_maxRectPrice;             // 如果有EMA均线，K线高度需要变化
-    float m_minKlinePrice;            // 可见K线中最低价
-    float m_maxKlinePrice;            // 可见K线中最高价
-    int m_minRectPriceIndex;          // 可见K线中最低价K线位置
-    int m_maxRectPriceIndex;          // 可见K险种最高价K线位置
-    int m_curKline;                   // 当前K线十字线
-    wxPoint m_crossLinePt;            // 当前K线十字线坐标
+    double m_klineInnerWidth;  // K线实际宽度，有可能为小数
+    double m_klineWidth;       // K线宽度，包含K线间距,有可能为小数
+    int m_visibleKlineCount;   // 可见的K线数量
+    float m_minRectPrice;      // 如果有EMA均线，K线高度需要变化
+    float m_maxRectPrice;      // 如果有EMA均线，K线高度需要变化
+    float m_minKlinePrice;     // 可见K线中最低价
+    float m_maxKlinePrice;     // 可见K线中最高价
+    int m_minRectPriceIndex;   // 可见K线中最低价K线位置
+    int m_maxRectPriceIndex;   // 可见K险种最高价K线位置
+    int m_curKline;            // 当前K线十字线
+    wxPoint m_crossLinePt;     // 当前K线十字线坐标
     int m_crossLine;
 
     StockDataStorage* m_pStorage;               // 股票存储中心
