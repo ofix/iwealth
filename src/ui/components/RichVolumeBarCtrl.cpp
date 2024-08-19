@@ -30,6 +30,9 @@ void RichVolumeBarCtrl::OnPaint(wxDC* pDC) {
     double max_volume = GetMaxVolumeInRange();
     // calc single volume bar width
     long w = m_pKlineCtrl->m_klineInnerWidth;
+    if (w < 1) {
+        w = 1;
+    }
     std::vector<uiKline>::const_iterator it;
     int i = 0;
     for (it = klines.begin() + klineRng.begin; it != klines.begin() + klineRng.end; ++it, ++i) {
