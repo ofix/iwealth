@@ -56,7 +56,9 @@ class RichKlineCtrl {
     // 日K线|周K线|月K线|季K线|年K线
     void DrawKlineBackground(wxDC* pDC, double price_min, double price_max);
     void DrawDayKlines(wxDC* pDC);
+    void DrawEmaText(wxDC* pDC);
     void DrawMinMaxRectPrice(wxDC* pDC);
+    bool CheckPtInEmaText(wxPoint& pt);
     void DrawCrossLine(wxDC* pDC, int centerX, int centerY, int w, int h);  // 光标十字线
     void DrawEmaCurves(wxDC* pDC,
                        int visibleKLineCount,

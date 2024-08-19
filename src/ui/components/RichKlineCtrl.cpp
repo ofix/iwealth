@@ -296,6 +296,8 @@ void RichKlineCtrl::OnLeftMouseDown(wxMouseEvent& event) {
     if (event.LeftIsDown()) {  // 左键按下
         long x, y;
         event.GetPosition(&x, &y);
+        wxPoint pt(x, y);
+        CheckPtInEmaText(pt);
         // 获取最靠近的K线
         int k = x / m_klineWidth;
         m_crossLine = m_klineRng.begin + k;
@@ -612,6 +614,7 @@ void RichKlineCtrl::DrawDayKlines(wxDC* pDC) {
     }
     DrawEmaCurves(pDC, visible_klines, m_maxRectPrice, m_minRectPrice, 0, m_pos.y, GetInnerWidth(), GetInnerHeight(),
                   m_klineWidth);
+    DrawEmaText(pDC);
     DrawMinMaxRectPrice(pDC);
     if (m_crossLine != NO_CROSS_LINE) {
         DrawCrossLine(pDC, m_crossLinePt.x, m_crossLinePt.y, m_width, m_height * 0.7);
@@ -636,6 +639,7 @@ void RichKlineCtrl::DrawMinMaxRectPrice(wxDC* pDC) {
 
     pDC->SetPen(wxPen(wxColor(220, 220, 220)));
     pDC->SetBrush(wxBrush(wxColor(220, 220, 220)));
+    pDC->SetTextForeground(wxColor(220, 220, 220));
     pDC->DrawText(min_price_text, min_x, min_y);
     pDC->DrawText(max_price_text, max_x, max_y);
     // std::cout << "min: " << m_minRectPriceIndex << "," << min_x << "," << min_y << "," << min_price_text <<
@@ -658,6 +662,39 @@ void RichKlineCtrl::DrawCrossLine(wxDC* pDC, int centerX, int centerY, int w,
     pDC->SetPen(dash_pen);
     pDC->DrawLine(0, centerY, w, centerY);        // 横线
     pDC->DrawLine(centerX, m_pos.y, centerX, h);  // 竖线
+}
+
+bool RichKlineCtrl::CheckPtInEmaText(wxPoint& pt) {
+    int offsetX = 0;
+    int offsetY = 20;
+    wxMemoryDC dc;
+    for (auto& curve : m_emaCurves) {
+        std::string text = "EMA" + std::to_string(curve.period) + ": " + convert_double(curve.ema_price.back()) + "  ";
+        int width = dc.GetTextExtent(text).GetWidth();
+        wxRect rc(offsetX, offsetY, width, 16);
+        if (rc.Contains(pt)) {
+            curve.visible = !curve.visible;
+            return true;
+        }
+        offsetX += width;
+    }
+    return false;
+}
+
+void RichKlineCtrl::DrawEmaText(wxDC* pDC) {
+    int offsetX = 0;
+    int offsetY = 20;
+    for (auto& curve : m_emaCurves) {
+        std::string text = "EMA" + std::to_string(curve.period) + ": " + convert_double(curve.ema_price.back()) + "  ";
+        int width = pDC->GetTextExtent(text).GetWidth();
+        if (curve.visible) {
+            pDC->SetTextForeground(curve.color);
+        } else {
+            pDC->SetTextForeground(wxColor(180, 180, 180));
+        }
+        pDC->DrawText(text, offsetX, offsetY);
+        offsetX += width;
+    }
 }
 
 /**
