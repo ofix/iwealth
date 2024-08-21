@@ -218,7 +218,7 @@ RichResult StockShareKline::FetchIncrementalDayKlines(const std::string& share_c
     for (size_t i = 0; i < tmp_klines.size(); i++) {
         uiKline kline = tmp_klines[i];
         if (kline.day == start_date) {
-            day_klines.assign(tmp_klines.begin() + i, tmp_klines.end());
+            day_klines.assign(tmp_klines.begin() + i + 1, tmp_klines.end());
             break;
         }
     }
