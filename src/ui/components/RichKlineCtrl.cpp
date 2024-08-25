@@ -94,15 +94,18 @@ bool RichKlineCtrl::LoadKlines(const std::string& share_code, const KlineType& k
     m_emaCurves.clear();
     SetMode(kline_type);
 
-    m_klineRng.end = m_pKlines->size() - 1;
-    m_klineRng.begin = (m_klineRng.end >= 119) ? m_klineRng.end - 119 : 0;
-    m_visibleKlineCount = m_klineRng.end - m_klineRng.begin + 1;
-    CalcVisibleKlineWidth();
+    if (kline_type == KlineType::Day || kline_type == KlineType::Week || kline_type == KlineType::Month ||
+        kline_type == KlineType::Quarter || kline_type == KlineType::Year) {
+        m_klineRng.end = m_pKlines->size() - 1;
+        m_klineRng.begin = (m_klineRng.end >= 119) ? m_klineRng.end - 119 : 0;
+        m_visibleKlineCount = m_klineRng.end - m_klineRng.begin + 1;
+        CalcVisibleKlineWidth();
 
-    // 添加 EMA 曲线的时候会自动计算相关数据
-    AddEmaCurve(99, wxColor(255, 0, 255));
-    AddEmaCurve(255, wxColor(255, 255, 0));
-    AddEmaCurve(905, wxColor(0, 255, 0));
+        // 添加 EMA 曲线的时候会自动计算相关数据
+        AddEmaCurve(99, wxColor(255, 0, 255));
+        AddEmaCurve(255, wxColor(255, 255, 0));
+        AddEmaCurve(905, wxColor(0, 255, 0));
+    }
     return true;
 }
 // 上一个股票K线
@@ -831,74 +834,99 @@ void RichKlineCtrl::DrawFiveDayMinuteKlines(wxDC* pDC) {
 
 ////////////////////// 分时图相关函数  //////////////////////
 void RichKlineCtrl::DrawMinuteKlines(wxDC* pDC) {
-    // 绘制曲线
-    pDC->SetPen(wxPen(wxColor(255, 255, 0)));
-    wxPointList* pPtList = new wxPointList();
-    int nKline = 0;
-    size_t nKlines = m_pMinuteKlines->size() - 1;
-    double x, y;
+    DrawMinuteKlineBackground(pDC);
     double wRect = GetInnerWidth();
     double hRect = GetInnerHeight();
-    double m_maxRectPrice = GetRectMaxPrice(*m_pMinuteKlines, 0, nKlines - 1);
-    double m_minRectPrice = GetRectMinPrice(*m_pMinuteKlines, 0, nKlines - 1);
-    double hPrice = m_maxRectPrice - m_minRectPrice;
-    double hZoomRatio = hRect / hPrice;
+    size_t nKlines = m_pMinuteKlines->size() - 1;
+    double maxMinutePrice = GetRectMaxPrice(*m_pMinuteKlines, 0, nKlines - 1);
+    double minMinutePrice = GetRectMinPrice(*m_pMinuteKlines, 0, nKlines - 1);
 
-    // for (size_t i = 0; i < nKlines; i++) {
-    //     double ema_price = curve.ema_price.at(i);
-    //     // 定义样条曲线的控制点
-    //     x = static_cast<int>(nKline * wRect / nKlines);
-    //     y = static_cast<int>((m_maxRectPrice - ema_price) * hZoomRatio + 0);
-    //     wxPoint* pt = new wxPoint(x, y);
-    //     pPtList->Append(pt);
-    //     nKline += 1;
-    // }
-    // 使用三次样条曲线绘制平滑曲线
-    pDC->DrawSpline(pPtList);
-    pPtList->DeleteContents(true);
-    pPtList->Clear();
-    delete pPtList;
-    pPtList = nullptr;
-    // 绘制均线
+    int minY = m_pos.y;
+    // 昨日收盘价
+    double yesterday_close_price = m_pMinuteKlines->at(0).price - m_pMinuteKlines->at(0).change_amount;
+    // 计算当日最大幅度
+    double max_amount = std::abs(maxMinutePrice - yesterday_close_price);
+    double min_amount = std::abs(minMinutePrice - yesterday_close_price);
+    double max_price = max_amount > min_amount ? max_amount : min_amount;
+    double hPrice = yesterday_close_price + max_price;
+    double hZoomRatio = -hRect / (2 * max_price);
+    // 计算所有的点
+    double w = static_cast<double>(wRect) / 240;
+    std::vector<wxPoint> m_minutePoints;
+    std::vector<wxPoint> m_avgPoints;
+    double x, y, yAvg;
+    for (int i = 0; i < m_pMinuteKlines->size(); i++) {
+        x = i * w;
+        y = (m_pMinuteKlines->at(i).price - hPrice) * hZoomRatio + minY;
+        yAvg = (m_pMinuteKlines->at(i).avg_price - hPrice) * hZoomRatio + minY;
+        m_minutePoints.push_back(wxPoint(x, y));
+        m_avgPoints.push_back(wxPoint(x, yAvg));
+    }
+    // 绘制分时线
+    pDC->SetPen(*wxWHITE_PEN);
+    for (int i = 0; i < m_minutePoints.size() - 1; i++) {
+        wxPoint pt1 = m_minutePoints.at(i);
+        wxPoint pt2 = m_minutePoints.at(i + 1);
+        pDC->DrawLine(pt1, pt2);
+    }
+    pDC->SetPen(wxPen(wxColor(255, 255, 0)));
+    // 绘制分时均线
+    for (int i = 0; i < m_avgPoints.size() - 1; i++) {
+        wxPoint pt1 = m_avgPoints.at(i);
+        wxPoint pt2 = m_avgPoints.at(i + 1);
+        pDC->DrawLine(pt1, pt2);
+    }
 }
 
 void RichKlineCtrl::DrawMinuteKlineBackground(wxDC* pDC) {
-    wxColor clr(255, 0, 0);
     const int nrows = 16;
-    const int ncols = 2;
-    int row_height = (m_height - (nrows + 1)) / nrows;
-    int col_width = (m_width - (ncols + 1)) / ncols;
+    const int ncols = 8;
+    double wRect = GetInnerWidth();
+    double hRect = GetInnerHeight();
+    int hRow = (hRect - (nrows + 2)) / nrows;
+    int wCol = (wRect - (ncols + 1)) / ncols;
 
-    wxPen solid_pen(clr, 1, wxPENSTYLE_SOLID);
-    pDC->SetPen(solid_pen);
-    // 绘制横向实线
-    wxPoint pt_start = m_pos;
-    wxPoint pt_end = wxPoint(m_pos.x + m_width, m_pos.y);
-    for (int i = 0; i < 3; i++) {
-        pDC->DrawLine(pt_start, pt_end);
-        pt_start.y += (row_height + 1) * nrows / 2;
-        pt_end.y += (row_height + 1) * nrows / 2;
-    }
-    // 绘制竖线实线
-    pt_start = m_pos;
-    pt_end = wxPoint(m_pos.x, m_pos.y + m_height);
-    for (int i = 0; i < 3; i++) {
-        pDC->DrawLine(pt_start, pt_end);
-        pt_start.x += col_width;
-        pt_end.x += col_width;
-    }
+    wxColor clr(45, 45, 45);
+    wxPen solidPen(clr, 1, wxPENSTYLE_SOLID);
+    wxPen solidPen2(clr, 2, wxPENSTYLE_SOLID);
+    wxPen dotPen(clr, 1, wxPENSTYLE_DOT);
 
+    // 绘制左右外边框
+    pDC->SetPen(solidPen);
+    pDC->DrawLine(m_pos.x, m_pos.y, m_pos.x + wRect, m_pos.y);
+    pDC->DrawLine(m_pos.x, m_pos.y + hRect, m_pos.x + wRect, m_pos.y + hRect);
+    // 绘制上下外边框
+    pDC->DrawLine(m_pos.x, m_pos.y, m_pos.x, m_pos.y + hRect);
+    pDC->DrawLine(m_pos.x + wRect, m_pos.y + hRect, m_pos.x + wRect, m_pos.y + hRect);
+    // 绘制中间十字线
+    pDC->SetPen(solidPen2);
+    pDC->DrawLine(m_pos.x, m_pos.y + hRect / 2, m_pos.x + wRect, m_pos.y + hRect / 2);
+    pDC->DrawLine(m_pos.x + wRect / 2, m_pos.y, m_pos.x + wRect / 2, m_pos.y + hRect);
     // 绘制横向虚线
-    wxPen dot_pen(clr, 1, wxPENSTYLE_LONG_DASH);
-    pDC->SetPen(dot_pen);
-    pt_start = wxPoint(m_pos.x, m_pos.y + 1 + row_height);
-    pt_end = wxPoint(m_pos.x + m_width, m_pos.y + 1 + row_height);
+    pDC->SetPen(dotPen);
+    wxPoint ptStart = wxPoint(m_pos.x, m_pos.y);
+    wxPoint ptEnd = wxPoint(m_pos.x + wRect, m_pos.y);
+    wxPoint pt1 = ptStart;
+    wxPoint pt2 = ptEnd;
     for (int i = 1; i <= nrows; i++) {
         if (i == 8 || i == 16) {
             continue;  // 跳过实线绘制
         }
-        pDC->DrawLine(pt_start, pt_end);
-        pt_start.y += (row_height + 1) * i;
-        pt_end.y += (row_height + 1) * i;
+        pt1.y = ptStart.y + (hRow + 1) * i;
+        pt2.y = ptEnd.y + (hRow + 1) * i;
+        pDC->DrawLine(pt1, pt2);
+    }
+    // 绘制竖向虚线
+    ptStart = wxPoint(m_pos.x, m_pos.y);
+    ptEnd = wxPoint(m_pos.x, m_pos.y + hRect);
+    pt1 = ptStart;
+    pt2 = ptEnd;
+    for (int i = 1; i <= ncols; i++) {
+        if (i == 4 || i == 8) {
+            continue;  // 跳过实线绘制
+        }
+        pt1.y = ptStart.x + (wCol + 1) * i;
+        pt2.y = ptEnd.x + (wCol + 1) * i;
+        pDC->DrawLine(pt1, pt2);
     }
 }
