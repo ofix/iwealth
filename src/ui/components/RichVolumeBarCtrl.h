@@ -18,6 +18,7 @@ class RichVolumeBarCtrl {
 
    protected:
     double GetMaxVolumeInRange();
+    double GetMaxVolume();
 
    protected:
     RichKlineCtrl* m_pKlineCtrl;
