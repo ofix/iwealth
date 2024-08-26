@@ -899,20 +899,20 @@ void RichKlineCtrl::DrawMinuteKlineBackground(wxDC* pDC, double yesterday_close_
     double row_price = delta_price * 2 / nrows;
     if (row_price < 0.01) {
         for (size_t i = 0; i < 8; i++) {
-            prices.push_back(yesterday_close_price + 0.01 * i);
+            prices.push_back(yesterday_close_price + 0.01 * (i + 1));
             ampltitudes.push_back((prices[i] / yesterday_close_price - 1) * 100);
         }
         for (size_t i = 0; i < 8; i++) {
-            prices.push_back(yesterday_close_price - 0.01 * i);
+            prices.push_back(yesterday_close_price - 0.01 * (i + 1));
             ampltitudes.push_back((1 - prices[i] / yesterday_close_price) * 100);
         }
     } else {
         for (size_t i = 0; i < 8; i++) {
-            prices.push_back(yesterday_close_price + row_price * i);
+            prices.push_back(yesterday_close_price + row_price * (i + 1));
             ampltitudes.push_back((prices[i] / yesterday_close_price - 1) * 100);
         }
         for (size_t i = 0; i < 8; i++) {
-            prices.push_back(yesterday_close_price - row_price * i);
+            prices.push_back(yesterday_close_price - row_price * (i + 1));
             ampltitudes.push_back((1 - prices[i] / yesterday_close_price) * 100);
         }
     }
