@@ -48,14 +48,16 @@ RichPanelKline::RichPanelKline(PanelType type,
     // 事件绑定， Radio 控件将始终获取鼠标键盘焦点
     m_pRadioCtrl->Bind(wxEVT_LEFT_UP, &RichPanelKline::OnLeftMouseDown, this);
     // K线主图
-    m_ptKlineCtrl = wxPoint(2, TOP_BAR_HEIGHT + 2);
+    m_ptKlineCtrl = wxPoint(2, TOP_BAR_HEIGHT * 2 + 2);
     m_sizeKlineCtrl = size;
     m_sizeKlineCtrl.DecBy(wxSize(0, TOP_BAR_HEIGHT + 2));  // 这里不能使用DecTo,会导致RichKlineCtrl控件宽度为0
     m_pKlineCtrl = new RichKlineCtrl(pStorage, m_ptKlineCtrl, m_sizeKlineCtrl);
     // 成交量/成交额附图
     m_pVolumeBarCtrl = new RichVolumeBarCtrl(m_pKlineCtrl);
     // 日K线信息
-    m_pDialogKlineInfo = new RichDialogKlineInfo(this, ID_DIALOG_KLINE_INFO, pos, wxSize(150, 240));
+    m_ptKlineInfoCtrl = pos;
+    m_ptKlineInfoCtrl.y = pos.y + 45 + TOP_BAR_HEIGHT * 2;
+    m_pDialogKlineInfo = new RichDialogKlineInfo(this, ID_DIALOG_KLINE_INFO, m_ptKlineInfoCtrl, wxSize(150, 240));
     m_pDialogKlineInfo->Show(false);
     // 使用自动双缓冲
     SetBackgroundStyle(wxBG_STYLE_PAINT);
@@ -156,7 +158,7 @@ void RichPanelKline::ShowDialogKlineInfoIfNeeded() {
     m_pDialogKlineInfo->SetCurrentKline(pCurrentKline);
     m_pDialogKlineInfo->SetPreviousKline(pPreviousKline);
     if (!m_pDialogKlineInfo->IsShown()) {
-        m_pDialogKlineInfo->Move(10, 60);
+        m_pDialogKlineInfo->Move(m_ptKlineInfoCtrl);
     }
     m_pDialogKlineInfo->Show(pCurrentKline == nullptr ? false : true);
     m_pDialogKlineInfo->SetTitle(CN(pShare->name + "(" + pShare->code + ")"));

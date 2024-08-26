@@ -50,6 +50,7 @@ class RichPanelKline : public RichPanel {
     wxSize m_sizeKlineCtrl;
     wxPoint m_ptVolumeBarCtrl;
     wxSize m_sizeVolumeBarCtrl;
+    wxPoint m_ptKlineInfoCtrl;
 
     Share* m_pShare;  // 当前显示的股票指针
 
