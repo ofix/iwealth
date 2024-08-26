@@ -848,6 +848,9 @@ void RichKlineCtrl::DrawMinuteKlines(wxDC* pDC) {
     double max_amount = std::abs(maxMinutePrice - yesterday_close_price);
     double min_amount = std::abs(minMinutePrice - yesterday_close_price);
     double max_price = max_amount > min_amount ? max_amount : min_amount;
+    if (max_price < 0.08) {
+        max_price = 0.08;
+    }
     double hPrice = yesterday_close_price + max_price;
     double hZoomRatio = -hRect / (2 * max_price);
     DrawMinuteKlineBackground(pDC, yesterday_close_price, max_price);
