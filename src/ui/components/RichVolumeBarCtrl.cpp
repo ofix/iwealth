@@ -66,12 +66,14 @@ void RichVolumeBarCtrl::OnPaint(wxDC* pDC) {
         double hVolumeBar = m_pKlineCtrl->m_height * 0.3;
         double yVolumeBar = m_pKlineCtrl->m_height * 0.7;
         double max_volume = GetMaxVolume();
-        double w = m_pKlineCtrl->GetInnerWidth() / static_cast<double>(klines.size());
+        double w =
+            static_cast<double>((m_pKlineCtrl->m_width - m_pKlineCtrl->m_paddingLeft - m_pKlineCtrl->m_paddingRight)) /
+            klines.size();
         wxPen greenPen(wxColor(84, 255, 255));
         wxPen normalPen(wxColor(215, 215, 215));
         for (size_t i = 1; i < klines.size(); i++) {
             minuteKline kline = klines.at(i);
-            double x = (double)(i * w);
+            double x = (double)(i * w) + m_pKlineCtrl->m_paddingLeft;
             double y = yVolumeBar + (1.0 - kline.volume / max_volume) * hVolumeBar;
             double h = kline.volume / max_volume * hVolumeBar;
             double prevPrice = klines.at(i - 1).price;

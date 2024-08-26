@@ -77,11 +77,11 @@ class RichKlineCtrl {
 
     // 分时图/5日分时图
     void CalcMinuteKlineAvgPrice(std::vector<minuteKline>& minuteKlines, std::vector<double>& avg_price);
-    void DrawFiveDayMinuteKlines(wxDC* pDC);       // 5日分时图
-    void DrawMinuteKlines(wxDC* pDC);              // 分时图
-    void DrawMinuteKlineBackground(wxDC* pDC);     // 分时图背景
-    void DrawMinuteKlineCurves(wxDC* pDC);         // 分时图曲线
-    void PrintDebugInfo(std::string prefix = "");  // 打印调试信息
+    void DrawFiveDayMinuteKlines(wxDC* pDC);                                                       // 5日分时图
+    void DrawMinuteKlines(wxDC* pDC);                                                              // 分时图
+    void DrawMinuteKlineBackground(wxDC* pDC, double yesterday_close_pricem, double delta_price);  // 分时图背景
+    void DrawMinuteKlineCurves(wxDC* pDC);                                                         // 分时图曲线
+    void PrintDebugInfo(std::string prefix = "");                                                  // 打印调试信息
 
    protected:
     void RemoveCache();
@@ -113,9 +113,10 @@ class RichKlineCtrl {
 
     uiKlineRange m_klineRng;
 
-    int m_paddingTop;        // padding top for klines control
-    int m_paddingBottom;     // padding bottom for klines control
-    int m_paddingRight;      // padding right for klines control
+    int m_paddingTop;        // 上边距，未使用
+    int m_paddingBottom;     // 下边距
+    int m_paddingLeft;       // 绘制分时图的左边距
+    int m_paddingRight;      // 绘制分时图的右边
     bool m_showAnalysisBar;  // if true, draw volume,MCDA,KDJ index
     int m_analysisType;
     friend class RichDialogKlineInfo;
