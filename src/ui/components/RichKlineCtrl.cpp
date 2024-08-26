@@ -913,7 +913,7 @@ void RichKlineCtrl::DrawMinuteKlineBackground(wxDC* pDC, double yesterday_close_
         }
         for (size_t i = 0; i < 8; i++) {
             prices.push_back(yesterday_close_price - row_price * (i + 1));
-            ampltitudes.push_back((1 - prices[i] / yesterday_close_price) * 100);
+            ampltitudes.push_back(ampltitudes[i]);
         }
     }
     // 绘制左右外边框
@@ -942,12 +942,12 @@ void RichKlineCtrl::DrawMinuteKlineBackground(wxDC* pDC, double yesterday_close_
         pDC->DrawLabel(convert_double(ampltitudes.at(8 - i - 1)) + "%", rt2, wxALIGN_LEFT | wxALIGN_CENTER_VERTICAL);
     }
     // 绘制左右两边下半部分价格和涨幅
-    pDC->SetTextForeground(wxColor(84, 255, 255));
-    for (int i = 0; i < 8; i++) {
-        wxRect rt1(2, ptStart.y + (hRow + 1) * (i + 9) - hRow / 2, m_paddingLeft - 4, hRow + 1);
-        wxRect rt2(m_width - m_paddingRight + 2, ptStart.y + (hRow + 1) * (i + 9) - hRow / 2, m_paddingRight, hRow + 1);
-        pDC->DrawLabel(convert_double(prices.at(8 - i - 1)), rt1, wxALIGN_RIGHT | wxALIGN_CENTER_VERTICAL);
-        pDC->DrawLabel(convert_double(ampltitudes.at(8 - i - 1)) + "%", rt2, wxALIGN_LEFT | wxALIGN_CENTER_VERTICAL);
+    pDC->SetTextForeground(wxColor(0, 255, 0));
+    for (int i = 8; i < 16; i++) {
+        wxRect rt1(2, ptStart.y + (hRow + 1) * (i + 1) - hRow / 2, m_paddingLeft - 4, hRow + 1);
+        wxRect rt2(m_width - m_paddingRight + 2, ptStart.y + (hRow + 1) * (i + 1) - hRow / 2, m_paddingRight, hRow + 1);
+        pDC->DrawLabel(convert_double(prices.at(i)), rt1, wxALIGN_RIGHT | wxALIGN_CENTER_VERTICAL);
+        pDC->DrawLabel(convert_double(ampltitudes.at(i)) + "%", rt2, wxALIGN_LEFT | wxALIGN_CENTER_VERTICAL);
     }
     // 绘制开盘价格基准(上一个交易日收盘价)
     pDC->SetTextForeground(wxColor(255, 255, 255));
