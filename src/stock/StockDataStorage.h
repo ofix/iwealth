@@ -140,6 +140,8 @@ class StockDataStorage {
     std::string m_path_all_market_shares;  // 所有股票代号本地保存路径
     Trie m_trie;                           // 股票[简称/曾用名]->关系映射
 
+    std::string m_trie_data;
+
     // 行情数据是否OK
 
     bool m_fetch_quote_data_ok;         // 行情数据是否爬取完成
