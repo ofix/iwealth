@@ -38,7 +38,7 @@ void RichVolumeBarCtrl::OnPaint(wxDC* pDC) {
         }
         std::vector<uiKline>::const_iterator it;
         int i = 0;
-        for (it = klines.begin() + klineRng.begin; it != klines.begin() + klineRng.end; ++it, ++i) {
+        for (it = klines.begin() + klineRng.begin; it <= klines.begin() + klineRng.end; ++it, ++i) {
             // make sure i must be double or result would be error!
             double x = (double)i * m_pKlineCtrl->m_klineWidth;
             double y = yVolumeBar + (1.0 - it->volume / max_volume) * hVolumeBar;
