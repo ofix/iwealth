@@ -245,12 +245,15 @@ void RichKlineCtrl::OnSize(wxSizeEvent& event) {
 }
 
 void RichKlineCtrl::OnKeyDown(wxKeyEvent& event) {
-    int max = m_pKlines->size();
+    int max = m_pKlines->size() - 1;
     int key = event.GetKeyCode();
     if (key == WXK_LEFT) {
         if (m_crossLine == NO_CROSS_LINE) {
             m_crossLine = m_pKlines->size() - 1;
             m_crossLinePt = GetCrossLinePt(m_crossLine);
+            return;
+        }
+        if (m_crossLine == 0) {
             return;
         }
         if (m_crossLine == m_klineRng.begin && m_klineRng.begin > 0) {
@@ -262,11 +265,14 @@ void RichKlineCtrl::OnKeyDown(wxKeyEvent& event) {
             m_crossLinePt = GetCrossLinePt(m_crossLine);
         }
     } else if (key == WXK_RIGHT) {  // 右移
-        if (m_crossLine == m_klineRng.end && m_klineRng.end != max) {
+        if (m_crossLine >= max) {
+            return;
+        }
+        if (m_crossLine == m_klineRng.end) {
             m_klineRng.begin += 1;
             m_klineRng.end += 1;
         } else if (m_crossLine >= m_klineRng.begin && m_crossLine <= m_klineRng.end) {
-            if (m_crossLine != max - 1) {
+            if (m_crossLine != max) {
                 m_crossLine += 1;
                 m_crossLinePt = GetCrossLinePt(m_crossLine);
             }
