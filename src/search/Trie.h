@@ -33,7 +33,7 @@ class Trie {
         int depth;
         bool is_word;
         std::unordered_map<std::string, node*> child;
-        std::string share_code;
+        std::vector<std::string> share_code_list;
     };
 
    public:

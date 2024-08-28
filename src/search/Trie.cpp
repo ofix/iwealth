@@ -11,13 +11,13 @@ Trie::node::node() {
     depth = 0;
     is_word = false;
     child = unordered_map<std::string, node*>();
-    share_code = "";
+    share_code_list = {};
 }
 
 Trie::node::node(int depth) : depth(depth) {
     is_word = false;
     child = unordered_map<std::string, node*>();
-    share_code = "";
+    share_code_list = {};
 }
 
 Trie::node::~node() {
@@ -47,7 +47,7 @@ void Trie::insert(const std::string& word, const std::string& share_code) {
         n = n->child[character];
     }
     n->is_word = true;
-    n->share_code = share_code;
+    n->share_code_list.push_back(share_code);
 }
 
 bool Trie::search(const string& word) {
@@ -88,13 +88,16 @@ void Trie::removePrefixWith(const string& word) {
         delete pair.second;
     }
     n->child = unordered_map<std::string, node*>();
-    n->share_code = "";
+    n->share_code_list = {};
     n->is_word = false;
 }
 
 void Trie::insertWord(node* n, std::string word, std::vector<std::string>* list) {
     if (n->is_word) {
-        list->emplace_back(n->share_code);  // 返回股票代码
+        for (size_t i = 0; i < n->share_code_list.size(); i++) {
+            std::string share_code = n->share_code_list.at(i);
+            list->emplace_back(share_code);  // 返回股票代码
+        }
     }
     for (std::pair<std::string, node*> pair : n->child) {
         insertWord(pair.second, word + pair.first, list);
@@ -103,12 +106,15 @@ void Trie::insertWord(node* n, std::string word, std::vector<std::string>* list)
 
 void Trie::insertWord(node* n, std::string word, std::unordered_map<std::string, std::vector<std::string>>* pMap) {
     if (n->is_word) {
-        if (pMap->find(n->share_code) != pMap->end()) {
-            (*pMap)[n->share_code].emplace_back(word);
-        } else {
-            std::vector<std::string> names;
-            names.emplace_back(word);
-            (*pMap)[n->share_code] = names;
+        for (size_t i = 0; i < n->share_code_list.size(); i++) {
+            std::string share_code = n->share_code_list.at(i);
+            if (pMap->find(share_code) != pMap->end()) {
+                (*pMap)[share_code].emplace_back(word);
+            } else {
+                std::vector<std::string> names;
+                names.emplace_back(word);
+                (*pMap)[share_code] = names;
+            }
         }
     }
     for (std::pair<std::string, node*> pair : n->child) {

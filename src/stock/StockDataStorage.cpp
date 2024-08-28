@@ -125,11 +125,9 @@ RichResult StockDataStorage::LoadShareQuote() {
         if (!result.Ok()) {
             return result;
         }
-        m_trie_data = "";
         for (auto& share : m_market_shares) {
             InsertShareNameToTrie(share.name, share.code);
         }
-        FileTool::SaveFile(m_data_dir + "trie_data.txt", m_trie_data);
 
         std::unordered_map<std::string, std::vector<std::string>> words = m_trie.list();
         std::string trie_list = "";
@@ -459,7 +457,6 @@ std::vector<Share*> StockDataStorage::SearchShares(const std::string& prefix) {
 void StockDataStorage::InsertShareNameToTrie(const std::string& share_name, const std::string& share_code) {
     // 插入汉字
     m_trie.insert(share_name, share_code);
-    m_trie_data += "[1] " + share_name + ", " + share_code + "\r\n";
     // 插入股票代码
     m_trie.insert(share_code, share_code);
     // 插入拼音
@@ -467,7 +464,6 @@ void StockDataStorage::InsertShareNameToTrie(const std::string& share_name, cons
     for (auto& pinyin : share_name_pinyin) {
         to_lower_case(pinyin);  // 全部统一转为小写再插入Trie
         m_trie.insert(pinyin, share_code);
-        m_trie_data += "[2] " + pinyin + ", " + share_code + "\r\n";
     }
 }
 
