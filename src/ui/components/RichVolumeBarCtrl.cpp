@@ -51,6 +51,9 @@ void RichVolumeBarCtrl::OnPaint(wxDC* pDC) {
                 pDC->SetPen(wxPen(wxColor(84, 255, 255)));
                 pDC->SetBrush(wxBrush(wxColor(84, 255, 255)));
             }
+            if (h < 2) {
+                h = 2;
+            }
             pDC->DrawRectangle(x, y, w, h);
         }
         if (m_pKlineCtrl->m_crossLine != NO_CROSS_LINE) {
