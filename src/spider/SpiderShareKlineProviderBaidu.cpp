@@ -90,7 +90,7 @@ void SpiderShareKlineProviderBaidu::ParseDayKline(const std::string& response, s
             ui_kline.day = fields[1];                                                  // 时间
             ui_kline.price_open = std::stod(fields[2]);                                // 开盘价
             ui_kline.price_close = std::stod(fields[3]);                               // 收盘价
-            ui_kline.volume = IsNaN(fields[4]) ? 0 : std::stoull(fields[4]);           // 成交量
+            ui_kline.volume = IsNaN(fields[4]) ? 0 : std::stoull(fields[4]) / 100;     // 成交量
             ui_kline.price_max = IsNaN(fields[5]) ? 0.0 : std::stod(fields[5]);        // 最高价
             ui_kline.price_min = IsNaN(fields[6]) ? 0.0 : std::stod(fields[6]);        // 最低价
             ui_kline.amount = IsNaN(fields[7]) ? 0.0 : std::stod(fields[7]);           // 成交额
