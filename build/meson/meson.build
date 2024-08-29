@@ -102,6 +102,7 @@ gui_sources = [
     'ui/components/RichPanel.cpp',
     'ui/RichDialogShareSearch.cpp',
     'ui/components/RichKlineCtrl.cpp',
+    'ui/components/RichPngKline.cpp',
     'ui/RichDialogKlineInfo.cpp',
     'ui/components/RichDialog.cpp',
     'ui/components/RichVolumeBarCtrl.cpp',

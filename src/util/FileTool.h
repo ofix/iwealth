@@ -27,6 +27,7 @@ class FileTool {
                                          const std::map<std::string, std::string>& replacement_map);
     static std::ifstream& GetLine(std::ifstream& ifs, std::string& line);
     static bool GetLastLineOfFile(const std::string& filename, std::string& line);
+    static bool RemoveLastLineOfFile(const std::string& filename);
 };
 
 #endif  // FILETOOL_H

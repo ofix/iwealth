@@ -353,3 +353,50 @@ bool FileTool::GetLastLineOfFile(const std::string& filename, std::string& line)
     }
     return false;
 }
+
+bool FileTool::RemoveLastLineOfFile(const std::string& filename) {
+    std::ifstream inputFile(filename, std::ios::binary | std::ios::trunc |);
+    if (!inputFile) {
+        return false;
+    }
+
+    inputFile.seekg(0, std::ios::end);
+    std::streampos endPos = inputFile.tellg();
+
+    bool foundNewLine = false;
+    char ch;
+    std::streampos currentPos = endPos;
+    size_t line = 0;
+    while (currentPos > 0) {  // 忽略最后一行
+        inputFile.seekg(--currentPos);
+        inputFile.get(ch);
+        if (ch == '\n' || (ch == '\r' && currentPos > 0 && inputFile.peek() == '\n')) {
+            line += 1;
+        } else {
+            break;
+        }
+    }
+
+    while (currentPos > 0) {
+        inputFile.seekg(--currentPos);
+        inputFile.get(ch);
+        if (ch == '\n' || (ch == '\r' && currentPos > 0 && inputFile.peek() == '\n')) {
+            foundNewLine = true;
+            break;
+        }
+    }
+
+    if (!foundNewLine) {  // 没有找到换行符，说明文件只有一行或者没有内容，不做处理
+        if (line == 1) {
+            inputFile.put('\0');
+        }
+        inputFile.close();
+        return true;
+    }
+
+    // 将文件指针移动到找到的换行符位置后面，开始写入内容
+    inputFile.seekg(currentPos + 1);
+    inputFile.put("\0");
+    inputFile.close();
+    return true;
+}

@@ -199,9 +199,10 @@ RichResult StockShareKline::FetchIncrementalDayKlines(const std::string& share_c
     Share* pShare = m_pStorage->FindShare(share_code);
     SpiderShareKline* pSpiderKline = new SpiderShareKline(nullptr);
     std::string end_date = get_day_from_now(1);  // 请求需要明天的日期，才能下载当天的K线
+    std::string today = get_day_from_now(0);     // 当天日期
     std::string file_path = GetFilePathOfDayKline(share_code);
     std::string last_line = "";
-    bool result = FileTool::GetLastLineOfFile(file_path, last_line);
+    bool result;
     if (!result || last_line == "") {  // 错误
         return Error(RichStatus::FILE_DIRTY);
     }
@@ -218,7 +219,14 @@ RichResult StockShareKline::FetchIncrementalDayKlines(const std::string& share_c
     for (size_t i = 0; i < tmp_klines.size(); i++) {
         uiKline kline = tmp_klines[i];
         if (kline.day == start_date) {
-            day_klines.assign(tmp_klines.begin() + i + 1, tmp_klines.end());
+            // 日K线文件已经有当日K线数据，但不是最新的
+            if (today == start_date) {
+                // 移除最后一条记录
+
+                day_klines.assign(tmp_klines.begin() + i, tmp_klines.end());
+            } else {  // 日K线文件没有当日K线数据
+                day_klines.assign(tmp_klines.begin() + i + 1, tmp_klines.end());
+            }
             break;
         }
     }
