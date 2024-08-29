@@ -28,6 +28,7 @@ class FileTool {
     static std::ifstream& GetLine(std::ifstream& ifs, std::string& line);
     static bool GetLastLineOfFile(const std::string& filename, std::string& line);
     static bool RemoveLastLineOfFile(const std::string& filename);
+    static bool TruncateFileSize(const std::string& filename, size_t size);
 };
 
 #endif  // FILETOOL_H

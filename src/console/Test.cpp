@@ -233,11 +233,12 @@ void TestUrlEncode() {
 }
 
 void TestFileTool() {
-    std::string share_code = "002008";
-    std::string file_path = StockShareKline::GetFilePathOfDayKline(share_code);
-    std::string line = "";
-    bool result = FileTool::GetLastLineOfFile(file_path, line);
-    std::cout << "last_line: " << line << std::endl;
+    // std::string share_code = "002008";
+    // std::string file_path = StockShareKline::GetFilePathOfDayKline(share_code);
+    // std::string line = "";
+    // bool result = FileTool::GetLastLineOfFile(file_path, line);
+    // std::cout << "last_line: " << line << std::endl;
+    FileTool::RemoveLastLineOfFile("E:/test.txt");
 }
 
 int main(int /*argc*/, char** /*argv*/) {

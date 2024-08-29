@@ -12,6 +12,7 @@
 
 #ifdef _WIN32
 #include <direct.h>  // _mkdir
+#include <fcntl.h>
 #include <io.h>
 #include <windows.h>
 #include <fstream>
@@ -354,18 +355,19 @@ bool FileTool::GetLastLineOfFile(const std::string& filename, std::string& line)
     return false;
 }
 
+// 删除文件最后一行,解决日K线文件增量保存的问题
 bool FileTool::RemoveLastLineOfFile(const std::string& filename) {
-    std::ifstream inputFile(filename, std::ios::binary | std::ios::trunc |);
+    std::fstream inputFile(filename, std::ios::binary | std::ios::out | std::ios::in);
     if (!inputFile) {
         return false;
     }
 
     inputFile.seekg(0, std::ios::end);
-    std::streampos endPos = inputFile.tellg();
+    std::streamoff endPos = inputFile.tellg();
 
     bool foundNewLine = false;
     char ch;
-    std::streampos currentPos = endPos;
+    std::streamoff currentPos = endPos;
     size_t line = 0;
     while (currentPos > 0) {  // 忽略最后一行
         inputFile.seekg(--currentPos);
@@ -387,16 +389,50 @@ bool FileTool::RemoveLastLineOfFile(const std::string& filename) {
     }
 
     if (!foundNewLine) {  // 没有找到换行符，说明文件只有一行或者没有内容，不做处理
-        if (line == 1) {
-            inputFile.put('\0');
-        }
         inputFile.close();
+        if (line == 1) {
+            TruncateFileSize(filename, 0);
+        }
         return true;
     }
 
-    // 将文件指针移动到找到的换行符位置后面，开始写入内容
-    inputFile.seekg(currentPos + 1);
-    inputFile.put("\0");
     inputFile.close();
+    TruncateFileSize(filename, currentPos);
     return true;
+}
+
+bool FileTool::TruncateFileSize(const std::string& filename, size_t size) {
+#ifdef _WIN32 || _WIN64
+    LARGE_INTEGER large_size;
+    large_size.QuadPart = size;
+    HANDLE hFile = CreateFile(filename.c_str(), FILE_SHARE_READ | FILE_SHARE_WRITE, 0, NULL, OPEN_EXISTING,
+                              FILE_ATTRIBUTE_NORMAL, NULL);
+    SetFilePointerEx(hFile, large_size, NULL, FILE_BEGIN);
+    if (SetEndOfFile(hFile) == 0) {
+        std::cerr << GetLastError();
+        if (hFile != INVALID_HANDLE_VALUE) {
+            CloseHandle(hFile);
+        }
+        return false;
+    }
+    if (hFile != INVALID_HANDLE_VALUE) {
+        CloseHandle(hFile);
+    }
+    return true;
+#else
+#ifdef POSIX
+    int fd = open(filename.c_str(), O_RDWR);
+    if (fd == -1) {
+        return false;
+    }
+    if (ftruncate(fd, size) == -1) {
+        close(fd);
+        return false;
+    }
+    close(fd);
+    return true;
+#else
+    // code for other OSes
+#endif
+#endif
 }
