@@ -202,7 +202,7 @@ RichResult StockShareKline::FetchIncrementalDayKlines(const std::string& share_c
     std::string today = get_day_from_now(0);     // 当天日期
     std::string file_path = GetFilePathOfDayKline(share_code);
     std::string last_line = "";
-    bool result;
+    bool result = FileTool::GetLastLineOfFile(file_path, last_line);
     if (!result || last_line == "") {  // 错误
         return Error(RichStatus::FILE_DIRTY);
     }
@@ -222,7 +222,6 @@ RichResult StockShareKline::FetchIncrementalDayKlines(const std::string& share_c
             // 日K线文件已经有当日K线数据，但不是最新的
             if (today == start_date) {
                 // 移除最后一条记录
-
                 day_klines.assign(tmp_klines.begin() + i, tmp_klines.end());
             } else {  // 日K线文件没有当日K线数据
                 day_klines.assign(tmp_klines.begin() + i + 1, tmp_klines.end());

@@ -54,7 +54,6 @@ bool RichPngKline::Save() {
     // 输出到PNG路径
     wxImage image = bitmap.ConvertToImage();
     wxFileName file_name(m_pngFilePath);
-    std::cout << "save png to " << file_name.GetFullPath() << std::endl;
     image.SaveFile(file_name.GetFullPath(), wxBITMAP_TYPE_PNG);
     return true;
 }
@@ -67,14 +66,16 @@ void RichPngKline::DrawPng(wxDC* pDC, int n, std::vector<uiKline>* pKlines) {
     double hPrice = max_price - min_price;
     double hZoomRatio = m_height / hPrice;
     double offsetY = n * m_height + m_margin;  //
-    for (size_t i = 0; i < pKlines->size(); i++) {
-        uiKline currentKline = pKlines->at(i);
-        uiKline nextKline = pKlines->at(i + 1);
-        double x1 = m_margin + w * i;
-        double y1 = (max_price - currentKline.price_close) * hZoomRatio + offsetY;
-        double x2 = w * (i + 1);
+    uiKline currentKline = pKlines->at(0);
+    double x1 = m_margin;
+    double y1 = (max_price - currentKline.price_close) * hZoomRatio + offsetY;
+    for (size_t i = 1; i < pKlines->size() - 1; i++) {
+        uiKline nextKline = pKlines->at(i);
+        double x2 = m_margin + w * i;
         double y2 = (max_price - nextKline.price_close) * hZoomRatio + offsetY;
         pDC->DrawLine(x1, y1, x2, y2);
+        x1 = x2;
+        y1 = y2;
     }
 }
 

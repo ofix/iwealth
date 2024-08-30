@@ -111,6 +111,7 @@ RichResult StockDataStorage::LoadShareQuote() {
         } else {
             result = LoadLocalShareQuoteFile(m_path_share_quote, m_market_shares);  // 步骤1. 恢复 m_market_shares 数据
             if (!result.Ok()) {
+                result = FetchShareQuoteSync();  // 本都数据文件损坏，重新请求网络
                 return result;
             }
         }
@@ -129,16 +130,16 @@ RichResult StockDataStorage::LoadShareQuote() {
             InsertShareNameToTrie(share.name, share.code);
         }
 
-        std::unordered_map<std::string, std::vector<std::string>> words = m_trie.list();
-        std::string trie_list = "";
-        for (auto& word : words) {
-            trie_list += word.first + ",";
-            for (auto& d : word.second) {
-                trie_list += d + "  ";
-            }
-            trie_list += "\r\n";
-        }
-        FileTool::SaveFile(m_data_dir + "trie_vvv.txt", trie_list);
+        // std::unordered_map<std::string, std::vector<std::string>> words = m_trie.list();
+        // std::string trie_list = "";
+        // for (auto& word : words) {
+        //     trie_list += word.first + ",";
+        //     for (auto& d : word.second) {
+        //         trie_list += d + "  ";
+        //     }
+        //     trie_list += "\r\n";
+        // }
+        // FileTool::SaveFile(m_data_dir + "trie_vvv.txt", trie_list);
         // LoadLocalShareNamesFile();                     // 步骤5 恢复 m_trie
         m_fetch_quote_data_ok = true;  // 立即显示行情列表标记
         return Success();
@@ -522,6 +523,9 @@ RichResult StockDataStorage::LoadLocalShareQuoteFile(std::string& path, std::vec
     try {
         std::string json_data = FileTool::LoadFile(path);
         json arr = json::parse(json_data);
+        if (arr.size() < 1000) {
+            return Error(RichStatus::FILE_DIRTY);
+        }
         for (auto& item : arr) {
             Share share;
             share.code = item["code"].template get<std::string>();                               // 股票代码

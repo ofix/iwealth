@@ -88,7 +88,7 @@ bool RichKlineCtrl::LoadKlines(const std::string& share_code, const KlineType& k
         status = m_pStorage->QueryKlines(share_code, kline_type, &m_pKlines);
     }
     if (!status.Ok()) {
-        std::cout << status.What() << std::endl;
+        std::cout << "LoadKlines Failed! " + status.What() << std::endl;
         return false;
     }
 

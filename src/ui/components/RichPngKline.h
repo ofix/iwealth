@@ -7,12 +7,16 @@
 
 class RichPngKline {
    public:
-    RichPngKline(StockDataStorage* pStorage,const std::string& png_file_path, int width=1600, int height=900,int margin=20);
+    RichPngKline(StockDataStorage* pStorage,
+                 const std::string& png_file_path,
+                 int width = 6400,
+                 int height = 1600,
+                 int margin = 40);
     ~RichPngKline();
     void AddShare(const std::string& share_code);
     void AddShares(const std::vector<std::string>& share_list);
     bool Save();
-    void DrawPng(wxDC* pDC,int n, std::vector<uiKline>* pKlines);
+    void DrawPng(wxDC* pDC, int n, std::vector<uiKline>* pKlines);
     double GetMinPrice(std::vector<uiKline>* pKlines);
     double GetMaxPrice(std::vector<uiKline>* pKlines);
 
