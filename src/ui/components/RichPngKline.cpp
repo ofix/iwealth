@@ -11,6 +11,7 @@
 #include "ui/components/RichPngKline.h"
 #include <wx/dcbuffer.h>
 #include <wx/filename.h>
+#include <wx/graphics.h>
 #include <iostream>
 
 RichPngKline::RichPngKline(StockDataStorage* pStorage,
@@ -59,23 +60,47 @@ bool RichPngKline::Save() {
 }
 
 //
-void RichPngKline::DrawPng(wxDC* pDC, int n, std::vector<uiKline>* pKlines) {
+void RichPngKline::DrawPng(wxMemoryDC* pDC, int n, std::vector<uiKline>* pKlines) {
     double w = static_cast<double>(m_width - m_margin * 2) / pKlines->size();
     double min_price = GetMinPrice(pKlines);
     double max_price = GetMaxPrice(pKlines);
     double hPrice = max_price - min_price;
     double hZoomRatio = m_height / hPrice;
-    double offsetY = n * m_height + m_margin;  //
-    uiKline currentKline = pKlines->at(0);
-    double x1 = m_margin;
-    double y1 = (max_price - currentKline.price_close) * hZoomRatio + offsetY;
-    for (size_t i = 1; i < pKlines->size() - 1; i++) {
-        uiKline nextKline = pKlines->at(i);
-        double x2 = m_margin + w * i;
-        double y2 = (max_price - nextKline.price_close) * hZoomRatio + offsetY;
-        pDC->DrawLine(x1, y1, x2, y2);
-        x1 = x2;
-        y1 = y2;
+    double offsetY = n * m_height + m_margin;
+    if (false) {  // 折线
+        pDC->SetPen(wxPen(wxColor(255, 0, 0)));
+        uiKline currentKline = pKlines->at(0);
+        double x1 = m_margin;
+        double y1 = (max_price - currentKline.price_close) * hZoomRatio + offsetY;
+        for (size_t i = 1; i < pKlines->size() - 1; i++) {
+            uiKline nextKline = pKlines->at(i);
+            double x2 = m_margin + w * i;
+            double y2 = (max_price - nextKline.price_close) * hZoomRatio + offsetY;
+            pDC->DrawLine(x1, y1, x2, y2);
+            x1 = x2;
+            y1 = y2;
+        }
+    } else {  // 渐变填充
+        wxGraphicsContext* gc = wxGraphicsContext::Create(*pDC);
+        wxGraphicsGradientStops gradientStops =
+            wxGraphicsGradientStops(wxColour(241, 187, 149), wxColour(255, 126, 167));
+        gc->SetBrush(gc->CreateLinearGradientBrush(static_cast<double>(m_margin), offsetY,
+                                                   static_cast<double>(m_margin), offsetY + m_height, gradientStops));
+        // 创建多边形点路径
+        wxGraphicsPath path = gc->CreatePath();
+        path.MoveToPoint(m_margin, offsetY + m_height);
+        for (size_t i = 0; i < pKlines->size(); i++) {
+            uiKline nextKline = pKlines->at(i);
+            double x = m_margin + w * i;
+            double y = (max_price - nextKline.price_close) * hZoomRatio + offsetY;
+            path.AddLineToPoint(x, y);
+        }
+        path.AddLineToPoint(m_width - m_margin, offsetY + m_height);
+        path.CloseSubpath();
+        // 使用渐变填充多边形路径
+        gc->FillPath(path);
+        // 清理画布
+        delete gc;
     }
 }
 

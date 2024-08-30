@@ -16,7 +16,7 @@ class RichPngKline {
     void AddShare(const std::string& share_code);
     void AddShares(const std::vector<std::string>& share_list);
     bool Save();
-    void DrawPng(wxDC* pDC, int n, std::vector<uiKline>* pKlines);
+    void DrawPng(wxMemoryDC* pDC, int n, std::vector<uiKline>* pKlines);
     double GetMinPrice(std::vector<uiKline>* pKlines);
     double GetMaxPrice(std::vector<uiKline>* pKlines);
 
