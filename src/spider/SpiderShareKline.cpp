@@ -83,6 +83,9 @@ bool SpiderShareKline::CrawlIncrementDayKlineSync(Share* pShare,
     std::string url =
         pProvider->GetKlineUrl(KlineType::Day, pShare->code, pShare->name, pShare->market, end_day, ndays);
     std::string response = HttpGet(url);
+    if (response.length() == 0) {  // 修正代理服务器导致403获取失败的问题
+        return false;
+    }
     pProvider->ParseDayKline(response, day_klines);
     delete pProvider;
     return true;
