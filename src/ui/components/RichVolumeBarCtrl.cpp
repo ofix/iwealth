@@ -12,13 +12,18 @@
 #include "ui/components/RichKlineCtrl.h"
 
 RichVolumeBarCtrl::RichVolumeBarCtrl(RichKlineCtrl* pKlineCtrl, const wxPoint& pos, const wxSize& size)
-    : m_pKlineCtrl(pKlineCtrl) {
+    : m_pKlineCtrl(pKlineCtrl), m_mode(0) {
 }
 
 RichVolumeBarCtrl::~RichVolumeBarCtrl() {
 }
 
+void RichVolumeBarCtrl::SetMode(int mode) {
+    m_mode = mode;
+}
+
 void RichVolumeBarCtrl::OnPaint(wxDC* pDC) {
+#define TOP_BAR_HEIGHT 18
     if (m_pKlineCtrl->m_mode == KlineType::Day || m_pKlineCtrl->m_mode == KlineType::Week ||
         m_pKlineCtrl->m_mode == KlineType::Month || m_pKlineCtrl->m_mode == KlineType::Quarter ||
         m_pKlineCtrl->m_mode == KlineType::Year) {
@@ -27,8 +32,8 @@ void RichVolumeBarCtrl::OnPaint(wxDC* pDC) {
         }
         std::vector<uiKline>& klines = *(m_pKlineCtrl->m_pKlines);
         uiKlineRange& klineRng = m_pKlineCtrl->m_klineRng;
-        double hVolumeBar = m_pKlineCtrl->m_height * 0.3;
-        double yVolumeBar = m_pKlineCtrl->m_height * 0.7;
+        double hVolumeBar = m_pKlineCtrl->m_height * 0.3 - TOP_BAR_HEIGHT - 4;
+        double yVolumeBar = m_pKlineCtrl->m_height * 0.7 + TOP_BAR_HEIGHT + 2;
         // get canvas height
         double max_volume = GetMaxVolumeInRange();
         // calc single volume bar width
@@ -66,8 +71,8 @@ void RichVolumeBarCtrl::OnPaint(wxDC* pDC) {
             return;
         }
         std::vector<minuteKline>& klines = *(m_pKlineCtrl->m_pMinuteKlines);
-        double hVolumeBar = m_pKlineCtrl->m_height * 0.3;
-        double yVolumeBar = m_pKlineCtrl->m_height * 0.7;
+        double hVolumeBar = m_pKlineCtrl->m_height * 0.3 - TOP_BAR_HEIGHT - 4;
+        double yVolumeBar = m_pKlineCtrl->m_height * 0.7 + TOP_BAR_HEIGHT + 2;
         double max_volume = GetMaxVolume();
         double w =
             static_cast<double>((m_pKlineCtrl->m_width - m_pKlineCtrl->m_paddingLeft - m_pKlineCtrl->m_paddingRight)) /

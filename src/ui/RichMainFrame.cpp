@@ -97,11 +97,6 @@ void RichMainFrame::LoadQuote() {
     }
     RichPanelStockQuote* panelQuote = static_cast<RichPanelStockQuote*>(m_panelCurrent);
     panelQuote->LoadStockMarketQuote();
-    
-    RichPngKline pngKline(m_pStorage, "data/output.png");
-    pngKline.AddShare("600415");
-    pngKline.AddShare("300512");
-    pngKline.Save();
 }
 
 StockDataStorage* RichMainFrame::GetStockDataStorage() {

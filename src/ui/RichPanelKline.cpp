@@ -16,6 +16,7 @@ const long RichPanelKline::ID_SHARE_NAME_CTRL = wxNewId();
 const long RichPanelKline::ID_KLINE_CTRL = wxNewId();
 const long RichPanelKline::ID_DIALOG_KLINE_INFO = wxNewId();
 const long RichPanelKline::ID_RADIO_CTRL = wxNewId();
+const long RichPanelKline::ID_SECOND_RADIO_CTRL = wxNewId();
 
 // 以下函数实现必须写，否则会爆错误 undefined reference to 'vtable for RichKlineCtrl'
 BEGIN_EVENT_TABLE(RichPanelKline, RichPanel)
@@ -25,6 +26,7 @@ EVT_LEFT_DOWN(RichPanelKline::OnLeftMouseDown)
 // EVT_KEY_DOWN(RichPanelKline::OnKeyDown)
 EVT_ERASE_BACKGROUND(RichPanelKline::OnBackground)
 EVT_RICH_RADIO(RichPanelKline::ID_RADIO_CTRL, RichPanelKline::OnKlineChanged)
+EVT_RICH_RADIO(RichPanelKline::ID_SECOND_RADIO_CTRL, RichPaneKline::OnVolumeBarChanged)
 EVT_MOUSEWHEEL(RichPanelKline::OnMouseWheel)
 END_EVENT_TABLE()
 
@@ -52,6 +54,12 @@ RichPanelKline::RichPanelKline(PanelType type,
     m_sizeKlineCtrl = size;
     m_sizeKlineCtrl.DecBy(wxSize(0, TOP_BAR_HEIGHT + 2));  // 这里不能使用DecTo,会导致RichKlineCtrl控件宽度为0
     m_pKlineCtrl = new RichKlineCtrl(pStorage, m_ptKlineCtrl, m_sizeKlineCtrl);
+
+    // 附图选项
+    std::vector<std::string> second_options = {"成交量", "成交额"};
+
+    m_pSecondRadioCtrl = new RichRadioCtrl(second_options, 0, this, ID_SECOND_RADIO_CTRL,
+                                           wxPoint(2, 2 + m_sizeKlineCtrl.y * 0.7), wxSize(400, TOP_BAR_HEIGHT));
     // 成交量/成交额附图
     m_pVolumeBarCtrl = new RichVolumeBarCtrl(m_pKlineCtrl);
     // 日K线信息
@@ -183,5 +191,11 @@ void RichPanelKline::OnKlineChanged(RichRadioEvent& event) {
     if (m_pShare != nullptr) {  // 更新股票名称
         m_pShareNameCtrl->SetLabel(CN(m_pShare->name));
     }
+    this->Refresh();
+}
+
+void RichPanelKline::OnVolumeBarChanged(RichRadioEvent& event) {
+    int mode = event.GetSelection();
+    m_pVolumeBarCtrl->SetMode(mode);
     this->Refresh();
 }
