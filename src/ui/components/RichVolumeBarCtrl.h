@@ -14,14 +14,20 @@ class RichVolumeBarCtrl {
                       const wxSize& size = wxDefaultSize);
     virtual ~RichVolumeBarCtrl();
     void OnPaint(wxDC* pDC);
+    void DrawVolumeBar(wxDC* pDC);
+    void DrawAmountBar(wxDC* pDC);
+    void DrawMinuteBar(wxDC* pDC);
     void DrawCrossLine(wxDC* pDC, int centerX, int centerY, int w, int h);
+    void SetMode(int mode);
 
    protected:
     double GetMaxVolumeInRange();
+    double GetMaxAmountInRange();
     double GetMaxVolume();
 
    protected:
     RichKlineCtrl* m_pKlineCtrl;
+    int m_mode;
 };
 
 #endif  // RICHVOLUMEBAR_H

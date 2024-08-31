@@ -26,7 +26,7 @@ EVT_LEFT_DOWN(RichPanelKline::OnLeftMouseDown)
 // EVT_KEY_DOWN(RichPanelKline::OnKeyDown)
 EVT_ERASE_BACKGROUND(RichPanelKline::OnBackground)
 EVT_RICH_RADIO(RichPanelKline::ID_RADIO_CTRL, RichPanelKline::OnKlineChanged)
-EVT_RICH_RADIO(RichPanelKline::ID_SECOND_RADIO_CTRL, RichPaneKline::OnVolumeBarChanged)
+EVT_RICH_RADIO(RichPanelKline::ID_SECOND_RADIO_CTRL, RichPanelKline::OnVolumeBarChanged)
 EVT_MOUSEWHEEL(RichPanelKline::OnMouseWheel)
 END_EVENT_TABLE()
 
@@ -183,6 +183,12 @@ void RichPanelKline::OnLeftMouseDown(wxMouseEvent& event) {
 
 void RichPanelKline::OnKlineChanged(RichRadioEvent& event) {
     int selection = event.GetSelection();
+    // 分时图/5日分时图需要隐藏 VolumeBarCtrl
+    if (selection == 0 || selection == 1) {
+        m_pSecondRadioCtrl->Show(false);
+    } else {
+        m_pSecondRadioCtrl->Show(true);
+    }
     bool result = m_pKlineCtrl->LoadKlines(static_cast<KlineType>(selection));
     if (!result) {  // 数据有可能加载失败，弹窗提示用户
         return;
