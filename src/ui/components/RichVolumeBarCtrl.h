@@ -16,7 +16,7 @@ class RichVolumeBarCtrl {
     void OnPaint(wxDC* pDC);
     void DrawVolumeBar(wxDC* pDC);
     void DrawAmountBar(wxDC* pDC);
-    void DrawMinuteBar(wxDC* pDC);
+    void DrawMinuteBar(wxDC* pDC, std::vector<minuteKline>* pMinuteKlines, KlineType kline_type = KlineType::Minute);
     void DrawCrossLine(wxDC* pDC, int centerX, int centerY, int w, int h);
     void SetMode(int mode);
 
@@ -24,6 +24,7 @@ class RichVolumeBarCtrl {
     double GetMaxVolumeInRange();
     double GetMaxAmountInRange();
     double GetMaxVolume();
+    double GetFiveDayMaxVolume();
 
    protected:
     RichKlineCtrl* m_pKlineCtrl;

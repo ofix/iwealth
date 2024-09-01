@@ -43,7 +43,7 @@ class RichKlineCtrl {
     wxPoint GetCrossLinePt(long n);
 
     // 绘制函数
-    void OnPaint(wxDC* pDC);
+    void OnPaint(wxBufferedPaintDC* pDC);
 
    protected:
     int GetInnerWidth();
@@ -61,7 +61,6 @@ class RichKlineCtrl {
     bool CheckPtInEmaText(wxPoint& pt);
     void DrawCrossLine(wxDC* pDC, int centerX, int centerY, int w, int h);  // 光标十字线
     void DrawEmaCurves(wxDC* pDC,
-                       int visibleKLineCount,
                        float rect_price_max,
                        float rect_price_min,
                        int minX,
@@ -78,9 +77,9 @@ class RichKlineCtrl {
     // 分时图/5日分时图
     void CalcMinuteKlineAvgPrice(std::vector<minuteKline>& minuteKlines, std::vector<double>& avg_price);
     void DrawFiveDayMinuteKlines(wxDC* pDC);                                                       // 5日分时图
+    void DrawFiveDayMinuteKlineBackground(wxDC* pDC, double ref_close_price, double delta_price);  // 5日分时图背景
     void DrawMinuteKlines(wxDC* pDC);                                                              // 分时图
     void DrawMinuteKlineBackground(wxDC* pDC, double yesterday_close_pricem, double delta_price);  // 分时图背景
-    void DrawMinuteKlineCurves(wxDC* pDC);                                                         // 分时图曲线
     void PrintDebugInfo(std::string prefix = "");                                                  // 打印调试信息
 
    protected:
@@ -102,14 +101,13 @@ class RichKlineCtrl {
     wxPoint m_crossLinePt;     // 当前K线十字线坐标
     int m_crossLine;
 
-    StockDataStorage* m_pStorage;               // 股票存储中心
-    std::string m_shareCode;                    // 股票代码
-    Share* m_pShare;                            // 股票指针
-    std::vector<uiKline>* m_pKlines;            // 当前绘制的K线数据
-    std::vector<minuteKline>* m_pMinuteKlines;  // 当前绘制的分时图数据
-    std::vector<ShareEmaCurve> m_emaCurves;     // 指数移动平均线
-    std::vector<minuteKline> m_minuteKlines;    // 分时图
-    std::vector<minuteKline> m_fiveDayKlines;   // 5日分时图
+    StockDataStorage* m_pStorage;                      // 股票存储中心
+    std::string m_shareCode;                           // 股票代码
+    Share* m_pShare;                                   // 股票指针
+    std::vector<uiKline>* m_pKlines;                   // 当前绘制的K线数据
+    std::vector<minuteKline>* m_pMinuteKlines;         // 当前绘制的分时图数据
+    std::vector<ShareEmaCurve> m_emaCurves;            // 指数移动平均线
+    std::vector<minuteKline>* m_pFiveDayMinuteKlines;  // 5日分时图
 
     uiKlineRange m_klineRng;
 

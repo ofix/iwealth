@@ -82,8 +82,10 @@ bool RichKlineCtrl::LoadKlines(const std::string& share_code, const KlineType& k
 
     m_pShare = m_pStorage->FindShare(share_code);
     RichResult status;
-    if (kline_type == KlineType::Minute || kline_type == KlineType::FiveDay) {
+    if (kline_type == KlineType::Minute) {
         status = m_pStorage->QueryMinuteKlines(share_code, kline_type, &m_pMinuteKlines);
+    } else if (kline_type == KlineType::FiveDay) {
+        status = m_pStorage->QueryMinuteKlines(share_code, kline_type, &m_pFiveDayMinuteKlines);
     } else {
         status = m_pStorage->QueryKlines(share_code, kline_type, &m_pKlines);
     }
@@ -449,7 +451,7 @@ void RichKlineCtrl::CalcVisibleKlineWidth() {
     }
 }
 
-void RichKlineCtrl::OnPaint(wxDC* pDC) {
+void RichKlineCtrl::OnPaint(wxBufferedPaintDC* pDC) {
     pDC->SetBackground(*wxBLACK_BRUSH);
     pDC->Clear();
     if (m_mode == KlineType::Minute) {
@@ -507,8 +509,7 @@ void RichKlineCtrl::DrawDayKlines(wxDC* pDC) {
     // 绘制背景
     DrawKlineBackground(pDC, m_minRectPrice, m_maxRectPrice);
 
-    int visible_klines = m_klineRng.end - m_klineRng.begin + 1;
-
+    // int visible_klines = m_klineRng.end - m_klineRng.begin + 1;
     double hPrice = m_maxRectPrice - m_minRectPrice;
     int minY = m_pos.y;
     int hRect = GetInnerHeight();
@@ -622,8 +623,7 @@ void RichKlineCtrl::DrawDayKlines(wxDC* pDC) {
         }
         nKline++;
     }
-    DrawEmaCurves(pDC, visible_klines, m_maxRectPrice, m_minRectPrice, 0, m_pos.y, GetInnerWidth(), GetInnerHeight(),
-                  m_klineWidth);
+    DrawEmaCurves(pDC, m_maxRectPrice, m_minRectPrice, 0, m_pos.y, GetInnerWidth(), GetInnerHeight(), m_klineWidth);
     DrawEmaText(pDC);
     DrawMinMaxRectPrice(pDC);
     if (m_crossLine != NO_CROSS_LINE) {
@@ -710,7 +710,6 @@ void RichKlineCtrl::DrawEmaText(wxDC* pDC) {
 /**
  * @brief 绘制EMA曲线
  * @param pDC
- * @param m_visibleKlineCount 可见矩形区域内K线总数目
  * @param m_maxRectPrice 可见矩形区域最高价
  * @param m_minRectPrice 可见矩形区域最低价
  * @param minX 可见矩形区域最小X坐标
@@ -721,12 +720,11 @@ void RichKlineCtrl::DrawEmaText(wxDC* pDC) {
  * @param klineSpan 可见矩形区域K线之间间距
  */
 void RichKlineCtrl::DrawEmaCurves(wxDC* pDC,
-                                  int m_visibleKlineCount,
                                   float m_maxRectPrice,
                                   float m_minRectPrice,
-                                  int minX,
+                                  int /*minX*/,
                                   int minY,
-                                  int maxX,
+                                  int /*maxX*/,
                                   int maxY,
                                   double klineWidth) {
     if (m_pKlines->size() <= 2) {  // 只有一条K线数据无法绘制EMA曲线
@@ -734,7 +732,6 @@ void RichKlineCtrl::DrawEmaCurves(wxDC* pDC,
     }
     double hPrice = m_maxRectPrice - m_minRectPrice;
     int hRect = maxY - minY;
-    int wRect = maxX - minX;
     double hZoomRatio = hRect / hPrice;
     for (auto& curve : m_emaCurves) {
         if (curve.visible) {
@@ -832,11 +829,88 @@ void RichKlineCtrl::CalcMinuteKlineAvgPrice(std::vector<minuteKline>& minuteKlin
     }
 }
 
-void RichKlineCtrl::DrawMinuteKlineCurves(wxDC* pDC) {
-}
-
 ////////////////////// 5日分时图相关函数  //////////////////////
 void RichKlineCtrl::DrawFiveDayMinuteKlines(wxDC* pDC) {
+    double wRect = m_width - m_paddingLeft - m_paddingRight;
+    double hRect = GetInnerHeight();
+    size_t nKlines = m_pFiveDayMinuteKlines->size() - 1;
+    double maxMinutePrice = GetRectMaxPrice(*m_pFiveDayMinuteKlines, 0, nKlines - 1);
+    double minMinutePrice = GetRectMinPrice(*m_pFiveDayMinuteKlines, 0, nKlines - 1);
+    int minY = m_pos.y;
+    // 五个交易日之前的收盘价
+    double ref_close_price = m_pFiveDayMinuteKlines->at(0).price - m_pFiveDayMinuteKlines->at(0).change_amount;
+    // 计算当日最大幅度
+    double max_amount = std::abs(maxMinutePrice - ref_close_price);
+    double min_amount = std::abs(minMinutePrice - ref_close_price);
+    double max_price = max_amount > min_amount ? max_amount : min_amount;
+    if (max_price < 0.08) {
+        max_price = 0.08;
+    }
+    double hPrice = ref_close_price + max_price;
+    double hZoomRatio = -hRect / (2 * max_price);
+    DrawFiveDayMinuteKlineBackground(pDC, ref_close_price, max_price);
+    // 计算所有的点
+    size_t nTotalLine = m_pFiveDayMinuteKlines->size() > 240 ? m_pFiveDayMinuteKlines->size() : 240;
+    double w = static_cast<double>(wRect) / nTotalLine;
+    // 绘制分时线
+    std::vector<wxPoint> m_avgPoints;
+    if (false) {
+        std::vector<wxPoint> m_fiveMinutePoints;
+        double x, y, yAvg;
+        for (size_t i = 0; i < m_pFiveDayMinuteKlines->size(); i++) {
+            x = i * w + m_paddingLeft;
+            y = (m_pFiveDayMinuteKlines->at(i).price - hPrice) * hZoomRatio + minY;
+            yAvg = (m_pFiveDayMinuteKlines->at(i).avg_price - hPrice) * hZoomRatio + minY;
+            m_fiveMinutePoints.push_back(wxPoint(x, y));
+            m_avgPoints.push_back(wxPoint(x, yAvg));
+        }
+
+        pDC->SetPen(*wxWHITE_PEN);
+        for (size_t i = 0; i < m_fiveMinutePoints.size() - 1; i++) {
+            wxPoint pt1 = m_fiveMinutePoints.at(i);
+            wxPoint pt2 = m_fiveMinutePoints.at(i + 1);
+            pDC->DrawLine(pt1, pt2);
+        }
+    } else {
+        std::vector<wxPoint> m_fiveMinutePoints;
+        double x, y, yAvg;
+        wxGraphicsContext* gc = wxGraphicsContext::Create(*static_cast<wxBufferedPaintDC*>(pDC));
+        wxGraphicsGradientStops gradientStops = wxGraphicsGradientStops(wxColour(255, 0, 0), wxColour(255, 0, 0, 40));
+        gc->SetBrush(gc->CreateLinearGradientBrush(static_cast<double>(m_paddingLeft), minY,
+                                                   static_cast<double>(m_paddingLeft), minY + hRect, gradientStops));
+        // 创建多边形点路径
+        wxGraphicsPath path = gc->CreatePath();
+        path.MoveToPoint(m_paddingLeft, minY + hRect);
+        for (size_t i = 0; i < m_pFiveDayMinuteKlines->size(); i++) {
+            x = i * w + m_paddingLeft;
+            y = (m_pFiveDayMinuteKlines->at(i).price - hPrice) * hZoomRatio + minY;
+            yAvg = (m_pFiveDayMinuteKlines->at(i).avg_price - hPrice) * hZoomRatio + minY;
+            path.AddLineToPoint(x, y);
+            m_fiveMinutePoints.push_back(wxPoint(x, y));
+            m_avgPoints.push_back(wxPoint(x, yAvg));
+        }
+        path.AddLineToPoint(wRect + m_paddingLeft, minY + hRect);
+        path.CloseSubpath();
+        // 绘制线条
+        pDC->SetPen(wxPen(wxColor(255, 0, 0), 2, wxPENSTYLE_SOLID));
+        for (size_t i = 0; i < m_fiveMinutePoints.size() - 1; i++) {
+            wxPoint pt1 = m_fiveMinutePoints.at(i);
+            wxPoint pt2 = m_fiveMinutePoints.at(i + 1);
+            pDC->DrawLine(pt1, pt2);
+        }
+        // 使用渐变填充多边形路径
+        gc->FillPath(path);
+        // 清理画布
+        delete gc;
+    }
+
+    pDC->SetPen(wxPen(wxColor(255, 255, 0)));
+    // 绘制分时均线
+    for (size_t i = 0; i < m_avgPoints.size() - 1; i++) {
+        wxPoint pt1 = m_avgPoints.at(i);
+        wxPoint pt2 = m_avgPoints.at(i + 1);
+        pDC->DrawLine(pt1, pt2);
+    }
 }
 
 ////////////////////// 分时图相关函数  //////////////////////
@@ -866,7 +940,7 @@ void RichKlineCtrl::DrawMinuteKlines(wxDC* pDC) {
     std::vector<wxPoint> m_minutePoints;
     std::vector<wxPoint> m_avgPoints;
     double x, y, yAvg;
-    for (int i = 0; i < m_pMinuteKlines->size(); i++) {
+    for (size_t i = 0; i < m_pMinuteKlines->size(); i++) {
         x = i * w + m_paddingLeft;
         y = (m_pMinuteKlines->at(i).price - hPrice) * hZoomRatio + minY;
         yAvg = (m_pMinuteKlines->at(i).avg_price - hPrice) * hZoomRatio + minY;
@@ -875,17 +949,135 @@ void RichKlineCtrl::DrawMinuteKlines(wxDC* pDC) {
     }
     // 绘制分时线
     pDC->SetPen(*wxWHITE_PEN);
-    for (int i = 0; i < m_minutePoints.size() - 1; i++) {
+    for (size_t i = 0; i < m_minutePoints.size() - 1; i++) {
         wxPoint pt1 = m_minutePoints.at(i);
         wxPoint pt2 = m_minutePoints.at(i + 1);
         pDC->DrawLine(pt1, pt2);
     }
     pDC->SetPen(wxPen(wxColor(255, 255, 0)));
     // 绘制分时均线
-    for (int i = 0; i < m_avgPoints.size() - 1; i++) {
+    for (size_t i = 0; i < m_avgPoints.size() - 1; i++) {
         wxPoint pt1 = m_avgPoints.at(i);
         wxPoint pt2 = m_avgPoints.at(i + 1);
         pDC->DrawLine(pt1, pt2);
+    }
+}
+
+/**
+ * @brief 绘制5日分时分时图
+ *
+ * @param pDC 绘图上下文
+ * @param ref_close_price 参考5个交易日之前的收盘价
+ * @param delta_price 上下波动最大的收盘价
+ */
+void RichKlineCtrl::DrawFiveDayMinuteKlineBackground(wxDC* pDC, double ref_close_price, double delta_price) {
+    const int nrows = 16;
+    const int ncols = 20;
+    double wRect = m_width - m_paddingLeft - m_paddingRight;
+    double hRect = GetInnerHeight();
+    int hRow = (hRect - (nrows + 2)) / nrows;
+    int wCol = (wRect) / ncols;
+    int dwCol = (wRect) / 5;
+    wxColor clr(45, 45, 45);
+    wxPen solidPen(clr, 1, wxPENSTYLE_SOLID);
+    wxPen solidPen2(clr, 2, wxPENSTYLE_SOLID);
+    wxPen dotPen(clr, 1, wxPENSTYLE_DOT);
+
+    // 计算左边价格，计算右边幅度
+    std::vector<double> prices;       // 价格
+    std::vector<double> ampltitudes;  // 涨幅
+    double row_price = delta_price * 2 / nrows;
+    if (row_price < 0.01) {
+        for (size_t i = 0; i < 8; i++) {
+            prices.push_back(ref_close_price + 0.01 * (i + 1));
+            ampltitudes.push_back((prices[i] / ref_close_price - 1) * 100);
+        }
+        for (size_t i = 0; i < 8; i++) {
+            prices.push_back(ref_close_price - 0.01 * (i + 1));
+            ampltitudes.push_back((1 - prices[i] / ref_close_price) * 100);
+        }
+    } else {
+        for (size_t i = 0; i < 8; i++) {
+            prices.push_back(ref_close_price + row_price * (i + 1));
+            ampltitudes.push_back((prices[i] / ref_close_price - 1) * 100);
+        }
+        for (size_t i = 0; i < 8; i++) {
+            prices.push_back(ref_close_price - row_price * (i + 1));
+            ampltitudes.push_back(ampltitudes[i]);
+        }
+    }
+    // 绘制左右外边框
+    pDC->SetPen(solidPen);
+    double offsetX = m_pos.x + m_paddingLeft;
+    pDC->DrawLine(offsetX, m_pos.y, offsetX + wRect, m_pos.y);
+    pDC->DrawLine(offsetX, m_pos.y + hRect, offsetX + wRect, m_pos.y + hRect);
+    // 绘制上下外边框
+    pDC->DrawLine(offsetX, m_pos.y, offsetX, m_pos.y + hRect);
+    pDC->DrawLine(offsetX + wRect, m_pos.y + hRect, offsetX + wRect, m_pos.y + hRect);
+    // 绘制中间横线(粗线)
+    pDC->SetPen(solidPen2);
+    pDC->DrawLine(offsetX, m_pos.y + hRect / 2, offsetX + wRect, m_pos.y + hRect / 2);
+    // 绘制中间5日分割竖线(粗线)
+    wxPoint ptTop(offsetX, m_pos.y);
+    wxPoint ptBottom(offsetX, m_pos.y + hRect);
+    int nDay = ncols / 4;
+    for (int i = 1; i <= nDay; i++) {
+        ptTop.x += dwCol;
+        ptBottom.x += dwCol;
+        pDC->DrawLine(ptTop, ptBottom);
+    }
+    // 绘制每日间隔竖线(虚线)
+    pDC->SetPen(dotPen);
+    ptTop.x = offsetX;
+    ptBottom.x = offsetX;
+    for (int i = 1; i < ncols; i++) {
+        if (i % 2 == 1) {
+            ptTop.x += wCol;
+            ptBottom.x += wCol;
+            pDC->DrawLine(ptTop, ptBottom);
+        }
+    }
+    // 绘制横向虚线
+    pDC->SetPen(dotPen);
+    wxPoint ptLeft(offsetX, m_pos.y);
+    wxPoint ptRight(offsetX + wRect, m_pos.y);
+    // 绘制横向虚线
+    for (int i = 1; i <= nrows; i++) {
+        ptLeft.y += hRow + 1;
+        ptRight.y += hRow + 1;
+        if (i == 8 || i == 16) {
+            continue;  // 跳过实线绘制
+        }
+        pDC->DrawLine(ptLeft, ptRight);
+    }
+
+    // 绘制左右两边上半部分价格和涨幅
+    pDC->SetTextForeground(wxColor(255, 0, 0));
+    wxRect rectLeft(2, m_pos.y - hRow / 2, m_paddingLeft - 4, hRow + 1);
+    wxRect rectRight(m_width - m_paddingRight + 2, m_pos.y - hRow / 2, m_paddingRight, hRow + 1);
+    for (int i = 0; i < 8; i++) {
+        pDC->DrawLabel(convert_double(prices.at(8 - i - 1)), rectLeft, wxALIGN_RIGHT | wxALIGN_CENTER_VERTICAL);
+        pDC->DrawLabel(convert_double(ampltitudes.at(8 - i - 1)) + "%", rectRight,
+                       wxALIGN_LEFT | wxALIGN_CENTER_VERTICAL);
+        rectLeft.y += hRow + 1;
+        rectRight.y += hRow + 1;
+    }
+    // 绘制左右两边开盘价格基准(上一个交易日收盘价)
+    pDC->SetTextForeground(wxColor(255, 255, 255));
+    rectLeft.y = (hRow + 1) * 8 - hRow / 2;
+    rectRight.y = m_pos.y + (hRow + 1) * 8 - hRow / 2;
+    pDC->DrawLabel(convert_double(ref_close_price), rectLeft, wxALIGN_RIGHT | wxALIGN_CENTER_VERTICAL);
+    pDC->DrawLabel("0.00%", rectRight, wxALIGN_LEFT | wxALIGN_CENTER_VERTICAL);
+
+    // 绘制左右两边下半部分价格和涨幅
+    pDC->SetTextForeground(wxColor(0, 255, 0));
+    rectLeft.y += hRow + 1;
+    rectRight.y += hRow + 1;
+    for (int i = 8; i < 16; i++) {
+        pDC->DrawLabel(convert_double(prices.at(i)), rectLeft, wxALIGN_RIGHT | wxALIGN_CENTER_VERTICAL);
+        pDC->DrawLabel(convert_double(ampltitudes.at(i)) + "%", rectRight, wxALIGN_LEFT | wxALIGN_CENTER_VERTICAL);
+        rectLeft.y += hRow + 1;
+        rectRight.y += hRow + 1;
     }
 }
 
@@ -939,53 +1131,54 @@ void RichKlineCtrl::DrawMinuteKlineBackground(wxDC* pDC, double yesterday_close_
     pDC->DrawLine(offsetX + wRect / 2, m_pos.y, offsetX + wRect / 2, m_pos.y + hRect);
     // 绘制横向虚线
     pDC->SetPen(dotPen);
-    wxPoint ptStart = wxPoint(offsetX, m_pos.y);
-    wxPoint ptEnd = wxPoint(offsetX + wRect, m_pos.y);
-    wxPoint pt1 = ptStart;
-    wxPoint pt2 = ptEnd;
-    // 绘制左右两边上半部分价格和涨幅
-    pDC->SetTextForeground(wxColor(255, 0, 0));
-    for (int i = 0; i < 8; i++) {
-        wxRect rt1(2, ptStart.y + (hRow + 1) * i - hRow / 2, m_paddingLeft - 4, hRow + 1);
-        wxRect rt2(m_width - m_paddingRight + 2, ptStart.y + (hRow + 1) * i - hRow / 2, m_paddingRight, hRow + 1);
-        pDC->DrawLabel(convert_double(prices.at(8 - i - 1)), rt1, wxALIGN_RIGHT | wxALIGN_CENTER_VERTICAL);
-        pDC->DrawLabel(convert_double(ampltitudes.at(8 - i - 1)) + "%", rt2, wxALIGN_LEFT | wxALIGN_CENTER_VERTICAL);
-    }
-    // 绘制左右两边下半部分价格和涨幅
-    pDC->SetTextForeground(wxColor(0, 255, 0));
-    for (int i = 8; i < 16; i++) {
-        wxRect rt1(2, ptStart.y + (hRow + 1) * (i + 1) - hRow / 2, m_paddingLeft - 4, hRow + 1);
-        wxRect rt2(m_width - m_paddingRight + 2, ptStart.y + (hRow + 1) * (i + 1) - hRow / 2, m_paddingRight, hRow + 1);
-        pDC->DrawLabel(convert_double(prices.at(i)), rt1, wxALIGN_RIGHT | wxALIGN_CENTER_VERTICAL);
-        pDC->DrawLabel(convert_double(ampltitudes.at(i)) + "%", rt2, wxALIGN_LEFT | wxALIGN_CENTER_VERTICAL);
-    }
-
-    // 绘制开盘价格基准(上一个交易日收盘价)
-    pDC->SetTextForeground(wxColor(255, 255, 255));
-    wxRect rt1(2, ptStart.y + (hRow + 1) * 8 - hRow / 2, m_paddingLeft - 4, hRow + 1);
-    wxRect rt2(m_width - m_paddingRight + 2, ptStart.y + (hRow + 1) * 8 - hRow / 2, m_paddingRight, hRow + 1);
-    pDC->DrawLabel(convert_double(yesterday_close_price), rt1, wxALIGN_RIGHT | wxALIGN_CENTER_VERTICAL);
-    pDC->DrawLabel("0.00%", rt2, wxALIGN_LEFT | wxALIGN_CENTER_VERTICAL);
-    // 绘制横向虚线
+    wxPoint ptLeft(offsetX, m_pos.y);
+    wxPoint ptRight(offsetX + wRect, m_pos.y);
     for (int i = 1; i <= nrows; i++) {
+        ptLeft.y += hRow + 1;
+        ptRight.y += hRow + 1;
         if (i == 8 || i == 16) {
             continue;  // 跳过实线绘制
         }
-        pt1.y = ptStart.y + (hRow + 1) * i;
-        pt2.y = ptEnd.y + (hRow + 1) * i;
-        pDC->DrawLine(pt1, pt2);
+        pDC->DrawLine(ptLeft, ptRight);
     }
     // 绘制竖向虚线
-    ptStart = wxPoint(offsetX, m_pos.y);
-    ptEnd = wxPoint(offsetX, m_pos.y + hRect);
-    pt1 = ptStart;
-    pt2 = ptEnd;
+    wxPoint ptTop(offsetX, m_pos.y);
+    wxPoint ptBottom(offsetX, m_pos.y + hRect);
     for (int i = 1; i <= ncols; i++) {
+        ptTop.x += wCol;
+        ptBottom.x += wCol;
         if (i == 4) {
             continue;  // 跳过实线绘制
         }
-        pt1.x = ptStart.x + (wCol)*i;
-        pt2.x = ptEnd.x + (wCol)*i;
-        pDC->DrawLine(pt1, pt2);
+        pDC->DrawLine(ptTop, ptBottom);
+    }
+
+    // 绘制左右两边上半部分价格和涨幅
+    pDC->SetTextForeground(wxColor(255, 0, 0));
+    wxRect rectLeft(2, m_pos.y - hRow / 2, m_paddingLeft - 4, hRow + 1);
+    wxRect rectRight(m_width - m_paddingRight + 2, m_pos.y - hRow / 2, m_paddingRight, hRow + 1);
+    for (int i = 0; i < 8; i++) {
+        pDC->DrawLabel(convert_double(prices.at(8 - i - 1)), rectLeft, wxALIGN_RIGHT | wxALIGN_CENTER_VERTICAL);
+        pDC->DrawLabel(convert_double(ampltitudes.at(8 - i - 1)) + "%", rectRight,
+                       wxALIGN_LEFT | wxALIGN_CENTER_VERTICAL);
+        rectLeft.y += hRow + 1;
+        rectRight.y += hRow + 1;
+    }
+    // 绘制开盘价格基准(上一个交易日收盘价)
+    pDC->SetTextForeground(wxColor(255, 255, 255));
+    rectLeft.y = (hRow + 1) * 8 - hRow / 2;
+    rectRight.y = m_pos.y + (hRow + 1) * 8 - hRow / 2;
+    pDC->DrawLabel(convert_double(yesterday_close_price), rectLeft, wxALIGN_RIGHT | wxALIGN_CENTER_VERTICAL);
+    pDC->DrawLabel("0.00%", rectRight, wxALIGN_LEFT | wxALIGN_CENTER_VERTICAL);
+
+    // 绘制左右两边下半部分价格和涨幅
+    pDC->SetTextForeground(wxColor(0, 255, 0));
+    rectLeft.y += hRow + 1;
+    rectRight.y += hRow + 1;
+    for (int i = 8; i < 16; i++) {
+        pDC->DrawLabel(convert_double(prices.at(i)), rectLeft, wxALIGN_RIGHT | wxALIGN_CENTER_VERTICAL);
+        pDC->DrawLabel(convert_double(ampltitudes.at(i)) + "%", rectRight, wxALIGN_LEFT | wxALIGN_CENTER_VERTICAL);
+        rectLeft.y += hRow + 1;
+        rectRight.y += hRow + 1;
     }
 }

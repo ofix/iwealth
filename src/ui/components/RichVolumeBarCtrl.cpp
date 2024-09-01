@@ -9,7 +9,9 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 #include "ui/components/RichVolumeBarCtrl.h"
+#include "ui/RichHelper.h"
 #include "ui/components/RichKlineCtrl.h"
+#include "util/Global.h"
 
 #define TOP_BAR_HEIGHT 18
 
@@ -38,8 +40,10 @@ void RichVolumeBarCtrl::OnPaint(wxDC* pDC) {
                           m_pKlineCtrl->m_crossLinePt.y + m_pKlineCtrl->m_height * 0.7, m_pKlineCtrl->m_width,
                           m_pKlineCtrl->m_height * 0.3);
         }
-    } else if (m_pKlineCtrl->m_mode == KlineType::Minute || m_pKlineCtrl->m_mode == KlineType::FiveDay) {
-        DrawMinuteBar(pDC);
+    } else if (m_pKlineCtrl->m_mode == KlineType::Minute) {
+        DrawMinuteBar(pDC, m_pKlineCtrl->m_pMinuteKlines, KlineType::Minute);
+    } else if (m_pKlineCtrl->m_mode == KlineType::FiveDay) {
+        DrawMinuteBar(pDC, m_pKlineCtrl->m_pFiveDayMinuteKlines, KlineType::FiveDay);
     }
 }
 
@@ -114,25 +118,24 @@ void RichVolumeBarCtrl::DrawAmountBar(wxDC* pDC) {
     }
 }
 
-void RichVolumeBarCtrl::DrawMinuteBar(wxDC* pDC) {
-    if (m_pKlineCtrl->m_pMinuteKlines == nullptr || m_pKlineCtrl->m_pMinuteKlines->size() == 0) {
+void RichVolumeBarCtrl::DrawMinuteBar(wxDC* pDC, std::vector<minuteKline>* pMinuteKlines, KlineType kline_type) {
+    if (pMinuteKlines == nullptr || pMinuteKlines->size() == 0) {
         return;
     }
-    std::vector<minuteKline>& klines = *(m_pKlineCtrl->m_pMinuteKlines);
     double hVolumeBar = m_pKlineCtrl->m_height * 0.3 - TOP_BAR_HEIGHT - 4;
     double yVolumeBar = m_pKlineCtrl->m_height * 0.7 + TOP_BAR_HEIGHT + 2;
-    double max_volume = GetMaxVolume();
+    double max_volume = kline_type == KlineType::Minute ? GetMaxVolume() : GetFiveDayMaxVolume();
     double w =
         static_cast<double>((m_pKlineCtrl->m_width - m_pKlineCtrl->m_paddingLeft - m_pKlineCtrl->m_paddingRight)) /
-        klines.size();
+        pMinuteKlines->size();
     wxPen greenPen(wxColor(84, 255, 255));
     wxPen normalPen(wxColor(215, 215, 215));
-    for (size_t i = 1; i < klines.size(); i++) {
-        minuteKline kline = klines.at(i);
+    for (size_t i = 1; i < pMinuteKlines->size(); i++) {
+        minuteKline kline = pMinuteKlines->at(i);
         double x = (double)(i * w) + m_pKlineCtrl->m_paddingLeft;
         double y = yVolumeBar + (1.0 - kline.volume / max_volume) * hVolumeBar;
         double h = kline.volume / max_volume * hVolumeBar;
-        double prevPrice = klines.at(i - 1).price;
+        double prevPrice = pMinuteKlines->at(i - 1).price;
         if (kline.price > prevPrice) {
             pDC->SetPen(*wxRED_PEN);
         } else if (kline.price == prevPrice) {
@@ -141,6 +144,37 @@ void RichVolumeBarCtrl::DrawMinuteBar(wxDC* pDC) {
             pDC->SetPen(greenPen);
         }
         pDC->DrawLine(x, y, x, y + h);
+    }
+    // 绘制矩形边框
+    pDC->SetPen(wxPen(wxColor(45, 45, 45)));
+    pDC->SetBrush(*wxTRANSPARENT_BRUSH);
+    wxPoint ptTopLeft(m_pKlineCtrl->m_paddingLeft, yVolumeBar);
+    wxSize rtSize(m_pKlineCtrl->m_width - m_pKlineCtrl->m_paddingLeft - m_pKlineCtrl->m_paddingRight, hVolumeBar);
+    pDC->DrawRectangle(ptTopLeft, rtSize);
+
+    // 计算左右两边的分时成交量或者成交额
+    double hRow = hVolumeBar / 4;
+    double rowPrice = max_volume / 4;
+    wxRect rectLeft(2, yVolumeBar - hRow / 2, m_pKlineCtrl->m_paddingLeft - 4, hRow);
+    wxRect rectRight(m_pKlineCtrl->m_width - m_pKlineCtrl->m_paddingRight + 2, yVolumeBar - hRow / 2,
+                     m_pKlineCtrl->m_paddingRight, hRow);
+    // 绘制中间的虚线
+    wxPen dotPen(wxColor(45, 45, 45), 1, wxPENSTYLE_DOT);
+    wxPoint ptLeft(m_pKlineCtrl->m_paddingLeft, yVolumeBar);
+    wxPoint ptRight(m_pKlineCtrl->m_width - m_pKlineCtrl->m_paddingRight, yVolumeBar);
+    for (size_t i = 0; i < 4; i++) {
+        pDC->DrawLine(ptLeft, ptRight);
+        ptLeft.y += hRow;
+        ptRight.y += hRow;
+    }
+    // 绘制左右两边的分时成交量或者成交额
+    pDC->SetTextForeground(wxColor(180, 182, 184));
+    for (size_t i = 0; i < 4; i++) {
+        wxString label = CN(convert_double(max_volume - rowPrice * i, 0));
+        pDC->DrawLabel(label, rectLeft, wxALIGN_RIGHT | wxALIGN_CENTER_VERTICAL);
+        pDC->DrawLabel(label, rectRight, wxALIGN_LEFT | wxALIGN_CENTER_VERTICAL);
+        rectLeft.y += hRow;
+        rectRight.y += hRow;
     }
 }
 
@@ -180,6 +214,18 @@ double RichVolumeBarCtrl::GetMaxVolume() {
     double max = 0;
     std::vector<minuteKline>::const_iterator it;
     std::vector<minuteKline>& klines = *(m_pKlineCtrl->m_pMinuteKlines);
+    for (auto& kline : klines) {
+        if (kline.volume >= max) {
+            max = kline.volume;
+        }
+    }
+    return max;
+}
+
+double RichVolumeBarCtrl::GetFiveDayMaxVolume() {
+    double max = 0;
+    std::vector<minuteKline>::const_iterator it;
+    std::vector<minuteKline>& klines = *(m_pKlineCtrl->m_pFiveDayMinuteKlines);
     for (auto& kline : klines) {
         if (kline.volume >= max) {
             max = kline.volume;
