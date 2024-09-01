@@ -895,7 +895,7 @@ void RichKlineCtrl::DrawMinuteKlineBackground(wxDC* pDC, double yesterday_close_
     double wRect = m_width - m_paddingLeft - m_paddingRight;
     double hRect = GetInnerHeight();
     int hRow = (hRect - (nrows + 2)) / nrows;
-    int wCol = (wRect - (ncols + 1)) / ncols;
+    int wCol = (wRect) / ncols;
 
     wxColor clr(45, 45, 45);
     wxPen solidPen(clr, 1, wxPENSTYLE_SOLID);
@@ -927,19 +927,20 @@ void RichKlineCtrl::DrawMinuteKlineBackground(wxDC* pDC, double yesterday_close_
     }
     // 绘制左右外边框
     pDC->SetPen(solidPen);
-    pDC->DrawLine(m_pos.x + m_paddingLeft, m_pos.y, m_pos.x + m_paddingLeft + wRect, m_pos.y);
-    pDC->DrawLine(m_pos.x + m_paddingLeft, m_pos.y + hRect, m_pos.x + m_paddingLeft + wRect, m_pos.y + hRect);
+    double offsetX = m_pos.x + m_paddingLeft;
+    pDC->DrawLine(offsetX, m_pos.y, offsetX + wRect, m_pos.y);
+    pDC->DrawLine(offsetX, m_pos.y + hRect, offsetX + wRect, m_pos.y + hRect);
     // 绘制上下外边框
-    pDC->DrawLine(m_pos.x + m_paddingLeft, m_pos.y, m_pos.x + m_paddingLeft, m_pos.y + hRect);
-    pDC->DrawLine(m_pos.x + m_paddingLeft + wRect, m_pos.y + hRect, m_pos.x + m_paddingLeft + wRect, m_pos.y + hRect);
+    pDC->DrawLine(offsetX, m_pos.y, offsetX, m_pos.y + hRect);
+    pDC->DrawLine(offsetX + wRect, m_pos.y + hRect, offsetX + wRect, m_pos.y + hRect);
     // 绘制中间十字线
     pDC->SetPen(solidPen2);
-    pDC->DrawLine(m_pos.x + m_paddingLeft, m_pos.y + hRect / 2, m_pos.x + m_paddingLeft + wRect, m_pos.y + hRect / 2);
-    pDC->DrawLine(m_pos.x + m_paddingLeft + wRect / 2, m_pos.y, m_pos.x + m_paddingLeft + wRect / 2, m_pos.y + hRect);
+    pDC->DrawLine(offsetX, m_pos.y + hRect / 2, offsetX + wRect, m_pos.y + hRect / 2);
+    pDC->DrawLine(offsetX + wRect / 2, m_pos.y, offsetX + wRect / 2, m_pos.y + hRect);
     // 绘制横向虚线
     pDC->SetPen(dotPen);
-    wxPoint ptStart = wxPoint(m_pos.x + m_paddingLeft, m_pos.y);
-    wxPoint ptEnd = wxPoint(m_pos.x + m_paddingLeft + wRect, m_pos.y);
+    wxPoint ptStart = wxPoint(offsetX, m_pos.y);
+    wxPoint ptEnd = wxPoint(offsetX + wRect, m_pos.y);
     wxPoint pt1 = ptStart;
     wxPoint pt2 = ptEnd;
     // 绘制左右两边上半部分价格和涨幅
@@ -958,13 +959,14 @@ void RichKlineCtrl::DrawMinuteKlineBackground(wxDC* pDC, double yesterday_close_
         pDC->DrawLabel(convert_double(prices.at(i)), rt1, wxALIGN_RIGHT | wxALIGN_CENTER_VERTICAL);
         pDC->DrawLabel(convert_double(ampltitudes.at(i)) + "%", rt2, wxALIGN_LEFT | wxALIGN_CENTER_VERTICAL);
     }
+
     // 绘制开盘价格基准(上一个交易日收盘价)
     pDC->SetTextForeground(wxColor(255, 255, 255));
     wxRect rt1(2, ptStart.y + (hRow + 1) * 8 - hRow / 2, m_paddingLeft - 4, hRow + 1);
     wxRect rt2(m_width - m_paddingRight + 2, ptStart.y + (hRow + 1) * 8 - hRow / 2, m_paddingRight, hRow + 1);
     pDC->DrawLabel(convert_double(yesterday_close_price), rt1, wxALIGN_RIGHT | wxALIGN_CENTER_VERTICAL);
     pDC->DrawLabel("0.00%", rt2, wxALIGN_LEFT | wxALIGN_CENTER_VERTICAL);
-
+    // 绘制横向虚线
     for (int i = 1; i <= nrows; i++) {
         if (i == 8 || i == 16) {
             continue;  // 跳过实线绘制
@@ -974,16 +976,16 @@ void RichKlineCtrl::DrawMinuteKlineBackground(wxDC* pDC, double yesterday_close_
         pDC->DrawLine(pt1, pt2);
     }
     // 绘制竖向虚线
-    ptStart = wxPoint(m_pos.x, m_pos.y);
-    ptEnd = wxPoint(m_pos.x, m_pos.y + hRect);
+    ptStart = wxPoint(offsetX, m_pos.y);
+    ptEnd = wxPoint(offsetX, m_pos.y + hRect);
     pt1 = ptStart;
     pt2 = ptEnd;
     for (int i = 1; i <= ncols; i++) {
-        if (i == 4 || i == 8) {
+        if (i == 4) {
             continue;  // 跳过实线绘制
         }
-        pt1.y = ptStart.x + (wCol + 1) * i;
-        pt2.y = ptEnd.x + (wCol + 1) * i;
+        pt1.x = ptStart.x + (wCol)*i;
+        pt2.x = ptEnd.x + (wCol)*i;
         pDC->DrawLine(pt1, pt2);
     }
 }
