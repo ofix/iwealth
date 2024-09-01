@@ -875,7 +875,8 @@ void RichKlineCtrl::DrawFiveDayMinuteKlines(wxDC* pDC) {
         std::vector<wxPoint> m_fiveMinutePoints;
         double x, y, yAvg;
         wxGraphicsContext* gc = wxGraphicsContext::Create(*static_cast<wxBufferedPaintDC*>(pDC));
-        wxGraphicsGradientStops gradientStops = wxGraphicsGradientStops(wxColour(255, 0, 0), wxColour(255, 0, 0, 40));
+        wxGraphicsGradientStops gradientStops =
+            wxGraphicsGradientStops(wxColour(255, 0, 0, 60), wxColour(255, 0, 0, 5));
         gc->SetBrush(gc->CreateLinearGradientBrush(static_cast<double>(m_paddingLeft), minY,
                                                    static_cast<double>(m_paddingLeft), minY + hRect, gradientStops));
         // 创建多边形点路径
@@ -892,7 +893,7 @@ void RichKlineCtrl::DrawFiveDayMinuteKlines(wxDC* pDC) {
         path.AddLineToPoint(wRect + m_paddingLeft, minY + hRect);
         path.CloseSubpath();
         // 绘制线条
-        pDC->SetPen(wxPen(wxColor(255, 0, 0), 2, wxPENSTYLE_SOLID));
+        pDC->SetPen(wxPen(wxColor(255, 0, 0), 1, wxPENSTYLE_SOLID));
         for (size_t i = 0; i < m_fiveMinutePoints.size() - 1; i++) {
             wxPoint pt1 = m_fiveMinutePoints.at(i);
             wxPoint pt2 = m_fiveMinutePoints.at(i + 1);
@@ -1031,9 +1032,9 @@ void RichKlineCtrl::DrawFiveDayMinuteKlineBackground(wxDC* pDC, double ref_close
     ptTop.x = offsetX;
     ptBottom.x = offsetX;
     for (int i = 1; i < ncols; i++) {
-        if (i % 2 == 1) {
-            ptTop.x += wCol;
-            ptBottom.x += wCol;
+        ptTop.x += wCol;
+        ptBottom.x += wCol;
+        if (i % 4 != 0) {
             pDC->DrawLine(ptTop, ptBottom);
         }
     }
@@ -1064,8 +1065,8 @@ void RichKlineCtrl::DrawFiveDayMinuteKlineBackground(wxDC* pDC, double ref_close
     }
     // 绘制左右两边开盘价格基准(上一个交易日收盘价)
     pDC->SetTextForeground(wxColor(255, 255, 255));
-    rectLeft.y = (hRow + 1) * 8 - hRow / 2;
-    rectRight.y = m_pos.y + (hRow + 1) * 8 - hRow / 2;
+    rectLeft.y = m_pos.y + (hRow + 1) * 8 - hRow / 2;
+    rectRight.y = rectLeft.y;
     pDC->DrawLabel(convert_double(ref_close_price), rectLeft, wxALIGN_RIGHT | wxALIGN_CENTER_VERTICAL);
     pDC->DrawLabel("0.00%", rectRight, wxALIGN_LEFT | wxALIGN_CENTER_VERTICAL);
 
