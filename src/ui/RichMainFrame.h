@@ -11,6 +11,7 @@
 #include "ui/RichDialogShareSearch.h"
 #include "ui/RichPanelKline.h"
 #include "ui/RichPanelStockQuote.h"
+#include "ui/components/RichTopBar.h"
 #include "ui/events/RichShareSearchEvent.h"
 
 class RichMainFrame : public wxFrame {
@@ -43,6 +44,7 @@ class RichMainFrame : public wxFrame {
     static const long ID_PANEL_STOCK_QUOTE;
     static const long ID_PANEL_KLINE;
     static const long ID_DIALOG_SHARE_SEARCH;
+    static const long ID_TOP_BAR;
 
    private:
     void OnExit(wxCommandEvent& event);
@@ -57,6 +59,7 @@ class RichMainFrame : public wxFrame {
     size_t m_panelPos;                     // 当前位置
     StockDataStorage* m_pStorage;
     RichDialogShareSearch* m_dlgShareSearch;
+    RichTopBar* m_topBar;  // 顶部菜单栏
     DECLARE_EVENT_TABLE()
 };
 

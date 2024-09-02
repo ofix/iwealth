@@ -16,6 +16,7 @@ class RichTopMenu {
     int FindMenuItem(const std::string& menu_item_name);
     wxSize DoGetBestClientSize() const;
     void OnPaint(wxPaintEvent& event);
+    wxString GetName() const;
 
    private:
     wxString m_menuName;

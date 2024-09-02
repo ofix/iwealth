@@ -37,3 +37,7 @@ int RichTopMenu::FindMenuItem(const std::string& menu_item_name) {
 
 void RichTopMenu::OnPaint(wxPaintEvent& event) {
 }
+
+wxString RichTopMenu::GetName() const {
+    return m_menuName;
+}

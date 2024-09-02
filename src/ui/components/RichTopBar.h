@@ -4,8 +4,16 @@
 #include <wx/gdicmn.h>
 #include <wx/wx.h>
 #include <vector>
+#include "ui/components/RichTopMenu.h"
 
-class RichTopMenu;
+enum class TopBarHitState {
+    DEFAULT = 0,
+    Menu = 1,
+    BTN_MINIMIZE = 2,
+    BTN_MAXIMIZE = 3,
+    BTN_CLOSE = 4,
+};
+
 class RichTopBar : public wxWindow {
    public:
     RichTopBar(wxWindow* parent,                        // 父窗口
@@ -16,13 +24,16 @@ class RichTopBar : public wxWindow {
                const wxString& name = wxPanelNameStr);
     virtual ~RichTopBar();
     wxSize DoGetBestClientSize() const override;
+    void AddMenu(RichTopMenu* menu);
 
    protected:
     void OnMouseLeftDown(wxMouseEvent& event);
     void OnMouseLeftUp(wxMouseEvent&);
     void OnMouseMove(wxMouseEvent& event);
+    void OnHitTest(wxMouseEvent& event);
     void OnMouseCaptureLost(wxMouseCaptureLostEvent&);
     void FinishDrag();
+    bool CanMove();
 
     void OnPaint(wxPaintEvent& event);
     void DrawIcon(wxDC* pDC);         // logo
@@ -37,6 +48,8 @@ class RichTopBar : public wxWindow {
     wxPoint m_dragStartWindow;
     std::vector<RichTopMenu*> m_menus;
     wxImage* m_icon;
+    bool m_bLeftMouseDown;
+    TopBarHitState m_hitState;
     bool m_dragging;
 };
 

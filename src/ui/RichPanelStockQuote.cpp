@@ -38,7 +38,7 @@ RichPanelStockQuote::RichPanelStockQuote(PanelType type,
     // 自定义表格头渲染，解决排序没有指示器的问题
     m_gridCtrlQuote->GetTable()->SetAttrProvider(new RichGridColumnHeaderProvider());
 
-    m_gridCtrlQuote->SetFont(RichHelper::GetDefaultFont(14));
+    m_gridCtrlQuote->SetFont(RichHelper::GetDefaultFont(12));
 
     /// wxPanel 自适应 wxFrame，通过 wxSizer 即可实现
     wxSizer* sizer = new wxBoxSizer(wxHORIZONTAL);
@@ -67,7 +67,7 @@ RichPanelStockQuote::RichPanelStockQuote(PanelType type,
 
     // 标签行列设置
     m_gridCtrlQuote->SetLabelBackgroundColour(background_clr);
-    m_gridCtrlQuote->SetLabelFont(RichHelper::GetDefaultFont(14));
+    m_gridCtrlQuote->SetLabelFont(RichHelper::GetDefaultFont(12));
     m_gridCtrlQuote->SetLabelTextColour(wxColour(192, 192, 192));
     m_gridCtrlQuote->SetColLabelAlignment(wxALIGN_RIGHT, wxALIGN_CENTRE);
     // m_gridCtrlQuote->SetRowLabelAlignment(wxALIGN_CENTER, wxALIGN_CENTRE);
@@ -87,9 +87,9 @@ RichPanelStockQuote::RichPanelStockQuote(PanelType type,
         icol++;
     }
     wxGridCellAttr* pAlignLeftAttr = new wxGridCellAttr(wxColour(192, 192, 192), wxColor(0, 0, 0),
-                                                        RichHelper::GetDefaultFont(14), wxALIGN_LEFT, wxALIGN_CENTRE);
+                                                        RichHelper::GetDefaultFont(12), wxALIGN_LEFT, wxALIGN_CENTRE);
     wxGridCellAttr* pAlignCenterAttr = new wxGridCellAttr(
-        wxColour(192, 192, 192), wxColor(0, 0, 0), RichHelper::GetDefaultFont(14), wxALIGN_CENTER, wxALIGN_CENTRE);
+        wxColour(192, 192, 192), wxColor(0, 0, 0), RichHelper::GetDefaultFont(12), wxALIGN_CENTER, wxALIGN_CENTRE);
     m_gridCtrlQuote->SetColAttr(0, pAlignCenterAttr);
     m_gridCtrlQuote->SetColAttr(1, pAlignLeftAttr);
     m_gridCtrlQuote->SetColAttr(2, pAlignLeftAttr);
