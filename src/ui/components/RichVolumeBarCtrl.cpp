@@ -125,12 +125,19 @@ void RichVolumeBarCtrl::DrawMinuteBar(wxDC* pDC, std::vector<minuteKline>* pMinu
     double hVolumeBar = m_pKlineCtrl->m_height * 0.3 - TOP_BAR_HEIGHT - 4;
     double yVolumeBar = m_pKlineCtrl->m_height * 0.7 + TOP_BAR_HEIGHT + 2;
     double max_volume = kline_type == KlineType::Minute ? GetMaxVolume() : GetFiveDayMaxVolume();
+    double max_lines = kline_type == KlineType::Minute ? 240 : 1200;
     double w =
         static_cast<double>((m_pKlineCtrl->m_width - m_pKlineCtrl->m_paddingLeft - m_pKlineCtrl->m_paddingRight)) /
-        pMinuteKlines->size();
+        max_lines;
+    size_t nTotalLine = 240;
+    if (kline_type == KlineType::Minute) {
+        nTotalLine = pMinuteKlines->size() < 240 ? pMinuteKlines->size() : 240;
+    } else {
+        nTotalLine = pMinuteKlines->size() < 1200 ? pMinuteKlines->size() :1200;
+    }
     wxPen greenPen(wxColor(84, 255, 255));
     wxPen normalPen(wxColor(215, 215, 215));
-    for (size_t i = 1; i < pMinuteKlines->size(); i++) {
+    for (size_t i = 1; i < nTotalLine; i++) {
         minuteKline kline = pMinuteKlines->at(i);
         double x = (double)(i * w) + m_pKlineCtrl->m_paddingLeft;
         double y = yVolumeBar + (1.0 - kline.volume / max_volume) * hVolumeBar;

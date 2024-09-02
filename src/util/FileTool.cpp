@@ -10,7 +10,7 @@
 
 #include "util/FileTool.h"
 
-#ifdef _WIN32
+#if defined(_WIN32) || defined(_WIN64)
 #include <direct.h>  // _mkdir
 #include <fcntl.h>
 #include <io.h>
@@ -23,12 +23,13 @@
 #include <stdio.h>
 #include <sys/stat.h>
 #include <unistd.h>
+#include <fcntl.h>
 #endif
 #include <cstdio>
 #include <iostream>
 
 bool FileTool::IsFileExists(const std::string& path) {
-#ifdef _WIN32
+#if defined(_WIN32) || defined(_WIN64)
     // struct _stat info;
     // if (_stat(path.c_str(), &info) == 0) {
     //     return true;
@@ -50,7 +51,7 @@ bool FileTool::IsFileExists(const std::string& path) {
  * @author songhuabiao@iwealth.com.cn
  */
 std::string FileTool::CurrentPath() {
-#ifdef _WIN32
+#if defined(_WIN32) || defined(_WIN64)
     char buffer[MAX_PATH];
     GetModuleFileName(NULL, buffer, MAX_PATH);
 #else
@@ -66,7 +67,7 @@ std::string FileTool::CurrentPath() {
 
 // 获取文件修改时间，支持跨平台
 std::string FileTool::GetFileModifiedTime(const std::string& path) {
-#ifdef _WIN32
+#if defined(_WIN32) || defined(_WIN64)
     HANDLE hFile =
         CreateFileA(path.c_str(), GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
     if (hFile == INVALID_HANDLE_VALUE) {
@@ -153,7 +154,7 @@ bool FileTool::FileRegexReplace(const std::string& file_path, const std::regex& 
 }
 
 char FileTool::GetPathSeparator() {
-#ifdef _WIN32
+#if defined(_WIN32) || defined(_WIN64)
     return '\\';
 #else
     return '/';
@@ -190,7 +191,7 @@ bool FileTool::SaveFile(const std::string& file_path, const std::string& content
 }
 
 bool FileTool::DeleteAllFiles(const std::string& dir_path) {
-#ifdef _WIN32
+#if defined(_WIN32) || defined(_WIN64)
     intptr_t hFile = 0;
     struct _finddata_t fileinfo;
     std::string path;
@@ -235,7 +236,7 @@ bool FileTool::DeleteAllFiles(const std::string& dir_path) {
 
 // 递归创建文件夹
 bool FileTool::MakeDirs(const std::string& path) {
-#ifdef _WIN32
+#if defined(_WIN32) || defined(_WIN64)
     int ret = _mkdir(path.c_str());
 #else
     mode_t mode = 0755;
@@ -250,7 +251,7 @@ bool FileTool::MakeDirs(const std::string& path) {
         case ENOENT: {
             size_t pos = path.find_last_of('/');
             if (pos == std::string::npos)
-#ifdef _WIN32
+#if defined(_WIN32) || defined(_WIN64)
                 pos = path.find_last_of('\\');
             if (pos == std::string::npos)
 #endif
@@ -258,7 +259,7 @@ bool FileTool::MakeDirs(const std::string& path) {
             if (!MakeDirs(path.substr(0, pos)))
                 return false;
         }
-#ifdef _WIN32
+#if defined(_WIN32) || defined(_WIN64)
             return 0 == _mkdir(path.c_str());
 #else
             return 0 == mkdir(path.c_str(), mode);
@@ -402,7 +403,7 @@ bool FileTool::RemoveLastLineOfFile(const std::string& filename) {
 }
 
 bool FileTool::TruncateFileSize(const std::string& filename, size_t size) {
-#ifdef _WIN32 || _WIN64
+#if defined(_WIN32) || defined(_WIN64)
     LARGE_INTEGER large_size;
     large_size.QuadPart = size;
     HANDLE hFile = CreateFile(filename.c_str(), FILE_SHARE_READ | FILE_SHARE_WRITE, 0, NULL, OPEN_EXISTING,
@@ -420,7 +421,6 @@ bool FileTool::TruncateFileSize(const std::string& filename, size_t size) {
     }
     return true;
 #else
-#ifdef POSIX
     int fd = open(filename.c_str(), O_RDWR);
     if (fd == -1) {
         return false;
@@ -431,8 +431,5 @@ bool FileTool::TruncateFileSize(const std::string& filename, size_t size) {
     }
     close(fd);
     return true;
-#else
-    // code for other OSes
-#endif
 #endif
 }

@@ -451,7 +451,7 @@ void RichKlineCtrl::CalcVisibleKlineWidth() {
     }
 }
 
-void RichKlineCtrl::OnPaint(wxBufferedPaintDC* pDC) {
+void RichKlineCtrl::OnPaint(wxAutoBufferedPaintDC* pDC) {
     pDC->SetBackground(*wxBLACK_BRUSH);
     pDC->Clear();
     if (m_mode == KlineType::Minute) {
@@ -850,8 +850,8 @@ void RichKlineCtrl::DrawFiveDayMinuteKlines(wxDC* pDC) {
     double hZoomRatio = -hRect / (2 * max_price);
     DrawFiveDayMinuteKlineBackground(pDC, ref_close_price, max_price);
     // 计算所有的点
-    size_t nTotalLine = m_pFiveDayMinuteKlines->size() > 240 ? m_pFiveDayMinuteKlines->size() : 240;
-    double w = static_cast<double>(wRect) / nTotalLine;
+    size_t nTotalLine = m_pFiveDayMinuteKlines->size() > 1200 ? 1200 : m_pFiveDayMinuteKlines->size();
+    double w = static_cast<double>(wRect) / 1200;
     // 绘制分时线
     std::vector<wxPoint> m_avgPoints;
     if (false) {
@@ -882,7 +882,7 @@ void RichKlineCtrl::DrawFiveDayMinuteKlines(wxDC* pDC) {
         // 创建多边形点路径
         wxGraphicsPath path = gc->CreatePath();
         path.MoveToPoint(m_paddingLeft, minY + hRect);
-        for (size_t i = 0; i < m_pFiveDayMinuteKlines->size(); i++) {
+        for (size_t i = 0; i < nTotalLine; i++) {
             x = i * w + m_paddingLeft;
             y = (m_pFiveDayMinuteKlines->at(i).price - hPrice) * hZoomRatio + minY;
             yAvg = (m_pFiveDayMinuteKlines->at(i).avg_price - hPrice) * hZoomRatio + minY;
@@ -890,7 +890,7 @@ void RichKlineCtrl::DrawFiveDayMinuteKlines(wxDC* pDC) {
             m_fiveMinutePoints.push_back(wxPoint(x, y));
             m_avgPoints.push_back(wxPoint(x, yAvg));
         }
-        path.AddLineToPoint(wRect + m_paddingLeft, minY + hRect);
+        path.AddLineToPoint(nTotalLine * w + m_paddingLeft, minY + hRect);
         path.CloseSubpath();
         // 绘制线条
         pDC->SetPen(wxPen(wxColor(255, 0, 0), 1, wxPENSTYLE_SOLID));
@@ -936,12 +936,12 @@ void RichKlineCtrl::DrawMinuteKlines(wxDC* pDC) {
     double hZoomRatio = -hRect / (2 * max_price);
     DrawMinuteKlineBackground(pDC, yesterday_close_price, max_price);
     // 计算所有的点
-    size_t nTotalLine = m_pMinuteKlines->size() > 240 ? m_pMinuteKlines->size() : 240;
-    double w = static_cast<double>(wRect) / nTotalLine;
+    size_t nTotalLine = m_pMinuteKlines->size() > 240 ? 240 : m_pMinuteKlines->size();
+    double w = static_cast<double>(wRect) / 240;
     std::vector<wxPoint> m_minutePoints;
     std::vector<wxPoint> m_avgPoints;
     double x, y, yAvg;
-    for (size_t i = 0; i < m_pMinuteKlines->size(); i++) {
+    for (size_t i = 0; i < nTotalLine; i++) {
         x = i * w + m_paddingLeft;
         y = (m_pMinuteKlines->at(i).price - hPrice) * hZoomRatio + minY;
         yAvg = (m_pMinuteKlines->at(i).avg_price - hPrice) * hZoomRatio + minY;

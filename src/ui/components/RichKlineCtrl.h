@@ -43,7 +43,7 @@ class RichKlineCtrl {
     wxPoint GetCrossLinePt(long n);
 
     // 绘制函数
-    void OnPaint(wxBufferedPaintDC* pDC);
+    void OnPaint(wxAutoBufferedPaintDC* pDC);
 
    protected:
     int GetInnerWidth();
