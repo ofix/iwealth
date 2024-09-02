@@ -32,8 +32,8 @@ RichMainFrame::RichMainFrame(wxWindow* parent, wxWindowID id, const wxPoint& /*p
     m_pStorage = new StockDataStorage(true);
     m_pStorage->SetEventHandler(this);
 
-    Create(parent, id, _("东方巴菲特"), wxDefaultPosition, wxDefaultSize, wxDEFAULT_FRAME_STYLE | wxWANTS_CHARS,
-           _T("id"));
+    Create(parent, id, _("东方巴菲特"), wxDefaultPosition, wxDefaultSize,
+           wxDEFAULT_FRAME_STYLE | wxWANTS_CHARS | wxNO_BORDER, _T("id"));
     SetClientSize(wxSize(1024, 580));
     SetMinSize(wxSize(1024, 580));  // 设置最小窗口大小为 300x200
     Move(wxDefaultPosition);
