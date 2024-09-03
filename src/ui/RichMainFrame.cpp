@@ -10,6 +10,7 @@
 
 #include "ui/RichMainFrame.h"
 #include <wx/artprov.h>
+#include <wx/dcbuffer.h>
 #include <wx/listctrl.h>
 #include <wx/platinfo.h>
 #include <vector>
@@ -33,8 +34,20 @@ RichMainFrame::RichMainFrame(wxWindow* parent, wxWindowID id, const wxPoint& /*p
     // 数据加载放在窗口显示之后，不阻塞窗口初始化
     m_pStorage = new StockDataStorage(true);
     m_pStorage->SetEventHandler(this);
+    SetBackgroundStyle(wxBG_STYLE_PAINT);
+    Bind(wxEVT_MENU, &RichMainFrame::OnAbout, this, wxID_ABOUT);
+    Bind(wxEVT_MENU, &RichMainFrame::OnExit, this, wxID_EXIT);
+    Bind(wxEVT_CLOSE_WINDOW, &RichMainFrame::OnClose, this);
+    Bind(wxEVT_ICONIZE, &RichMainFrame::OnIconize, this);
+    Bind(wxEVT_MAXIMIZE, &RichMainFrame::OnMaximize, this);
+    Bind(wxEVT_NC_PAINT, &RichMainFrame::OnPaintTitleBar, this);
 
+#if defined(_WIN32) || defined(__WIN64)
     Create(parent, id, _("东方巴菲特"), wxDefaultPosition, wxDefaultSize, wxWANTS_CHARS | wxRESIZE_BORDER, _T("id"));
+#else
+    Create(parent, id, _("东方巴菲特"), wxDefaultPosition, wxDefaultSize, wxWANTS_CHARS | wxDEFAULT_FRAME_STYLE,
+           _T("id"));
+#endif
     SetClientSize(wxSize(1024, 580));
     SetMinSize(wxSize(1024, 580));  // 设置最小窗口大小为 300x200
     Move(wxDefaultPosition);
@@ -50,6 +63,7 @@ RichMainFrame::RichMainFrame(wxWindow* parent, wxWindowID id, const wxPoint& /*p
     m_panelCurrent = nullptr;
     m_panelPos = -1;
 
+    /*
     m_topBar = new RichTopBar(this, ID_TOP_BAR, wxPoint(0, 0), wxSize(-1, 32), 0, _("猛龙证券"));
 
     // RichMenu
@@ -61,6 +75,7 @@ RichMainFrame::RichMainFrame(wxWindow* parent, wxWindowID id, const wxPoint& /*p
     m_topBar->AddMenu(menuMarketQuote);
     m_topBar->AddMenu(menuDiscovery);
     m_topBar->AddMenu(menuFormula);
+    */
 
     // wxMenu* menuFile = new wxMenu;
     // menuFile->Append(wxID_EXIT);
@@ -77,11 +92,6 @@ RichMainFrame::RichMainFrame(wxWindow* parent, wxWindowID id, const wxPoint& /*p
     // CreateStatusBar();
     // SetStatusText(_T("财富之眼"));
 
-    Bind(wxEVT_MENU, &RichMainFrame::OnAbout, this, wxID_ABOUT);
-    Bind(wxEVT_MENU, &RichMainFrame::OnExit, this, wxID_EXIT);
-    Bind(wxEVT_CLOSE_WINDOW, &RichMainFrame::OnClose, this);
-    Bind(wxEVT_ICONIZE, &RichMainFrame::OnIconize, this);
-    Bind(wxEVT_MAXIMIZE, &RichMainFrame::OnMaximize, this);
     // 初始化主窗口面板
     RichPanelStockQuote* panelQuote = new RichPanelStockQuote(PanelType::Quote, m_pStorage, this, ID_PANEL_STOCK_QUOTE,
                                                               wxPoint(384, 48), wxSize(1240, 600));
@@ -100,13 +110,19 @@ RichMainFrame::RichMainFrame(wxWindow* parent, wxWindowID id, const wxPoint& /*p
     m_dlgShareSearch->ReLayout(wxSize(290, 380));
     m_dlgShareSearch->Show(false);  // 默认隐藏
 
-    wxBoxSizer* vertical_sizer = new wxBoxSizer(wxVERTICAL);
-    vertical_sizer->Add(m_topBar, 0, wxEXPAND | wxALL, 0);
-    vertical_sizer->Add(panelQuote, 1, wxEXPAND | wxALL, 0);
-    SetSizer(vertical_sizer);
-    Layout();
-
+    // wxBoxSizer* vertical_sizer = new wxBoxSizer(wxVERTICAL);
+    // vertical_sizer->Add(m_topBar, 0, wxEXPAND | wxALL, 0);
+    // vertical_sizer->Add(panelQuote, 1, wxEXPAND | wxALL, 0);
+    // SetSizer(vertical_sizer);
+    // Layout();
     Maximize();  // 主窗口最大化
+}
+
+void RichMainFrame::OnPaintTitleBar(wxNcPaintEvent& event) {
+    wxAutoBufferedPaintDC dc(this);
+    std::cout << "paint title bar" << std::endl;
+    dc.SetBackground(wxBrush(wxColor(150, 3, 6)));
+    dc.DrawRectangle(0, 0, 2000, 32);
 }
 
 void RichMainFrame::LoadQuote() {

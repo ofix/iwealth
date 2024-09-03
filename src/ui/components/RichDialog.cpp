@@ -33,7 +33,7 @@ EVT_LEFT_UP(RichDialog::OnLeftMouseUp)
 END_EVENT_TABLE()
 
 RichDialog::RichDialog(wxWindow* parent, wxWindowID id, const wxString& title, const wxPoint& pos, const wxSize& size)
-    : wxDialog(parent, id, title, pos, size, wxDEFAULT_DIALOG_STYLE & ~wxCAPTION) {
+    : wxDialog(parent, id, title, pos, size, 0) {
     // 必须调用此函数，否则无法重绘wxDialog及其子类
     SetBackgroundStyle(wxBG_STYLE_PAINT);
     m_inMove = false;

@@ -32,6 +32,8 @@ class RichMainFrame : public wxFrame {
     void OnGridCellLeftClick(wxGridEvent& event);
     void OnGridCellLeftDblClick(wxGridEvent& event);
     void OnSearchShare(RichShareSearchEvent& event);
+    void OnPaintTitleBar(wxNcPaintEvent& event);
+
     void AdjustDlgShareSearchPostion();
     void AddPanelToStack(RichPanel* panel);
     void PopPanelFromStack();
