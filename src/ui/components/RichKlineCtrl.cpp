@@ -976,7 +976,7 @@ void RichKlineCtrl::DrawFiveDayMinuteKlineBackground(wxDC* pDC, double ref_close
     const int ncols = 20;
     double wRect = m_width - m_paddingLeft - m_paddingRight;
     double hRect = GetInnerHeight();
-    int hRow = (hRect - (nrows + 2)) / nrows;
+    double hRow = static_cast<double>(hRect - (nrows + 2)) / nrows;
     int wCol = (wRect) / ncols;
     int dwCol = (wRect) / 5;
     wxColor clr(45, 45, 45);
@@ -1087,7 +1087,7 @@ void RichKlineCtrl::DrawMinuteKlineBackground(wxDC* pDC, double yesterday_close_
     const int ncols = 8;
     double wRect = m_width - m_paddingLeft - m_paddingRight;
     double hRect = GetInnerHeight();
-    int hRow = (hRect - (nrows + 2)) / nrows;
+    double hRow = static_cast<double>(hRect - (nrows + 2)) / nrows;
     int wCol = (wRect) / ncols;
 
     wxColor clr(45, 45, 45);
@@ -1167,8 +1167,8 @@ void RichKlineCtrl::DrawMinuteKlineBackground(wxDC* pDC, double yesterday_close_
     }
     // 绘制开盘价格基准(上一个交易日收盘价)
     pDC->SetTextForeground(wxColor(255, 255, 255));
-    rectLeft.y = (hRow + 1) * 8 - hRow / 2;
-    rectRight.y = m_pos.y + (hRow + 1) * 8 - hRow / 2;
+    rectLeft.y = m_pos.y + (hRow + 1) * 8 - hRow / 2;
+    rectRight.y = rectLeft.y;
     pDC->DrawLabel(convert_double(yesterday_close_price), rectLeft, wxALIGN_RIGHT | wxALIGN_CENTER_VERTICAL);
     pDC->DrawLabel("0.00%", rectRight, wxALIGN_LEFT | wxALIGN_CENTER_VERTICAL);
 

@@ -203,7 +203,7 @@ void RichVolumeBarCtrl::DrawMinuteBar(wxDC* pDC, std::vector<minuteKline>* pMinu
                      m_pKlineCtrl->m_paddingRight, hRow);
     pDC->SetTextForeground(wxColor(180, 182, 184));
     for (size_t i = 0; i < 4; i++) {
-        wxString label = CN(convert_double(max_volume - rowPrice * i, 0));
+        wxString label = CN(convert_double((max_volume - rowPrice * i) / 100, 0));
         pDC->DrawLabel(label, rectLeft, wxALIGN_RIGHT | wxALIGN_CENTER_VERTICAL);
         pDC->DrawLabel(label, rectRight, wxALIGN_LEFT | wxALIGN_CENTER_VERTICAL);
         rectLeft.y += hRow;
