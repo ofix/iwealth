@@ -126,14 +126,14 @@ void RichVolumeBarCtrl::DrawMinuteBar(wxDC* pDC, std::vector<minuteKline>* pMinu
     double yVolumeBar = m_pKlineCtrl->m_height * 0.7 + TOP_BAR_HEIGHT + 2;
     double max_volume = kline_type == KlineType::Minute ? GetMaxVolume() : GetFiveDayMaxVolume();
     double max_lines = kline_type == KlineType::Minute ? 240 : 1200;
-    double w =
-        static_cast<double>((m_pKlineCtrl->m_width - m_pKlineCtrl->m_paddingLeft - m_pKlineCtrl->m_paddingRight)) /
-        max_lines;
+    double inner_width =
+        static_cast<double>((m_pKlineCtrl->m_width - m_pKlineCtrl->m_paddingLeft - m_pKlineCtrl->m_paddingRight));
+    double w = inner_width / max_lines;
     size_t nTotalLine = 240;
     if (kline_type == KlineType::Minute) {
         nTotalLine = pMinuteKlines->size() < 240 ? pMinuteKlines->size() : 240;
     } else {
-        nTotalLine = pMinuteKlines->size() < 1200 ? pMinuteKlines->size() :1200;
+        nTotalLine = pMinuteKlines->size() < 1200 ? pMinuteKlines->size() : 1200;
     }
     wxPen greenPen(wxColor(84, 255, 255));
     wxPen normalPen(wxColor(215, 215, 215));
@@ -162,11 +162,11 @@ void RichVolumeBarCtrl::DrawMinuteBar(wxDC* pDC, std::vector<minuteKline>* pMinu
     // 计算左右两边的分时成交量或者成交额
     double hRow = hVolumeBar / 4;
     double rowPrice = max_volume / 4;
-    wxRect rectLeft(2, yVolumeBar - hRow / 2, m_pKlineCtrl->m_paddingLeft - 4, hRow);
-    wxRect rectRight(m_pKlineCtrl->m_width - m_pKlineCtrl->m_paddingRight + 2, yVolumeBar - hRow / 2,
-                     m_pKlineCtrl->m_paddingRight, hRow);
-    // 绘制中间的虚线
-    wxPen dotPen(wxColor(45, 45, 45), 1, wxPENSTYLE_DOT);
+
+    // 绘制中间的虚横线
+    wxPen dotPen(wxColor(45, 45, 45), 1, wxPENSTYLE_SHORT_DASH);
+    wxPen dotPen2(wxColor(45, 45, 45), 2, wxPENSTYLE_SOLID);
+    pDC->SetPen(dotPen);
     wxPoint ptLeft(m_pKlineCtrl->m_paddingLeft, yVolumeBar);
     wxPoint ptRight(m_pKlineCtrl->m_width - m_pKlineCtrl->m_paddingRight, yVolumeBar);
     for (size_t i = 0; i < 4; i++) {
@@ -174,7 +174,33 @@ void RichVolumeBarCtrl::DrawMinuteBar(wxDC* pDC, std::vector<minuteKline>* pMinu
         ptLeft.y += hRow;
         ptRight.y += hRow;
     }
+    // 绘制中间的虚竖线
+    int nCols = (kline_type == KlineType::Day) ? 8 : 20;
+    double wCol = inner_width / nCols;
+    wxPoint ptTop(m_pKlineCtrl->m_paddingLeft, yVolumeBar);
+    wxPoint ptBottom(m_pKlineCtrl->m_paddingLeft, yVolumeBar + hVolumeBar);
+    for (size_t i = 0; i < nCols; i++) {
+        ptTop.x += wCol;
+        ptBottom.x += wCol;
+        if ((i + 1) % 4 == 0) {
+            continue;
+        }
+        pDC->DrawLine(ptTop, ptBottom);
+    }
+    // 绘制中间的粗虚竖线
+    pDC->SetPen(dotPen2);
+    ptTop.x = m_pKlineCtrl->m_paddingLeft;
+    ptBottom.x = m_pKlineCtrl->m_paddingLeft;
+    for (size_t i = 0; i < nCols;) {
+        ptTop.x += wCol * 4;
+        ptBottom.x += wCol * 4;
+        i += 4;
+        pDC->DrawLine(ptTop, ptBottom);
+    }
     // 绘制左右两边的分时成交量或者成交额
+    wxRect rectLeft(2, yVolumeBar - hRow / 2, m_pKlineCtrl->m_paddingLeft - 4, hRow);
+    wxRect rectRight(m_pKlineCtrl->m_width - m_pKlineCtrl->m_paddingRight + 2, yVolumeBar - hRow / 2,
+                     m_pKlineCtrl->m_paddingRight, hRow);
     pDC->SetTextForeground(wxColor(180, 182, 184));
     for (size_t i = 0; i < 4; i++) {
         wxString label = CN(convert_double(max_volume - rowPrice * i, 0));
