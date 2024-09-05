@@ -126,7 +126,8 @@ void RichPanelStockQuote::OnGridQuoteHeaderDblClick(wxGridEvent& event) {
 
 // 加载市场当前行情并显示
 void RichPanelStockQuote::LoadStockMarketQuote() {
-    if (m_pStorage->IsQuoteDataReady()) {
+    bool bShow = false;
+    if (bShow && m_pStorage->IsQuoteDataReady()) {
         std::vector<Share>* pShares = m_pStorage->GetStockAllShares();
         long irow = 0;
         m_gridCtrlQuote->GetTable()->InsertRows(0, pShares->size());  // 必须增加这一行，通知视图表格模型数据已变更

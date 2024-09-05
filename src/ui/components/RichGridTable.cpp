@@ -398,7 +398,8 @@ int RichGridTable::GetNumberCols() {
 }
 
 wxString RichGridTable::GetColLabelValue(int col) {
-    if (m_dataType == RichGridTableDataType::Stock) {
+    bool bShow = false;
+    if (bShow && m_dataType == RichGridTableDataType::Stock) {
         static std::vector<wxString> columns = {
             CN("序号"), CN("代码"),   CN("名称"),   CN("涨幅"), CN("现价"), CN("昨收"), CN("今开"), CN("最高"),
             CN("最低"), CN("成交额"), CN("成交量"), CN("换手"), CN("振幅"), CN("量比"), CN("行业"), CN("省份"),

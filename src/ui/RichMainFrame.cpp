@@ -12,6 +12,7 @@
 #include <wx/artprov.h>
 #include <wx/dcbuffer.h>
 #include <wx/listctrl.h>
+#include <wx/minifram.h>
 #include <wx/platinfo.h>
 #include <vector>
 #include "stock/StockDataStorage.h"
@@ -23,6 +24,10 @@ const long RichMainFrame::ID_PANEL_STOCK_QUOTE = wxNewId();
 const long RichMainFrame::ID_DIALOG_SHARE_SEARCH = wxNewId();
 const long RichMainFrame::ID_PANEL_KLINE = wxNewId();
 const long RichMainFrame::ID_TOP_BAR = wxNewId();
+const long RichMainFrame::ID_BORDER_LEFT = wxNewId();
+const long RichMainFrame::ID_BORDER_RIGHT = wxNewId();
+const long RichMainFrame::ID_BORDER_TOP = wxNewId();
+const long RichMainFrame::ID_BORDER_BOTTOM = wxNewId();
 
 BEGIN_EVENT_TABLE(RichMainFrame, wxFrame)
 EVT_THREAD(ID_QUOTE_DATA_READY, RichMainFrame::OnStorageDataReady)
@@ -40,30 +45,35 @@ RichMainFrame::RichMainFrame(wxWindow* parent, wxWindowID id, const wxPoint& /*p
     Bind(wxEVT_CLOSE_WINDOW, &RichMainFrame::OnClose, this);
     Bind(wxEVT_ICONIZE, &RichMainFrame::OnIconize, this);
     Bind(wxEVT_MAXIMIZE, &RichMainFrame::OnMaximize, this);
-    Bind(wxEVT_NC_PAINT, &RichMainFrame::OnPaintTitleBar, this);
+    // Bind(wxEVT_NC_PAINT, &RichMainFrame::OnPaintTitleBar, this);
+
+    // bind mouse event for frame dragging
+    // Bind(wxEVT_LEFT_DOWN, &RichMainFrame::OnMouseLeftDown, this);
+    // Bind(wxEVT_LEFT_UP, &RichMainFrame::OnMouseLeftUp, this);
+    // Bind(wxEVT_MOUSE_CAPTURE_LOST, &RichMainFrame::OnMouseCaptureLost, this);
+    // Bind(wxEVT_MOTION, &RichMainFrame::OnMouseMove, this);
 
 #if defined(_WIN32) || defined(__WIN64)
     Create(parent, id, _("东方巴菲特"), wxDefaultPosition, wxDefaultSize, wxWANTS_CHARS | wxRESIZE_BORDER, _T("id"));
 #else
-    Create(parent, id, _("东方巴菲特"), wxDefaultPosition, wxDefaultSize, wxWANTS_CHARS | wxDEFAULT_FRAME_STYLE,
-           _T("id"));
+    Create(parent, id, _("东方巴菲特"), wxDefaultPosition, wxSize(600,800),
+           wxWANTS_CHARS | wxCLIP_CHILDREN, _T("id"));
 #endif
     SetClientSize(wxSize(1024, 580));
     SetMinSize(wxSize(1024, 580));  // 设置最小窗口大小为 300x200
     Move(wxDefaultPosition);
     SetBackgroundColour(wxColor(255, 255, 255));
     {
-        wxIcon FrameIcon;
-        FrameIcon.CopyFromBitmap(
-            wxArtProvider::GetBitmap(wxART_MAKE_ART_ID_FROM_STR(_T("wxART_QUESTION")), wxART_FRAME_ICON));
-        SetIcon(FrameIcon);
+        // wxIcon FrameIcon;
+        // FrameIcon.CopyFromBitmap(
+        //     wxArtProvider::GetBitmap(wxART_MAKE_ART_ID_FROM_STR(_T("wxART_QUESTION")), wxART_FRAME_ICON));
+        // SetIcon(FrameIcon);
     }
 
     m_panelStack = {};
     m_panelCurrent = nullptr;
     m_panelPos = -1;
 
-    /*
     m_topBar = new RichTopBar(this, ID_TOP_BAR, wxPoint(0, 0), wxSize(-1, 32), 0, _("猛龙证券"));
 
     // RichMenu
@@ -75,7 +85,6 @@ RichMainFrame::RichMainFrame(wxWindow* parent, wxWindowID id, const wxPoint& /*p
     m_topBar->AddMenu(menuMarketQuote);
     m_topBar->AddMenu(menuDiscovery);
     m_topBar->AddMenu(menuFormula);
-    */
 
     // wxMenu* menuFile = new wxMenu;
     // menuFile->Append(wxID_EXIT);
@@ -110,19 +119,94 @@ RichMainFrame::RichMainFrame(wxWindow* parent, wxWindowID id, const wxPoint& /*p
     m_dlgShareSearch->ReLayout(wxSize(290, 380));
     m_dlgShareSearch->Show(false);  // 默认隐藏
 
-    // wxBoxSizer* vertical_sizer = new wxBoxSizer(wxVERTICAL);
-    // vertical_sizer->Add(m_topBar, 0, wxEXPAND | wxALL, 0);
-    // vertical_sizer->Add(panelQuote, 1, wxEXPAND | wxALL, 0);
-    // SetSizer(vertical_sizer);
-    // Layout();
-    Maximize();  // 主窗口最大化
+    wxSize frame_size =GetSize();
+    m_borderLeft = new RichFrameBorder(this,ID_BORDER_LEFT,wxPoint(0,0),wxSize(1,frame_size.GetHeight()),wxColor(255,0,0));
+    m_borderRight = new RichFrameBorder(this,ID_BORDER_LEFT,wxPoint(frame_size.GetWidth(),0),wxSize(1,frame_size.GetHeight()),wxColor(255,0,0));
+    m_borderTop = new RichFrameBorder(this,ID_BORDER_LEFT,wxPoint(0,0),wxSize(frame_size.GetWidth(),frame_size.GetHeight()),wxColor(255,0,0));
+    m_borderBottom = new RichFrameBorder(this,ID_BORDER_RIGHT,wxPoint(0,0),wxSize(1,frame_size.GetHeight()),wxColor(255,0,0));
+
+    wxBoxSizer* vertical_sizer = new wxBoxSizer(wxVERTICAL);
+    vertical_sizer->Add(m_topBar, 0, wxEXPAND | wxALL, 0);
+    vertical_sizer->Add(panelQuote, 1, wxEXPAND | wxALL, 0);
+    SetSizer(vertical_sizer);
+    Layout();
+    // Maximize();  // 主窗口最大化
+    m_bLeftMouseDown = false;
+    m_dragging = false;
 }
 
+// bool RichMainFrame::CanDragFrame(wxPoint& ptMouse) {
+//     wxSize size = GetSize();
+//     std::cout << "mouse point: " << ptMouse.x << "," << ptMouse.y << std::endl;
+//     std::cout << "frame size: " << size.GetWidth() << "," << size.GetHeight() << std::endl;
+//     if (ptMouse.x == 0 || ptMouse.y == 0 || ptMouse.x == size.GetWidth() || ptMouse.y == size.GetHeight()) {
+//         std::cout << "can drag frame" << std::endl;
+//         return true;
+//     }
+//     std::cout << "can't drag frame" << std::endl;
+//     return false;
+// }
+
+// void RichMainFrame::OnMouseLeftDown(wxMouseEvent& event) {
+//     m_bLeftMouseDown = true;
+//     if (!m_dragging) {
+//         wxPoint clientStart = event.GetPosition();
+//         if (CanDragFrame(clientStart)) {
+//             m_dragging = true;
+//             wxPoint clientStart = event.GetPosition();
+//             m_dragStartMouse = ClientToScreen(clientStart);
+//             m_dragStartWindow = GetParent()->GetPosition();
+//             CaptureMouse();
+//         }
+//     }
+// }
+
+// void RichMainFrame::OnMouseLeftUp(wxMouseEvent&) {
+//     m_bLeftMouseDown = false;
+//     // if (m_hitState == TopBarHitState::BTN_CLOSE) {
+//     //     wxCommandEvent event(wxEVT_CLOSE_WINDOW);
+//     //     wxPostEvent(GetParent(), event);
+//     // }
+//     FinishDrag();
+// }
+
+// void RichMainFrame::OnMouseMove(wxMouseEvent& event) {
+//     std::cout << "mouse move" << std::endl;
+//     if (m_dragging) {
+//         wxPoint curClientPsn = event.GetPosition();
+//         wxPoint curScreenPsn = ClientToScreen(curClientPsn);
+//         wxPoint movementVector = curScreenPsn - m_dragStartMouse;
+//         // GetParent()->SetPosition(m_dragStartWindow + movementVector);
+//     } else {
+//         wxPoint curClientPsn = event.GetPosition();
+//         if (CanDragFrame(curClientPsn)) {
+//             wxCursor we_cursor(wxCURSOR_SIZEWE);
+//             SetCursor(we_cursor);
+//         } else {
+//             wxCursor arrow_cursor(wxCURSOR_ARROW);
+//             SetCursor(arrow_cursor);
+//         }
+//     }
+// }
+
+// void RichMainFrame::OnMouseCaptureLost(wxMouseCaptureLostEvent&) {
+//     FinishDrag();
+// }
+
+// void RichMainFrame::FinishDrag() {
+//     if (m_dragging) {
+//         m_dragging = false;
+//     }
+//     if (HasCapture()) {
+//         ReleaseMouse();
+//     }
+// }
+
 void RichMainFrame::OnPaintTitleBar(wxNcPaintEvent& event) {
-    wxAutoBufferedPaintDC dc(this);
+    wxWindowDC dc(this);
     std::cout << "paint title bar" << std::endl;
     dc.SetBackground(wxBrush(wxColor(150, 3, 6)));
-    dc.DrawRectangle(0, 0, 2000, 32);
+    dc.DrawRectangle(0, 0, 2000, 342);
 }
 
 void RichMainFrame::LoadQuote() {
@@ -190,7 +274,7 @@ void RichMainFrame::OnChar(wxKeyEvent& event) {
 
 void RichMainFrame::AdjustDlgShareSearchPostion() {
     // 获取主窗口相对桌面的偏移位置
-    wxPoint offsetScreen = this->GetScreenPosition();
+    wxPoint offsetScreen = GetScreenPosition();
     // 获取主窗口界面大小
     wxSize frame_size = this->GetSize();
     // 获取股票搜索对话框大小
