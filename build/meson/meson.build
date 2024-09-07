@@ -8,9 +8,17 @@ project('iwealth', 'cpp',
             'cpp_std=c++14'
         ])
 
-if host_machine.cpu_family().startswith('x86')
-    third_party_lib = join_paths(meson.source_root(),
-      meson.current_source_dir(), '../../lib/curl/x86_64_windows')
+x86_64_platform = host_machine.cpu_family().startswith('x86_64')
+windows_os = host_machine.system().startswith('windows')
+
+if x86_64_platform
+    if windows_os
+        third_party_lib = join_paths(meson.source_root(),
+            meson.current_source_dir(), '../../lib/curl/x86_64_windows')
+    else
+        third_party_lib = join_paths(meson.source_root(),
+            meson.current_source_dir(), '../../lib/curl/x86_64_linux')
+    endif
 else
     third_party_lib = join_paths(meson.source_root(),
       meson.current_source_dir(), '../../lib/curl/aarch64_linux')
@@ -18,13 +26,22 @@ endif
 
 message(third_party_lib)
 
-if host_machine.cpu_family().startswith('x86')
-    inc = include_directories([
-        '../../src',
-        '../../lib',
-        '../../lib/wxWidgets/3.2.4/include',
-        '../../lib/wxWidgets/3.2.4/mingw_x64_windows/mswu',
-    ])
+if x86_64_platform
+    if windows_os
+        inc = include_directories([
+            '../../src',
+            '../../lib',
+            '../../lib/wxWidgets/3.2.4/include',
+            '../../lib/wxWidgets/3.2.4/mingw_x64_windows/mswu',
+        ])
+    else 
+        inc = include_directories([
+            '../../src',
+            '../../lib',
+            '../../lib/wxWidgets/3.2.4/include',
+            '../../lib/wxWidgets/3.2.4/x86_64_linux/wx/include/gtk3-unicode-3.2',
+        ])
+    endif
 else
     inc = include_directories([
         '../../src',
@@ -36,6 +53,18 @@ endif
 
 cc = meson.get_compiler('cpp')
 
+if x86_64_platform and not(windows_os)
+third_party_dep = declare_dependency(
+      dependencies : [
+        cc.find_library('crypto', dirs: third_party_lib), 
+        cc.find_library('ssl', dirs: third_party_lib),
+        cc.find_library('curl', dirs: third_party_lib)
+      ],
+      include_directories: [
+        include_directories('../../lib/curl/include')
+      ],
+    )
+else
 third_party_dep = declare_dependency(
       dependencies : [
         # cc.find_library('crypto', dirs: third_party_lib), 
@@ -46,40 +75,69 @@ third_party_dep = declare_dependency(
         include_directories('../../lib/curl/include')
       ],
     )
+endif
+
+
 
 compile_time = run_command('date', '+%F %H:%M:%S').stdout().strip()
 
-if host_machine.cpu_family().startswith('x86')
-cpp_args = [
-    '-I../../../lib/wxWidgets/3.2.4/mingw_x64_windows/mswu/',
-    '-I../../../lib/wxWidgets/3.2.4/include',
-    '-DWXUSINGDLL',
-]
+if x86_64_platform
+    if windows_os
+        cpp_args = [
+            '-I../../../lib/wxWidgets/3.2.4/mingw_x64_windows/mswu/',
+            '-I../../../lib/wxWidgets/3.2.4/include',
+            '-DWXUSINGDLL',
+        ]
+    else
+        cpp_args = [
+            #'-Werror'
+            '-I../../../lib/wxWidgets/3.2.4/x86_64_linux/wx/include/gtk3-unicode-3.2',
+            '-I../../../lib/wxWidgets/3.2.4/include',
+            '-DWXUSINGDLL',
+            '-D__WXGTK3__',
+            '-D__WXGTK__',
+            '-D_FILE_OFFSET_BITS=64',
+        ]
+    endif
 else
-cpp_args = [
-    #'-Werror'
-    '-I../../../lib/wxWidgets/3.2.4/aarch64_linux/wx/include/gtk3-unicode-3.2',
-    '-I../../../lib/wxWidgets/3.2.4/include',
-    '-DWXUSINGDLL',
-    '-D__WXGTK3__',
-    '-D__WXGTK__',
-    '-D_FILE_OFFSET_BITS=64',
-]
+    cpp_args = [
+        #'-Werror'
+        '-I../../../lib/wxWidgets/3.2.4/aarch64_linux/wx/include/gtk3-unicode-3.2',
+        '-I../../../lib/wxWidgets/3.2.4/include',
+        '-DWXUSINGDLL',
+        '-D__WXGTK3__',
+        '-D__WXGTK__',
+        '-D_FILE_OFFSET_BITS=64',
+    ]
 endif
 
-if host_machine.cpu_family().startswith('x86')
-  ldflags = [
-      #'-z,relro,now,',
-      '-LE:/work/iwealth/lib/wxWidgets/3.2.4/mingw_x64_windows',
-      '-pthread',
-      '-Wl,-rpath,E:/work/iwealth/lib/wxWidgets/3.2.4/mingw_x64_windows',
-      '-lwxmsw32u_xrc',
-      '-lwxmsw32u_html',
-      '-lwxmsw32u_core',
-      '-lwxbase32u_xml',
-      '-lwxbase32u_net',
-      '-lwxbase32u'
-      ]
+if x86_64_platform
+    if windows_os
+        ldflags = [
+            #'-z,relro,now,',
+            '-LE:/work/iwealth/lib/wxWidgets/3.2.4/mingw_x64_windows',
+            '-pthread',
+            '-Wl,-rpath,E:/work/iwealth/lib/wxWidgets/3.2.4/mingw_x64_windows',
+            '-lwxmsw32u_xrc',
+            '-lwxmsw32u_html',
+            '-lwxmsw32u_core',
+            '-lwxbase32u_xml',
+            '-lwxbase32u_net',
+            '-lwxbase32u'
+            ]
+    else
+        ldflags = [
+            '-L/home/ofix/work/iwealth/lib/wxWidgets/3.2.4/x86_64_linux',
+            '-pthread',
+            '-Wl,-rpath,/home/ofix/work/iwealth/lib/wxWidgets/3.2.4/x86_64_linux',
+            '-lwx_gtk3u_xrc-3.2',
+            '-lwx_gtk3u_html-3.2',
+            '-lwx_gtk3u_qa-3.2',
+            '-lwx_gtk3u_core-3.2',
+            '-lwx_baseu_xml-3.2',
+            '-lwx_baseu_net-3.2',
+            '-lwx_baseu-3.2']
+    endif
 else
     ldflags = [
       '-L/home/greatwall/work/iwealth/lib/wxWidgets/3.2.4/aarch64_linux',
@@ -177,7 +235,7 @@ install_subdir('../../src/assets',
                 install_mode:'rw-r--r--',
                 strip_directory:true)
 # 拷贝文件
-if host_machine.cpu_family().startswith('x86')
+if x86_64_platform
     CP=find_program('cp')
 else
     CP=find_program('cp')

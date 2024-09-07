@@ -10,7 +10,7 @@ class RichFrameBorder : public wxWindow {
                     wxWindowID id,
                     const wxPoint& pos = wxDefaultPosition,
                     const wxSize& size = wxDefaultSize,
-                    wxColor& bg_clr = wxColor(0, 0, 0));
+                    wxColor bg_clr = wxColor(0, 0, 0));
     void OnPaint(wxPaintEvent& event);
 
    private:

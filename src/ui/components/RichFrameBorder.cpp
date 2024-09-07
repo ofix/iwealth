@@ -13,8 +13,9 @@
 
 RichFrameBorder::RichFrameBorder(wxWindow* parent,
                                  wxWindowID id,
-                                 const wxPoint& pos const wxSize& size,
-                                 wxColor& bg_clr)
+                                 const wxPoint& pos,
+                                 const wxSize& size,
+                                 wxColor bg_clr)
     : m_bgClr(bg_clr) {
     SetBackgroundStyle(wxBG_STYLE_PAINT);
     Create(parent, id, pos, size);
@@ -22,7 +23,7 @@ RichFrameBorder::RichFrameBorder(wxWindow* parent,
 }
 
 void RichFrameBorder::OnPaint(wxPaintEvent& event) {
-    wxAutoBufferedPaintDC dc;
+    wxAutoBufferedPaintDC dc(this);
     wxBrush brush(m_bgClr);
     dc.SetBrush(brush);
     dc.DrawRectangle(GetPosition(), GetSize());

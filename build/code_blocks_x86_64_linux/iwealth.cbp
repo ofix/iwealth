@@ -1,0 +1,230 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="iwealth" />
+		<Option pch_mode="0" />
+		<Option compiler="gcc" />
+		<Build>
+			<Target title="Debug">
+				<Option output="bin/Debug/iwealth" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/Debug/" />
+				<Option type="0" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-g" />
+					<Add option="-DIWEALTH" />
+				</Compiler>
+				<Linker>
+					<LinkerExe value="CppCompiler" />
+				</Linker>
+			</Target>
+			<Target title="Release">
+				<Option output="bin/Release/iwealth" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/Release/" />
+				<Option type="0" />
+				<Option compiler="gcc" />
+				<Option projectLinkerOptionsRelation="2" />
+				<Linker>
+					<Add option="-s" />
+					<Add directory="../../lib/wxWidgets/3.2.4/aarch64_linux" />
+					<Add directory="../../lib/curl/aarch64_linux" />
+					<Add directory="../../lib" />
+				</Linker>
+			</Target>
+		</Build>
+		<Compiler>
+			<Add option="-Wall" />
+			<Add option="-Og" />
+			<Add option="-std=gnu++17" />
+			<Add option="-DIWEALTH" />
+			<Add option="-DWX_PRECOMP" />
+			<Add option="-DWXUSINGDLL" />
+			<Add option="-D__WXGTK3__" />
+			<Add option="-D__WXGTK__" />
+			<Add option="-D_FILE_OFFSET_BITS=64" />
+			<Add directory="../../lib/curl/include" />
+			<Add directory="../../lib/wxWidgets/3.2.4/aarch64_linux/wx/include/gtk3-unicode-3.2" />
+			<Add directory="../../lib/wxWidgets/3.2.4/include" />
+			<Add directory="../../lib" />
+			<Add directory="../../src" />
+		</Compiler>
+		<Linker>
+			<Add option="-lpthread" />
+			<Add option="-Wl,-rpath,/home/greatwall/work/iwealth/lib/wxWidgets/3.2.4/aarch64_linux" />
+			<Add option="-lwx_gtk3u_xrc-3.2" />
+			<Add option="-lwx_gtk3u_html-3.2" />
+			<Add option="-lwx_gtk3u_qa-3.2" />
+			<Add option="-lwx_gtk3u_core-3.2" />
+			<Add option="-lwx_baseu_xml-3.2" />
+			<Add option="-lwx_baseu_net-3.2" />
+			<Add option="-lwx_baseu-3.2" />
+			<Add option="-lcurl" />
+			<Add directory="../../lib/wxWidgets/3.2.4/aarch64_linux" />
+			<Add directory="../../lib/curl/aarch64_linux" />
+			<Add directory="../../lib" />
+		</Linker>
+		<ExtraCommands>
+			<Add after="cp  $(PROJECT_DIR)../../lib/curl/aarch64_linux/libcurl.so  $(PROJECT_DIR)$(TARGET_OUTPUT_DIR)" />
+			<Add after="cp  $(PROJECT_DIR)../../lib/curl/aarch64_linux/libcurl.so.*  $(PROJECT_DIR)$(TARGET_OUTPUT_DIR)" />
+			<Add after="cp  $(PROJECT_DIR)../../lib/wxWidgets/3.2.4/aarch64_linux/*.so  $(PROJECT_DIR)$(TARGET_OUTPUT_DIR)" />
+			<Add after="cp  $(PROJECT_DIR)../../lib/wxWidgets/3.2.4/aarch64_linux/*.so.*  $(PROJECT_DIR)$(TARGET_OUTPUT_DIR)" />
+			<Add after="cp  $(PROJECT_DIR)../../src/search/ChinesePinYin.dic  $(PROJECT_DIR)$(TARGET_OUTPUT_DIR)" />
+			<Add after="mkdir $(PROJECT_DIR)$(TARGET_OUTPUT_DIR)assets" />
+			<Add after="cp  $(PROJECT_DIR)../../src/assets/*.png  $(PROJECT_DIR)$(TARGET_OUTPUT_DIR)assets" />
+			<Mode after="always" />
+		</ExtraCommands>
+		<Unit filename="../../LICENSE" />
+		<Unit filename="../../README.md" />
+		<Unit filename="../../doc/CodeBlocks.md" />
+		<Unit filename="../../doc/Env.md" />
+		<Unit filename="../../src/console/Smith.cpp" />
+		<Unit filename="../../src/console/Test.cpp" />
+		<Unit filename="../../src/formula/FormulaBase.cpp" />
+		<Unit filename="../../src/formula/FormulaBase.h" />
+		<Unit filename="../../src/formula/FormulaEma.cpp" />
+		<Unit filename="../../src/formula/FormulaEma.h" />
+		<Unit filename="../../src/net/ConcurrentRequest.cpp" />
+		<Unit filename="../../src/net/ConcurrentRequest.h" />
+		<Unit filename="../../src/net/Conn.h" />
+		<Unit filename="../../src/net/Request.cpp" />
+		<Unit filename="../../src/net/Request.h" />
+		<Unit filename="../../src/net/RequestStatistics.h" />
+		<Unit filename="../../src/search/ChinesePinYin.cpp" />
+		<Unit filename="../../src/search/ChinesePinYin.dic" />
+		<Unit filename="../../src/search/ChinesePinYin.h" />
+		<Unit filename="../../src/search/LevelTree.hpp" />
+		<Unit filename="../../src/search/Trie.cpp" />
+		<Unit filename="../../src/search/Trie.h" />
+		<Unit filename="../../src/spider/Spider.cpp" />
+		<Unit filename="../../src/spider/Spider.h" />
+		<Unit filename="../../src/spider/SpiderCompositeIndex.cpp" />
+		<Unit filename="../../src/spider/SpiderCompositeIndex.h" />
+		<Unit filename="../../src/spider/SpiderConceptListEastMoney.cpp" />
+		<Unit filename="../../src/spider/SpiderConceptListEastMoney.h" />
+		<Unit filename="../../src/spider/SpiderShareBriefInfo.cpp" />
+		<Unit filename="../../src/spider/SpiderShareBriefInfo.h" />
+		<Unit filename="../../src/spider/SpiderShareCategory.cpp" />
+		<Unit filename="../../src/spider/SpiderShareCategory.h" />
+		<Unit filename="../../src/spider/SpiderShareKline.cpp" />
+		<Unit filename="../../src/spider/SpiderShareKline.h" />
+		<Unit filename="../../src/spider/SpiderShareKlineProvider.cpp" />
+		<Unit filename="../../src/spider/SpiderShareKlineProvider.h" />
+		<Unit filename="../../src/spider/SpiderShareKlineProviderBaidu.cpp" />
+		<Unit filename="../../src/spider/SpiderShareKlineProviderBaidu.h" />
+		<Unit filename="../../src/spider/SpiderShareKlineProviderEastMoney.cpp" />
+		<Unit filename="../../src/spider/SpiderShareKlineProviderEastMoney.h" />
+		<Unit filename="../../src/spider/SpiderShareKlineUrl.h" />
+		<Unit filename="../../src/spider/SpiderShareQuote.cpp" />
+		<Unit filename="../../src/spider/SpiderShareQuote.h" />
+		<Unit filename="../../src/stock/ShareCategory.cpp" />
+		<Unit filename="../../src/stock/ShareCategory.h" />
+		<Unit filename="../../src/stock/Stock.cpp" />
+		<Unit filename="../../src/stock/Stock.h" />
+		<Unit filename="../../src/stock/StockCompositeIndex.cpp" />
+		<Unit filename="../../src/stock/StockCompositeIndex.h" />
+		<Unit filename="../../src/stock/StockDataStorage.cpp" />
+		<Unit filename="../../src/stock/StockDataStorage.h" />
+		<Unit filename="../../src/stock/StockKlines.cpp" />
+		<Unit filename="../../src/stock/StockKlines.h" />
+		<Unit filename="../../src/stock/StockMemoryKline.h" />
+		<Unit filename="../../src/stock/StockMonitorShare.cpp" />
+		<Unit filename="../../src/stock/StockMonitorShare.h" />
+		<Unit filename="../../src/stock/StockShareKline.cpp" />
+		<Unit filename="../../src/stock/StockShareKline.h" />
+		<Unit filename="../../src/stock/UserFavoriteShare.cpp" />
+		<Unit filename="../../src/stock/UserFavoriteShare.h" />
+		<Unit filename="../../src/ui/RichApplication.cpp" />
+		<Unit filename="../../src/ui/RichApplication.h" />
+		<Unit filename="../../src/ui/RichDialogKlineInfo.cpp" />
+		<Unit filename="../../src/ui/RichDialogKlineInfo.h" />
+		<Unit filename="../../src/ui/RichDialogShareSearch.cpp" />
+		<Unit filename="../../src/ui/RichDialogShareSearch.h" />
+		<Unit filename="../../src/ui/RichHelper.cpp" />
+		<Unit filename="../../src/ui/RichHelper.h" />
+		<Unit filename="../../src/ui/RichMainFrame.cpp" />
+		<Unit filename="../../src/ui/RichMainFrame.h" />
+		<Unit filename="../../src/ui/RichPanelKline.cpp" />
+		<Unit filename="../../src/ui/RichPanelKline.h" />
+		<Unit filename="../../src/ui/RichPanelStockQuote.cpp" />
+		<Unit filename="../../src/ui/RichPanelStockQuote.h" />
+		<Unit filename="../../src/ui/components/DialogShareSearch.cpp" />
+		<Unit filename="../../src/ui/components/DialogShareSearch.h" />
+		<Unit filename="../../src/ui/components/PanelKline.cpp" />
+		<Unit filename="../../src/ui/components/PanelKline.h" />
+		<Unit filename="../../src/ui/components/PanelStockQuote.cpp" />
+		<Unit filename="../../src/ui/components/PanelStockQuote.h" />
+		<Unit filename="../../src/ui/components/RichDialog.cpp" />
+		<Unit filename="../../src/ui/components/RichDialog.h" />
+		<Unit filename="../../src/ui/components/RichFrameBorder.cpp" />
+		<Unit filename="../../src/ui/components/RichFrameBorder.h" />
+		<Unit filename="../../src/ui/components/RichGrid.cpp" />
+		<Unit filename="../../src/ui/components/RichGrid.h" />
+		<Unit filename="../../src/ui/components/RichGridCellStringRenderer.cpp" />
+		<Unit filename="../../src/ui/components/RichGridCellStringRenderer.h" />
+		<Unit filename="../../src/ui/components/RichGridColumnHeaderProvider.cpp" />
+		<Unit filename="../../src/ui/components/RichGridColumnHeaderProvider.h" />
+		<Unit filename="../../src/ui/components/RichGridColumnHeaderRenderer.cpp" />
+		<Unit filename="../../src/ui/components/RichGridColumnHeaderRenderer.h" />
+		<Unit filename="../../src/ui/components/RichGridTable.cpp" />
+		<Unit filename="../../src/ui/components/RichGridTable.h" />
+		<Unit filename="../../src/ui/components/RichKlineCtrl.cpp" />
+		<Unit filename="../../src/ui/components/RichKlineCtrl.h" />
+		<Unit filename="../../src/ui/components/RichKlineInfoCtrl.cpp" />
+		<Unit filename="../../src/ui/components/RichKlineInfoCtrl.h" />
+		<Unit filename="../../src/ui/components/RichPanel.cpp" />
+		<Unit filename="../../src/ui/components/RichPanel.h" />
+		<Unit filename="../../src/ui/components/RichPngKline.cpp" />
+		<Unit filename="../../src/ui/components/RichPngKline.h" />
+		<Unit filename="../../src/ui/components/RichRadioCtrl.cpp" />
+		<Unit filename="../../src/ui/components/RichRadioCtrl.h" />
+		<Unit filename="../../src/ui/components/RichRadioEvent.cpp" />
+		<Unit filename="../../src/ui/components/RichRadioEvent.h" />
+		<Unit filename="../../src/ui/components/RichTopBar.cpp" />
+		<Unit filename="../../src/ui/components/RichTopBar.h" />
+		<Unit filename="../../src/ui/components/RichTopMenu.cpp" />
+		<Unit filename="../../src/ui/components/RichTopMenu.h" />
+		<Unit filename="../../src/ui/components/RichTopMenuItem.cpp" />
+		<Unit filename="../../src/ui/components/RichTopMenuItem.h" />
+		<Unit filename="../../src/ui/components/RichVolumeBarCtrl.cpp" />
+		<Unit filename="../../src/ui/components/RichVolumeBarCtrl.h" />
+		<Unit filename="../../src/ui/components/ShareListGridCellStringRenderer.cpp" />
+		<Unit filename="../../src/ui/components/ShareListGridCellStringRenderer.h" />
+		<Unit filename="../../src/ui/components/ShareListGridTable.cpp" />
+		<Unit filename="../../src/ui/components/ShareListGridTable.h" />
+		<Unit filename="../../src/ui/events/RichRadioEvent.cpp" />
+		<Unit filename="../../src/ui/events/RichRadioEvent.h" />
+		<Unit filename="../../src/ui/events/RichShareSearchEvent.cpp" />
+		<Unit filename="../../src/ui/events/RichShareSearchEvent.h" />
+		<Unit filename="../../src/ui/wxsmith/DialogShareSearch.wxs" />
+		<Unit filename="../../src/ui/wxsmith/PanelStockQuote.wxs" />
+		<Unit filename="../../src/ui/wxsmith/RichMainFrame.wxs" />
+		<Unit filename="../../src/util/Color.h" />
+		<Unit filename="../../src/util/ConsoleTable.cpp" />
+		<Unit filename="../../src/util/ConsoleTable.h" />
+		<Unit filename="../../src/util/DateTime.cpp" />
+		<Unit filename="../../src/util/DateTime.h" />
+		<Unit filename="../../src/util/EasyLogger.cpp" />
+		<Unit filename="../../src/util/EasyLogger.h" />
+		<Unit filename="../../src/util/FileTool.cpp" />
+		<Unit filename="../../src/util/FileTool.h" />
+		<Unit filename="../../src/util/Global.cpp" />
+		<Unit filename="../../src/util/Global.h" />
+		<Unit filename="../../src/util/Macro.h" />
+		<Unit filename="../../src/util/RichResult.cpp" />
+		<Unit filename="../../src/util/RichResult.h" />
+		<Unit filename="../../src/util/Timer.cpp" />
+		<Unit filename="../../src/util/Timer.h" />
+		<Unit filename="iwealth.layout" />
+		<Extensions>
+			<wxsmith version="1">
+				<gui name="wxWidgets" src="..\..\src\ui\RichApplication.cpp" main="RichMainFrame" init_handlers="necessary" language="CPP" />
+				<resources>
+					<wxFrame wxs="../../src/ui/wxsmith/RichMainFrame.wxs" src="../../src/ui/RichMainFrame.cpp" hdr="../../include/ui/RichMainFrame.h" fwddecl="0" i18n="1" name="RichMainFrame" language="CPP" />
+					<wxPanel wxs="../../src/ui/wxsmith/PanelStockQuote.wxs" src="../../src/ui/PanelStockQuote.cpp" hdr="../../include/ui/PanelStockQuote.h" fwddecl="0" i18n="1" name="PanelStockQuote" language="CPP" />
+					<wxDialog wxs="../../src/ui/wxsmith/DialogShareSearch.wxs" src="../../src/ui/DialogShareSearch.cpp" hdr="../../include/ui/DialogShareSearch.h" fwddecl="0" i18n="1" name="DialogShareSearch" language="CPP" />
+				</resources>
+			</wxsmith>
+		</Extensions>
+	</Project>
+</CodeBlocks_project_file>
