@@ -23,18 +23,13 @@
 const long RichMainFrame::ID_PANEL_STOCK_QUOTE = wxNewId();
 const long RichMainFrame::ID_DIALOG_SHARE_SEARCH = wxNewId();
 const long RichMainFrame::ID_PANEL_KLINE = wxNewId();
-const long RichMainFrame::ID_TOP_BAR = wxNewId();
-const long RichMainFrame::ID_BORDER_LEFT = wxNewId();
-const long RichMainFrame::ID_BORDER_RIGHT = wxNewId();
-const long RichMainFrame::ID_BORDER_TOP = wxNewId();
-const long RichMainFrame::ID_BORDER_BOTTOM = wxNewId();
 
-BEGIN_EVENT_TABLE(RichMainFrame, wxFrame)
+BEGIN_EVENT_TABLE(RichMainFrame, RichFrame)
 EVT_THREAD(ID_QUOTE_DATA_READY, RichMainFrame::OnStorageDataReady)
 EVT_THREAD(ID_ASYNC_PROCESS_ERROR, RichMainFrame::OnThreadError)
 END_EVENT_TABLE()
 
-RichMainFrame::RichMainFrame(wxWindow* parent, wxWindowID id, const wxPoint& /*point*/, const wxSize& /*size*/) {
+RichMainFrame::RichMainFrame(wxWindow* parent, wxWindowID id, const wxPoint& pos, const wxSize& size) {
     // 必须先实例化 StockDataStorage，否则RichPanel子类创建会失败
     // 数据加载放在窗口显示之后，不阻塞窗口初始化
     m_pStorage = new StockDataStorage(true);
@@ -42,9 +37,6 @@ RichMainFrame::RichMainFrame(wxWindow* parent, wxWindowID id, const wxPoint& /*p
     SetBackgroundStyle(wxBG_STYLE_PAINT);
     Bind(wxEVT_MENU, &RichMainFrame::OnAbout, this, wxID_ABOUT);
     Bind(wxEVT_MENU, &RichMainFrame::OnExit, this, wxID_EXIT);
-    Bind(wxEVT_CLOSE_WINDOW, &RichMainFrame::OnClose, this);
-    Bind(wxEVT_ICONIZE, &RichMainFrame::OnIconize, this);
-    Bind(wxEVT_MAXIMIZE, &RichMainFrame::OnMaximize, this);
     // Bind(wxEVT_NC_PAINT, &RichMainFrame::OnPaintTitleBar, this);
 
     // bind mouse event for frame dragging
@@ -56,8 +48,7 @@ RichMainFrame::RichMainFrame(wxWindow* parent, wxWindowID id, const wxPoint& /*p
 #if defined(_WIN32) || defined(__WIN64)
     Create(parent, id, _("东方巴菲特"), wxDefaultPosition, wxDefaultSize, wxWANTS_CHARS | wxRESIZE_BORDER, _T("id"));
 #else
-    Create(parent, id, _("东方巴菲特"), wxDefaultPosition, wxSize(600,800),
-           wxWANTS_CHARS | wxCLIP_CHILDREN, _T("id"));
+    Create(parent, id, wxDefaultPosition, wxSize(600, 800), wxWANTS_CHARS | wxCLIP_CHILDREN, _T("东方巴菲特"));
 #endif
     SetClientSize(wxSize(1024, 580));
     SetMinSize(wxSize(1024, 580));  // 设置最小窗口大小为 300x200
@@ -74,17 +65,17 @@ RichMainFrame::RichMainFrame(wxWindow* parent, wxWindowID id, const wxPoint& /*p
     m_panelCurrent = nullptr;
     m_panelPos = -1;
 
-    m_topBar = new RichTopBar(this, ID_TOP_BAR, wxPoint(0, 0), wxSize(-1, 32), 0, _("猛龙证券"));
+    // m_topBar = new RichTopBar(this, ID_TOP_BAR, wxPoint(0, 0), wxSize(-1, 32), 0, _("猛龙证券"));
 
-    // RichMenu
-    RichTopMenu* menuFavoriteShare = new RichTopMenu(CN("自选"), m_topBar);
-    RichTopMenu* menuMarketQuote = new RichTopMenu(CN("行情"), m_topBar);
-    RichTopMenu* menuDiscovery = new RichTopMenu(CN("挖掘"), m_topBar);
-    RichTopMenu* menuFormula = new RichTopMenu(CN("智选"), m_topBar);
-    m_topBar->AddMenu(menuFavoriteShare);
-    m_topBar->AddMenu(menuMarketQuote);
-    m_topBar->AddMenu(menuDiscovery);
-    m_topBar->AddMenu(menuFormula);
+    // // RichMenu
+    // RichTopMenu* menuFavoriteShare = new RichTopMenu(CN("自选"), m_topBar);
+    // RichTopMenu* menuMarketQuote = new RichTopMenu(CN("行情"), m_topBar);
+    // RichTopMenu* menuDiscovery = new RichTopMenu(CN("挖掘"), m_topBar);
+    // RichTopMenu* menuFormula = new RichTopMenu(CN("智选"), m_topBar);
+    // m_topBar->AddMenu(menuFavoriteShare);
+    // m_topBar->AddMenu(menuMarketQuote);
+    // m_topBar->AddMenu(menuDiscovery);
+    // m_topBar->AddMenu(menuFormula);
 
     // wxMenu* menuFile = new wxMenu;
     // menuFile->Append(wxID_EXIT);
@@ -119,20 +110,12 @@ RichMainFrame::RichMainFrame(wxWindow* parent, wxWindowID id, const wxPoint& /*p
     m_dlgShareSearch->ReLayout(wxSize(290, 380));
     m_dlgShareSearch->Show(false);  // 默认隐藏
 
-    wxSize frame_size =GetSize();
-    m_borderLeft = new RichFrameBorder(this,ID_BORDER_LEFT,wxPoint(0,0),wxSize(1,frame_size.GetHeight()),wxColor(255,0,0));
-    m_borderRight = new RichFrameBorder(this,ID_BORDER_LEFT,wxPoint(frame_size.GetWidth(),0),wxSize(1,frame_size.GetHeight()),wxColor(255,0,0));
-    m_borderTop = new RichFrameBorder(this,ID_BORDER_LEFT,wxPoint(0,0),wxSize(frame_size.GetWidth(),frame_size.GetHeight()),wxColor(255,0,0));
-    m_borderBottom = new RichFrameBorder(this,ID_BORDER_RIGHT,wxPoint(0,0),wxSize(1,frame_size.GetHeight()),wxColor(255,0,0));
-
     wxBoxSizer* vertical_sizer = new wxBoxSizer(wxVERTICAL);
-    vertical_sizer->Add(m_topBar, 0, wxEXPAND | wxALL, 0);
+    // vertical_sizer->Add(m_topBar, 0, wxEXPAND | wxALL, 0);
     vertical_sizer->Add(panelQuote, 1, wxEXPAND | wxALL, 0);
     SetSizer(vertical_sizer);
     Layout();
     // Maximize();  // 主窗口最大化
-    m_bLeftMouseDown = false;
-    m_dragging = false;
 }
 
 // bool RichMainFrame::CanDragFrame(wxPoint& ptMouse) {
@@ -201,13 +184,6 @@ RichMainFrame::RichMainFrame(wxWindow* parent, wxWindowID id, const wxPoint& /*p
 //         ReleaseMouse();
 //     }
 // }
-
-void RichMainFrame::OnPaintTitleBar(wxNcPaintEvent& event) {
-    wxWindowDC dc(this);
-    std::cout << "paint title bar" << std::endl;
-    dc.SetBackground(wxBrush(wxColor(150, 3, 6)));
-    dc.DrawRectangle(0, 0, 2000, 342);
-}
 
 void RichMainFrame::LoadQuote() {
     RichResult result = m_pStorage->Init();
