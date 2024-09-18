@@ -29,7 +29,7 @@ EVT_THREAD(ID_QUOTE_DATA_READY, RichMainFrame::OnStorageDataReady)
 EVT_THREAD(ID_ASYNC_PROCESS_ERROR, RichMainFrame::OnThreadError)
 END_EVENT_TABLE()
 
-RichMainFrame::RichMainFrame(wxWindow* parent, wxWindowID id, const wxPoint& pos, const wxSize& size) {
+RichMainFrame::RichMainFrame(wxWindow* parent, wxWindowID id, const wxPoint& pos, const wxSize& size){
     // 必须先实例化 StockDataStorage，否则RichPanel子类创建会失败
     // 数据加载放在窗口显示之后，不阻塞窗口初始化
     m_pStorage = new StockDataStorage(true);
@@ -111,10 +111,10 @@ RichMainFrame::RichMainFrame(wxWindow* parent, wxWindowID id, const wxPoint& pos
     m_dlgShareSearch->ReLayout(wxSize(290, 380));
     m_dlgShareSearch->Show(false);  // 默认隐藏
 
-    wxBoxSizer* vertical_sizer = new wxBoxSizer(wxVERTICAL);
+    // wxBoxSizer* vertical_sizer = new wxBoxSizer(wxVERTICAL);
     // vertical_sizer->Add(m_topBar, 0, wxEXPAND | wxALL, 0);
-    vertical_sizer->Add(panelQuote, 1, wxEXPAND | wxALL, 0);
-    SetSizer(vertical_sizer);
+    m_pVerticalSizer->Add(panelQuote, 1, wxEXPAND | wxALL, 0);
+    // SetSizer(vertical_sizer);
     Layout();
     // Maximize();  // 主窗口最大化
 }

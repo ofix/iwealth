@@ -15,6 +15,10 @@
 
 #define TOP_MENU_PADDING 16
 
+#define FRAME_BOX_SIZE 32
+#define FRAME_BOX_MARGIN 4
+#define FRAME_BOX_OUTER_SIZE 36
+
 RichTopBar::RichTopBar(wxWindow* parent,
                        wxWindowID id,
                        const wxPoint& pos,
@@ -37,6 +41,14 @@ RichTopBar::RichTopBar(wxWindow* parent,
 RichTopBar::~RichTopBar() {
 }
 
+void RichTopBar::SetTopBarStyle(long style) {
+    m_topBarStyle = style;
+}
+
+long RichTopBar::GetTopBarStyle() const {
+    return m_topBarStyle;
+}
+
 void RichTopBar::OnMouseLeftDown(wxMouseEvent& event) {
     m_bLeftMouseDown = true;
     if (!m_dragging) {
@@ -52,7 +64,7 @@ void RichTopBar::OnMouseLeftDown(wxMouseEvent& event) {
 
 void RichTopBar::OnMouseLeftUp(wxMouseEvent&) {
     m_bLeftMouseDown = false;
-    if (m_hitState == TopBarHitState::BTN_CLOSE) {
+    if (m_hitState == TopBarHitState::BOX_CLOSE) {
         wxCommandEvent event(wxEVT_CLOSE_WINDOW);
         wxPostEvent(GetParent(), event);
     }
@@ -81,11 +93,39 @@ void RichTopBar::AddMenu(RichTopMenu* menu) {
 
 void RichTopBar::OnHitTest(wxMouseEvent& event) {
     wxPoint pt = event.GetPosition();
-    wxRect rectCloseBtn(GetSize().GetWidth() - 22, 10, 12, 12);
-    if (rectCloseBtn.Contains(pt)) {
-        m_hitState = TopBarHitState::BTN_CLOSE;
-    } else {
-        m_hitState = TopBarHitState::DEFAULT;
+
+    wxRect rect(GetSize().GetWidth() - FRAME_BOX_OUTER_SIZE, FRAME_BOX_MARGIN, FRAME_BOX_SIZE, FRAME_BOX_SIZE);
+    m_hitState = TopBarHitState::DEFAULT;
+    if (rect.Contains(pt)) {
+        if (m_topBarStyle & wxCLOSE_BOX) {  // 关闭按钮
+            m_hitState = TopBarHitState::BOX_CLOSE;
+            return;
+        } else if (m_topBarStyle & wxMAXIMIZE_BOX) {
+            m_hitState = TopBarHitState::BOX_MAXIMIZE;
+            return;
+        } else if (m_topBarStyle & wxMINIMIZE_BOX) {
+            m_hitState = TopBarHitState::BOX_MINIMIZE;
+            return;
+        }
+    }
+
+    rect.Offset(-FRAME_BOX_OUTER_SIZE, 0);  // 最大化按钮
+    if (rect.Contains(pt)) {
+        if (m_topBarStyle & wxMAXIMIZE_BOX) {
+            m_hitState = TopBarHitState::BOX_MAXIMIZE;
+            return;
+        } else if (m_topBarStyle & wxMINIMIZE_BOX) {
+            m_hitState = TopBarHitState::BOX_MINIMIZE;
+            return;
+        }
+    }
+
+    rect.Offset(-FRAME_BOX_OUTER_SIZE, 0);  // 最小化按钮
+    if (rect.Contains(pt)) {
+        if (m_topBarStyle & wxMINIMIZE_BOX) {
+            m_hitState = TopBarHitState::BOX_MINIMIZE;
+            return;
+        }
     }
 }
 
@@ -116,16 +156,25 @@ void RichTopBar::OnPaint(wxPaintEvent& event) {
     DrawIcon(&dc);
     DrawTitle(&dc);
     DrawTopMenu(&dc);
-    DrawMimizeBox(&dc);
-    DrawMaximizeBox(&dc);
-    DrawCloseBox(&dc);
+    if (m_topBarStyle & wxMINIMIZE_BOX) {
+        DrawMinimizeBox(&dc);
+    }
+    if (m_topBarStyle & wxMAXIMIZE_BOX) {
+        DrawMaximizeBox(&dc);
+    }
+    if (m_topBarStyle & wxCLOSE_BOX) {
+        DrawCloseBox(&dc);
+    }
 }
+
 // logo
 void RichTopBar::DrawIcon(wxDC* pDC) {
 }
+
 // 窗口标题
 void RichTopBar::DrawTitle(wxDC* pDC) {
 }
+
 // 系统菜单
 void RichTopBar::DrawTopMenu(wxDC* pDC) {
     size_t offsetX = 28;
@@ -140,24 +189,61 @@ void RichTopBar::DrawTopMenu(wxDC* pDC) {
         offsetX += menu_size.GetWidth() + TOP_MENU_PADDING * 2;
     }
 }
-// 最小化按钮
-void RichTopBar::DrawMimizeBox(wxDC* pDC) {
-}
-// 最大化按钮
-void RichTopBar::DrawMaximizeBox(wxDC* pDC) {
-}
-// 关闭按钮
-void RichTopBar::DrawCloseBox(wxDC* pDC) {
-    wxRect rect(GetSize().GetWidth() - 22, 10, 12, 12);
 
-    if (m_hitState == TopBarHitState::BTN_CLOSE) {
+void RichTopBar::DrawMaximizeBox(wxDC* pDC) {
+    int offsetX = GetSize().GetWidth();
+    if (m_topBarStyle & wxCLOSE_BOX) {
+        offsetX -= FRAME_BOX_OUTER_SIZE;
+    }
+    offsetX -= FRAME_BOX_OUTER_SIZE;
+    wxRect rect(offsetX, FRAME_BOX_MARGIN, FRAME_BOX_SIZE, FRAME_BOX_SIZE);
+    if (m_hitState == TopBarHitState::BOX_MAXIMIZE) {
         pDC->SetBrush(wxBrush(wxColor(242, 57, 64)));
         pDC->SetPen(*wxTRANSPARENT_PEN);
-        wxRect rectBk(GetSize().GetWidth() - 32, 0, 32, 32);
+        wxRect rectBk(offsetX, FRAME_BOX_MARGIN, FRAME_BOX_SIZE, FRAME_BOX_SIZE);
         pDC->DrawRectangle(rectBk);
     }
     wxPen pen = wxPen(wxColor(229, 229, 229), 1, wxPENSTYLE_SOLID);
     pDC->SetPen(pen);
+    int offsetY = FRAME_BOX_SIZE / 2 + FRAME_BOX_MARGIN;
+    pDC->DrawLine(offsetX + FRAME_BOX_SIZE >> 2, offsetY, offsetX + FRAME_BOX_SIZE >> 1, offsetY);
+}
+
+void RichTopBar::DrawMinimizeBox(wxDC* pDC) {
+    long style = GetWindowStyleFlag();
+    int offsetX = GetSize().GetWidth();
+    if (m_topBarStyle & wxCLOSE_BOX) {
+        offsetX -= FRAME_BOX_OUTER_SIZE;
+    }
+    if (m_topBarStyle & wxMAXIMIZE_BOX) {
+        offsetX -= FRAME_BOX_OUTER_SIZE;
+    }
+
+    offsetX -= FRAME_BOX_OUTER_SIZE;
+    if (m_hitState == TopBarHitState::BOX_MINIMIZE) {
+        pDC->SetBrush(wxBrush(wxColor(242, 57, 64)));
+        pDC->SetPen(*wxTRANSPARENT_PEN);
+        wxRect rectBk(offsetX, 4, FRAME_BOX_SIZE, FRAME_BOX_SIZE);
+        pDC->DrawRectangle(rectBk);
+    }
+    wxPen pen = wxPen(wxColor(229, 229, 229), 1, wxPENSTYLE_SOLID);
+    pDC->SetPen(pen);
+
+    pDC->DrawLine(offsetX + FRAME_BOX_SIZE >> 2, 16, offsetX + 24, 16);
+}
+
+void RichTopBar::DrawCloseBox(wxDC* pDC) {
+    if (m_hitState == TopBarHitState::BOX_CLOSE) {
+        pDC->SetBrush(wxBrush(wxColor(242, 57, 64)));
+        pDC->SetPen(*wxTRANSPARENT_PEN);
+        wxRect rectBk(GetSize().GetWidth() - FRAME_BOX_OUTER_SIZE, FRAME_BOX_MARGIN, FRAME_BOX_SIZE, FRAME_BOX_SIZE);
+        pDC->DrawRectangle(rectBk);
+    }
+
+    wxRect rect(GetSize().GetWidth() - (FRAME_BOX_MARGIN + 10 + 12), FRAME_BOX_MARGIN + 10, 12, 12);
+    wxPen pen = wxPen(wxColor(229, 229, 229), 1, wxPENSTYLE_SOLID);
+    pDC->SetPen(pen);
+    // 绘制十字线
     pDC->DrawLine(rect.x, rect.y, rect.x + rect.width, rect.y + rect.height);
     pDC->DrawLine(rect.x, rect.y + rect.height, rect.x + rect.width, rect.y);
     pDC->DrawPoint(rect.x + rect.width, rect.y + rect.height);

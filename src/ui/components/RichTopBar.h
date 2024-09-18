@@ -9,9 +9,9 @@
 enum class TopBarHitState {
     DEFAULT = 0,
     Menu = 1,
-    BTN_MINIMIZE = 2,
-    BTN_MAXIMIZE = 3,
-    BTN_CLOSE = 4,
+    BOX_MINIMIZE = 2,
+    BOX_MAXIMIZE = 3,
+    BOX_CLOSE = 4,
 };
 
 class RichTopBar : public wxWindow {
@@ -25,6 +25,8 @@ class RichTopBar : public wxWindow {
     virtual ~RichTopBar();
     wxSize DoGetBestClientSize() const override;
     void AddMenu(RichTopMenu* menu);
+    void SetTopBarStyle(long style);
+    long GetTopBarStyle() const;
 
    protected:
     void OnMouseLeftDown(wxMouseEvent& event);
@@ -36,14 +38,17 @@ class RichTopBar : public wxWindow {
     bool CanMove();
 
     void OnPaint(wxPaintEvent& event);
-    void DrawIcon(wxDC* pDC);         // logo
-    void DrawTitle(wxDC* pDC);        // 窗口标题
-    void DrawTopMenu(wxDC* pDC);      // 系统菜单
-    void DrawMimizeBox(wxDC* pDC);    // 最小化按钮
+    void DrawIcon(wxDC* pDC);     // logo
+    void DrawTitle(wxDC* pDC);    // 窗口标题
+    void DrawTopMenu(wxDC* pDC);  // 系统菜单
+
+    void DrawMinimizeBox(wxDC* pDC);  // 最小化按钮
     void DrawMaximizeBox(wxDC* pDC);  // 最大化按钮
     void DrawCloseBox(wxDC* pDC);     // 关闭按钮
 
    private:
+    // style
+    long m_topBarStyle;
     bool m_bLeftMouseDown;
     bool m_dragging;
     wxPoint m_dragStartMouse;

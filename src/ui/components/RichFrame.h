@@ -5,6 +5,7 @@
 #include <wx/gdicmn.h>
 #include <wx/menu.h>
 #include <wx/toplevel.h>
+#include "ui/components/RichTopBar.h"
 
 #define wxDEFAULT_TOP_MENU_BAR_COLOR wxColor(255, 0, 0)
 
@@ -35,8 +36,11 @@ class RichFrame : public wxTopLevelWindow {
     virtual void SetMenuBar (wxMenuBar *menuBar);
     virtual wxMenuBar* GetMenuBar () const;
     virtual wxPoint GetClientAreaOrigin () const;
+    virtual void DoGetClientSize(int* width, int* height) const;
+    virtual bool CreateTopBar();
     bool ProcessCommand (int id);
-    void DeleteMenuBar();
+    void DeleteTopBar();
+
     void SetTopBarStyle(long style);
     long GetTopBarStyle() const;
 
@@ -54,20 +58,14 @@ class RichFrame : public wxTopLevelWindow {
     bool CanMove();
 
     // draw related function
-    void OnPaint(wxPaintEvent& event);
     void DrawBorder(wxDC* pDC);
     void SetTopMenuBarBkColor(wxColor& color);
-    void DrawIcon(wxDC* pDC);
-    void DrawMenuBar(wxDC* pDC, wxPoint& pt, wxSize& size);
-    void DrawTitle(wxDC* pDC, wxPoint& pt, wxSize& size);
 
-    void DrawMinimizeBox(wxDC* pDC);    // 最小化按钮
-    void DrawMaximizeBox(wxDC* pDC);  // 最大化按钮
-    void DrawCloseBox(wxDC* pDC);     // 关闭按钮
-
-   private:
+   protected:
     // 顶部窗口按钮
     long m_topBarStyle;
+    RichTopBar* m_pTopBar;
+    wxBoxSizer* m_pVerticalSizer;
     // resize
     bool m_bLeftMouseDown;
     bool m_dragging;
