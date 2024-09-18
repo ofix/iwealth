@@ -44,13 +44,15 @@ class RichTopBar : public wxWindow {
     void DrawCloseBox(wxDC* pDC);     // 关闭按钮
 
    private:
+    bool m_bLeftMouseDown;
+    bool m_dragging;
     wxPoint m_dragStartMouse;
     wxPoint m_dragStartWindow;
+
     std::vector<RichTopMenu*> m_menus;
     wxImage* m_icon;
-    bool m_bLeftMouseDown;
+
     TopBarHitState m_hitState;
-    bool m_dragging;
 };
 
 #endif

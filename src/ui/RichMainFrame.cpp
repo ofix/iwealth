@@ -46,9 +46,10 @@ RichMainFrame::RichMainFrame(wxWindow* parent, wxWindowID id, const wxPoint& pos
     // Bind(wxEVT_MOTION, &RichMainFrame::OnMouseMove, this);
 
 #if defined(_WIN32) || defined(__WIN64)
-    Create(parent, id, _("东方巴菲特"), wxDefaultPosition, wxDefaultSize, wxWANTS_CHARS | wxRESIZE_BORDER, _T("id"));
+    Create(parent, id, _(""), wxDefaultPosition, wxDefaultSize, wxWANTS_CHARS | wxRESIZE_BORDER, _T("id"));
 #else
-    Create(parent, id, wxDefaultPosition, wxSize(600, 800), wxWANTS_CHARS | wxCLIP_CHILDREN, _T("东方巴菲特"));
+    Create(parent, id, wxDefaultPosition, wxSize(600, 800),
+           wxWANTS_CHARS | wxCLIP_CHILDREN | wxMAXIMIZE_BOX | wxMINIMIZE_BOX | wxCLOSE_BOX, _T(""));
 #endif
     SetClientSize(wxSize(1024, 580));
     SetMinSize(wxSize(1024, 580));  // 设置最小窗口大小为 300x200
