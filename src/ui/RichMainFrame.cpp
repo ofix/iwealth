@@ -29,7 +29,7 @@ EVT_THREAD(ID_QUOTE_DATA_READY, RichMainFrame::OnStorageDataReady)
 EVT_THREAD(ID_ASYNC_PROCESS_ERROR, RichMainFrame::OnThreadError)
 END_EVENT_TABLE()
 
-RichMainFrame::RichMainFrame(wxWindow* parent, wxWindowID id, const wxPoint& pos, const wxSize& size){
+RichMainFrame::RichMainFrame(wxWindow* parent, wxWindowID id, const wxPoint& pos, const wxSize& size) {
     // 必须先实例化 StockDataStorage，否则RichPanel子类创建会失败
     // 数据加载放在窗口显示之后，不阻塞窗口初始化
     m_pStorage = new StockDataStorage(true);
@@ -52,7 +52,7 @@ RichMainFrame::RichMainFrame(wxWindow* parent, wxWindowID id, const wxPoint& pos
            wxWANTS_CHARS | wxCLIP_CHILDREN | wxMAXIMIZE_BOX | wxMINIMIZE_BOX | wxCLOSE_BOX, _T(""));
 #endif
     SetClientSize(wxSize(1024, 580));
-    SetMinSize(wxSize(1024, 580));  // 设置最小窗口大小为 300x200
+    SetMinSize(wxSize(1024, 580));
     Move(wxDefaultPosition);
     SetBackgroundColour(wxColor(255, 255, 255));
     {
@@ -95,7 +95,7 @@ RichMainFrame::RichMainFrame(wxWindow* parent, wxWindowID id, const wxPoint& pos
 
     // 初始化主窗口面板
     RichPanelStockQuote* panelQuote = new RichPanelStockQuote(PanelType::Quote, m_pStorage, this, ID_PANEL_STOCK_QUOTE,
-                                                              wxPoint(384, 48), wxSize(1240, 600));
+                                                              wxPoint(0, 32), wxSize(1240, 600));
     panelQuote->LoadStockMarketQuote();
     panelQuote->GetGridCtrl()->Bind(wxEVT_CHAR, &RichMainFrame::OnChar, this);
     panelQuote->GetGridCtrl()->Bind(wxEVT_GRID_CELL_LEFT_CLICK, &RichMainFrame::OnGridCellLeftClick, this);
@@ -112,11 +112,10 @@ RichMainFrame::RichMainFrame(wxWindow* parent, wxWindowID id, const wxPoint& pos
     m_dlgShareSearch->Show(false);  // 默认隐藏
 
     // wxBoxSizer* vertical_sizer = new wxBoxSizer(wxVERTICAL);
-    // vertical_sizer->Add(m_topBar, 0, wxEXPAND | wxALL, 0);
     m_pVerticalSizer->Add(panelQuote, 1, wxEXPAND | wxALL, 0);
     // SetSizer(vertical_sizer);
     Layout();
-    // Maximize();  // 主窗口最大化
+    Maximize(true);  // 主窗口最大化
 }
 
 // bool RichMainFrame::CanDragFrame(wxPoint& ptMouse) {
@@ -215,6 +214,7 @@ void RichMainFrame::OnMaximize(wxMaximizeEvent& event) {
     if (m_dlgShareSearch->IsShown()) {
         m_dlgShareSearch->Show(false);
     }
+    std::cout << "MainFrame Maximize" << std::endl;
     event.Skip();
 }
 

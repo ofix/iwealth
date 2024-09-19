@@ -29,6 +29,7 @@ class RichTopBar : public wxWindow {
     long GetTopBarStyle() const;
 
    protected:
+    void OnLeaveWindow(wxMouseEvent& event);
     void OnMouseLeftDown(wxMouseEvent& event);
     void OnMouseLeftUp(wxMouseEvent&);
     void OnMouseMove(wxMouseEvent& event);

@@ -4,6 +4,7 @@
 #include <wx/button.h>
 #include <wx/gdicmn.h>
 #include <wx/menu.h>
+#include <wx/taskbar.h>
 #include <wx/toplevel.h>
 #include "ui/components/RichTopBar.h"
 
@@ -33,21 +34,27 @@ class RichFrame : public wxTopLevelWindow {
                 long style = wxDEFAULT_FRAME_STYLE,
                 const wxString& name = wxFrameNameStr);
     virtual ~RichFrame();
-    virtual void SetMenuBar (wxMenuBar *menuBar);
-    virtual wxMenuBar* GetMenuBar () const;
-    virtual wxPoint GetClientAreaOrigin () const;
+    void Init();
+    virtual void SetMenuBar(wxMenuBar* menuBar);
+    virtual wxMenuBar* GetMenuBar() const;
+    virtual wxPoint GetClientAreaOrigin() const;
     virtual void DoGetClientSize(int* width, int* height) const;
     virtual bool CreateTopBar();
-    bool ProcessCommand (int id);
+    bool ProcessCommand(int id);
     void DeleteTopBar();
 
     void SetTopBarStyle(long style);
     long GetTopBarStyle() const;
 
+    virtual void Maximize(bool maximize = true) wxOVERRIDE;
+    virtual bool IsMaximized() const;
+    virtual void Restore();
+
     // event manipulation
     void OnClose(wxCloseEvent& event);
     void OnIconize(wxIconizeEvent& event);
     void OnMaximize(wxMaximizeEvent& event);
+    void OnTaskBarClick(wxTaskBarIconEvent& event);
 
     void OnMouseLeftDown(wxMouseEvent& event);
     void OnMouseLeftUp(wxMouseEvent&);
@@ -66,18 +73,20 @@ class RichFrame : public wxTopLevelWindow {
     long m_topBarStyle;
     RichTopBar* m_pTopBar;
     wxBoxSizer* m_pVerticalSizer;
+    bool m_isMaximized;
+    wxRect m_savedFrame;
     // resize
     bool m_bLeftMouseDown;
     bool m_dragging;
     wxPoint m_dragStartMouse;
     wxPoint m_dragStartWindow;
     //
-    wxMenuBar* m_frameMenuBar;  // menubar
-    wxImage* m_frameIcon;       // frame icon at the top left corner
-    wxButton* m_btnMaximize;    // maximize button
-    wxButton* m_btnMinimize;    // minimize button
-    wxButton* m_btnClose;       // close button
-    RichTopBarHitState m_hitState; // 顶部按钮选中状态
+    wxMenuBar* m_frameMenuBar;      // menubar
+    wxImage* m_frameIcon;           // frame icon at the top left corner
+    wxButton* m_btnMaximize;        // maximize button
+    wxButton* m_btnMinimize;        // minimize button
+    wxButton* m_btnClose;           // close button
+    RichTopBarHitState m_hitState;  // 顶部按钮选中状态
     wxDECLARE_DYNAMIC_CLASS(RichFrame);
 };
 

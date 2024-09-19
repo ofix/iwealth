@@ -16,17 +16,8 @@
 
 wxIMPLEMENT_DYNAMIC_CLASS(RichFrame, wxTopLevelWindow);
 
-RichFrame::RichFrame() : wxTopLevelWindow() {
-    m_frameMenuBar = NULL;
-    Bind(wxEVT_CLOSE_WINDOW, &RichFrame::OnClose, this);
-    Bind(wxEVT_ICONIZE, &RichFrame::OnIconize, this);
-    Bind(wxEVT_MAXIMIZE, &RichFrame::OnMaximize, this);
-
-    m_bLeftMouseDown = false;
-    m_dragging = false;
-    m_topBarStyle = wxMINIMIZE_BOX | wxMAXIMIZE_BOX | wxCLOSE_BOX;
-    m_pTopBar = NULL;
-    m_pVerticalSizer = NULL;
+RichFrame::RichFrame() {
+    Init();
 }
 
 RichFrame::RichFrame(wxWindow* parent,
@@ -34,27 +25,21 @@ RichFrame::RichFrame(wxWindow* parent,
                      const wxPoint& pos,
                      const wxSize& size,
                      long style,
-                     const wxString& name)
-    : wxTopLevelWindow(parent, id, name, pos, size, style, name) {
+                     const wxString& name) {
+    Init();
     Create(parent, id, pos, size, style, name);
-    Bind(wxEVT_CLOSE_WINDOW, &RichFrame::OnClose, this);
-    Bind(wxEVT_ICONIZE, &RichFrame::OnIconize, this);
+}
+
+void RichFrame::Init() {
+    m_isMaximized = false;
+    m_frameMenuBar = NULL;
+    m_bLeftMouseDown = false;
+    m_dragging = false;
+    m_topBarStyle = wxMINIMIZE_BOX | wxMAXIMIZE_BOX | wxCLOSE_BOX;
+    m_pTopBar = NULL;
+    m_pVerticalSizer = NULL;
     Bind(wxEVT_MAXIMIZE, &RichFrame::OnMaximize, this);
-
-    // SetBackgroundStyle(wxBG_STYLE_PAINT);
-    // SetBackgroundColour(wxColor(150, 3, 6));
-    // Bind(wxEVT_LEFT_DOWN, &RichFrame::OnMouseLeftDown, this);
-    // Bind(wxEVT_LEFT_UP, &RichFrame::OnMouseLeftUp, this);
-    // Bind(wxEVT_MOUSE_CAPTURE_LOST, &RichFrame::OnMouseCaptureLost, this);
-    // Bind(wxEVT_MOTION, &RichFrame::OnMouseMove, this);
-
-    // m_bLeftMouseDown = false;
-    // m_dragging = false;
-    // m_topBarStyle = wxMINIMIZE_BOX | wxMAXIMIZE_BOX | wxCLOSE_BOX;
-    // m_pTopBar = NULL;
-    // wxBoxSizer* vertical_sizer = new wxBoxSizer(wxVERTICAL);
-    // 绘制顶部标题栏
-    // vertical_sizer->Add(m_topBar, 0, wxEXPAND | wxALL, 0);
+    Bind(wxEVT_ICONIZE, &RichFrame::OnIconize, this);
 }
 
 bool RichFrame::Create(wxWindow* parent,
@@ -64,22 +49,21 @@ bool RichFrame::Create(wxWindow* parent,
                        long style,
                        const wxString& name) {
     style &= ~(wxMAXIMIZE_BOX | wxMINIMIZE_BOX | wxCLOSE_BOX | wxRESIZE_BORDER);  // 移除三个按钮,防止外边框出现
-    m_bLeftMouseDown = false;
-    m_dragging = false;
     bool result = wxTopLevelWindow::Create(parent, id, name, pos, size, style, name);
-    if(!result){
+    if (!result) {
         return false;
     }
     return CreateTopBar();
 }
 
-bool RichFrame::CreateTopBar(){
-    m_pTopBar = new RichTopBar(this, wxID_ANY, wxPoint(0, 0), wxSize(0, 40), 0, _("猛龙证券"));
-    if(!m_pTopBar){
+bool RichFrame::CreateTopBar() {
+    m_pTopBar = new RichTopBar(this, wxID_ANY, wxPoint(0, 0), wxSize(-1, 40), 0, _("猛龙证券"));
+    if (!m_pTopBar) {
         return false;
     }
     m_pTopBar->SetTopBarStyle(wxMINIMIZE_BOX | wxMAXIMIZE_BOX | wxCLOSE_BOX);
-    wxBoxSizer* m_pVerticalSizer = new wxBoxSizer(wxVERTICAL);
+    // 自动横向扩展
+    m_pVerticalSizer = new wxBoxSizer(wxVERTICAL);
     m_pVerticalSizer->Add(m_pTopBar, 0, wxEXPAND | wxALL, 0);
     SetSizer(m_pVerticalSizer);
     return true;
@@ -94,10 +78,9 @@ void RichFrame::DeleteTopBar() {
 }
 
 wxPoint RichFrame::GetClientAreaOrigin() const {
-    return wxPoint(0, 0);
-    // wxPoint pt = wxTopLevelWindow::GetClientAreaOrigin();
-    // pt.y += 40;
-    // return pt;
+    wxPoint pt = wxTopLevelWindow::GetClientAreaOrigin();
+    pt.y += 40;
+    return pt;
 }
 
 void RichFrame::DoGetClientSize(int* width, int* height) const {
@@ -122,9 +105,26 @@ void RichFrame::OnClose(wxCloseEvent& event) {
 }
 
 void RichFrame::OnIconize(wxIconizeEvent& event) {
+    Iconize(true);
 }
 
+// void RichFrame::OnRestoreWindow(wxTaskBarIconEvent& event) {
+//     std::cout << "TaskBarIconEvent clicked" << std::endl;
+//     if (IsIconized()) {
+//         std::cout << "Active Frame" << std::endl;
+//         Iconize(false);
+//         Restore();
+//         Maximize(false);
+//         Show();
+//     }
+// }
+
 void RichFrame::OnMaximize(wxMaximizeEvent& event) {
+    if (IsMaximized()) {
+        Maximize(false);
+    } else {
+        Maximize(true);
+    }
 }
 
 void RichFrame::DrawBorder(wxDC* pDC) {
@@ -136,6 +136,33 @@ void RichFrame::DrawBorder(wxDC* pDC) {
 }
 
 void RichFrame::SetTopMenuBarBkColor(wxColor& color) {
+}
+
+void RichFrame::Maximize(bool maximize) {
+    int x, y, w, h;
+    wxClientDisplayRect(&x, &y, &w, &h);
+
+    if (maximize && !m_isMaximized) {
+        m_isMaximized = true;
+
+        GetPosition(&m_savedFrame.x, &m_savedFrame.y);
+        GetSize(&m_savedFrame.width, &m_savedFrame.height);
+
+        SetSize(x, y, w, h);
+    } else if (!maximize && m_isMaximized) {
+        m_isMaximized = false;
+        SetSize(m_savedFrame.x, m_savedFrame.y, m_savedFrame.width, m_savedFrame.height);
+    }
+}
+
+bool RichFrame::IsMaximized() const {
+    return m_isMaximized;
+}
+
+void RichFrame::Restore() {
+    if (IsMaximized()) {
+        Maximize(false);
+    }
 }
 
 void RichFrame::OnMouseLeftDown(wxMouseEvent& event) {
@@ -190,5 +217,4 @@ void RichFrame::OnMouseCaptureLost(wxMouseCaptureLostEvent&) {
 }
 
 void RichFrame::OnHitTest(wxMouseEvent& event) {
-
 }

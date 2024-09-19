@@ -36,6 +36,7 @@ RichTopBar::RichTopBar(wxWindow* parent,
     Bind(wxEVT_MOUSE_CAPTURE_LOST, &RichTopBar::OnMouseCaptureLost, this);
     Bind(wxEVT_MOTION, &RichTopBar::OnMouseMove, this);
     Bind(wxEVT_PAINT, &RichTopBar::OnPaint, this);
+    Bind(wxEVT_LEAVE_WINDOW, &RichTopBar::OnLeaveWindow, this);
 }
 
 RichTopBar::~RichTopBar() {
@@ -47,6 +48,11 @@ void RichTopBar::SetTopBarStyle(long style) {
 
 long RichTopBar::GetTopBarStyle() const {
     return m_topBarStyle;
+}
+
+void RichTopBar::OnLeaveWindow(wxMouseEvent& event) {
+    m_hitState = TopBarHitState::DEFAULT;
+    Refresh();
 }
 
 void RichTopBar::OnMouseLeftDown(wxMouseEvent& event) {
@@ -62,13 +68,22 @@ void RichTopBar::OnMouseLeftDown(wxMouseEvent& event) {
     }
 }
 
-void RichTopBar::OnMouseLeftUp(wxMouseEvent&) {
+void RichTopBar::OnMouseLeftUp(wxMouseEvent& event) {
     m_bLeftMouseDown = false;
     if (m_hitState == TopBarHitState::BOX_CLOSE) {
         wxCommandEvent event(wxEVT_CLOSE_WINDOW);
         wxPostEvent(GetParent(), event);
+    } else if (m_hitState == TopBarHitState::BOX_MAXIMIZE) {
+        wxCommandEvent event(wxEVT_MAXIMIZE);
+        wxPostEvent(GetParent(), event);
+        std::cout << "Send Maximize Event" << std::endl;
+    } else if (m_hitState == TopBarHitState::BOX_MINIMIZE) {
+        wxCommandEvent event(wxEVT_ICONIZE);
+        wxPostEvent(GetParent(), event);
+        std::cout << "Send Mimize Event" << std::endl;
     }
     FinishDrag();
+    event.Skip();
 }
 
 void RichTopBar::OnMouseMove(wxMouseEvent& event) {
@@ -93,7 +108,6 @@ void RichTopBar::AddMenu(RichTopMenu* menu) {
 
 void RichTopBar::OnHitTest(wxMouseEvent& event) {
     wxPoint pt = event.GetPosition();
-
     wxRect rect(GetSize().GetWidth() - FRAME_BOX_OUTER_SIZE, FRAME_BOX_MARGIN, FRAME_BOX_SIZE, FRAME_BOX_SIZE);
     m_hitState = TopBarHitState::DEFAULT;
     if (rect.Contains(pt)) {
@@ -196,7 +210,6 @@ void RichTopBar::DrawMaximizeBox(wxDC* pDC) {
         offsetX -= FRAME_BOX_OUTER_SIZE;
     }
     offsetX -= FRAME_BOX_OUTER_SIZE;
-    wxRect rect(offsetX, FRAME_BOX_MARGIN, FRAME_BOX_SIZE, FRAME_BOX_SIZE);
     if (m_hitState == TopBarHitState::BOX_MAXIMIZE) {
         pDC->SetBrush(wxBrush(wxColor(242, 57, 64)));
         pDC->SetPen(*wxTRANSPARENT_PEN);
@@ -205,8 +218,11 @@ void RichTopBar::DrawMaximizeBox(wxDC* pDC) {
     }
     wxPen pen = wxPen(wxColor(229, 229, 229), 1, wxPENSTYLE_SOLID);
     pDC->SetPen(pen);
-    int offsetY = FRAME_BOX_SIZE / 2 + FRAME_BOX_MARGIN;
-    pDC->DrawLine(offsetX + FRAME_BOX_SIZE >> 2, offsetY, offsetX + FRAME_BOX_SIZE >> 1, offsetY);
+    int offsetY = FRAME_BOX_MARGIN;
+    wxRect rect(offsetX + 4, offsetY + 8, FRAME_BOX_SIZE / 3, FRAME_BOX_SIZE / 3);
+    pDC->DrawRectangle(rect);
+    rect.Offset(4, -4);
+    pDC->DrawRectangle(rect);
 }
 
 void RichTopBar::DrawMinimizeBox(wxDC* pDC) {
@@ -229,7 +245,7 @@ void RichTopBar::DrawMinimizeBox(wxDC* pDC) {
     wxPen pen = wxPen(wxColor(229, 229, 229), 1, wxPENSTYLE_SOLID);
     pDC->SetPen(pen);
 
-    pDC->DrawLine(offsetX + FRAME_BOX_SIZE >> 2, 16, offsetX + 24, 16);
+    pDC->DrawLine(offsetX + FRAME_BOX_SIZE / 4, 16, offsetX + 24, 16);
 }
 
 void RichTopBar::DrawCloseBox(wxDC* pDC) {
