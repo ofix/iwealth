@@ -11,8 +11,10 @@
 #include "ui/components/RichKlineCtrl.h"
 #include <wx/geometry.h>
 #include <wx/graphics.h>
+#include <algorithm>  // 引入std::swap
 #include "formula/FormulaEma.h"
 #include "stock/StockDataStorage.h"
+
 
 RichKlineCtrl::~RichKlineCtrl() {
 }
@@ -105,6 +107,10 @@ bool RichKlineCtrl::LoadKlines(const std::string& share_code, const KlineType& k
         CalcVisibleKlineWidth();
 
         // 添加 EMA 曲线的时候会自动计算相关数据
+        AddEmaCurve(10, wxColor(255, 255, 255));
+        AddEmaCurve(20, wxColor(239, 72, 111));
+        AddEmaCurve(30, wxColor(255, 159, 26));
+        AddEmaCurve(60, wxColor(201, 243, 240));
         AddEmaCurve(99, wxColor(255, 0, 255));
         AddEmaCurve(255, wxColor(255, 255, 0));
         AddEmaCurve(905, wxColor(0, 255, 0));
@@ -212,8 +218,10 @@ void RichKlineCtrl::ZoomOut() {
     if (m_crossLine == NO_CROSS_LINE) {
         m_crossLine = m_pKlines->size() - 1;  // 放大中心为最右边K线
     }
-    // 可见K线数量已全部显示，不再缩小
-    if (m_klineRng.end - m_klineRng.begin + 1 == m_pKlines->size()) {
+    // 可见K线数量已全部显示，后续缩放，占据0.85的宽度，显示更为友好，可以看见最近一天的成交
+    if (m_visibleKlineCount == m_pKlines->size()) {
+        m_klineWidth = static_cast<double>(GetInnerWidth()) / m_visibleKlineCount * 0.85;
+        m_klineInnerWidth = m_klineWidth * 0.8;
         return;
     }
 
@@ -623,7 +631,8 @@ void RichKlineCtrl::DrawDayKlines(wxDC* pDC) {
         }
         nKline++;
     }
-    DrawEmaCurves(pDC, m_maxRectPrice, m_minRectPrice, 0, m_pos.y, GetInnerWidth(), GetInnerHeight(), m_klineWidth);
+    DrawEmaCurves(pDC, m_maxRectPrice, m_minRectPrice, 0, m_pos.y, GetInnerWidth(), GetInnerHeight() + m_pos.y,
+                  m_klineWidth);
     DrawEmaText(pDC);
     DrawMinMaxRectPrice(pDC);
     if (m_crossLine != NO_CROSS_LINE) {
@@ -735,15 +744,16 @@ void RichKlineCtrl::DrawEmaCurves(wxDC* pDC,
     double hZoomRatio = hRect / hPrice;
     for (auto& curve : m_emaCurves) {
         if (curve.visible) {
-            pDC->SetPen(wxPen(curve.color));
+            pDC->SetPen(wxPen(curve.color, 1, wxPENSTYLE_SOLID));
             wxPointList* pPtList = new wxPointList();
             int nKline = 0;
             double x, y;
             for (int i = m_klineRng.begin; i <= m_klineRng.end; i++) {
                 double ema_price = curve.ema_price.at(i);
                 // 定义样条曲线的控制点
-                x = static_cast<int>(nKline * klineWidth);
-                y = static_cast<int>((m_maxRectPrice - ema_price) * hZoomRatio + minY);
+                x = static_cast<int>((nKline + 0.5) *
+                                     klineWidth);  // 修正EMA曲线没有和日K线中间对齐的问题，+0.5问题修正
+                y = (m_maxRectPrice - ema_price) * hZoomRatio + minY;
                 wxPoint* pt = new wxPoint(x, y);
                 pPtList->Append(pt);
                 nKline += 1;
@@ -1182,4 +1192,59 @@ void RichKlineCtrl::DrawMinuteKlineBackground(wxDC* pDC, double yesterday_close_
         rectLeft.y += hRow + 1;
         rectRight.y += hRow + 1;
     }
+}
+
+/////////////////////////////////// 附图指标相关操作 ///////////////////////////////////
+// 附图指标上移
+void RichKlineCtrl::IndicatorMoveUp(int i) {
+    if (i <= 0 || i >= m_indicators.size()) {
+        return;
+    }
+    std::swap(m_indicators[i], m_indicators[i - 1]);
+}
+
+// 附图指标下移
+void RichKlineCtrl::IndicatorModeDown(int i) {
+    if (i >= m_indicators.size() - 1 || i < 0) {
+        return;
+    }
+    std::swap(m_indicators[i], m_indicators[i + 1]);
+}
+
+// 增加一个附图指标到末尾
+void RichKlineCtrl::IndicatorInsert(RichIndicatorCtrl* pCtrl) {
+    m_indicators.emplace_back(pCtrl);
+    IndicatorReLayout();
+}
+
+// 删除附图指标
+void RichKlineCtrl::IndicatorDelete(int i) {
+    if(i<0 || i> m_indicators.size()-1){
+        return;
+    }
+    if(m_indicators.size() == 0){
+        return;
+    }
+    m_indicators.erase(m_indicators.begin()+i);
+    IndicatorReLayout();
+}
+
+// 替换指定位置的附图指标
+void RichKlineCtrl::IndicatorReplace(int i, RichIndicatorCtrl* pCtrl) {
+    if(i<0 || i> m_indicators.size()-1){
+        return;
+    }
+    if(m_indicators.size() == 0){
+        return;
+    }
+    m_indicators.erase(m_indicators.begin()+i);
+    m_indicators.insert(m_indicators.begin()+i,pCtrl);
+    IndicatorReLayout();
+}
+
+// 重新布局附图指标
+void RichKlineCtrl::IndicatorReLayout() {
+    // 计算有几个附图指标
+    size_t n = m_indicators.size();
+    // 每个附图指标的高度可以自适应，用户也可以手动调整高度
 }

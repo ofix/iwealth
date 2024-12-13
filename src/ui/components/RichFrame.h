@@ -37,8 +37,8 @@ class RichFrame : public wxTopLevelWindow {
     void Init();
     virtual void SetMenuBar(wxMenuBar* menuBar);
     virtual wxMenuBar* GetMenuBar() const;
-    virtual wxPoint GetClientAreaOrigin() const;
-    virtual void DoGetClientSize(int* width, int* height) const;
+    // virtual wxPoint GetClientAreaOrigin() const;
+    // virtual void DoGetClientSize(int* width, int* height) const;
     virtual bool CreateTopBar();
     bool ProcessCommand(int id);
     void DeleteTopBar();

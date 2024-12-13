@@ -24,7 +24,7 @@ const long RichMainFrame::ID_PANEL_STOCK_QUOTE = wxNewId();
 const long RichMainFrame::ID_DIALOG_SHARE_SEARCH = wxNewId();
 const long RichMainFrame::ID_PANEL_KLINE = wxNewId();
 
-BEGIN_EVENT_TABLE(RichMainFrame, RichFrame)
+BEGIN_EVENT_TABLE(RichMainFrame, wxFrame)
 EVT_THREAD(ID_QUOTE_DATA_READY, RichMainFrame::OnStorageDataReady)
 EVT_THREAD(ID_ASYNC_PROCESS_ERROR, RichMainFrame::OnThreadError)
 END_EVENT_TABLE()
@@ -48,8 +48,8 @@ RichMainFrame::RichMainFrame(wxWindow* parent, wxWindowID id, const wxPoint& pos
 #if defined(_WIN32) || defined(__WIN64)
     Create(parent, id, _(""), wxDefaultPosition, wxDefaultSize, wxWANTS_CHARS | wxRESIZE_BORDER, _T("id"));
 #else
-    Create(parent, id, wxDefaultPosition, wxSize(600, 800),
-           wxWANTS_CHARS | wxCLIP_CHILDREN | wxMAXIMIZE_BOX | wxMINIMIZE_BOX | wxCLOSE_BOX, _T(""));
+    Create(parent, id, _("猛龙证券"), wxDefaultPosition, wxSize(600, 800),
+           wxWANTS_CHARS | wxDEFAULT_FRAME_STYLE, _T(""));
 #endif
     SetClientSize(wxSize(1024, 580));
     SetMinSize(wxSize(1024, 580));
@@ -111,9 +111,9 @@ RichMainFrame::RichMainFrame(wxWindow* parent, wxWindowID id, const wxPoint& pos
     m_dlgShareSearch->ReLayout(wxSize(290, 380));
     m_dlgShareSearch->Show(false);  // 默认隐藏
 
-    // wxBoxSizer* vertical_sizer = new wxBoxSizer(wxVERTICAL);
-    m_pVerticalSizer->Add(panelQuote, 1, wxEXPAND | wxALL, 0);
-    // SetSizer(vertical_sizer);
+    wxBoxSizer* verticalSizer = new wxBoxSizer(wxVERTICAL);
+    verticalSizer->Add(panelQuote, 1, wxEXPAND | wxALL, 0);
+    SetSizer(verticalSizer);
     Layout();
     Maximize(true);  // 主窗口最大化
 }

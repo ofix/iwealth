@@ -8,7 +8,7 @@
             "name": "(gdb) 启动",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/build/meson/build/iconsole",
+            "program": "${workspaceFolder}/build/meson/build/iwealth",
             // "program": "${workspaceFolder}/build/iwealth.exe",
             "args": [
             ],

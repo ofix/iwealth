@@ -31,7 +31,7 @@ Request* Request::Instance() {
 std::string Request::Get(const std::string& url, int http_version) {
     conn_t conn;
     conn.url = url;
-    conn.timeout = 50000;
+    conn.timeout = 10000;
     conn.curl_header_list = nullptr;
     conn.upload_info = nullptr;
     conn.debug = false;
@@ -51,7 +51,7 @@ std::string Request::Get(conn_t* conn, int http_version) {
 std::string Request::Post(const std::string& url, const std::string& payload, int http_version) {
     conn_t conn;
     conn.url = url;
-    conn.timeout = 50000;
+    conn.timeout = 10000;
     conn.payload = payload;
     conn.curl_header_list = nullptr;
     conn.upload_info = nullptr;
@@ -86,7 +86,7 @@ std::string Request::Post(conn_t* conn, int http_version) {
 std::string Request::Put(const std::string& url, const std::string& payload, int http_version) {
     conn_t conn;
     conn.url = url;
-    conn.timeout = 50000;
+    conn.timeout = 10000;
     conn.payload = payload;
     conn.curl_header_list = nullptr;
     conn.upload_info = nullptr;
@@ -111,7 +111,7 @@ std::string Request::Put(conn_t* conn, int http_version) {
 std::string Request::Patch(const std::string& url, const std::string& payload, int http_version) {
     conn_t conn;
     conn.url = url;
-    conn.timeout = 50000;
+    conn.timeout = 10000;
     conn.payload = payload;
     conn.curl_header_list = nullptr;
     conn.upload_info = nullptr;
@@ -136,7 +136,7 @@ std::string Request::Patch(conn_t* conn, int http_version) {
 std::string Request::Delete(const std::string& url, int http_version) {
     conn_t conn;
     conn.url = url;
-    conn.timeout = 50000;
+    conn.timeout = 10000;
     conn.curl_header_list = nullptr;
     conn.upload_info = nullptr;
     return Request::Delete(&conn, http_version);

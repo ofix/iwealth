@@ -26,6 +26,10 @@ void RichVolumeBarCtrl::SetMode(int mode) {
     m_mode = mode;
 }
 
+void RichVolumeBarCtrl::DoDraw(wxDC* pDC){
+
+}
+
 void RichVolumeBarCtrl::OnPaint(wxDC* pDC) {
     if (m_pKlineCtrl->m_mode == KlineType::Day || m_pKlineCtrl->m_mode == KlineType::Week ||
         m_pKlineCtrl->m_mode == KlineType::Month || m_pKlineCtrl->m_mode == KlineType::Quarter ||

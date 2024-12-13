@@ -4,9 +4,10 @@
 #include <wx/dcclient.h>
 #include <vector>
 #include "stock/Stock.h"
+#include "ui/components/RichIndicatorCtrl.h"
 
 class RichKlineCtrl;
-class RichVolumeBarCtrl {
+class RichVolumeBarCtrl: public RichIndicatorCtrl{
    public:
 #define GUARD(x, y) ((x) < (y) ? (y) : (x))
     RichVolumeBarCtrl(RichKlineCtrl* pKlineCtrl,
@@ -14,6 +15,7 @@ class RichVolumeBarCtrl {
                       const wxSize& size = wxDefaultSize);
     virtual ~RichVolumeBarCtrl();
     void OnPaint(wxDC* pDC);
+    virtual void DoDraw(wxDC* pDC);
     void DrawVolumeBar(wxDC* pDC);
     void DrawAmountBar(wxDC* pDC);
     void DrawMinuteBar(wxDC* pDC, std::vector<minuteKline>* pMinuteKlines, KlineType kline_type = KlineType::Minute);

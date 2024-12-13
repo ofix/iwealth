@@ -48,12 +48,13 @@ bool RichFrame::Create(wxWindow* parent,
                        const wxSize& size,
                        long style,
                        const wxString& name) {
-    style &= ~(wxMAXIMIZE_BOX | wxMINIMIZE_BOX | wxCLOSE_BOX | wxRESIZE_BORDER);  // 移除三个按钮,防止外边框出现
+    // style &= ~(wxMAXIMIZE_BOX | wxMINIMIZE_BOX | wxCLOSE_BOX);  // 移除三个按钮,防止外边框出现
     bool result = wxTopLevelWindow::Create(parent, id, name, pos, size, style, name);
     if (!result) {
         return false;
     }
-    return CreateTopBar();
+    return true;
+    // return CreateTopBar();
 }
 
 bool RichFrame::CreateTopBar() {
@@ -77,18 +78,18 @@ void RichFrame::DeleteTopBar() {
     wxDELETE(m_pTopBar);
 }
 
-wxPoint RichFrame::GetClientAreaOrigin() const {
-    wxPoint pt = wxTopLevelWindow::GetClientAreaOrigin();
-    pt.y += 40;
-    return pt;
-}
+// wxPoint RichFrame::GetClientAreaOrigin() const {
+//     wxPoint pt = wxTopLevelWindow::GetClientAreaOrigin();
+//     pt.y += 40;
+//     return pt;
+// }
 
-void RichFrame::DoGetClientSize(int* width, int* height) const {
-    wxTopLevelWindow::DoGetClientSize(width, height);
-    if (height) {
-        (*height) -= 40;
-    }
-}
+// void RichFrame::DoGetClientSize(int* width, int* height) const {
+//     wxTopLevelWindow::DoGetClientSize(width, height);
+//     if (height) {
+//         (*height) -= 40;
+//     }
+// }
 
 void RichFrame::SetMenuBar(wxMenuBar* menuBar) {
     m_frameMenuBar = menuBar;

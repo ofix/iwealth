@@ -11,11 +11,11 @@
 #include "ui/RichDialogShareSearch.h"
 #include "ui/RichPanelKline.h"
 #include "ui/RichPanelStockQuote.h"
-#include "ui/components/RichFrame.h"
-#include "ui/components/RichTopBar.h"
+// #include "ui/components/RichFrame.h"
+// #include "ui/components/RichTopBar.h"
 #include "ui/events/RichShareSearchEvent.h"
 
-class RichMainFrame : public RichFrame {
+class RichMainFrame : public wxFrame {
    public:
     RichMainFrame(wxWindow* parent,
                   wxWindowID id = wxID_ANY,

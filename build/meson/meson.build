@@ -165,6 +165,7 @@ gui_sources = [
     'ui/components/RichFrame.cpp',
     'ui/components/RichDialog.cpp',
     'ui/components/RichVolumeBarCtrl.cpp',
+    'ui/components/RichIndicatorCtrl.cpp',
     'ui/components/RichGrid.cpp',
     'ui/components/RichGridCellStringRenderer.cpp',
     'ui/components/RichGridColumnHeaderProvider.cpp',
