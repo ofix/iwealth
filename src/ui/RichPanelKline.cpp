@@ -8,7 +8,7 @@
 // Licence:     GNU GENERAL PUBLIC LICENSE, Version 3
 ///////////////////////////////////////////////////////////////////////////////
 
-#include "ui/RichPanelKline.h"
+#include "RichPanelKline.h"
 #include <wx/dcbuffer.h>
 #include "ui/RichHelper.h"
 
@@ -61,7 +61,7 @@ RichPanelKline::RichPanelKline(PanelType type,
     m_pSecondRadioCtrl = new RichRadioCtrl(second_options, 0, this, ID_SECOND_RADIO_CTRL,
                                            wxPoint(2, 2 + m_sizeKlineCtrl.y * 0.7), wxSize(400, TOP_BAR_HEIGHT));
     // 成交量/成交额附图
-    m_pVolumeBarCtrl = new RichVolumeBarCtrl(m_pKlineCtrl);
+    m_pVolumeIndicatorCtrl = new RichVolumeIndicatorCtrl(m_pKlineCtrl);
     // 日K线信息
     m_ptKlineInfoCtrl = pos;
     m_ptKlineInfoCtrl.y = pos.y + 45 + TOP_BAR_HEIGHT * 2;
@@ -101,7 +101,7 @@ void RichPanelKline::OnPaint(wxPaintEvent& event) {
     // 绘制黑色背景
     wxAutoBufferedPaintDC dc(this);
     m_pKlineCtrl->OnPaint(&dc);
-    m_pVolumeBarCtrl->OnPaint(&dc);
+    m_pVolumeIndicatorCtrl->Draw(&dc);
 }
 void RichPanelKline::OnBackground(wxEraseEvent& event) {
     m_pKlineCtrl->OnBackground(event);
@@ -202,6 +202,6 @@ void RichPanelKline::OnKlineChanged(RichRadioEvent& event) {
 
 void RichPanelKline::OnVolumeBarChanged(RichRadioEvent& event) {
     int mode = event.GetSelection();
-    m_pVolumeBarCtrl->SetMode(mode);
+    m_pVolumeIndicatorCtrl->SetMode(mode);
     this->Refresh();
 }

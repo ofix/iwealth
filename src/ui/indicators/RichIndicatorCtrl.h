@@ -1,20 +1,29 @@
 #ifndef RICH_INDICATOR_CTRL_H
 #define RICH_INDICATOR_CTRL_H
 
+#include <wx/dc.h>
+#include <string>
+
+class RichKlineCtrl;
 class RichIndicatorCtrl {
    public:
     RichIndicatorCtrl();
-    RichIndicatorCtrl(int x, int y, int w, int h);
+    RichIndicatorCtrl(RichKlineCtrl* pKlineCtrl,int x, int y, int w, int h);
+    RichIndicatorCtrl(RichKlineCtrl* pKlineCtrl,const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxDefaultSize);
     virtual ~RichIndicatorCtrl();
-    virtual void Draw(wxDC* pDC);
+    virtual void Draw(wxDC* pDC);          // 绘制函数
+    virtual std::string GetName();         // 获取指标名称
+    virtual std::string GetFormulaName();  // 获取指标公式名称
+    void SetMode(int mode);                // 设置日K线当前模式
+
     void DrawUpArrow(wxDC* pDC);    // 绘制上箭头
     void DrawDownArrow(wxDC* pDC);  // 绘制下箭头
     bool IsVisible() const;
     void Hide();
     void Show();
     void SetManualHeight(int height);
-    int GetMaxHeight()const;
-    int GetMinHeight()const;
+    int GetMaxHeight() const;
+    int GetMinHeight() const;
     void SetMaxHeight(int height);
     void SetMinHeight(int height);
     int GetX() const;
@@ -23,6 +32,8 @@ class RichIndicatorCtrl {
     int GetHeight() const;
 
    protected:
+    RichKlineCtrl* m_pKlineCtrl;
+    int m_mode;
     bool m_visible;         // 是否可见
     int m_x;                // 起始X坐标
     int m_y;                // 起始Y坐标
@@ -41,4 +52,6 @@ class RichIndicatorCtrl {
     int m_heightManual;     // 用户指定的高度，程序不自适应
     int m_minHeight;        // 最小高度
     int m_maxHeight;        // 最大高度
-}
+};
+
+#endif

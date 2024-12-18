@@ -8,7 +8,7 @@
 #include "ui/components/RichKlineCtrl.h"
 #include "ui/components/RichPanel.h"
 #include "ui/components/RichRadioCtrl.h"
-#include "ui/components/RichVolumeBarCtrl.h"
+#include "ui/indicators/RichVolumeIndicatorCtrl.h"
 #include "ui/events/RichRadioEvent.h"
 
 class RichPanelKline : public RichPanel {
@@ -35,7 +35,7 @@ class RichPanelKline : public RichPanel {
 
    protected:
     RichKlineCtrl* m_pKlineCtrl;
-    RichVolumeBarCtrl* m_pVolumeBarCtrl;
+    RichVolumeIndicatorCtrl* m_pVolumeIndicatorCtrl;
     RichDialogKlineInfo* m_pDialogKlineInfo;
     RichRadioCtrl* m_pRadioCtrl;        // 日K线/周K线/月K线/季度K线/年K线
     wxStaticText* m_pShareNameCtrl;     // 股票名称控件

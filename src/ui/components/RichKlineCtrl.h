@@ -9,7 +9,11 @@
 #include <vector>
 
 #include "stock/Stock.h"
-#include "ui/components/RichIndicatorCtrl.h"
+#include "ui/indicators/RichAmountIndicatorCtrl.h"
+#include "ui/indicators/RichIndicatorCtrl.h"
+#include "ui/indicators/RichTurnoverRateIndicatorCtrl.h"
+#include "ui/indicators/RichVolumeIndicatorCtrl.h"
+
 
 #define NO_CROSS_LINE -1
 
@@ -118,7 +122,7 @@ class RichKlineCtrl {
     std::vector<ShareEmaCurve> m_emaCurves;            // 指数移动平均线
     std::vector<minuteKline>* m_pFiveDayMinuteKlines;  // 5日分时图
 
-    std::vector<RichIndicatorCtrl> m_indicators;  // 附图指标集合
+    std::vector<RichIndicatorCtrl*> m_indicators;  // 附图指标集合
 
     uiKlineRange m_klineRng;
 
@@ -129,7 +133,9 @@ class RichKlineCtrl {
     bool m_showAnalysisBar;  // if true, draw volume,MCDA,KDJ index
     int m_analysisType;
     friend class RichDialogKlineInfo;
-    friend class RichVolumeBarCtrl;
+    friend class RichVolumeIndicatorCtrl;
+    friend class RichAmountIndicatorCtrl;
+    friend class RichTurnoverRateIndicatorCtrl;
 };
 
 #endif  // RICH_CTRL_KLINE_H

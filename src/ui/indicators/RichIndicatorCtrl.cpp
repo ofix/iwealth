@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////////////
-// Name:        iwealth/src/ui/components/RichIndicatorCtrl.cpp
+// Name:        iwealth/src/ui/indicators/RichIndicatorCtrl.cpp
 // Purpose:     base class for kline indicators (volume/amount/macd/kdj)
 // Author:      songhuabiao
 // Modified by:
@@ -7,11 +7,14 @@
 // Copyright:   (C) Copyright 2024, Wealth Corporation, All Rights Reserved.
 // Licence:     GNU GENERAL PUBLIC LICENSE, Version 3
 ///////////////////////////////////////////////////////////////////////////////
+#include "RichIndicatorCtrl.h"
 
 RichIndicatorCtrl::RichIndicatorCtrl() {
 }
 
-RichIndicatorCtrl::RichIndicatorCtrl(int x, int y, int w, int h) : m_x(x), m_y(y), m_width(w), m_height(h) {
+RichIndicatorCtrl::RichIndicatorCtrl(RichKlineCtrl* pKlineCtrl, int x, int y, int w, int h)
+    : m_pKlineCtrl(pKlineCtrl), m_x(x), m_y(y), m_width(w), m_height(h) {
+    m_mode = 0;
     m_upArrowX = m_x + m_width - 64;
     m_upArrowY = m_y;
     m_upArrowWidth = 16;
@@ -23,10 +26,26 @@ RichIndicatorCtrl::RichIndicatorCtrl(int x, int y, int w, int h) : m_x(x), m_y(y
     m_heightManual = 0;
 }
 
-virtual RichIndicatorCtrl::~RichIndicatorCtrl() {
+RichIndicatorCtrl::RichIndicatorCtrl(RichKlineCtrl* pKlineCtrl, const wxPoint& pos, const wxSize& size) {
+    RichIndicatorCtrl(pKlineCtrl, pos.x, pos.y, size.GetWidth(), size.GetHeight());
+}
+
+RichIndicatorCtrl::~RichIndicatorCtrl() {
+}
+
+void RichIndicatorCtrl::SetMode(int mode) {
+    m_mode = mode;
 }
 
 void RichIndicatorCtrl::Draw(wxDC* pDC) {
+}
+
+std::string RichIndicatorCtrl::GetName() {
+    return "";
+}
+
+std::string RichIndicatorCtrl::GetFormulaName() {
+    return "";
 }
 
 // 绘制上箭头
