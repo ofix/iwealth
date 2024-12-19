@@ -8,8 +8,10 @@ class RichKlineCtrl;
 class RichIndicatorCtrl {
    public:
     RichIndicatorCtrl();
-    RichIndicatorCtrl(RichKlineCtrl* pKlineCtrl,int x, int y, int w, int h);
-    RichIndicatorCtrl(RichKlineCtrl* pKlineCtrl,const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxDefaultSize);
+    RichIndicatorCtrl(RichKlineCtrl* pKlineCtrl, int x, int y, int w, int h);
+    RichIndicatorCtrl(RichKlineCtrl* pKlineCtrl,
+                      const wxPoint& pos = wxDefaultPosition,
+                      const wxSize& size = wxDefaultSize);
     virtual ~RichIndicatorCtrl();
     virtual void Draw(wxDC* pDC);          // 绘制函数
     virtual std::string GetName();         // 获取指标名称
@@ -21,24 +23,28 @@ class RichIndicatorCtrl {
     bool IsVisible() const;
     void Hide();
     void Show();
-    void SetManualHeight(int height);
     int GetMaxHeight() const;
     int GetMinHeight() const;
+    void SetPosition(wxPoint& pos);
+    void SetPosition(int x, int y);
+    void SetWidth(int width);
+    void SetManualHeight(int height);
     void SetMaxHeight(int height);
     void SetMinHeight(int height);
     int GetX() const;
     int GetY() const;
     int GetWidth() const;
     int GetHeight() const;
+    RichKlineCtrl* GetKlineCtrl() const;
 
    protected:
     RichKlineCtrl* m_pKlineCtrl;
+    int m_x;       // 起始X坐标
+    int m_y;       // 起始Y坐标
+    int m_width;   // 显示宽度
+    int m_height;  // 显示高度
     int m_mode;
     bool m_visible;         // 是否可见
-    int m_x;                // 起始X坐标
-    int m_y;                // 起始Y坐标
-    int m_width;            // 显示宽度
-    int m_height;           // 显示高度
     int m_upArrowX;         // 上箭头X坐标
     int m_upArrowY;         // 上箭头Y坐标
     int m_upArrowWidth;     // 上箭头宽度

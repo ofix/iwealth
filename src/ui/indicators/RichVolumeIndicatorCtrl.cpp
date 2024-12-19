@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////////////
-// Name:        src/ui/indicators/RichVolumnBarCtrl.cpp
+// Name:        src/ui/indicators/RichVolumnIndicatorCtrl.cpp
 // Purpose:     日K线成交量附图指标
 // Author:      songhuabiao
 // Modified by:
@@ -14,14 +14,11 @@
 #include "util/Global.h"
 
 RichVolumeIndicatorCtrl::RichVolumeIndicatorCtrl(RichKlineCtrl* pKlineCtrl, const wxPoint& pos, const wxSize& size)
-    : RichIndicatorCtrl(pKlineCtrl, pos, size){
+    : RichIndicatorCtrl(pKlineCtrl, pos, size) {
+    std::cout << "derive: " << m_pKlineCtrl << std::endl;
 }
 
 RichVolumeIndicatorCtrl::~RichVolumeIndicatorCtrl() {
-}
-
-void RichVolumeIndicatorCtrl::SetMode(int mode) {
-    m_mode = mode;
 }
 
 void RichVolumeIndicatorCtrl::Draw(wxDC* pDC) {
@@ -55,6 +52,7 @@ std::string RichVolumeIndicatorCtrl::GetFormulaName() {
 }
 
 void RichVolumeIndicatorCtrl::DrawVolumeBar(wxDC* pDC) {
+    std::cout << m_pKlineCtrl << std::endl;
     if (m_pKlineCtrl->m_pKlines == nullptr || m_pKlineCtrl->m_pKlines->size() == 0) {
         return;
     }
@@ -86,6 +84,49 @@ void RichVolumeIndicatorCtrl::DrawVolumeBar(wxDC* pDC) {
         }
         pDC->DrawRectangle(x, y, w, h);
     }
+}
+
+void RichVolumeIndicatorCtrl::DrawCrossLine(wxDC* pDC, int centerX, int centerY, int w, int h) {
+    wxPen dash_pen(wxColor(200, 200, 200), 1, wxPENSTYLE_LONG_DASH);
+    pDC->SetPen(dash_pen);
+    pDC->DrawLine(centerX, centerY, centerX, h);  // 竖线
+}
+
+double RichVolumeIndicatorCtrl::GetMaxVolumeInRange() {
+    double max = 0;
+    std::vector<uiKline>::const_iterator it;
+    std::vector<uiKline>& klines = *(m_pKlineCtrl->m_pKlines);
+    uiKlineRange& klineRng = m_pKlineCtrl->m_klineRng;
+    for (it = klines.begin() + klineRng.begin; it != klines.begin() + klineRng.end; ++it) {
+        if (it->volume >= max) {
+            max = it->volume;
+        }
+    }
+    return max;
+}
+
+double RichVolumeIndicatorCtrl::GetMaxVolume() {
+    double max = 0;
+    std::vector<minuteKline>::const_iterator it;
+    std::vector<minuteKline>& klines = *(m_pKlineCtrl->m_pMinuteKlines);
+    for (auto& kline : klines) {
+        if (kline.volume >= max) {
+            max = kline.volume;
+        }
+    }
+    return max;
+}
+
+double RichVolumeIndicatorCtrl::GetFiveDayMaxVolume() {
+    double max = 0;
+    std::vector<minuteKline>::const_iterator it;
+    std::vector<minuteKline>& klines = *(m_pKlineCtrl->m_pFiveDayMinuteKlines);
+    for (auto& kline : klines) {
+        if (kline.volume >= max) {
+            max = kline.volume;
+        }
+    }
+    return max;
 }
 
 // void RichVolumeIndicatorCtrl::DrawMinuteBar(wxDC* pDC, std::vector<minuteKline>* pMinuteKlines, KlineType kline_type)
@@ -179,46 +220,3 @@ void RichVolumeIndicatorCtrl::DrawVolumeBar(wxDC* pDC) {
 //         rectRight.y += hRow;
 //     }
 // }
-
-void RichVolumeIndicatorCtrl::DrawCrossLine(wxDC* pDC, int centerX, int centerY, int w, int h) {
-    wxPen dash_pen(wxColor(200, 200, 200), 1, wxPENSTYLE_LONG_DASH);
-    pDC->SetPen(dash_pen);
-    pDC->DrawLine(centerX, centerY, centerX, h);  // 竖线
-}
-
-double RichVolumeIndicatorCtrl::GetMaxVolumeInRange() {
-    double max = 0;
-    std::vector<uiKline>::const_iterator it;
-    std::vector<uiKline>& klines = *(m_pKlineCtrl->m_pKlines);
-    uiKlineRange& klineRng = m_pKlineCtrl->m_klineRng;
-    for (it = klines.begin() + klineRng.begin; it != klines.begin() + klineRng.end; ++it) {
-        if (it->volume >= max) {
-            max = it->volume;
-        }
-    }
-    return max;
-}
-
-double RichVolumeIndicatorCtrl::GetMaxVolume() {
-    double max = 0;
-    std::vector<minuteKline>::const_iterator it;
-    std::vector<minuteKline>& klines = *(m_pKlineCtrl->m_pMinuteKlines);
-    for (auto& kline : klines) {
-        if (kline.volume >= max) {
-            max = kline.volume;
-        }
-    }
-    return max;
-}
-
-double RichVolumeIndicatorCtrl::GetFiveDayMaxVolume() {
-    double max = 0;
-    std::vector<minuteKline>::const_iterator it;
-    std::vector<minuteKline>& klines = *(m_pKlineCtrl->m_pFiveDayMinuteKlines);
-    for (auto& kline : klines) {
-        if (kline.volume >= max) {
-            max = kline.volume;
-        }
-    }
-    return max;
-}

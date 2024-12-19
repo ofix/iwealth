@@ -332,8 +332,20 @@ int RichKlineCtrl::GetInnerWidth() {
     return m_width - m_paddingRight;
 }
 
-int RichKlineCtrl::GetInnerHeight() {
-    return m_height * 0.7 - m_pos.y - m_paddingBottom;
+int RichKlineCtrl::GetWidth(){
+    return m_width;
+}
+
+int RichKlineCtrl::GetHeight() {
+    return m_height;
+}
+
+void RichKlineCtrl::SetWidth(int width){
+    m_width = width;
+}
+
+void RichKlineCtrl::SetHeight(int height){
+    m_height = height;
 }
 
 /**
@@ -429,7 +441,7 @@ wxPoint RichKlineCtrl::GetCrossLinePt(long n) {
     double x, y;
     uiKline item = m_pKlines->at(n);
     double hPrice = m_maxRectPrice - m_minRectPrice;
-    y = m_pos.y + (1 - (item.price_close - m_minRectPrice) / hPrice) * GetInnerHeight();
+    y = m_pos.y + (1 - (item.price_close - m_minRectPrice) / hPrice) * GetHeight();
     x = static_cast<int>((m_klineWidth) * (n - m_klineRng.begin) + m_klineInnerWidth / 2);  // 一定可以显示完全
     return wxPoint(x, y);
 }
@@ -484,7 +496,7 @@ void RichKlineCtrl::DrawKlineBackground(wxDC* pDC, double min_price, double max_
     int minX = 0;
     int minY = m_pos.y;
     int wRect = GetInnerWidth();
-    int hRect = GetInnerHeight() + m_paddingBottom;
+    int hRect = GetHeight() + m_paddingBottom;
     pDC->DrawRectangle(minX, minY, wRect, hRect);
 #define NLINES 14
     // 绘制横线和价格
@@ -520,7 +532,7 @@ void RichKlineCtrl::DrawDayKlines(wxDC* pDC) {
     // int visible_klines = m_klineRng.end - m_klineRng.begin + 1;
     double hPrice = m_maxRectPrice - m_minRectPrice;
     int minY = m_pos.y;
-    int hRect = GetInnerHeight();
+    int hRect = GetHeight();
     int wRect = GetInnerWidth();
     double hZoomRatio = hRect / hPrice;
 
@@ -631,7 +643,7 @@ void RichKlineCtrl::DrawDayKlines(wxDC* pDC) {
         }
         nKline++;
     }
-    DrawEmaCurves(pDC, m_maxRectPrice, m_minRectPrice, 0, m_pos.y, GetInnerWidth(), GetInnerHeight() + m_pos.y,
+    DrawEmaCurves(pDC, m_maxRectPrice, m_minRectPrice, 0, m_pos.y, GetInnerWidth(), GetHeight() + m_pos.y,
                   m_klineWidth);
     DrawEmaText(pDC);
     DrawMinMaxRectPrice(pDC);
@@ -642,7 +654,7 @@ void RichKlineCtrl::DrawDayKlines(wxDC* pDC) {
 
 void RichKlineCtrl::DrawMinMaxRectPrice(wxDC* pDC) {
     double hPrice = m_maxRectPrice - m_minRectPrice;
-    int hRect = GetInnerHeight();
+    int hRect = GetHeight();
     double hZoomRatio = hRect / hPrice;
     int minY = m_pos.y;
 
@@ -842,7 +854,7 @@ void RichKlineCtrl::CalcMinuteKlineAvgPrice(std::vector<minuteKline>& minuteKlin
 ////////////////////// 5日分时图相关函数  //////////////////////
 void RichKlineCtrl::DrawFiveDayMinuteKlines(wxDC* pDC) {
     double wRect = m_width - m_paddingLeft - m_paddingRight;
-    double hRect = GetInnerHeight();
+    double hRect = GetHeight();
     size_t nKlines = m_pFiveDayMinuteKlines->size() - 1;
     double maxMinutePrice = GetRectMaxPrice(*m_pFiveDayMinuteKlines, 0, nKlines - 1);
     double minMinutePrice = GetRectMinPrice(*m_pFiveDayMinuteKlines, 0, nKlines - 1);
@@ -927,7 +939,7 @@ void RichKlineCtrl::DrawFiveDayMinuteKlines(wxDC* pDC) {
 ////////////////////// 分时图相关函数  //////////////////////
 void RichKlineCtrl::DrawMinuteKlines(wxDC* pDC) {
     double wRect = m_width - m_paddingLeft - m_paddingRight;
-    double hRect = GetInnerHeight();
+    double hRect = GetHeight();
     size_t nKlines = m_pMinuteKlines->size() - 1;
     double maxMinutePrice = GetRectMaxPrice(*m_pMinuteKlines, 0, nKlines - 1);
     double minMinutePrice = GetRectMinPrice(*m_pMinuteKlines, 0, nKlines - 1);
@@ -985,7 +997,7 @@ void RichKlineCtrl::DrawFiveDayMinuteKlineBackground(wxDC* pDC, double ref_close
     const int nrows = 16;
     const int ncols = 20;
     double wRect = m_width - m_paddingLeft - m_paddingRight;
-    double hRect = GetInnerHeight();
+    double hRect = GetHeight();
     double hRow = static_cast<double>(hRect - (nrows + 2)) / nrows;
     int wCol = (wRect) / ncols;
     int dwCol = (wRect) / 5;
@@ -1096,7 +1108,7 @@ void RichKlineCtrl::DrawMinuteKlineBackground(wxDC* pDC, double yesterday_close_
     const int nrows = 16;
     const int ncols = 8;
     double wRect = m_width - m_paddingLeft - m_paddingRight;
-    double hRect = GetInnerHeight();
+    double hRect = GetHeight();
     double hRow = static_cast<double>(hRect - (nrows + 2)) / nrows;
     int wCol = (wRect) / ncols;
 
@@ -1192,59 +1204,4 @@ void RichKlineCtrl::DrawMinuteKlineBackground(wxDC* pDC, double yesterday_close_
         rectLeft.y += hRow + 1;
         rectRight.y += hRow + 1;
     }
-}
-
-/////////////////////////////////// 附图指标相关操作 ///////////////////////////////////
-// 附图指标上移
-void RichKlineCtrl::IndicatorMoveUp(int i) {
-    if (i <= 0 || i >= m_indicators.size()) {
-        return;
-    }
-    std::swap(m_indicators[i], m_indicators[i - 1]);
-}
-
-// 附图指标下移
-void RichKlineCtrl::IndicatorModeDown(int i) {
-    if (i >= m_indicators.size() - 1 || i < 0) {
-        return;
-    }
-    std::swap(m_indicators[i], m_indicators[i + 1]);
-}
-
-// 增加一个附图指标到末尾
-void RichKlineCtrl::IndicatorInsert(RichIndicatorCtrl* pCtrl) {
-    m_indicators.emplace_back(pCtrl);
-    IndicatorReLayout();
-}
-
-// 删除附图指标
-void RichKlineCtrl::IndicatorDelete(int i) {
-    if(i<0 || i> m_indicators.size()-1){
-        return;
-    }
-    if(m_indicators.size() == 0){
-        return;
-    }
-    m_indicators.erase(m_indicators.begin()+i);
-    IndicatorReLayout();
-}
-
-// 替换指定位置的附图指标
-void RichKlineCtrl::IndicatorReplace(int i, RichIndicatorCtrl* pCtrl) {
-    if(i<0 || i> m_indicators.size()-1){
-        return;
-    }
-    if(m_indicators.size() == 0){
-        return;
-    }
-    m_indicators.erase(m_indicators.begin()+i);
-    m_indicators.insert(m_indicators.begin()+i,pCtrl);
-    IndicatorReLayout();
-}
-
-// 重新布局附图指标
-void RichKlineCtrl::IndicatorReLayout() {
-    // 计算有几个附图指标
-    size_t n = m_indicators.size();
-    // 每个附图指标的高度可以自适应，用户也可以手动调整高度
 }

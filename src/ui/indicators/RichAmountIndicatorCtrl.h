@@ -1,5 +1,5 @@
-#ifndef RICH_AMOUNT_BAR_CTRL_H
-#define RICH_AMOUNT_BAR_CTRL_H
+#ifndef RICH_AMOUNT_INDICATOR_CTRL_H
+#define RICH_AMOUNT_INDICATOR_CTRL_H
 
 #include <wx/dcclient.h>
 #include <vector>
@@ -21,10 +21,9 @@ class RichAmountIndicatorCtrl: public RichIndicatorCtrl{
     void DrawAmountBar(wxDC* pDC);
     // void DrawMinuteBar(wxDC* pDC, std::vector<minuteKline>* pMinuteKlines, KlineType kline_type = KlineType::Minute);
     void DrawCrossLine(wxDC* pDC, int centerX, int centerY, int w, int h);
-    // void SetMode(int mode);
 
    protected:
     double GetMaxAmountInRange();
 };
 
-#endif  // RICH_AMOUNT_BAR_CTRL_H
+#endif  // RICH_AMOUNT_INDICATOR_CTRL_H

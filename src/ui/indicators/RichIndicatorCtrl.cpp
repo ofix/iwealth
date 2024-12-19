@@ -8,8 +8,21 @@
 // Licence:     GNU GENERAL PUBLIC LICENSE, Version 3
 ///////////////////////////////////////////////////////////////////////////////
 #include "RichIndicatorCtrl.h"
+#include <iostream>
 
 RichIndicatorCtrl::RichIndicatorCtrl() {
+    m_pKlineCtrl = nullptr;
+    m_mode = 0;
+    m_upArrowX = m_x + m_width - 64;
+    m_upArrowY = m_y;
+    m_upArrowWidth = 16;
+    m_upArrowHeight = 16;
+    m_downArrowX = m_x + m_width - 48;
+    m_downArrowY = m_y;
+    m_downArrowWidth = 16;
+    m_downArrowHeight = 16;
+    m_heightManual = 0;
+    std::cout << "default: " << m_pKlineCtrl << std::endl;
 }
 
 RichIndicatorCtrl::RichIndicatorCtrl(RichKlineCtrl* pKlineCtrl, int x, int y, int w, int h)
@@ -24,6 +37,11 @@ RichIndicatorCtrl::RichIndicatorCtrl(RichKlineCtrl* pKlineCtrl, int x, int y, in
     m_downArrowWidth = 16;
     m_downArrowHeight = 16;
     m_heightManual = 0;
+    std::cout <<"custom: "<< m_pKlineCtrl << std::endl;
+}
+
+RichKlineCtrl* RichIndicatorCtrl::GetKlineCtrl() const {
+    return m_pKlineCtrl;
 }
 
 RichIndicatorCtrl::RichIndicatorCtrl(RichKlineCtrl* pKlineCtrl, const wxPoint& pos, const wxSize& size) {
@@ -56,6 +74,28 @@ void RichIndicatorCtrl::DrawUpArrow(wxDC* pDC) {
 void RichIndicatorCtrl::DrawDownArrow(wxDC* pDC) {
 }
 
+void RichIndicatorCtrl::SetPosition(wxPoint& pos) {
+    m_x = pos.x;
+    m_y = pos.y;
+}
+
+void RichIndicatorCtrl::SetPosition(int x, int y) {
+    m_x = x;
+    m_y = y;
+}
+
+void RichIndicatorCtrl::SetWidth(int width) {
+    m_width = width;
+}
+
+void RichIndicatorCtrl::SetMaxHeight(int height) {
+    m_maxHeight = height;
+}
+
+void RichIndicatorCtrl::SetMinHeight(int height) {
+    m_minHeight = height;
+}
+
 // 用户手动调整附图指标的高度后，后续附图指标高度不再自适应
 void RichIndicatorCtrl::SetManualHeight(int height) {
     // 检查高度是否小于最小高度，如果小于最小高度，取最小高度
@@ -75,14 +115,6 @@ int RichIndicatorCtrl::GetMaxHeight() const {
 
 int RichIndicatorCtrl::GetMinHeight() const {
     return m_minHeight;
-}
-
-void RichIndicatorCtrl::SetMaxHeight(int height) {
-    m_maxHeight = height;
-}
-
-void RichIndicatorCtrl::SetMinHeight(int height) {
-    m_minHeight = height;
 }
 
 int RichIndicatorCtrl::GetX() const {

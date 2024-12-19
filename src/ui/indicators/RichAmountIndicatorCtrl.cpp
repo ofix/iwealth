@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////////////
-// Name:        src/ui/indicators/RichVolumnBarCtrl.cpp
+// Name:        src/ui/indicators/RichAmountIndicatorCtrl.cpp
 // Purpose:     日K线成交额附图指标
 // Author:      songhuabiao
 // Modified by:
@@ -38,8 +38,6 @@ void RichAmountIndicatorCtrl::DrawAmountBar(wxDC* pDC) {
     }
     std::vector<uiKline>& klines = *(m_pKlineCtrl->m_pKlines);
     uiKlineRange& klineRng = m_pKlineCtrl->m_klineRng;
-    // double hAmountBar = m_pKlineCtrl->m_height * 0.3 - TOP_BAR_HEIGHT - 4;
-    // double yAmountBar = m_pKlineCtrl->m_height * 0.7 + TOP_BAR_HEIGHT + 2;
     double max_amount = GetMaxAmountInRange();
     // calc single amount bar width
     long w = m_pKlineCtrl->m_klineInnerWidth;

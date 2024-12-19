@@ -11,6 +11,9 @@
 #include "RichPanelKline.h"
 #include <wx/dcbuffer.h>
 #include "ui/RichHelper.h"
+#include "ui/indicators/RichAmountIndicatorCtrl.h"
+#include "ui/indicators/RichTurnoverRateIndicatorCtrl.h"
+#include "ui/indicators/RichVolumeIndicatorCtrl.h"
 
 const long RichPanelKline::ID_SHARE_NAME_CTRL = wxNewId();
 const long RichPanelKline::ID_KLINE_CTRL = wxNewId();
@@ -18,7 +21,7 @@ const long RichPanelKline::ID_DIALOG_KLINE_INFO = wxNewId();
 const long RichPanelKline::ID_RADIO_CTRL = wxNewId();
 const long RichPanelKline::ID_SECOND_RADIO_CTRL = wxNewId();
 
-// 以下函数实现必须写，否则会爆错误 undefined reference to 'vtable for RichKlineCtrl'
+// 以下函数实现必须写，否则会爆错误 undefined reference to 'vtable for RichPanelKline'
 BEGIN_EVENT_TABLE(RichPanelKline, RichPanel)
 EVT_PAINT(RichPanelKline::OnPaint)
 EVT_SIZE(RichPanelKline::OnSize)
@@ -52,21 +55,29 @@ RichPanelKline::RichPanelKline(PanelType type,
     // K线主图
     m_ptKlineCtrl = wxPoint(2, TOP_BAR_HEIGHT * 2 + 2);
     m_sizeKlineCtrl = size;
-    m_sizeKlineCtrl.DecBy(wxSize(0, TOP_BAR_HEIGHT + 2));  // 这里不能使用DecTo,会导致RichKlineCtrl控件宽度为0
+    m_sizeKlineCtrl.DecBy(wxSize(0, TOP_BAR_HEIGHT + 2));  // 这里不能使用DecTo,会导致RichPanelKline控件宽度为0
+    // 日K线主图
     m_pKlineCtrl = new RichKlineCtrl(pStorage, m_ptKlineCtrl, m_sizeKlineCtrl);
 
-    // 附图选项
-    std::vector<std::string> second_options = {"成交量", "成交额"};
 
-    m_pSecondRadioCtrl = new RichRadioCtrl(second_options, 0, this, ID_SECOND_RADIO_CTRL,
-                                           wxPoint(2, 2 + m_sizeKlineCtrl.y * 0.7), wxSize(400, TOP_BAR_HEIGHT));
-    // 成交量/成交额附图
-    m_pVolumeIndicatorCtrl = new RichVolumeIndicatorCtrl(m_pKlineCtrl);
+    // 成交量附图
+    RichIndicatorCtrl* pVolumeIndicator = new RichVolumeIndicatorCtrl(m_pKlineCtrl);
+    IndicatorInsert(pVolumeIndicator);
+    // 成交额附图
+    RichIndicatorCtrl* pAmountIndicator = new RichAmountIndicatorCtrl(m_pKlineCtrl);
+    IndicatorInsert(pAmountIndicator);
+    // 换手率附图
+    RichIndicatorCtrl* pTurnoverRateIndicator = new RichTurnoverRateIndicatorCtrl(m_pKlineCtrl);
+    IndicatorInsert(pTurnoverRateIndicator);
+    // 重新计算主图+附图高度
+    IndicatorReLayout();
+
     // 日K线信息
     m_ptKlineInfoCtrl = pos;
     m_ptKlineInfoCtrl.y = pos.y + 45 + TOP_BAR_HEIGHT * 2;
     m_pDialogKlineInfo = new RichDialogKlineInfo(this, ID_DIALOG_KLINE_INFO, m_ptKlineInfoCtrl, wxSize(150, 240));
     m_pDialogKlineInfo->Show(false);
+
     // 使用自动双缓冲
     SetBackgroundStyle(wxBG_STYLE_PAINT);
     Bind(wxEVT_KEY_DOWN, &RichPanelKline::OnKeyDown, this);
@@ -74,6 +85,7 @@ RichPanelKline::RichPanelKline(PanelType type,
 }
 
 RichPanelKline::~RichPanelKline() {
+    std::cout<<"Enter ~RichPanelKline"<<std::endl;
     if (m_pKlineCtrl != nullptr) {
         delete m_pKlineCtrl;
         m_pKlineCtrl = nullptr;
@@ -82,6 +94,11 @@ RichPanelKline::~RichPanelKline() {
         delete m_pDialogKlineInfo;
         m_pDialogKlineInfo = nullptr;
     }
+    // 释放附图指标资源
+    for (auto& indicator : m_indicators) {
+        delete indicator;
+    }
+    m_indicators.clear();
 }
 
 void RichPanelKline::SetShareCode(const std::string& share_code) {
@@ -101,7 +118,9 @@ void RichPanelKline::OnPaint(wxPaintEvent& event) {
     // 绘制黑色背景
     wxAutoBufferedPaintDC dc(this);
     m_pKlineCtrl->OnPaint(&dc);
-    m_pVolumeIndicatorCtrl->Draw(&dc);
+    for (auto& indicator : m_indicators) {
+        indicator->Draw(&dc);
+    }
 }
 void RichPanelKline::OnBackground(wxEraseEvent& event) {
     m_pKlineCtrl->OnBackground(event);
@@ -202,6 +221,73 @@ void RichPanelKline::OnKlineChanged(RichRadioEvent& event) {
 
 void RichPanelKline::OnVolumeBarChanged(RichRadioEvent& event) {
     int mode = event.GetSelection();
-    m_pVolumeIndicatorCtrl->SetMode(mode);
+    for (auto& indicator : m_indicators) {
+        indicator->SetMode(mode);
+    }
     this->Refresh();
+}
+
+/////////////////////////////////// 附图指标相关操作 ///////////////////////////////////
+// 附图指标上移
+void RichPanelKline::IndicatorMoveUp(int i) {
+    if (i <= 0 || i >= m_indicators.size()) {
+        return;
+    }
+    std::swap(m_indicators[i], m_indicators[i - 1]);
+}
+
+// 附图指标下移
+void RichPanelKline::IndicatorMoveDown(int i) {
+    if (i >= m_indicators.size() - 1 || i < 0) {
+        return;
+    }
+    std::swap(m_indicators[i], m_indicators[i + 1]);
+}
+
+// 增加一个附图指标到末尾
+void RichPanelKline::IndicatorInsert(RichIndicatorCtrl* pIndicator) {
+    std::cout<<pIndicator->GetKlineCtrl()<<std::endl;
+    m_indicators.emplace_back(pIndicator);
+}
+
+// 删除附图指标
+void RichPanelKline::IndicatorDelete(int i) {
+    if (i < 0 || i > m_indicators.size() - 1) {
+        return;
+    }
+    if (m_indicators.size() == 0) {
+        return;
+    }
+    m_indicators.erase(m_indicators.begin() + i);
+}
+
+// 替换指定位置的附图指标
+void RichPanelKline::IndicatorReplace(int i, RichIndicatorCtrl* pIndicator) {
+    if (i < 0 || i > m_indicators.size() - 1) {
+        return;
+    }
+    if (m_indicators.size() == 0) {
+        return;
+    }
+    m_indicators.erase(m_indicators.begin() + i);
+    m_indicators.insert(m_indicators.begin() + i, pIndicator);
+}
+
+// 重新布局附图指标
+void RichPanelKline::IndicatorReLayout() {
+    // 计算有几个附图指标
+    size_t n = m_indicators.size();
+    // 每个附图指标的高度可以自适应，用户也可以手动调整高度
+    int height = GetSize().GetHeight();
+    int width = GetSize().GetHeight();
+    if (n < 4) {  // 如果附图指标小于4个，附图高度固定+K线主图高度减少
+        int main_height = height - n * 120 - TOP_BAR_HEIGHT;
+        m_pKlineCtrl->SetHeight(main_height);
+        for (size_t i = 0; i < m_indicators.size(); i++) {
+            auto indicator = m_indicators[i];
+            indicator->SetManualHeight(120);
+            indicator->SetWidth(width);
+            indicator->SetPosition(0, TOP_BAR_HEIGHT + main_height + i * 120);
+        }
+    }
 }

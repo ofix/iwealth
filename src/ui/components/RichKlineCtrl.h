@@ -9,11 +9,6 @@
 #include <vector>
 
 #include "stock/Stock.h"
-#include "ui/indicators/RichAmountIndicatorCtrl.h"
-#include "ui/indicators/RichIndicatorCtrl.h"
-#include "ui/indicators/RichTurnoverRateIndicatorCtrl.h"
-#include "ui/indicators/RichVolumeIndicatorCtrl.h"
-
 
 #define NO_CROSS_LINE -1
 
@@ -49,10 +44,13 @@ class RichKlineCtrl {
 
     // 绘制函数
     void OnPaint(wxAutoBufferedPaintDC* pDC);
+    int GetWidth();
+    int GetHeight();
+    void SetWidth(int width);
+    void SetHeight(int height);
 
    protected:
     int GetInnerWidth();
-    int GetInnerHeight();
     float GetRectMinPrice(std::vector<uiKline>& uiKlines, int begin, int end);
     float GetRectMaxPrice(std::vector<uiKline>& uiKlines, int begin, int end);
     float GetRectMinPrice(std::vector<minuteKline>& minuteKlines, int begin, int end);
@@ -87,14 +85,6 @@ class RichKlineCtrl {
     void DrawMinuteKlineBackground(wxDC* pDC, double yesterday_close_pricem, double delta_price);  // 分时图背景
     void PrintDebugInfo(std::string prefix = "");                                                  // 打印调试信息
 
-    // 附图指标相关操作
-    void IndicatorMoveUp(int i);                             // 附图指标上移
-    void IndicatorModeDown(int i);                           // 附图指标下移
-    void IndicatorInsert(RichIndicatorCtrl* pCtrl);          // 增加一个附图指标到末尾
-    void IndicatorDelete(int i);                             // 删除附图指标
-    void IndicatorReplace(int i, RichIndicatorCtrl* pCtrl);  // 替换指定位置的附图指标
-    void IndicatorReLayout();                                // 重新布局附图指标
-
    protected:
     void RemoveCache();
     KlineType m_mode;  // Minute|Five Day Minute|Day|Week|Month|Quarter|Year
@@ -121,8 +111,6 @@ class RichKlineCtrl {
     std::vector<minuteKline>* m_pMinuteKlines;         // 当前绘制的分时图数据
     std::vector<ShareEmaCurve> m_emaCurves;            // 指数移动平均线
     std::vector<minuteKline>* m_pFiveDayMinuteKlines;  // 5日分时图
-
-    std::vector<RichIndicatorCtrl*> m_indicators;  // 附图指标集合
 
     uiKlineRange m_klineRng;
 
