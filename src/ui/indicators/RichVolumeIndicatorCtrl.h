@@ -3,26 +3,31 @@
 
 #include <wx/dcclient.h>
 #include <vector>
-#include "stock/Stock.h"
 #include "RichIndicatorCtrl.h"
+#include "stock/Stock.h"
 
 class RichKlineCtrl;
-class RichVolumeIndicatorCtrl: public RichIndicatorCtrl{
+class RichVolumeIndicatorCtrl : public RichIndicatorCtrl {
    public:
 #define GUARD(x, y) ((x) < (y) ? (y) : (x))
     RichVolumeIndicatorCtrl(RichKlineCtrl* pKlineCtrl,
-                      const wxPoint& pos = wxDefaultPosition,
-                      const wxSize& size = wxDefaultSize);
+                            const wxPoint& pos = wxDefaultPosition,
+                            const wxSize& size = wxDefaultSize);
     virtual ~RichVolumeIndicatorCtrl();
+    void DrawTitleBar(wxDC* pDC);
     virtual void Draw(wxDC* pDC) override;
-    virtual std::string GetName() override;
-    virtual std::string GetFormulaName() override;
+    virtual wxString GetName() override;
+    virtual wxString GetFormulaName() override;
+    wxString GetTodayVolume();
+    wxString GetYesterdayVolume();
+    wxString GetWeekVolume();
 
     void DrawVolumeBar(wxDC* pDC);
     // void DrawMinuteBar(wxDC* pDC, std::vector<minuteKline>* pMinuteKlines, KlineType kline_type = KlineType::Minute);
     void DrawCrossLine(wxDC* pDC, int centerX, int centerY, int w, int h);
 
    protected:
+    std::vector<RichColorText> m_colorTextArr;
     double GetMaxVolumeInRange();
     double GetMaxVolume();
     double GetFiveDayMaxVolume();

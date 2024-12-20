@@ -16,13 +16,18 @@ class RichAmountIndicatorCtrl : public RichIndicatorCtrl {
                             const wxSize& size = wxDefaultSize);
     virtual ~RichAmountIndicatorCtrl();
     virtual void Draw(wxDC* pDC) override;
-    virtual std::string GetName() override;
-    virtual std::string GetFormulaName() override;
+    void DrawTitleBar(wxDC* pDC);
+    virtual wxString GetName() override;
+    virtual wxString GetFormulaName() override;
     void DrawAmountBar(wxDC* pDC);
     // void DrawMinuteBar(wxDC* pDC, std::vector<minuteKline>* pMinuteKlines, KlineType kline_type = KlineType::Minute);
     void DrawCrossLine(wxDC* pDC, int centerX, int centerY, int w, int h);
+    wxString GetTodayAmount();
+    wxString GetYesterdayAmount();
+    wxString GetWeekAmount();
 
    protected:
+    std::vector<RichColorText> m_colorTextArr;
     double GetMaxAmountInRange();
 };
 

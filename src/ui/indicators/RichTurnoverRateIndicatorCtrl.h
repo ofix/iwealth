@@ -10,11 +10,16 @@ class RichTurnoverRateIndicatorCtrl : public RichIndicatorCtrl {
                                   const wxSize& size = wxDefaultSize);
     virtual ~RichTurnoverRateIndicatorCtrl();
     virtual void Draw(wxDC* pDC) override;
-    virtual std::string GetName() override;
-    virtual std::string GetFormulaName() override;
+    void DrawTitleBar(wxDC* pDC);
+    virtual wxString GetName() override;
+    virtual wxString GetFormulaName() override;
     void DrawTurnoverRateBar(wxDC* pDC);
+    wxString GetYesterdayTurnoverRate();
+    wxString GetTodayTurnoverRate();
+    wxString GetWeekTurnoverRate();
 
    protected:
+    std::vector<RichColorText> m_colorTextArr;
     double GetMaxTurnoverRateInRange();
     double GetFiveDayMaxTurnoverRate();
 };

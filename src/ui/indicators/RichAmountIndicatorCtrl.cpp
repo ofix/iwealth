@@ -20,15 +20,37 @@ RichAmountIndicatorCtrl::RichAmountIndicatorCtrl(RichKlineCtrl* pKlineCtrl, cons
 RichAmountIndicatorCtrl::~RichAmountIndicatorCtrl() {
 }
 
+void RichAmountIndicatorCtrl::DrawTitleBar(wxDC* pDC) {
+    m_colorTextArr = {{GetName(), INDICATOR_COLOR_1},
+                      {GetYesterdayAmount(), INDICATOR_COLOR_2},
+                      {GetTodayAmount(), INDICATOR_COLOR_3}};
+    DrawColorTextArr(pDC, 2, m_y + 2, m_colorTextArr);
+}
+
+wxString RichAmountIndicatorCtrl::GetYesterdayAmount() {
+    uiKline* pKline = m_pKlineCtrl->GetPreviousKline();
+    return CN("昨: ") + RichUnit(pKline->amount);
+}
+
+wxString RichAmountIndicatorCtrl::GetTodayAmount() {
+    uiKline* pKline = m_pKlineCtrl->GetCurrentKline();
+    return CN("今: ") + RichUnit(pKline->amount);
+}
+
+wxString RichAmountIndicatorCtrl::GetWeekAmount() {
+    return CN("周: ---");
+}
+
 void RichAmountIndicatorCtrl::Draw(wxDC* pDC) {
+    DrawTitleBar(pDC);
     DrawAmountBar(pDC);
 }
 
-std::string RichAmountIndicatorCtrl::GetName() {
-    return "成交额";
+wxString RichAmountIndicatorCtrl::GetName() {
+    return CN("成交额");
 }
 
-std::string RichAmountIndicatorCtrl::GetFormulaName() {
+wxString RichAmountIndicatorCtrl::GetFormulaName() {
     return "AMOUNT";
 }
 
@@ -44,12 +66,13 @@ void RichAmountIndicatorCtrl::DrawAmountBar(wxDC* pDC) {
     if (w < 1) {
         w = 1;
     }
+    int body_y = m_y + m_titleHeight;
     std::vector<uiKline>::const_iterator it;
     int i = 0;
     for (it = klines.begin() + klineRng.begin; it <= klines.begin() + klineRng.end; ++it, ++i) {
         double x = (double)i * m_pKlineCtrl->m_klineWidth;
-        double y = m_y + m_height - it->amount * m_height / max_amount;
-        double h = it->amount / max_amount * m_height;
+        double y = body_y + m_bodyHeight - it->amount * m_bodyHeight / max_amount;
+        double h = it->amount / max_amount * m_bodyHeight;
 
         if (it->price_close >= it->price_open) {  // red bar
             pDC->SetPen(*wxRED_PEN);

@@ -27,8 +27,16 @@ RichIndicatorCtrl::RichIndicatorCtrl() {
 }
 
 RichIndicatorCtrl::RichIndicatorCtrl(RichKlineCtrl* pKlineCtrl, int x, int y, int w, int h)
-    : m_pKlineCtrl(pKlineCtrl), m_x(x), m_y(y), m_width(w), m_height(h), m_minHeight(48), m_maxHeight(320) {
+    : m_pKlineCtrl(pKlineCtrl),
+      m_x(x),
+      m_y(y),
+      m_width(w),
+      m_height(h),
+      m_titleHeight(20),
+      m_minHeight(48),
+      m_maxHeight(320) {
     m_mode = 0;
+    m_bodyHeight = m_height - m_titleHeight;
     m_upArrowX = m_x + m_width - 64;
     m_upArrowY = m_y;
     m_upArrowWidth = 16;
@@ -59,11 +67,21 @@ void RichIndicatorCtrl::SetMode(int mode) {
 void RichIndicatorCtrl::Draw(wxDC* pDC) {
 }
 
-std::string RichIndicatorCtrl::GetName() {
+void RichIndicatorCtrl::DrawColorTextArr(wxDC* pDC, int x, int y, std::vector<RichColorText>& colorTexts) {
+    int offsetX = x;
+    for (size_t i = 0; i < colorTexts.size(); i++) {
+        pDC->SetTextForeground(colorTexts[i].color);
+        pDC->DrawText(colorTexts[i].text, offsetX, y);
+        wxSize text_size = pDC->GetTextExtent(colorTexts[i].text);
+        offsetX += text_size.GetWidth() + 12;
+    }
+}
+
+wxString RichIndicatorCtrl::GetName() {
     return "";
 }
 
-std::string RichIndicatorCtrl::GetFormulaName() {
+wxString RichIndicatorCtrl::GetFormulaName() {
     return "";
 }
 
@@ -109,6 +127,7 @@ void RichIndicatorCtrl::SetManualHeight(int height) {
     }
     m_heightManual = height;
     m_height = height;
+    m_bodyHeight = height - m_titleHeight;
 }
 
 int RichIndicatorCtrl::GetMaxHeight() const {

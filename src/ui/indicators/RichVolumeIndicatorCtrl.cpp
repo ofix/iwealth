@@ -20,7 +20,32 @@ RichVolumeIndicatorCtrl::RichVolumeIndicatorCtrl(RichKlineCtrl* pKlineCtrl, cons
 RichVolumeIndicatorCtrl::~RichVolumeIndicatorCtrl() {
 }
 
+void RichVolumeIndicatorCtrl::DrawTitleBar(wxDC* pDC) {
+    m_colorTextArr = {{GetName(), INDICATOR_COLOR_1},
+                      {GetYesterdayVolume(), INDICATOR_COLOR_2},
+                      {GetTodayVolume(), INDICATOR_COLOR_3}};
+    DrawColorTextArr(pDC, 2, m_y + 2, m_colorTextArr);
+}
+
+wxString RichVolumeIndicatorCtrl::GetYesterdayVolume() {
+    uiKline* pKline = m_pKlineCtrl->GetPreviousKline();
+    return CN("昨: ") + RichUnit(pKline->volume);
+}
+
+wxString RichVolumeIndicatorCtrl::GetTodayVolume() {
+    uiKline* pKline = m_pKlineCtrl->GetCurrentKline();
+    return CN("今: ") + RichUnit(pKline->volume);
+}
+
+wxString RichVolumeIndicatorCtrl::GetWeekVolume() {
+    return CN("周: ---");
+}
+
 void RichVolumeIndicatorCtrl::Draw(wxDC* pDC) {
+    if (m_pKlineCtrl->m_pKlines == nullptr || m_pKlineCtrl->m_pKlines->size() == 0) {
+        return;
+    }
+    DrawTitleBar(pDC);
     DrawVolumeBar(pDC);
     // if (m_pKlineCtrl->m_mode == KlineType::Day || m_pKlineCtrl->m_mode == KlineType::Week ||
     //     m_pKlineCtrl->m_mode == KlineType::Month || m_pKlineCtrl->m_mode == KlineType::Quarter ||
@@ -42,18 +67,15 @@ void RichVolumeIndicatorCtrl::Draw(wxDC* pDC) {
     // }
 }
 
-std::string RichVolumeIndicatorCtrl::GetName() {
-    return "成交量";
+wxString RichVolumeIndicatorCtrl::GetName() {
+    return CN("成交量");
 }
 
-std::string RichVolumeIndicatorCtrl::GetFormulaName() {
+wxString RichVolumeIndicatorCtrl::GetFormulaName() {
     return "VOLUME";
 }
 
 void RichVolumeIndicatorCtrl::DrawVolumeBar(wxDC* pDC) {
-    if (m_pKlineCtrl->m_pKlines == nullptr || m_pKlineCtrl->m_pKlines->size() == 0) {
-        return;
-    }
     std::vector<uiKline>& klines = *(m_pKlineCtrl->m_pKlines);
     uiKlineRange& klineRng = m_pKlineCtrl->m_klineRng;
     double max_volume = GetMaxVolumeInRange();
@@ -62,13 +84,14 @@ void RichVolumeIndicatorCtrl::DrawVolumeBar(wxDC* pDC) {
     if (w < 1) {
         w = 1;
     }
+    int body_y = m_y + m_titleHeight;
     std::vector<uiKline>::const_iterator it;
     int i = 0;
     for (it = klines.begin() + klineRng.begin; it <= klines.begin() + klineRng.end; ++it, ++i) {
         // make sure i must be double or result would be error!
         double x = (double)i * m_pKlineCtrl->m_klineWidth;
-        double y = m_y + m_height - it->volume * m_height / max_volume;
-        double h = it->volume / max_volume * m_height;
+        double y = body_y + m_bodyHeight - it->volume * m_bodyHeight / max_volume;
+        double h = it->volume / max_volume * m_bodyHeight;
 
         if (it->price_close >= it->price_open) {  // red bar
             pDC->SetPen(*wxRED_PEN);

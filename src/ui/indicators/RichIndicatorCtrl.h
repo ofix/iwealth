@@ -3,6 +3,11 @@
 
 #include <wx/dc.h>
 #include <string>
+#include "ui/RichHelper.h"
+
+#define INDICATOR_COLOR_1 wxColor(230, 230, 230)
+#define INDICATOR_COLOR_2 wxColor(255, 255, 0)
+#define INDICATOR_COLOR_3 wxColor(255, 0, 255)
 
 class RichKlineCtrl;
 class RichIndicatorCtrl {
@@ -13,10 +18,11 @@ class RichIndicatorCtrl {
                       const wxPoint& pos = wxDefaultPosition,
                       const wxSize& size = wxDefaultSize);
     virtual ~RichIndicatorCtrl();
-    virtual void Draw(wxDC* pDC);          // 绘制函数
-    virtual std::string GetName();         // 获取指标名称
-    virtual std::string GetFormulaName();  // 获取指标公式名称
-    void SetMode(int mode);                // 设置日K线当前模式
+    virtual void Draw(wxDC* pDC);       // 绘制函数
+    virtual wxString GetName();         // 获取指标名称
+    virtual wxString GetFormulaName();  // 获取指标公式名称
+    void SetMode(int mode);             // 设置日K线当前模式
+    void DrawColorTextArr(wxDC* pDC, int x, int y, std::vector<RichColorText>& colorTexts);
 
     void DrawUpArrow(wxDC* pDC);    // 绘制上箭头
     void DrawDownArrow(wxDC* pDC);  // 绘制下箭头
@@ -39,11 +45,13 @@ class RichIndicatorCtrl {
 
    protected:
     RichKlineCtrl* m_pKlineCtrl;
-    int m_x;       // 起始X坐标
-    int m_y;       // 起始Y坐标
-    int m_width;   // 显示宽度
-    int m_height;  // 显示高度
-    int m_mode;
+    int m_x;                // 起始X坐标
+    int m_y;                // 起始Y坐标
+    int m_width;            // 显示总宽度
+    int m_height;           // 显示总高度
+    int m_bodyHeight;       // 实际高度
+    int m_titleHeight;      // 标题高度
+    int m_mode;             // 当前显示的K线类型
     bool m_visible;         // 是否可见
     int m_upArrowX;         // 上箭头X坐标
     int m_upArrowY;         // 上箭头Y坐标
@@ -53,8 +61,6 @@ class RichIndicatorCtrl {
     int m_downArrowY;       // 下箭头Y坐标
     int m_downArrowWidth;   // 下箭头宽度
     int m_downArrowHeight;  // 下箭头高度
-    int m_paddingTop;       // 顶部间隙
-    int m_paddingBottom;    // 底部间隙
     int m_heightManual;     // 用户指定的高度，程序不自适应
     int m_minHeight;        // 最小高度
     int m_maxHeight;        // 最大高度

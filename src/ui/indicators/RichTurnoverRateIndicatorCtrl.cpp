@@ -22,7 +22,29 @@ RichTurnoverRateIndicatorCtrl::RichTurnoverRateIndicatorCtrl(RichKlineCtrl* pKli
 RichTurnoverRateIndicatorCtrl::~RichTurnoverRateIndicatorCtrl() {
 }
 
+void RichTurnoverRateIndicatorCtrl::DrawTitleBar(wxDC* pDC) {
+    m_colorTextArr = {{GetName(), INDICATOR_COLOR_1},
+                      {GetYesterdayTurnoverRate(), INDICATOR_COLOR_2},
+                      {GetTodayTurnoverRate(), INDICATOR_COLOR_3}};
+    DrawColorTextArr(pDC, 2, m_y + 2, m_colorTextArr);
+}
+
+wxString RichTurnoverRateIndicatorCtrl::GetYesterdayTurnoverRate() {
+    uiKline* pKline = m_pKlineCtrl->GetPreviousKline();
+    return CN("昨: " + convert_double(pKline->turnover_rate) + "%");
+}
+
+wxString RichTurnoverRateIndicatorCtrl::GetTodayTurnoverRate() {
+    uiKline* pKline = m_pKlineCtrl->GetCurrentKline();
+    return CN("今: " + convert_double(pKline->turnover_rate) + "%");
+}
+
+wxString RichTurnoverRateIndicatorCtrl::GetWeekTurnoverRate() {
+    return CN("周: ---");
+}
+
 void RichTurnoverRateIndicatorCtrl::Draw(wxDC* pDC) {
+    DrawTitleBar(pDC);
     DrawTurnoverRateBar(pDC);
 }
 
@@ -38,12 +60,13 @@ void RichTurnoverRateIndicatorCtrl::DrawTurnoverRateBar(wxDC* pDC) {
     if (w < 1) {
         w = 1;
     }
+    int body_y = m_y + m_titleHeight;
     std::vector<uiKline>::const_iterator it;
     int i = 0;
     for (it = klines.begin() + klineRng.begin; it <= klines.begin() + klineRng.end; ++it, ++i) {
         double x = (double)i * m_pKlineCtrl->m_klineWidth;
-        double y = m_y + m_height - it->turnover_rate * m_height / max_turnover_rate;
-        double h = it->turnover_rate / max_turnover_rate * m_height;
+        double y = body_y + m_bodyHeight - it->turnover_rate * m_bodyHeight / max_turnover_rate;
+        double h = it->turnover_rate / max_turnover_rate * m_bodyHeight;
 
         if (it->price_close >= it->price_open) {  // red bar
             pDC->SetPen(*wxRED_PEN);
@@ -59,11 +82,11 @@ void RichTurnoverRateIndicatorCtrl::DrawTurnoverRateBar(wxDC* pDC) {
     }
 }
 
-std::string RichTurnoverRateIndicatorCtrl::GetName() {
-    return "换手率";
+wxString RichTurnoverRateIndicatorCtrl::GetName() {
+    return CN("换手率");
 }
 
-std::string RichTurnoverRateIndicatorCtrl::GetFormulaName() {
+wxString RichTurnoverRateIndicatorCtrl::GetFormulaName() {
     return "TURNOVER_RATE";
 }
 
