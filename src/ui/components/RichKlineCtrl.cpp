@@ -15,7 +15,6 @@
 #include "formula/FormulaEma.h"
 #include "stock/StockDataStorage.h"
 
-
 RichKlineCtrl::~RichKlineCtrl() {
 }
 
@@ -332,7 +331,7 @@ int RichKlineCtrl::GetInnerWidth() {
     return m_width - m_paddingRight;
 }
 
-int RichKlineCtrl::GetWidth(){
+int RichKlineCtrl::GetWidth() {
     return m_width;
 }
 
@@ -340,11 +339,11 @@ int RichKlineCtrl::GetHeight() {
     return m_height;
 }
 
-void RichKlineCtrl::SetWidth(int width){
+void RichKlineCtrl::SetWidth(int width) {
     m_width = width;
 }
 
-void RichKlineCtrl::SetHeight(int height){
+void RichKlineCtrl::SetHeight(int height) {
     m_height = height;
 }
 
@@ -715,8 +714,12 @@ bool RichKlineCtrl::CheckPtInEmaText(wxPoint& pt) {
 void RichKlineCtrl::DrawEmaText(wxDC* pDC) {
     int offsetX = 0;
     int offsetY = 20;
+    size_t pos = m_pKlines->size() - 1;
+    if (m_crossLine != NO_CROSS_LINE) {
+        pos = m_crossLine;
+    }
     for (auto& curve : m_emaCurves) {
-        std::string text = "EMA" + std::to_string(curve.period) + ": " + convert_double(curve.ema_price.back()) + "  ";
+        std::string text = "EMA" + std::to_string(curve.period) + ": " + convert_double(curve.ema_price.at(pos)) + "  ";
         int width = pDC->GetTextExtent(text).GetWidth();
         if (curve.visible) {
             pDC->SetTextForeground(curve.color);
