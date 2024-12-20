@@ -19,10 +19,12 @@ RichTurnoverRateIndicatorCtrl::RichTurnoverRateIndicatorCtrl(RichKlineCtrl* pKli
     : RichIndicatorCtrl(pKlineCtrl, pos, size) {
 }
 
+RichTurnoverRateIndicatorCtrl::~RichTurnoverRateIndicatorCtrl() {
+}
+
 void RichTurnoverRateIndicatorCtrl::Draw(wxDC* pDC) {
     DrawTurnoverRateBar(pDC);
 }
-
 
 void RichTurnoverRateIndicatorCtrl::DrawTurnoverRateBar(wxDC* pDC) {
     if (m_pKlineCtrl->m_pKlines == nullptr || m_pKlineCtrl->m_pKlines->size() == 0) {

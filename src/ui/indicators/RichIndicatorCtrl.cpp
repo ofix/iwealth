@@ -22,7 +22,6 @@ RichIndicatorCtrl::RichIndicatorCtrl() {
     m_downArrowWidth = 16;
     m_downArrowHeight = 16;
     m_heightManual = 0;
-    std::cout << "default: " << m_pKlineCtrl << std::endl;
 }
 
 RichIndicatorCtrl::RichIndicatorCtrl(RichKlineCtrl* pKlineCtrl, int x, int y, int w, int h)
@@ -37,18 +36,18 @@ RichIndicatorCtrl::RichIndicatorCtrl(RichKlineCtrl* pKlineCtrl, int x, int y, in
     m_downArrowWidth = 16;
     m_downArrowHeight = 16;
     m_heightManual = 0;
-    std::cout <<"custom: "<< m_pKlineCtrl << std::endl;
+}
+
+RichIndicatorCtrl::~RichIndicatorCtrl() {
 }
 
 RichKlineCtrl* RichIndicatorCtrl::GetKlineCtrl() const {
     return m_pKlineCtrl;
 }
 
-RichIndicatorCtrl::RichIndicatorCtrl(RichKlineCtrl* pKlineCtrl, const wxPoint& pos, const wxSize& size) {
-    RichIndicatorCtrl(pKlineCtrl, pos.x, pos.y, size.GetWidth(), size.GetHeight());
-}
-
-RichIndicatorCtrl::~RichIndicatorCtrl() {
+// Note: 构造函数调用另一个构造函数必须在在初始化列表中进行，如果在函数体中调用，构造会失败
+RichIndicatorCtrl::RichIndicatorCtrl(RichKlineCtrl* pKlineCtrl, const wxPoint& pos, const wxSize& size)
+    : RichIndicatorCtrl(pKlineCtrl, pos.x, pos.y, size.GetWidth(), size.GetHeight()) {
 }
 
 void RichIndicatorCtrl::SetMode(int mode) {

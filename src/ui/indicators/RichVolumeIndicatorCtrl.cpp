@@ -15,7 +15,6 @@
 
 RichVolumeIndicatorCtrl::RichVolumeIndicatorCtrl(RichKlineCtrl* pKlineCtrl, const wxPoint& pos, const wxSize& size)
     : RichIndicatorCtrl(pKlineCtrl, pos, size) {
-    std::cout << "derive: " << m_pKlineCtrl << std::endl;
 }
 
 RichVolumeIndicatorCtrl::~RichVolumeIndicatorCtrl() {

@@ -59,15 +59,17 @@ RichPanelKline::RichPanelKline(PanelType type,
     // 日K线主图
     m_pKlineCtrl = new RichKlineCtrl(pStorage, m_ptKlineCtrl, m_sizeKlineCtrl);
 
-
     // 成交量附图
     RichIndicatorCtrl* pVolumeIndicator = new RichVolumeIndicatorCtrl(m_pKlineCtrl);
+    wxASSERT(pVolumeIndicator != nullptr);
     IndicatorInsert(pVolumeIndicator);
     // 成交额附图
     RichIndicatorCtrl* pAmountIndicator = new RichAmountIndicatorCtrl(m_pKlineCtrl);
+    wxASSERT(pAmountIndicator != nullptr);
     IndicatorInsert(pAmountIndicator);
     // 换手率附图
     RichIndicatorCtrl* pTurnoverRateIndicator = new RichTurnoverRateIndicatorCtrl(m_pKlineCtrl);
+    wxASSERT(pTurnoverRateIndicator != nullptr);
     IndicatorInsert(pTurnoverRateIndicator);
     // 重新计算主图+附图高度
     IndicatorReLayout();
@@ -85,7 +87,6 @@ RichPanelKline::RichPanelKline(PanelType type,
 }
 
 RichPanelKline::~RichPanelKline() {
-    std::cout<<"Enter ~RichPanelKline"<<std::endl;
     if (m_pKlineCtrl != nullptr) {
         delete m_pKlineCtrl;
         m_pKlineCtrl = nullptr;
@@ -246,7 +247,6 @@ void RichPanelKline::IndicatorMoveDown(int i) {
 
 // 增加一个附图指标到末尾
 void RichPanelKline::IndicatorInsert(RichIndicatorCtrl* pIndicator) {
-    std::cout<<pIndicator->GetKlineCtrl()<<std::endl;
     m_indicators.emplace_back(pIndicator);
 }
 

@@ -8,10 +8,11 @@ class RichTurnoverRateIndicatorCtrl : public RichIndicatorCtrl {
     RichTurnoverRateIndicatorCtrl(RichKlineCtrl* pKlineCtrl,
                                   const wxPoint& pos = wxDefaultPosition,
                                   const wxSize& size = wxDefaultSize);
+    virtual ~RichTurnoverRateIndicatorCtrl();
     virtual void Draw(wxDC* pDC) override;
-    void DrawTurnoverRateBar(wxDC* pDC);
     virtual std::string GetName() override;
     virtual std::string GetFormulaName() override;
+    void DrawTurnoverRateBar(wxDC* pDC);
 
    protected:
     double GetMaxTurnoverRateInRange();

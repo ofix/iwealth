@@ -3,18 +3,18 @@
 
 #include <wx/dcclient.h>
 #include <vector>
-#include "stock/Stock.h"
 #include "RichIndicatorCtrl.h"
+#include "stock/Stock.h"
+
+#define GUARD(x, y) ((x) < (y) ? (y) : (x))
 
 class RichKlineCtrl;
-class RichAmountIndicatorCtrl: public RichIndicatorCtrl{
+class RichAmountIndicatorCtrl : public RichIndicatorCtrl {
    public:
-#define GUARD(x, y) ((x) < (y) ? (y) : (x))
     RichAmountIndicatorCtrl(RichKlineCtrl* pKlineCtrl,
-                      const wxPoint& pos = wxDefaultPosition,
-                      const wxSize& size = wxDefaultSize);
+                            const wxPoint& pos = wxDefaultPosition,
+                            const wxSize& size = wxDefaultSize);
     virtual ~RichAmountIndicatorCtrl();
-    void OnPaint(wxDC* pDC);
     virtual void Draw(wxDC* pDC) override;
     virtual std::string GetName() override;
     virtual std::string GetFormulaName() override;
