@@ -22,10 +22,12 @@ RichIndicatorCtrl::RichIndicatorCtrl() {
     m_downArrowWidth = 16;
     m_downArrowHeight = 16;
     m_heightManual = 0;
+    m_minHeight = 48;
+    m_maxHeight = 320;
 }
 
 RichIndicatorCtrl::RichIndicatorCtrl(RichKlineCtrl* pKlineCtrl, int x, int y, int w, int h)
-    : m_pKlineCtrl(pKlineCtrl), m_x(x), m_y(y), m_width(w), m_height(h) {
+    : m_pKlineCtrl(pKlineCtrl), m_x(x), m_y(y), m_width(w), m_height(h), m_minHeight(48), m_maxHeight(320) {
     m_mode = 0;
     m_upArrowX = m_x + m_width - 64;
     m_upArrowY = m_y;
@@ -106,6 +108,7 @@ void RichIndicatorCtrl::SetManualHeight(int height) {
         height = m_maxHeight;
     }
     m_heightManual = height;
+    m_height = height;
 }
 
 int RichIndicatorCtrl::GetMaxHeight() const {

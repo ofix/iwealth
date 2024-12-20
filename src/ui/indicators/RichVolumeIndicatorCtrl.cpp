@@ -51,7 +51,6 @@ std::string RichVolumeIndicatorCtrl::GetFormulaName() {
 }
 
 void RichVolumeIndicatorCtrl::DrawVolumeBar(wxDC* pDC) {
-    std::cout << m_pKlineCtrl << std::endl;
     if (m_pKlineCtrl->m_pKlines == nullptr || m_pKlineCtrl->m_pKlines->size() == 0) {
         return;
     }
@@ -68,7 +67,7 @@ void RichVolumeIndicatorCtrl::DrawVolumeBar(wxDC* pDC) {
     for (it = klines.begin() + klineRng.begin; it <= klines.begin() + klineRng.end; ++it, ++i) {
         // make sure i must be double or result would be error!
         double x = (double)i * m_pKlineCtrl->m_klineWidth;
-        double y = m_y + (1.0 - it->volume / max_volume) * m_height;
+        double y = m_y + m_height - it->volume * m_height / max_volume;
         double h = it->volume / max_volume * m_height;
 
         if (it->price_close >= it->price_open) {  // red bar

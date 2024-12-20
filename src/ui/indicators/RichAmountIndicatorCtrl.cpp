@@ -39,7 +39,7 @@ void RichAmountIndicatorCtrl::DrawAmountBar(wxDC* pDC) {
     std::vector<uiKline>& klines = *(m_pKlineCtrl->m_pKlines);
     uiKlineRange& klineRng = m_pKlineCtrl->m_klineRng;
     double max_amount = GetMaxAmountInRange();
-    // calc single amount bar width
+
     long w = m_pKlineCtrl->m_klineInnerWidth;
     if (w < 1) {
         w = 1;
@@ -48,7 +48,7 @@ void RichAmountIndicatorCtrl::DrawAmountBar(wxDC* pDC) {
     int i = 0;
     for (it = klines.begin() + klineRng.begin; it <= klines.begin() + klineRng.end; ++it, ++i) {
         double x = (double)i * m_pKlineCtrl->m_klineWidth;
-        double y = m_y + (1.0 - it->amount / max_amount) * m_height;
+        double y = m_y + m_height - it->amount * m_height / max_amount;
         double h = it->amount / max_amount * m_height;
 
         if (it->price_close >= it->price_open) {  // red bar

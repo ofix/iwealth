@@ -42,7 +42,7 @@ void RichTurnoverRateIndicatorCtrl::DrawTurnoverRateBar(wxDC* pDC) {
     int i = 0;
     for (it = klines.begin() + klineRng.begin; it <= klines.begin() + klineRng.end; ++it, ++i) {
         double x = (double)i * m_pKlineCtrl->m_klineWidth;
-        double y = m_y + (1.0 - it->turnover_rate / max_turnover_rate) * m_height;
+        double y = m_y + m_height - it->turnover_rate * m_height / max_turnover_rate;
         double h = it->turnover_rate / max_turnover_rate * m_height;
 
         if (it->price_close >= it->price_open) {  // red bar

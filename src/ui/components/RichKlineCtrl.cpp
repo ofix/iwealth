@@ -648,7 +648,7 @@ void RichKlineCtrl::DrawDayKlines(wxDC* pDC) {
     DrawEmaText(pDC);
     DrawMinMaxRectPrice(pDC);
     if (m_crossLine != NO_CROSS_LINE) {
-        DrawCrossLine(pDC, m_crossLinePt.x, m_crossLinePt.y, m_width, m_height * 0.7);
+        DrawCrossLine(pDC, m_crossLinePt.x, m_crossLinePt.y, m_width, m_height);
     }
 }
 

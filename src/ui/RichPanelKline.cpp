@@ -127,7 +127,7 @@ void RichPanelKline::OnBackground(wxEraseEvent& event) {
     m_pKlineCtrl->OnBackground(event);
 }
 void RichPanelKline::OnSize(wxSizeEvent& event) {
-    m_pKlineCtrl->OnSize(event);
+    IndicatorReLayout(); // 重新布局
     Refresh();  // 界面需要重绘
 }
 
@@ -278,16 +278,16 @@ void RichPanelKline::IndicatorReLayout() {
     // 计算有几个附图指标
     size_t n = m_indicators.size();
     // 每个附图指标的高度可以自适应，用户也可以手动调整高度
+    int width = GetSize().GetWidth();
     int height = GetSize().GetHeight();
-    int width = GetSize().GetHeight();
     if (n < 4) {  // 如果附图指标小于4个，附图高度固定+K线主图高度减少
         int main_height = height - n * 120 - TOP_BAR_HEIGHT;
         m_pKlineCtrl->SetHeight(main_height);
         for (size_t i = 0; i < m_indicators.size(); i++) {
             auto indicator = m_indicators[i];
-            indicator->SetManualHeight(120);
-            indicator->SetWidth(width);
             indicator->SetPosition(0, TOP_BAR_HEIGHT + main_height + i * 120);
+            indicator->SetWidth(width);
+            indicator->SetManualHeight(120);
         }
     }
 }
