@@ -4,7 +4,7 @@
 #include <wx/grid.h>
 #include "stock/StockDataStorage.h"
 
-enum class RichGridTableDataType { Stock = 0 };
+enum class RichGridTableDataType { Stock = 0 ,Favorite};
 
 class RichGridTable : public wxGridTableBase {
    public:

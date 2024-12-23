@@ -17,6 +17,7 @@
 #include "ui/components/RichGridCellStringRenderer.h"
 #include "ui/components/RichGridColumnHeaderProvider.h"
 #include "ui/components/RichGridColumnHeaderRenderer.h"
+#include "ui/components/RichGridTable.h"
 
 const long RichPanelStockQuote::ID_GRIDCTRL_QUOTA = wxNewId();
 

@@ -1,5 +1,5 @@
-#ifndef RICHGRID_H
-#define RICHGRID_H
+#ifndef RICH_GRID_H
+#define RICH_GRID_H
 
 #include <wx/bitmap.h>
 #include <wx/defs.h>
@@ -7,7 +7,6 @@
 #include <wx/grid.h>
 #include <wx/image.h>
 #include <unordered_map>
-#include "ui/components/RichGridTable.h"
 
 struct RichColLabelAlignment {
     int iCol;

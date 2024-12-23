@@ -36,6 +36,8 @@
 #include "wx/generic/gridsel.h"
 #include "wx/generic/private/grid.h"
 
+#include "ui/components/RichGridTable.h"
+
 // ----------------------------------------------------------------------------
 // globals
 // ----------------------------------------------------------------------------

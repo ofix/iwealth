@@ -1,3 +1,13 @@
+///////////////////////////////////////////////////////////////////////////////
+// Name:        src/ui/commponents/ShareListGridTable.cpp
+// Purpose:     share list grid table
+// Author:      songhuabiao
+// Modified by:
+// Created:     2024-12-23 18:40
+// Copyright:   (C) Copyright 2024, Wealth Corporation, All Rights Reserved.
+// Licence:     GNU GENERAL PUBLIC LICENSE, Version 3
+///////////////////////////////////////////////////////////////////////////////
+
 #include "ui/components/ShareListGridTable.h"
 #include <algorithm>
 #include "ui/RichHelper.h"

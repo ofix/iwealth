@@ -4,7 +4,7 @@
 #include <wx/window.h>
 #include "stock/StockDataStorage.h"
 
-enum class PanelType { Quote, Kline };
+enum class PanelType { Quote, Kline, Favorite };
 
 class RichPanel : public wxWindow {
    public:

@@ -157,6 +157,7 @@ gui_sources = [
     'ui/RichMainFrame.cpp',
     'ui/RichPanelStockQuote.cpp',
     'ui/RichPanelKline.cpp',
+    'ui/RichPanelFavoriteShare.cpp',
     'ui/components/RichPanel.cpp',
     'ui/RichDialogShareSearch.cpp',
     'ui/components/RichKlineCtrl.cpp',
@@ -173,6 +174,7 @@ gui_sources = [
     'ui/components/RichGridColumnHeaderProvider.cpp',
     'ui/components/RichGridColumnHeaderRenderer.cpp',
     'ui/components/ShareListGridCellStringRenderer.cpp',
+    'ui/components/ShareFavoriteGridTable.cpp',
     'ui/components/ShareListGridTable.cpp',
     'ui/components/RichGridTable.cpp',
     'ui/components/RichRadioCtrl.cpp',
@@ -184,6 +186,7 @@ gui_sources = [
     'ui/RichHelper.cpp',
     'formula/FormulaEma.cpp',
     'formula/FormulaBase.cpp',
+    'stock/UserFavoriteShare.cpp', # 自选股
     'stock/StockDataStorage.cpp',
     'stock/StockShareKline.cpp',
     'stock/StockCompositeIndex.cpp',

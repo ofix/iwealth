@@ -1,13 +1,13 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Name:        iwealth/src/stock/StockFavoriteShare.cpp
-// Purpose:     iwealth stock favorate shares
+// Purpose:     iwealth stock favorite shares
 // Author:      songhuabiao
 // Created:     2024-07-11 20:30
 // Copyright:   (C) Copyright 2024, Wealth Corporation, All Rights Reserved.
 // Licence:     GNU GENERAL PUBLIC LICENSE, Version 3
 ///////////////////////////////////////////////////////////////////////////////
 
-#include "UserFavoriteShare.h"
+#include "stock/UserFavoriteShare.h"
 #include <fstream>
 #include <iostream>
 #include "Stock.h"
@@ -18,11 +18,15 @@
 
 using json = nlohmann::json;
 
+std::string DEFAULT_GROUP_NAME = "自选股";
+std::string PATH_USER_FAVORITE_SHARE = std::string("data") + DIR_SEPARATOR + "favorite_shares.json";
+
 UserFavoriteShare::UserFavoriteShare(StockDataStorage* pStorage) : m_pStorage(pStorage) {
     Load();  // 先加载
     if (!HasFavoriteGroup()) {
         CreateFavoriteShareGroup(DEFAULT_GROUP_NAME);
     }
+    m_currentGroup = 0;
 }
 
 UserFavoriteShare::~UserFavoriteShare() {
@@ -136,6 +140,50 @@ bool UserFavoriteShare::Load() {
         }
     }
     return true;
+}
+
+// 获取自选组个数
+size_t UserFavoriteShare::GetGroupCount() {
+    return m_favoriteShareGroups.size();
+}
+
+// 设置当前自选组
+void UserFavoriteShare::SetCurrentGroup(size_t i) {
+    if (i > m_favoriteShareGroups.size() - 1) {
+        m_currentGroup = 0;
+    } else {
+        m_currentGroup = i;
+    }
+}
+
+// 获取当前自选组名字
+std::string UserFavoriteShare::GetCurrentGroupName() {
+    if (m_favoriteShareGroups.size() > 0) {
+        return m_favoriteShareGroups[m_currentGroup].name;
+    }
+    return DEFAULT_GROUP_NAME;
+}
+
+// 获取自选组列表名字
+std::vector<std::string> UserFavoriteShare::GetGroupNames() {
+    std::vector<std::string> names;
+    for (auto& group : m_favoriteShareGroups) {
+        names.emplace_back(group.name);
+    }
+}
+
+// 获取当前自选组股票的大小
+size_t UserFavoriteShare::GetCurrentGroupSize() {
+    if (m_favoriteShareGroups.size() > 0) {
+        return m_favoriteShareGroups[m_currentGroup].shares.size();
+    }
+    return 0;
+}
+
+std::vector<FavoriteShare> UserFavoriteShare::GetCurrentGroupShares() {
+    if (m_favoriteShareGroups.size() > 0) {
+        return m_favoriteShareGroups[m_currentGroup].shares;
+    }
 }
 
 bool UserFavoriteShare::Save() {
