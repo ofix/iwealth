@@ -51,6 +51,7 @@ class RichKlineCtrl {
 
    protected:
     int GetInnerWidth();
+    int GetInnerHeight();
     float GetRectMinPrice(std::vector<uiKline>& uiKlines, int begin, int end);
     float GetRectMaxPrice(std::vector<uiKline>& uiKlines, int begin, int end);
     float GetRectMinPrice(std::vector<minuteKline>& minuteKlines, int begin, int end);
@@ -114,7 +115,7 @@ class RichKlineCtrl {
 
     uiKlineRange m_klineRng;
 
-    int m_paddingTop;        // 上边距，未使用
+    int m_paddingTop;        // 上边距
     int m_paddingBottom;     // 下边距
     int m_paddingLeft;       // 绘制分时图的左边距
     int m_paddingRight;      // 绘制分时图的右边

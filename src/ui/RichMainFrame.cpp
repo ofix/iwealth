@@ -23,6 +23,7 @@
 const long RichMainFrame::ID_PANEL_STOCK_QUOTE = wxNewId();
 const long RichMainFrame::ID_DIALOG_SHARE_SEARCH = wxNewId();
 const long RichMainFrame::ID_PANEL_KLINE = wxNewId();
+const long ID_MAIN_FRAME = wxNewId();
 
 BEGIN_EVENT_TABLE(RichMainFrame, wxFrame)
 EVT_THREAD(ID_QUOTE_DATA_READY, RichMainFrame::OnStorageDataReady)
@@ -37,6 +38,7 @@ RichMainFrame::RichMainFrame(wxWindow* parent, wxWindowID id, const wxPoint& pos
     SetBackgroundStyle(wxBG_STYLE_PAINT);
     Bind(wxEVT_MENU, &RichMainFrame::OnAbout, this, wxID_ABOUT);
     Bind(wxEVT_MENU, &RichMainFrame::OnExit, this, wxID_EXIT);
+    Bind(wxEVT_SIZE, &RichMainFrame::OnSize, this, ID_MAIN_FRAME);
     // Bind(wxEVT_NC_PAINT, &RichMainFrame::OnPaintTitleBar, this);
 
     // bind mouse event for frame dragging
@@ -48,8 +50,8 @@ RichMainFrame::RichMainFrame(wxWindow* parent, wxWindowID id, const wxPoint& pos
 #if defined(_WIN32) || defined(__WIN64)
     Create(parent, id, _(""), wxDefaultPosition, wxDefaultSize, wxWANTS_CHARS | wxRESIZE_BORDER, _T("id"));
 #else
-    Create(parent, id, _("猛龙证券"), wxDefaultPosition, wxSize(600, 800),
-           wxWANTS_CHARS | wxDEFAULT_FRAME_STYLE, _T(""));
+    Create(parent, id, _("猛龙证券"), wxDefaultPosition, wxSize(600, 800), wxWANTS_CHARS | wxDEFAULT_FRAME_STYLE,
+           _T(""));
 #endif
     SetClientSize(wxSize(1024, 580));
     SetMinSize(wxSize(1024, 580));
@@ -185,6 +187,11 @@ RichMainFrame::RichMainFrame(wxWindow* parent, wxWindowID id, const wxPoint& pos
 //     }
 // }
 
+int RichMainFrame::GetTitleBarHeight() {
+    int h = GetSize().GetHeight() - GetClientSize().GetHeight();
+    return h;
+}
+
 void RichMainFrame::LoadQuote() {
     RichResult result = m_pStorage->Init();
     if (!result.Ok()) {
@@ -215,6 +222,10 @@ void RichMainFrame::OnMaximize(wxMaximizeEvent& event) {
         m_dlgShareSearch->Show(false);
     }
     std::cout << "MainFrame Maximize" << std::endl;
+    event.Skip();
+}
+
+void RichMainFrame::OnSize(wxSizeEvent& event) {
     event.Skip();
 }
 
@@ -308,6 +319,11 @@ void RichMainFrame::ShowKlinePanel(const std::string& share_code) {
         RichPanelKline* panelKline = new RichPanelKline(PanelType::Kline, m_pStorage, this, ID_PANEL_KLINE, pos, size);
         AddPanelToStack(panelKline);
         panelKline->SetShareCode(share_code);
+        // 需要动态修改wxBoxSizer绑定的元素,否则缩放窗口，子元素并不会自适应
+        wxBoxSizer* verticalSizer = (wxBoxSizer*)GetSizer();
+        verticalSizer->Detach(0);
+        verticalSizer->Add(panelKline, 1, wxEXPAND | wxALL, 0);
+        verticalSizer->Layout();
     }
 }
 

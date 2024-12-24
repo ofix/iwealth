@@ -10,10 +10,14 @@
 
 #include "RichPanelKline.h"
 #include <wx/dcbuffer.h>
+#include <wx/display.h>
+#include "ui/RichApplication.h"
 #include "ui/RichHelper.h"
+#include "ui/RichMainFrame.h"
 #include "ui/indicators/RichAmountIndicatorCtrl.h"
 #include "ui/indicators/RichTurnoverRateIndicatorCtrl.h"
 #include "ui/indicators/RichVolumeIndicatorCtrl.h"
+#include "util/Macro.h"
 
 const long RichPanelKline::ID_SHARE_NAME_CTRL = wxNewId();
 const long RichPanelKline::ID_KLINE_CTRL = wxNewId();
@@ -40,22 +44,25 @@ RichPanelKline::RichPanelKline(PanelType type,
                                const wxPoint& pos,
                                const wxSize& size)
     : RichPanel(type, pStorage, parent, id, pos, size, wxTAB_TRAVERSAL | wxWANTS_CHARS, _T("Panel_Kline")) {
-#define TOP_BAR_HEIGHT 18
     // 股票名称
     m_pShareNameCtrl =
-        new wxStaticText(this, ID_SHARE_NAME_CTRL, wxT("---"), wxPoint(2, 0), wxSize(64, TOP_BAR_HEIGHT));
+        new wxStaticText(this, ID_SHARE_NAME_CTRL, wxT("---"), wxPoint(KLINE_PANEL_PADDING, KLINE_PANEL_PADDING),
+                         wxSize(64, KLINE_PANEL_TOP_CTRL_HEIGHT));
     m_pShareNameCtrl->SetBackgroundColour(wxColor(0, 0, 0));
     m_pShareNameCtrl->SetForegroundColour(wxColor(200, 200, 200));
 
     // 日/周/月/季/年 K线
     std::vector<std::string> options = {"分时", "五日", "日线", "周线", "月线", "季线", "年线"};
-    m_pRadioCtrl = new RichRadioCtrl(options, 2, this, ID_RADIO_CTRL, wxPoint(64, 0), wxSize(400, TOP_BAR_HEIGHT));
+    m_pRadioCtrl =
+        new RichRadioCtrl(options, 2, this, ID_RADIO_CTRL, wxPoint(KLINE_PANEL_PADDING + 64, KLINE_PANEL_PADDING),
+                          wxSize(400, KLINE_PANEL_TOP_CTRL_HEIGHT));
     // 事件绑定， Radio 控件将始终获取鼠标键盘焦点
     m_pRadioCtrl->Bind(wxEVT_LEFT_UP, &RichPanelKline::OnLeftMouseDown, this);
     // K线主图
-    m_ptKlineCtrl = wxPoint(2, TOP_BAR_HEIGHT * 2 + 2);
+    m_ptKlineCtrl = wxPoint(KLINE_PANEL_PADDING, KLINE_PANEL_TOP_CTRL_HEIGHT * 2 + KLINE_PANEL_PADDING * 3);
     m_sizeKlineCtrl = size;
-    m_sizeKlineCtrl.DecBy(wxSize(0, TOP_BAR_HEIGHT + 2));  // 这里不能使用DecTo,会导致RichPanelKline控件宽度为0
+    m_sizeKlineCtrl.DecBy(wxSize(0, KLINE_PANEL_TOP_CTRL_HEIGHT * 2 +
+                                        KLINE_PANEL_PADDING * 3));  // 这里不能使用DecTo,会导致RichPanelKline控件宽度为0
     // 日K线主图
     m_pKlineCtrl = new RichKlineCtrl(pStorage, m_ptKlineCtrl, m_sizeKlineCtrl);
 
@@ -76,7 +83,7 @@ RichPanelKline::RichPanelKline(PanelType type,
 
     // 日K线信息
     m_ptKlineInfoCtrl = pos;
-    m_ptKlineInfoCtrl.y = pos.y + 45 + TOP_BAR_HEIGHT * 2;
+    m_ptKlineInfoCtrl.y = pos.y + 46 + KLINE_PANEL_TOP_CTRL_HEIGHT * 2;
     m_pDialogKlineInfo = new RichDialogKlineInfo(this, ID_DIALOG_KLINE_INFO, m_ptKlineInfoCtrl, wxSize(150, 240));
     m_pDialogKlineInfo->Show(false);
 
@@ -123,12 +130,15 @@ void RichPanelKline::OnPaint(wxPaintEvent& event) {
         indicator->Draw(&dc);
     }
 }
+
 void RichPanelKline::OnBackground(wxEraseEvent& event) {
     m_pKlineCtrl->OnBackground(event);
 }
+
 void RichPanelKline::OnSize(wxSizeEvent& event) {
-    IndicatorReLayout(); // 重新布局
-    Refresh();  // 界面需要重绘
+    IndicatorReLayout();  // 重新布局
+    Refresh();            // 界面需要重绘
+    event.Skip();         // 必须调用，否则wxSizeEvent只触发一次
 }
 
 void RichPanelKline::OnKeyDown(wxKeyEvent& event) {
@@ -280,14 +290,22 @@ void RichPanelKline::IndicatorReLayout() {
     // 每个附图指标的高度可以自适应，用户也可以手动调整高度
     int width = GetSize().GetWidth();
     int height = GetSize().GetHeight();
+    wxDisplay display;
+    wxRect rect = display.GetClientArea();
+    // 全屏模式下的面板高度
+    int fullscreen_height = rect.GetHeight() - ((RichApplication*)wxTheApp)->GetMainFrame()->GetTitleBarHeight();
+    // 等比例计算窗口缩放后的附图指标高度
+    int indicator_height = INDICATOR_CTRL_HEIGHT * height / fullscreen_height;
+    int top_height = KLINE_PANEL_TOP_CTRL_HEIGHT * 2 + KLINE_PANEL_PADDING * 3;
     if (n < 4) {  // 如果附图指标小于4个，附图高度固定+K线主图高度减少
-        int main_height = height - n * 120 - TOP_BAR_HEIGHT;
+        int main_height = height - n * indicator_height - top_height;
+        m_pKlineCtrl->SetWidth(width);
         m_pKlineCtrl->SetHeight(main_height);
         for (size_t i = 0; i < m_indicators.size(); i++) {
             auto indicator = m_indicators[i];
-            indicator->SetPosition(0, TOP_BAR_HEIGHT + main_height + i * 120);
+            indicator->SetPosition(KLINE_PANEL_PADDING, top_height + main_height + i * indicator_height);
             indicator->SetWidth(width);
-            indicator->SetManualHeight(120);
+            indicator->SetManualHeight(indicator_height);
         }
     }
 }

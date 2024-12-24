@@ -15,7 +15,7 @@ wxIMPLEMENT_APP(RichApplication);
 
 bool RichApplication::OnInit() {
     wxInitAllImageHandlers();
-    m_pFrame = new RichMainFrame(NULL, wxID_ANY);
+    m_pFrame = new RichMainFrame(NULL, ID_MAIN_FRAME);
     m_pFrame->Show();
     SetTopWindow(m_pFrame);
     m_pFrame->LoadQuote();

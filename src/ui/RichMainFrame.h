@@ -14,6 +14,7 @@
 // #include "ui/components/RichFrame.h"
 // #include "ui/components/RichTopBar.h"
 #include "ui/events/RichShareSearchEvent.h"
+extern const long ID_MAIN_FRAME;
 
 class RichMainFrame : public wxFrame {
    public:
@@ -37,6 +38,7 @@ class RichMainFrame : public wxFrame {
     void OnClose(wxCloseEvent& event);
     void OnIconize(wxIconizeEvent& event);
     void OnMaximize(wxMaximizeEvent& event);
+    void OnSize(wxSizeEvent& event);
 
     void OnChar(wxKeyEvent& event);
     void OnKeyDown(wxKeyEvent& event);
@@ -49,6 +51,7 @@ class RichMainFrame : public wxFrame {
     void PopPanelFromStack();
     void ShowKlinePanel(const std::string& share_code);
     RichPanel* GetCurrentPanel();
+    int GetTitleBarHeight(); // 获取标题栏高度
 
    protected:
     //(*Identifiers(RichMainFrame)

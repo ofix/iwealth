@@ -36,7 +36,7 @@ RichIndicatorCtrl::RichIndicatorCtrl(RichKlineCtrl* pKlineCtrl, int x, int y, in
       m_minHeight(48),
       m_maxHeight(320) {
     m_mode = 0;
-    m_bodyHeight = m_height - m_titleHeight;
+    m_bodyHeight = m_height - m_titleHeight - 6;
     m_upArrowX = m_x + m_width - 64;
     m_upArrowY = m_y;
     m_upArrowWidth = 16;
