@@ -33,3 +33,9 @@ wxFont RichHelper::GetDefaultFont(int font_size) {
                        wxFONTENCODING_DEFAULT);
     return defaultFont;
 }
+
+wxFont RichHelper::GetBoldFont(int font_size){
+    wxFont boldFont(font_size, wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_EXTRABOLD, false, _T("微软雅黑"),
+                       wxFONTENCODING_DEFAULT);
+    return boldFont;
+}

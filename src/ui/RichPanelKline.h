@@ -45,14 +45,16 @@ class RichPanelKline : public RichPanel {
     RichKlineCtrl* m_pKlineCtrl;
 
     RichDialogKlineInfo* m_pDialogKlineInfo;
-    RichRadioCtrl* m_pRadioCtrl;        // 日K线/周K线/月K线/季度K线/年K线
     wxStaticText* m_pShareNameCtrl;     // 股票名称控件
+    wxStaticText* m_pAddFavoriteCtrl;   // 增加自选
+    RichRadioCtrl* m_pRadioCtrl;        // 日K线/周K线/月K线/季度K线/年K线
     RichRadioCtrl* m_pSecondRadioCtrl;  // 附图成交量/成交额
 
     std::vector<uiKline>* m_pKlines;               // 当前需要显示的K线
     std::vector<RichIndicatorCtrl*> m_indicators;  // 附图指标集合
    protected:
     static const long ID_SHARE_NAME_CTRL;
+    static const long ID_ADD_FAVORITE_CTRL;
     static const long ID_RADIO_CTRL;
     static const long ID_SECOND_RADIO_CTRL;
     static const long ID_KLINE_CTRL;

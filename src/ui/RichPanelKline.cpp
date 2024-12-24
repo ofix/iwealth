@@ -20,6 +20,7 @@
 #include "util/Macro.h"
 
 const long RichPanelKline::ID_SHARE_NAME_CTRL = wxNewId();
+const long RichPanelKline::ID_ADD_FAVORITE_CTRL = wxNewId();
 const long RichPanelKline::ID_KLINE_CTRL = wxNewId();
 const long RichPanelKline::ID_DIALOG_KLINE_INFO = wxNewId();
 const long RichPanelKline::ID_RADIO_CTRL = wxNewId();
@@ -51,6 +52,11 @@ RichPanelKline::RichPanelKline(PanelType type,
     m_pShareNameCtrl->SetBackgroundColour(wxColor(0, 0, 0));
     m_pShareNameCtrl->SetForegroundColour(wxColor(200, 200, 200));
 
+    // 自选按钮
+    m_pAddFavoriteCtrl = new wxStaticText(this, ID_SHARE_NAME_CTRL, wxT("+")),
+    m_pAddFavoriteCtrl->SetFont(RichHelper::GetBoldFont());
+    m_pAddFavoriteCtrl->SetForegroundColour(wxColor(200, 200, 200));
+
     // 日/周/月/季/年 K线
     std::vector<std::string> options = {"分时", "五日", "日线", "周线", "月线", "季线", "年线"};
     m_pRadioCtrl =
@@ -63,6 +69,15 @@ RichPanelKline::RichPanelKline(PanelType type,
     m_sizeKlineCtrl = size;
     m_sizeKlineCtrl.DecBy(wxSize(0, KLINE_PANEL_TOP_CTRL_HEIGHT * 2 +
                                         KLINE_PANEL_PADDING * 3));  // 这里不能使用DecTo,会导致RichPanelKline控件宽度为0
+
+    // 对齐
+    wxBoxSizer* klineSizer = new wxBoxSizer(wxHORIZONTAL);
+    klineSizer->AddSpacer(KLINE_PANEL_PADDING);
+    klineSizer->Add(m_pShareNameCtrl, 0, wxLEFT,KLINE_PANEL_PADDING);
+    klineSizer->Add(m_pRadioCtrl,0,wxLEFT);
+    klineSizer->Add(m_pAddFavoriteCtrl,0,wxRIGHT,KLINE_PANEL_PADDING);
+    SetSizer(klineSizer);
+
     // 日K线主图
     m_pKlineCtrl = new RichKlineCtrl(pStorage, m_ptKlineCtrl, m_sizeKlineCtrl);
 
