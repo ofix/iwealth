@@ -52,11 +52,6 @@ RichPanelKline::RichPanelKline(PanelType type,
     m_pShareNameCtrl->SetBackgroundColour(wxColor(0, 0, 0));
     m_pShareNameCtrl->SetForegroundColour(wxColor(200, 200, 200));
 
-    // 自选按钮
-    m_pAddFavoriteCtrl = new wxStaticText(this, ID_SHARE_NAME_CTRL, wxT("+")),
-    m_pAddFavoriteCtrl->SetFont(RichHelper::GetBoldFont());
-    m_pAddFavoriteCtrl->SetForegroundColour(wxColor(200, 200, 200));
-
     // 日/周/月/季/年 K线
     std::vector<std::string> options = {"分时", "五日", "日线", "周线", "月线", "季线", "年线"};
     m_pRadioCtrl =
@@ -70,12 +65,27 @@ RichPanelKline::RichPanelKline(PanelType type,
     m_sizeKlineCtrl.DecBy(wxSize(0, KLINE_PANEL_TOP_CTRL_HEIGHT * 2 +
                                         KLINE_PANEL_PADDING * 3));  // 这里不能使用DecTo,会导致RichPanelKline控件宽度为0
 
-    // 对齐
+    // 自选按钮
+    m_pAddFavoriteCtrl = new wxStaticText(this, ID_SHARE_NAME_CTRL, wxT("+")),
+    m_pAddFavoriteCtrl->SetFont(RichHelper::GetBoldFont());
+    m_pAddFavoriteCtrl->SetForegroundColour(wxColor(200, 200, 200));
+
+    /**
+     * @todo 对齐第一行控件
+     * wxBoxSizer can lay out its children either vertically or horizontally,
+     * depending on what flag is being used in its constructor.
+     * When using a vertical sizer, each child can be centered, aligned to the right or aligned to the left.
+     * Correspondingly, when using a horizontal sizer, each child can be centered, aligned at the bottom or aligned at
+     * the top. The stretch factor described in the last paragraph is used for the main orientation, i.e. when using a
+     * horizontal box sizer, the stretch factor determines how much the child can be stretched horizontally. The
+     * following sample shows the same dialog as in the last sample, only the box sizer is a vertical box sizer now:
+     */
     wxBoxSizer* klineSizer = new wxBoxSizer(wxHORIZONTAL);
     klineSizer->AddSpacer(KLINE_PANEL_PADDING);
-    klineSizer->Add(m_pShareNameCtrl, 0, wxLEFT,KLINE_PANEL_PADDING);
-    klineSizer->Add(m_pRadioCtrl,0,wxLEFT);
-    klineSizer->Add(m_pAddFavoriteCtrl,0,wxRIGHT,KLINE_PANEL_PADDING);
+    klineSizer->Add(m_pShareNameCtrl, 0, wxLEFT | wxRIGHT, KLINE_PANEL_PADDING);
+    klineSizer->Add(m_pRadioCtrl, 0, wxLEFT);
+    klineSizer->AddStretchSpacer(1);  // 增加中间的空白区域
+    klineSizer->Add(m_pAddFavoriteCtrl, 0, wxRIGHT, KLINE_PANEL_PADDING * 2);
     SetSizer(klineSizer);
 
     // 日K线主图
