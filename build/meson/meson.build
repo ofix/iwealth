@@ -178,6 +178,7 @@ gui_sources = [
     'ui/components/ShareListGridTable.cpp',
     'ui/components/RichGridTable.cpp',
     'ui/components/RichRadioCtrl.cpp',
+    'ui/components/RichTextButton.cpp',
     'ui/components/RichTopBar.cpp',
     'ui/components/RichTopMenu.cpp',
     'ui/components/RichTopMenuItem.cpp',

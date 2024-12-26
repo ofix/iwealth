@@ -15,22 +15,25 @@ class RichRadioCtrl : public wxControl {
                   const wxPoint& pos = wxDefaultPosition,   // 窗口位置
                   const wxSize& size = wxDefaultSize,       // 窗口大小
                   long style = 0);
-    void OnClick(wxMouseEvent& event);
-    void OnBackground(wxEraseEvent& event);
-    virtual void SetSelection(int n);
+
+    void SetSelection(int n);
+    wxString GetActiveLabel();
+    int GetActiveIndex();
 
    protected:
+    void OnClick(wxMouseEvent& event);
+    void OnPaint(wxPaintEvent& event);
+    void OnEraseBackground(wxEraseEvent& event);
+    void OnMouseMove(wxMouseEvent& event);
     virtual bool Layout();
-    int GetSelectionIndex(const std::string& label);
 
-    std::vector<wxStaticText*> m_optionCtrls;
+    std::vector<wxRect> m_radioRects;
+    std::vector<wxString> m_radioLabels;
     int m_active;
-    std::unordered_map<std::string, int> m_optionMap;
-    wxString m_activeLabel;
+    int m_focus;
     wxColor m_clrBackground;
     wxColor m_clrTextDefault;
     wxColor m_clrTextActive;
-    DECLARE_EVENT_TABLE();
 };
 
 #endif
