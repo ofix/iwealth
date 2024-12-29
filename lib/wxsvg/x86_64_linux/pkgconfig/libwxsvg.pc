@@ -1,0 +1,12 @@
+prefix=/home/ofix/work/cpp_libs/libraries/wxsvg_1.5.24
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+includedir=${prefix}/include
+
+Name: libwxsvg
+Description: C++ library to create, manipulate and render SVG files
+Requires:
+Requires.private: pango, libexif
+Version: 1.5.24
+Libs: -L${libdir} -lwxsvg
+Cflags: -I${includedir}

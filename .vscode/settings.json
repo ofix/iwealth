@@ -1,7 +1,7 @@
 {
   "C_Cpp.errorSquiggles": "disabled",
   "mesonbuild.configureOnOpen": true,
-  "C_Cpp.default.compileCommands": "/home/greatwall/work/iwealth/build/meson/build/compile_commands.json",
+  "C_Cpp.default.compileCommands": "/home/ofix/work/iwealth/build/meson/build/compile_commands.json",
   // "C_Cpp.default.compileCommands": "e:/work/iwealth/build/compile_commands.json",
   "C_Cpp.default.configurationProvider": "mesonbuild.mesonbuild",
   "cmake.configureOnOpen": false,

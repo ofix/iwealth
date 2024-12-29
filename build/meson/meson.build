@@ -33,6 +33,7 @@ if x86_64_platform
             '../../lib',
             '../../lib/wxWidgets/3.2.4/include',
             '../../lib/wxWidgets/3.2.4/mingw_x64_windows/mswu',
+            '../../lib/wxsvg/include'
         ])
     else 
         inc = include_directories([
@@ -40,6 +41,7 @@ if x86_64_platform
             '../../lib',
             '../../lib/wxWidgets/3.2.4/include',
             '../../lib/wxWidgets/3.2.4/x86_64_linux/wx/include/gtk3-unicode-3.2',
+            '../../lib/wxsvg/include'
         ])
     endif
 else
@@ -48,6 +50,7 @@ else
         '../../lib',
         '../../lib/wxWidgets/3.2.4/include',
         '../../lib/wxWidgets/3.2.4/aarch64_linux/wx/include/gtk3-unicode-3.2',
+        '../../lib/wxsvg/include'
     ])
 endif
 
@@ -59,9 +62,12 @@ third_party_dep = declare_dependency(
         cc.find_library('crypto', dirs: third_party_lib), 
         cc.find_library('ssl', dirs: third_party_lib),
         cc.find_library('curl', dirs: third_party_lib)
+        cc.find_library('wxsvg', static:true, dirs: join_paths(meson.source_root(),
+            meson.current_source_dir(), '../../lib/wxsvg/x86_64_linux'))
       ],
       include_directories: [
-        include_directories('../../lib/curl/include')
+        include_directories('../../lib/curl/include'),
+        include_directories('../../lib/wxsvg/include')
       ],
     )
 else
@@ -316,7 +322,7 @@ foreach file : smith_sources
 endforeach
 
 executable('smith',full_smith_sources,
-            cpp_args:cpp_args,
-            link_args : ldflags,
-            include_directories : inc,
-            dependencies : [third_party_dep])
+            cpp_args: cpp_args,
+            link_args: ldflags,
+            include_directories: inc,
+            dependencies: [third_party_dep])
