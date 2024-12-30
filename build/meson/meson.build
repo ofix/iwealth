@@ -59,10 +59,10 @@ cc = meson.get_compiler('cpp')
 if x86_64_platform and not(windows_os)
 third_party_dep = declare_dependency(
       dependencies : [
-        cc.find_library('crypto', dirs: third_party_lib), 
+        cc.find_library('crypto', dirs: third_party_lib),
         cc.find_library('ssl', dirs: third_party_lib),
-        cc.find_library('curl', dirs: third_party_lib)
-        cc.find_library('wxsvg', static:true, dirs: join_paths(meson.source_root(),
+        cc.find_library('curl', dirs: third_party_lib),
+        cc.find_library('wxsvg', dirs: join_paths(meson.source_root(),
             meson.current_source_dir(), '../../lib/wxsvg/x86_64_linux'))
       ],
       include_directories: [
@@ -73,12 +73,15 @@ third_party_dep = declare_dependency(
 else
 third_party_dep = declare_dependency(
       dependencies : [
-        # cc.find_library('crypto', dirs: third_party_lib), 
+        # cc.find_library('crypto', dirs: third_party_lib),
         # cc.find_library('ssl', dirs: third_party_lib),
-        cc.find_library('curl', dirs: third_party_lib)
+        cc.find_library('curl', dirs: third_party_lib),
+        cc.find_library('wxsvg', dirs: join_paths(meson.source_root(),
+            meson.current_source_dir(), '../../lib/wxsvg/aarch64_linux'))
       ],
       include_directories: [
-        include_directories('../../lib/curl/include')
+        include_directories('../../lib/curl/include'),
+        include_directories('../../lib/wxsvg/include')
       ],
     )
 endif
@@ -122,8 +125,10 @@ if x86_64_platform
         ldflags = [
             #'-z,relro,now,',
             '-LE:/work/iwealth/lib/wxWidgets/3.2.4/mingw_x64_windows',
+            '-L/home/ofix/work/iwealth/lib/wxsvg/x86_64_windows',
             '-pthread',
             '-Wl,-rpath,E:/work/iwealth/lib/wxWidgets/3.2.4/mingw_x64_windows',
+            '-lwxsvg',
             '-lwxmsw32u_xrc',
             '-lwxmsw32u_html',
             '-lwxmsw32u_core',
@@ -134,8 +139,10 @@ if x86_64_platform
     else
         ldflags = [
             '-L/home/ofix/work/iwealth/lib/wxWidgets/3.2.4/x86_64_linux',
+            '-L/home/ofix/work/iwealth/lib/wxsvg/x86_64_linux',
             '-pthread',
             '-Wl,-rpath,/home/ofix/work/iwealth/lib/wxWidgets/3.2.4/x86_64_linux',
+            '-lwxsvg',
             '-lwx_gtk3u_xrc-3.2',
             '-lwx_gtk3u_html-3.2',
             '-lwx_gtk3u_qa-3.2',
@@ -147,8 +154,10 @@ if x86_64_platform
 else
     ldflags = [
       '-L/home/greatwall/work/iwealth/lib/wxWidgets/3.2.4/aarch64_linux',
+      '-L/home/greatwall/work/iwealth/lib/wxsvg/aarch64_linux',
       '-pthread',
       '-Wl,-rpath,/home/greatwall/work/iwealth/lib/wxWidgets/3.2.4/aarch64_linux',
+      '-lwxsvg',
       '-lwx_gtk3u_xrc-3.2',
       '-lwx_gtk3u_html-3.2',
       '-lwx_gtk3u_qa-3.2',
@@ -161,6 +170,7 @@ endif
 gui_sources = [
     'ui/RichApplication.cpp',
     'ui/RichMainFrame.cpp',
+    'ui/RichPanelTest.cpp',
     'ui/RichPanelStockQuote.cpp',
     'ui/RichPanelKline.cpp',
     'ui/RichPanelFavoriteShare.cpp',

@@ -39,6 +39,8 @@ class RichMainFrame : public wxFrame {
     void OnIconize(wxIconizeEvent& event);
     void OnMaximize(wxMaximizeEvent& event);
     void OnSize(wxSizeEvent& event);
+    void CreatePanelKline();
+    void CreatePanelTest();
 
     void OnChar(wxKeyEvent& event);
     void OnKeyDown(wxKeyEvent& event);

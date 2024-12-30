@@ -169,3 +169,16 @@ void ConcurrentRequest::_CurlClose(conn_t* conn) {
 - delete conn;
 }
 ```
+
+### Linux ARM64 编译wxSVG
+```shell
+# 添加 wx-config 工具到 PATH 路径
+touch /etc/profile.d/wxWidgets.sh
+vm /etc/profile.d/wxWidgets.sh
+export PATH=$PATH:/home/greatwall/misc/wxWidgets/wxWidgets-3.2.4/linux_aarm64_build/
+
+./configure --prefix=/home/greatwall/cpp_libs/libraries/wxsvg_1.5.25
+# 上面configure命令有可能缺少ffmpeg依赖，请按要求安装
+make -j 8
+make install
+```

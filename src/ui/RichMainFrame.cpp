@@ -17,6 +17,7 @@
 #include <vector>
 #include "stock/StockDataStorage.h"
 #include "ui/RichHelper.h"
+#include "ui/RichPanelTest.h"
 #include "ui/components/RichPngKline.h"
 #include "util/Global.h"
 
@@ -63,7 +64,10 @@ RichMainFrame::RichMainFrame(wxWindow* parent, wxWindowID id, const wxPoint& pos
         //     wxArtProvider::GetBitmap(wxART_MAKE_ART_ID_FROM_STR(_T("wxART_QUESTION")), wxART_FRAME_ICON));
         // SetIcon(FrameIcon);
     }
+    CreatePanelKline();
+}
 
+void RichMainFrame::CreatePanelKline() {
     m_panelStack = {};
     m_panelCurrent = nullptr;
     m_panelPos = -1;
@@ -118,6 +122,10 @@ RichMainFrame::RichMainFrame(wxWindow* parent, wxWindowID id, const wxPoint& pos
     SetSizer(verticalSizer);
     Layout();
     Maximize(true);  // 主窗口最大化
+}
+
+void RichMainFrame::CreatePanelTest() {
+    RichPanelTest* panelTest = new RichPanelTest(this, wxNewId(), wxPoint(0, 32), wxSize(1240, 600));
 }
 
 // bool RichMainFrame::CanDragFrame(wxPoint& ptMouse) {
