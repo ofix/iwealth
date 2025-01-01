@@ -191,5 +191,7 @@ make install
 3. pacman -S pkg-config
 4. pacman -S mingw-w64-x86_64-cairo
 5. pacman -S autoconf
-6. ./configure --prefix="/d/work_c++/_libs/wxsvg-1.5.15"
+6. pacman -S mingw-w64-ucrt-x86_64-gtk4
+7. pacman -S mingw-w64-ucrt-x86_64-toolchain base-devel
+8. ./configure --prefix="/d/work_c++/_libs/wxsvg-1.5.15"
 ```
