@@ -182,3 +182,14 @@ export PATH=$PATH:/home/greatwall/misc/wxWidgets/wxWidgets-3.2.4/linux_aarm64_bu
 make -j 8
 make install
 ```
+
+### windows11 X64 编译wxSVG
+```shell
+# 先安装 msys2 工具链（cygwin64升级版），支持 `pacman -S 软件包名` 安装软件; `pacman -Ss 软件包名` 搜索软件`
+1. 打开命令行工具 MSYS2 MINGW64
+2. pacman -S gcc
+3. pacman -S pkg-config
+4. pacman -S mingw-w64-x86_64-cairo
+5. pacman -S autoconf
+6. ./configure --prefix="/d/work_c++/_libs/wxsvg-1.5.15"
+```
