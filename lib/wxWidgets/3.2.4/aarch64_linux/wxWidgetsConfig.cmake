@@ -89,7 +89,7 @@ set(wxWidgets_LIBRARIES)
 
 # list all available components
 set(wxWidgets_COMPONENTS)
-foreach(libname wxbase;wxnet;wxcore;wxadv;wxaui;wxhtml;wxpropgrid;wxribbon;wxrichtext;wxwebview;wxstc;wxxrc;wxgl;wxqa;wxxml)
+foreach(libname wxbase;wxnet;wxcore;wxadv;wxaui;wxhtml;wxpropgrid;wxribbon;wxrichtext;wxstc;wxxrc;wxgl;wxqa;wxxml)
     if(TARGET wx::${libname})
         # remove wx prefix from component name
         string(SUBSTRING ${libname} 2 -1 name)

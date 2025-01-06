@@ -195,3 +195,11 @@ make install
 7. pacman -S mingw-w64-ucrt-x86_64-toolchain base-devel
 8. ./configure --prefix="/d/work_c++/_libs/wxsvg-1.5.15"
 ```
+
+### 软链接拷贝问题
+>rsync命令也可以用于复制文件和目录，并且在复制软链接时可以很好地保持软链接关系。例如:
+
+```shell
+rsync -a --links source destination
+rsync -a --links ~/misc/wxWidgets/wxWidgets-3.2.4/linux_aarm64_build/lib ~/work/iwealth/lib/wxWidgets/3.2.4/aarch64_linux
+```

@@ -79,7 +79,7 @@ usage()
   of  libs that should be linked to, but only if they are available.
 
   Available libraries in this build are:
-  xrc webview stc richtext ribbon propgrid aui gl html qa adv core xml net base
+  xrc stc richtext ribbon propgrid aui gl html qa adv core xml net base
 
 EOF
 
@@ -1025,12 +1025,12 @@ ldflags_gl=""
 
 ldlibs_base="/usr/lib/aarch64-linux-gnu/libz.so /usr/lib/aarch64-linux-gnu/libpcre2-32.so /usr/lib/aarch64-linux-gnu/libc.so -lpthread -ldl"
 ldlibs_core="-lgtk-3 -lgdk-3 -lpangocairo-1.0 -lpango-1.0 -lharfbuzz -latk-1.0 -lcairo-gobject -lcairo -lgdk_pixbuf-2.0 -lgio-2.0 -lgobject-2.0 -lglib-2.0 /usr/lib/aarch64-linux-gnu/libSM.so /usr/lib/aarch64-linux-gnu/libICE.so /usr/lib/aarch64-linux-gnu/libX11.so /usr/lib/aarch64-linux-gnu/libXext.so /usr/lib/aarch64-linux-gnu/libXtst.so /usr/lib/aarch64-linux-gnu/libxkbcommon.so -lwx_baseu-3.2 /usr/lib/aarch64-linux-gnu/libjpeg.so /usr/lib/aarch64-linux-gnu/libpng.so /usr/lib/aarch64-linux-gnu/libz.so /usr/lib/aarch64-linux-gnu/libtiff.so "
-ldlibs_gl="-lgtk-3 -lgdk-3 -lpangocairo-1.0 -lpango-1.0 -lharfbuzz -latk-1.0 -lcairo-gobject -lcairo -lgdk_pixbuf-2.0 -lgio-2.0 -lgobject-2.0 -lglib-2.0 /usr/lib/aarch64-linux-gnu/libSM.so /usr/lib/aarch64-linux-gnu/libICE.so /usr/lib/aarch64-linux-gnu/libX11.so /usr/lib/aarch64-linux-gnu/libXext.so /usr/lib/aarch64-linux-gnu/libXtst.so /usr/lib/aarch64-linux-gnu/libxkbcommon.so -lwx_baseu-3.2 -lwx_gtk3u_core-3.2 /usr/lib/aarch64-linux-gnu/libOpenGL.so /usr/lib/aarch64-linux-gnu/libGLX.so -lwayland-egl -lwayland-client"
+ldlibs_gl="-lgtk-3 -lgdk-3 -lpangocairo-1.0 -lpango-1.0 -lharfbuzz -latk-1.0 -lcairo-gobject -lcairo -lgdk_pixbuf-2.0 -lgio-2.0 -lgobject-2.0 -lglib-2.0 /usr/lib/aarch64-linux-gnu/libSM.so /usr/lib/aarch64-linux-gnu/libICE.so /usr/lib/aarch64-linux-gnu/libX11.so /usr/lib/aarch64-linux-gnu/libXext.so /usr/lib/aarch64-linux-gnu/libXtst.so /usr/lib/aarch64-linux-gnu/libxkbcommon.so -lwx_baseu-3.2 -lwx_gtk3u_core-3.2 /usr/lib/aarch64-linux-gnu/libOpenGL.so /usr/lib/aarch64-linux-gnu/libGLX.so /usr/lib/aarch64-linux-gnu/libGLU.so -lwayland-egl -lwayland-client"
 ldlibs_html="-lgtk-3 -lgdk-3 -lpangocairo-1.0 -lpango-1.0 -lharfbuzz -latk-1.0 -lcairo-gobject -lcairo -lgdk_pixbuf-2.0 -lgio-2.0 -lgobject-2.0 -lglib-2.0 /usr/lib/aarch64-linux-gnu/libSM.so /usr/lib/aarch64-linux-gnu/libICE.so /usr/lib/aarch64-linux-gnu/libX11.so /usr/lib/aarch64-linux-gnu/libXext.so /usr/lib/aarch64-linux-gnu/libXtst.so /usr/lib/aarch64-linux-gnu/libxkbcommon.so -lwx_baseu-3.2 -lwx_gtk3u_core-3.2"
 ldlibs_media=""
 ldlibs_xml="-lwx_baseu-3.2 /usr/lib/aarch64-linux-gnu/libexpat.so"
 ldlibs_stc="-lgtk-3 -lgdk-3 -lpangocairo-1.0 -lpango-1.0 -lharfbuzz -latk-1.0 -lcairo-gobject -lcairo -lgdk_pixbuf-2.0 -lgio-2.0 -lgobject-2.0 -lglib-2.0 /usr/lib/aarch64-linux-gnu/libSM.so /usr/lib/aarch64-linux-gnu/libICE.so /usr/lib/aarch64-linux-gnu/libX11.so /usr/lib/aarch64-linux-gnu/libXext.so /usr/lib/aarch64-linux-gnu/libXtst.so /usr/lib/aarch64-linux-gnu/libxkbcommon.so -lwx_baseu-3.2 -lwx_gtk3u_core-3.2 -lwxscintilla-3.2"
-ldlibs_webview="-lgtk-3 -lgdk-3 -lpangocairo-1.0 -lpango-1.0 -lharfbuzz -latk-1.0 -lcairo-gobject -lcairo -lgdk_pixbuf-2.0 -lgio-2.0 -lgobject-2.0 -lglib-2.0 /usr/lib/aarch64-linux-gnu/libSM.so /usr/lib/aarch64-linux-gnu/libICE.so /usr/lib/aarch64-linux-gnu/libX11.so /usr/lib/aarch64-linux-gnu/libXext.so /usr/lib/aarch64-linux-gnu/libXtst.so /usr/lib/aarch64-linux-gnu/libxkbcommon.so -lwx_baseu-3.2 -lwx_gtk3u_core-3.2 /usr/lib/aarch64-linux-gnu/libsoup-2.4.so /usr/lib/aarch64-linux-gnu/libwebkit2gtk-4.0.so /usr/lib/aarch64-linux-gnu/libjavascriptcoregtk-4.0.so"
+ldlibs_webview=""
 
 
 # Order the libraries passed to us correctly for static linking.
@@ -1185,7 +1185,7 @@ wx_optional_libs=`echo "$optional_libs_parameters" | tr ',' ' '`
 
 # Add the --optional-libs, if they've been compiled and aren't already added
 for i in $wx_optional_libs; do
-    if match_field $i xrc webview stc richtext ribbon propgrid aui gl html qa adv core xml net base; then
+    if match_field $i xrc stc richtext ribbon propgrid aui gl html qa adv core xml net base; then
         if not match_field $i $wx_libs; then
             wx_libs="${wx_libs:+$wx_libs }$i"
         fi
@@ -1225,7 +1225,7 @@ else    # MONOLITHIC = 0
     if [ -n "$output_option_libs" ] && [ -z "$libs_parameters" ]; then
         wx_libs="xrc html qa adv core xml net base"
     elif match_field all $wx_libs; then
-        wx_libs="xrc webview stc richtext ribbon propgrid aui gl html qa adv core xml net base"
+        wx_libs="xrc stc richtext ribbon propgrid aui gl html qa adv core xml net base"
     elif match_field std $wx_libs; then
         # Bubble any libs that were already specified to the end
         # of the list and ensure static linking order is retained.
