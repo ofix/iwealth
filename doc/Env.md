@@ -203,3 +203,13 @@ make install
 rsync -a --links source destination
 rsync -a --links ~/misc/wxWidgets/wxWidgets-3.2.4/linux_aarm64_build/lib ~/work/iwealth/lib/wxWidgets/3.2.4/aarch64_linux
 ```
+
+### windows下 cmake 使用mingw工具链进行编译
+如果遇到错误 `Cmake error  Does not match the generator used previously: Visual Studio 17 2022`, 请删除cmake编译目录 build/cmake
+```shell
+cmake -G "MinGW Makefiles" -DCMAKE_TOOLCHAIN_FILE=msys64.cmake -S . -B build/cmake
+```
+如果还是gcc工具检查失败，重新安装 cmake
+```shell
+pacman -S cmake
+```

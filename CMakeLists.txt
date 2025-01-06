@@ -1,44 +1,3 @@
-# CMAKE 最低版本号
-cmake_minimum_required(VERSION 3.15)
-
-# 项目名称
-project(iwealth)
-
-# 开启 CMAKE 调试模式
-set(CMAKE_VERBOSE_MAKEFILE ON)
-# 指定标准库版本
-set(CMAKE_CXX_STANDARD 11)
-# 自定义第三方库目录
-set(LIB_DIR ${CMAKE_CURRENT_SOURCE_DIR}/lib)
-# 源代码根目录
-set(SRC_DIR ${PROJECT_SOURCE_DIR}/src)
-# 
-set(PLATFORM ${CMAKE_HOST_SYSTEM_PROCESSOR})
-# 依赖的动态库
-if("${CMAKE_SYSTEM_NAME}" STREQUAL "Windows")
-    set(SHARE_LIBRARIES
-        wxsvg
-        wxmsw32u_xrc
-        wxmsw32u_html
-        wxmsw32u_core
-        wxbase32u_xml
-        wxbase32u_net
-        wxbase32u)
-elseif("${CMAKE_SYSTEM_NAME}" STREQUAL "Linux")
-    set(SHARE_LIBRARIES
-        wxsvg
-        wx_gtk3u_xrc-3.2
-        wx_gtk3u_html-3.2
-        wx_gtk3u_qa-3.2
-        wx_gtk3u_core-3.2
-        wx_baseu_xml-3.2
-        wx_baseu_net-3.2
-        wx_baseu-3.2)
-endif()
-
-# 可执行文件输出目录
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY $(CMAKE_BINARY_DIR))
-
 # @todo 查找动态库列表文件原始路径
 # @param LIB_NAMES 动态库名字列表
 # @param LIB_SEARCH_DIR 库目录
@@ -51,43 +10,31 @@ function(get_custom_libraries LIB_NAMES LIB_SEARCH_DIR LIB_FILE_PATHS LIB_LINK_D
     if("${CMAKE_SYSTEM_NAME}" STREQUAL "Linux")
         # 递归查找所有 .so 文件
         file(GLOB_RECURSE LIB_FILES "${LIB_SEARCH_DIR}/*.so")
-        # 遍历库名字列表
-        foreach(LIB_NAME IN LISTS LIB_NAMES)
-            # 遍历文件列表
-            foreach(LIB_FILE IN LISTS LIB_FILES)
-                get_filename_component(LIB_FILE_NAME ${LIB_FILE} NAME)  # 获取带后缀的文件名
-                if(${LIB_FILE_NAME} STREQUAL "lib${LIB_NAME}.so")
-                    get_filename_component(LIB_DIR_NAME ${LIB_FILE} DIRECTORY) # 获取目录路径
-                    list(APPEND LIBRARY_DIRS ${LIB_DIR_NAME})
-                    list(APPEND LIBRARY_PATHS ${LIB_FILE})
-                    break()
-                endif()
-            endforeach()
-        endforeach()
     elseif("${CMAKE_SYSTEM_NAME}" STREQUAL "Windows")
-        # 递归查找所有 .so 文件
+        # 递归查找所有 .dll 文件
         file(GLOB_RECURSE LIB_FILES "${LIB_SEARCH_DIR}/*.dll")
-        # 遍历库名字列表
-        foreach(LIB_NAME IN LISTS LIB_NAMES)
-            # 遍历文件列表
-            foreach(LIB_FILE IN LISTS LIB_FILES)
-                get_filename_component(LIB_FILE_NAME ${LIB_FILE} NAME)  # 获取带后缀的文件名
-                if(${LIB_FILE_NAME} STREQUAL "lib${LIB_NAME}.dll")
-                    get_filename_component(LIB_DIR_NAME ${LIB_FILE} DIRECTORY) # 获取目录路径
-                    list(APPEND LIBRARY_DIRS ${LIB_DIR_NAME})
-                    list(APPEND LIBRARY_PATHS ${LIB_FILE})
-                    break()
-                endif()
-            endforeach()
-        endforeach()
     endif()
+
+    # 遍历库名字列表
+    foreach(LIB_NAME IN LISTS LIB_NAMES)
+        # 遍历文件列表
+        foreach(LIB_FILE IN LISTS LIB_FILES)
+            get_filename_component(LIB_FILE_NAME ${LIB_FILE} NAME)  # 获取带后缀的文件名
+            if(${LIB_FILE_NAME} MATCHES "${LIB_NAME}")
+                get_filename_component(LIB_DIR_NAME ${LIB_FILE} DIRECTORY) # 获取目录路径
+                list(APPEND LIBRARY_DIRS ${LIB_DIR_NAME})
+                list(APPEND LIBRARY_PATHS ${LIB_FILE})
+                break()
+            endif()
+        endforeach()
+    endforeach()
+
     # 去除重复的目录
     list(REMOVE_DUPLICATES LIBRARY_DIRS)
     # 将结果传递到父作用域
     set(${LIB_FILE_PATHS} ${LIBRARY_PATHS} PARENT_SCOPE)
     set(${LIB_LINK_DIRS} ${LIBRARY_DIRS} PARENT_SCOPE)
 endfunction()
-
 
 # @todo 安装自定义库到指定目录
 # @param FILE_PATHS 第三方库文件路径
@@ -122,6 +69,49 @@ function(list_remove LIST KEYWORD)
     set(${LIST} ${NEW_LIST} PARENT_SCOPE)
 endfunction()
 
+##################################################################################################
+# CMAKE 最低版本号
+cmake_minimum_required(VERSION 3.25)
+
+# 项目名称
+project(iwealth)
+
+# 开启 CMAKE 调试模式
+set(CMAKE_VERBOSE_MAKEFILE ON)
+# 指定标准库版本
+set(CMAKE_CXX_STANDARD 11)
+# 自定义第三方库目录
+set(LIB_DIR ${CMAKE_CURRENT_SOURCE_DIR}/lib)
+# 源代码根目录
+set(SRC_DIR ${PROJECT_SOURCE_DIR}/src)
+# 设置平台
+set(PLATFORM ${CMAKE_HOST_SYSTEM_PROCESSOR})
+# 可执行文件输出目录
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY $(CMAKE_BINARY_DIR))
+
+# 依赖的动态库
+if("${CMAKE_SYSTEM_NAME}" STREQUAL "Windows")
+    set(SHARE_LIBRARIES
+        wxsvg
+        wxmsw32u_xrc
+        wxmsw32u_html
+        wxmsw32u_core
+        wxbase32u_xml
+        wxbase32u_net
+        wxbase32u)
+    message("SET Window C++ Compiler")
+elseif("${CMAKE_SYSTEM_NAME}" STREQUAL "Linux")
+    set(SHARE_LIBRARIES
+        wxsvg
+        wx_gtk3u_xrc-3.2
+        wx_gtk3u_html-3.2
+        wx_gtk3u_qa-3.2
+        wx_gtk3u_core-3.2
+        wx_baseu_xml-3.2
+        wx_baseu_net-3.2
+        wx_baseu-3.2)
+endif()
+
 get_custom_libraries("${SHARE_LIBRARIES}" "${LIB_DIR}" CUSTOM_LIB_FILES CUSTOM_LINK_DIRS)
 
 include_directories(
@@ -148,7 +138,6 @@ include_directories(
 # 源代码，方式二
 file(GLOB_RECURSE SRC_LIST ${SRC_DIR}/*.cpp)
 list_remove(SRC_LIST "console")
-
 # 生成可执行文件
 add_executable(iwealth ${SRC_LIST})
 
@@ -171,4 +160,4 @@ set(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
 set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 
 # 安装依赖的第三方动态库到指定的安装目录
-install_files(${CUSTOM_LIB_FILES} "libs")
+install_files("${CUSTOM_LIB_FILES}" "libs")
