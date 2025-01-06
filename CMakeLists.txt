@@ -12,16 +12,30 @@ set(CMAKE_CXX_STANDARD 11)
 set(LIB_DIR ${CMAKE_CURRENT_SOURCE_DIR}/lib)
 # 源代码根目录
 set(SRC_DIR ${PROJECT_SOURCE_DIR}/src)
+# 
+set(PLATFORM ${CMAKE_HOST_SYSTEM_PROCESSOR})
 # 依赖的动态库
-set(SHARE_LIBRARIES
-    wxsvg
-    wx_gtk3u_xrc-3.2
-    wx_gtk3u_html-3.2
-    wx_gtk3u_qa-3.2
-    wx_gtk3u_core-3.2
-    wx_baseu_xml-3.2
-    wx_baseu_net-3.2
-    wx_baseu-3.2)
+if("${CMAKE_SYSTEM_NAME}" STREQUAL "Windows")
+    set(SHARE_LIBRARIES
+        wxsvg
+        wxmsw32u_xrc
+        wxmsw32u_html
+        wxmsw32u_core
+        wxbase32u_xml
+        wxbase32u_net
+        wxbase32u)
+elseif("${CMAKE_SYSTEM_NAME}" STREQUAL "Linux")
+    set(SHARE_LIBRARIES
+        wxsvg
+        wx_gtk3u_xrc-3.2
+        wx_gtk3u_html-3.2
+        wx_gtk3u_qa-3.2
+        wx_gtk3u_core-3.2
+        wx_baseu_xml-3.2
+        wx_baseu_net-3.2
+        wx_baseu-3.2)
+endif()
+
 # 可执行文件输出目录
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY $(CMAKE_BINARY_DIR))
 
@@ -51,7 +65,21 @@ function(get_custom_libraries LIB_NAMES LIB_SEARCH_DIR LIB_FILE_PATHS LIB_LINK_D
             endforeach()
         endforeach()
     elseif("${CMAKE_SYSTEM_NAME}" STREQUAL "Windows")
-
+        # 递归查找所有 .so 文件
+        file(GLOB_RECURSE LIB_FILES "${LIB_SEARCH_DIR}/*.dll")
+        # 遍历库名字列表
+        foreach(LIB_NAME IN LISTS LIB_NAMES)
+            # 遍历文件列表
+            foreach(LIB_FILE IN LISTS LIB_FILES)
+                get_filename_component(LIB_FILE_NAME ${LIB_FILE} NAME)  # 获取带后缀的文件名
+                if(${LIB_FILE_NAME} STREQUAL "lib${LIB_NAME}.dll")
+                    get_filename_component(LIB_DIR_NAME ${LIB_FILE} DIRECTORY) # 获取目录路径
+                    list(APPEND LIBRARY_DIRS ${LIB_DIR_NAME})
+                    list(APPEND LIBRARY_PATHS ${LIB_FILE})
+                    break()
+                endif()
+            endforeach()
+        endforeach()
     endif()
     # 去除重复的目录
     list(REMOVE_DUPLICATES LIBRARY_DIRS)
@@ -77,9 +105,25 @@ function(install_files FILE_PATHS DEST_DIR)
     endforeach()
 endfunction()
 
+# 定义一个函数来移除包含指定关键词的项
+function(list_remove LIST KEYWORD)
+    # 创建一个新的列表来存储不包含关键词的项
+    set(NEW_LIST "")
+
+    # 遍历原始列表
+    foreach(ITEM IN LISTS ${LIST})
+        # 检查当前项是否包含关键词
+        if(NOT ITEM MATCHES "${KEYWORD}")
+            # 如果不包含关键词，则将其添加到新列表中
+            list(APPEND NEW_LIST ${ITEM})
+        endif()
+    endforeach()
+    # 将新列表赋值回原始列表变量
+    set(${LIST} ${NEW_LIST} PARENT_SCOPE)
+endfunction()
+
 get_custom_libraries("${SHARE_LIBRARIES}" "${LIB_DIR}" CUSTOM_LIB_FILES CUSTOM_LINK_DIRS)
 
-# 编译头文件搜索目录
 include_directories(
         ${SRC_DIR}
         ${LIB_DIR}/curl/include
@@ -90,19 +134,20 @@ include_directories(
 
 # 源代码，方式一
 # aux_source_directory(${SRC_DIR}/console SRC_CONSOLE)
-aux_source_directory(${SRC_DIR}/formula SRC_FORMULA)
-aux_source_directory(${SRC_DIR}/net SRC_NET)
-aux_source_directory(${SRC_DIR}/search SRC_SEARCH)
-aux_source_directory(${SRC_DIR}/spider SRC_SPIDER)
-aux_source_directory(${SRC_DIR}/stock SRC_STOCK)
-aux_source_directory(${SRC_DIR}/ui SRC_UI)
-aux_source_directory(${SRC_DIR}/util SRC_UTIL)
-set(SRC_LIST ${SRC_CONSOLE} ${SRC_FORMULA} ${SRC_NET} ${SRC_SEARCH} ${SRC_SPIDER} ${SRC_STOCK} ${SRC_UI} ${SRC_UTIL})
+# aux_source_directory(${SRC_DIR}/formula SRC_FORMULA)
+# aux_source_directory(${SRC_DIR}/net SRC_NET)
+# aux_source_directory(${SRC_DIR}/search SRC_SEARCH)
+# aux_source_directory(${SRC_DIR}/spider SRC_SPIDER)
+# aux_source_directory(${SRC_DIR}/stock SRC_STOCK)
+# aux_source_directory(${SRC_DIR}/ui SRC_UI)
+# aux_source_directory(${SRC_DIR}/util SRC_UTIL)
+# set(SRC_LIST ${SRC_CONSOLE} ${SRC_FORMULA} ${SRC_NET} ${SRC_SEARCH} ${SRC_SPIDER} ${SRC_STOCK} ${SRC_UI} ${SRC_UTIL})
 
 # message(status "Sources 1= ${SRC_LIST}")
 
 # 源代码，方式二
 file(GLOB_RECURSE SRC_LIST ${SRC_DIR}/*.cpp)
+list_remove(SRC_LIST "console")
 
 # 生成可执行文件
 add_executable(iwealth ${SRC_LIST})
