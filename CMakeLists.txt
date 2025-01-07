@@ -36,16 +36,23 @@ function(get_custom_libraries LIB_NAMES LIB_SEARCH_DIR LIB_FILE_PATHS LIB_LINK_D
     set(${LIB_LINK_DIRS} ${LIBRARY_DIRS} PARENT_SCOPE)
 endfunction()
 
-# @todo 安装自定义库到指定目录
+# @todo 拷贝文件列表到指定目录
 # @param FILE_PATHS 第三方库文件路径
 # @param DEST_DIR 目录子目录
-function(install_files TARGET FILE_PATHS DEST_DIR)
+function(copy_files TARGET FILE_PATHS DEST_DIR)
     # 创建目标目录
     file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/${DEST_DIR})
     # 添加自定义命令来拷贝库文件
     foreach(FILE_PATH ${FILE_PATHS})
         file(COPY ${FILE_PATH} DESTINATION ${CMAKE_BINARY_DIR}/${DEST_DIR} FOLLOW_SYMLINK_CHAIN)
     endforeach()
+endfunction()
+
+# @todo cmake安装到指定文件目录
+# @param SRC_PATH 原始路径
+# @param DST_PATH 目标路径
+function(create_symlink SRC_PATH DST_PATH)
+    install(CODE "execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink ${SRC_PATH} ${DST_PATH})")
 endfunction()
 
 # 定义一个函数来移除包含指定关键词的项
@@ -72,11 +79,13 @@ function(custom_link_directories TARGET LIB_DIRS)
 endfunction()
 
 ##################################################################################################
+
+
 # CMAKE 最低版本号
 cmake_minimum_required(VERSION 3.15)
 
 # 项目名称
-project(iwealth)
+project(iwealth VERSION 0.5)
 
 # 开启 CMAKE 调试模式
 set(CMAKE_VERBOSE_MAKEFILE ON)
@@ -88,6 +97,14 @@ set(LIB_DIR ${CMAKE_CURRENT_SOURCE_DIR}/lib)
 set(SRC_DIR ${PROJECT_SOURCE_DIR}/src)
 # 设置平台
 set(PLATFORM ${CMAKE_HOST_SYSTEM_PROCESSOR})
+# 设置 动态库运行时搜索路径 RPATH
+set(CMAKE_INSTALL_RPATH "$ORIGIN/libs") # $ORIGIN 表示可执行文件所在目录
+# 等价于下面这条语句,注意 $ORIGIN 需要用单引号（'）括起来，以防止 Shell 解释它。
+# set_target_properties(iwealth PROPERTIES LINK_FLAGS "-Wl,-rpath,'$ORIGIN/libs'")
+set(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE) # 在构建时也使用 RPATH
+set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
+# 设置工程默认安装路径
+set(CMAKE_INSTALL_PREFIX "/opt/apps/iwealth")
 # 可执行文件输出目录
 #set(CMAKE_RUNTIME_OUTPUT_DIRECTORY $(CMAKE_BINARY_DIR))
 
@@ -144,12 +161,6 @@ include_directories(
 file(GLOB_RECURSE SRC_LIST ${SRC_DIR}/*.cpp)
 list_remove(SRC_LIST "console")
 
-# 设置 动态库运行时搜索路径 RPATH
-set(CMAKE_INSTALL_RPATH "$ORIGIN/libs") # $ORIGIN 表示可执行文件所在目录
-# 等价于下面这条语句,注意 $ORIGIN 需要用单引号（'）括起来，以防止 Shell 解释它。
-# set_target_properties(iwealth PROPERTIES LINK_FLAGS "-Wl,-rpath,'$ORIGIN/libs'")
-set(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE) # 在构建时也使用 RPATH
-set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 
 # 生成可执行文件
 add_executable(iwealth ${SRC_LIST})
@@ -166,7 +177,7 @@ target_compile_definitions(iwealth PUBLIC _FILE_OFFSET_BITS=64)
 custom_link_directories(iwealth "${CUSTOM_LINK_DIRS}")
 
 # 将依赖的 第三方动态库、文件和图片 拷贝到可执行文件所在的目录
-install_files(iwealth "${CUSTOM_LIB_FILES}" "libs")
+copy_files(iwealth "${CUSTOM_LIB_FILES}" "libs")
 file(COPY ${CMAKE_SOURCE_DIR}/src/assets DESTINATION ${CMAKE_BINARY_DIR} FOLLOW_SYMLINK_CHAIN)
 file(COPY ${CMAKE_SOURCE_DIR}/src/search/ChinesePinYin.dic DESTINATION ${CMAKE_BINARY_DIR} FOLLOW_SYMLINK_CHAIN)
 
@@ -181,3 +192,4 @@ install(TARGETS iwealth RUNTIME DESTINATION .)
 install(DIRECTORY ${CMAKE_BINARY_DIR}/libs DESTINATION .)
 install(DIRECTORY ${CMAKE_BINARY_DIR}/assets DESTINATION .)
 install(FILES ${CMAKE_BINARY_DIR}/ChinesePinYin.dic DESTINATION .)
+create_symlink(${CMAKE_INSTALL_PREFIX}/iwealth /usr/bin/iwealth)
