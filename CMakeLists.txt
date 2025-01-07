@@ -39,16 +39,12 @@ endfunction()
 # @todo 安装自定义库到指定目录
 # @param FILE_PATHS 第三方库文件路径
 # @param DEST_DIR 目录子目录
-function(install_files FILE_PATHS DEST_DIR)
+function(install_files TARGET FILE_PATHS DEST_DIR)
     # 创建目标目录
     file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/${DEST_DIR})
     # 添加自定义命令来拷贝库文件
     foreach(FILE_PATH ${FILE_PATHS})
-        add_custom_command(
-            TARGET iwealth POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E copy ${FILE_PATH} ${CMAKE_BINARY_DIR}/${DEST_DIR}
-            COMMENT "Copying ${FILE_PATH} to ${CMAKE_BINARY_DIR}/${DEST_DIR}"
-        )
+        file(COPY ${FILE_PATH} DESTINATION ${CMAKE_BINARY_DIR}/${DEST_DIR} FOLLOW_SYMLINK_CHAIN)
     endforeach()
 endfunction()
 
@@ -69,9 +65,15 @@ function(list_remove LIST KEYWORD)
     set(${LIST} ${NEW_LIST} PARENT_SCOPE)
 endfunction()
 
+function(custom_link_directories TARGET LIB_DIRS)
+    foreach(DIR ${LIB_DIRS})
+        target_link_directories(${TARGET} PRIVATE "${DIR}")
+    endforeach()
+endfunction()
+
 ##################################################################################################
 # CMAKE 最低版本号
-cmake_minimum_required(VERSION 3.25)
+cmake_minimum_required(VERSION 3.15)
 
 # 项目名称
 project(iwealth)
@@ -79,7 +81,7 @@ project(iwealth)
 # 开启 CMAKE 调试模式
 set(CMAKE_VERBOSE_MAKEFILE ON)
 # 指定标准库版本
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 14)
 # 自定义第三方库目录
 set(LIB_DIR ${CMAKE_CURRENT_SOURCE_DIR}/lib)
 # 源代码根目录
@@ -87,11 +89,12 @@ set(SRC_DIR ${PROJECT_SOURCE_DIR}/src)
 # 设置平台
 set(PLATFORM ${CMAKE_HOST_SYSTEM_PROCESSOR})
 # 可执行文件输出目录
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY $(CMAKE_BINARY_DIR))
+#set(CMAKE_RUNTIME_OUTPUT_DIRECTORY $(CMAKE_BINARY_DIR))
 
 # 依赖的动态库
 if("${CMAKE_SYSTEM_NAME}" STREQUAL "Windows")
     set(SHARE_LIBRARIES
+        curl
         wxsvg
         wxmsw32u_xrc
         wxmsw32u_html
@@ -102,6 +105,7 @@ if("${CMAKE_SYSTEM_NAME}" STREQUAL "Windows")
     message("SET Window C++ Compiler")
 elseif("${CMAKE_SYSTEM_NAME}" STREQUAL "Linux")
     set(SHARE_LIBRARIES
+        curl
         wxsvg
         wx_gtk3u_xrc-3.2
         wx_gtk3u_html-3.2
@@ -116,6 +120,7 @@ get_custom_libraries("${SHARE_LIBRARIES}" "${LIB_DIR}" CUSTOM_LIB_FILES CUSTOM_L
 
 include_directories(
         ${SRC_DIR}
+        ${LIB_DIR}
         ${LIB_DIR}/curl/include
         ${LIB_DIR}/wxsvg/include
         ${LIB_DIR}/wxWidgets/3.2.4/include
@@ -138,26 +143,34 @@ include_directories(
 # 源代码，方式二
 file(GLOB_RECURSE SRC_LIST ${SRC_DIR}/*.cpp)
 list_remove(SRC_LIST "console")
+
+# 设置 动态库运行时搜索路径 RPATH
+set(CMAKE_INSTALL_RPATH "$ORIGIN/libs") # $ORIGIN 表示可执行文件所在目录
+set(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE) # 在构建时也使用 RPATH
+set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
+
 # 生成可执行文件
 add_executable(iwealth ${SRC_LIST})
 
 # 预处理器定义
-target_compile_definitions(iwealth PRIVATE DIWEALTH)
+target_compile_definitions(iwealth PRIVATE IWEALTH)
 target_compile_definitions(iwealth PUBLIC WXUSINGDLL)
-target_compile_definitions(iwealth PUBLIC D__WXGTK3__)
-target_compile_definitions(iwealth PUBLIC D__WXGTK__)
-target_compile_definitions(iwealth PUBLIC D_FILE_OFFSET_BITS=64)
+target_compile_definitions(iwealth PUBLIC __WXGTK3__)
+target_compile_definitions(iwealth PUBLIC __WXGTK__)
+target_compile_definitions(iwealth PUBLIC _FILE_OFFSET_BITS=64)
+
+
+# 设置库搜索路径, 注意一定要带引号传递 CUSTOM_LINK_DIRS 列表参数
+custom_link_directories(iwealth "${CUSTOM_LINK_DIRS}")
+
+# 将依赖的第三方动态库拷贝到可执行文件所在的目录
+install_files(iwealth "${CUSTOM_LIB_FILES}" "libs")
+# 拷贝assets目录和拼音字典文件
+file(COPY ${CMAKE_SOURCE_DIR}/src/assets DESTINATION ${CMAKE_BINARY_DIR} FOLLOW_SYMLINK_CHAIN)
+file(COPY ${CMAKE_SOURCE_DIR}/src/search/ChinesePinYin.dic DESTINATION ${CMAKE_BINARY_DIR} FOLLOW_SYMLINK_CHAIN)
 
 # 链接动态库
-link_directories(${CUSTOM_LINK_DIRS})
+# set_target_properties(iwealth PROPERTIES LINK_FLAGS "-Wl,-rpath,./")
 #set_target_properties(myapp PROPERTIES LINK_FLAGS "-pthread")
 target_link_libraries(iwealth PRIVATE pthread)
 target_link_libraries(iwealth PRIVATE ${SHARE_LIBRARIES})
-
-# 设置 动态库运行时搜索路径 RPATH
-set(CMAKE_INSTALL_RPATH "$ORIGIN/../lib")
-set(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
-set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
-
-# 安装依赖的第三方动态库到指定的安装目录
-install_files("${CUSTOM_LIB_FILES}" "libs")

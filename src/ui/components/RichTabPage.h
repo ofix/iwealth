@@ -26,13 +26,11 @@ class RichTabPage : public wxPanel {
     virtual bool RemovePage(size_t nPage);  // Deletes the specified page, without deleting the associated window
     wxWindow* GetPage(size_t nPage) const;
     virtual int GetPageCount() const;
-    virtual int ChangeSelection(
-        size_t page);  // Changes the selection to the given page, returning the previous selection
     virtual bool InsertPage(size_t index,
                             wxWindow* page,
                             const wxString& text,
                             bool select = false,
-                            wxString& svgPath = "");
+                            const wxString& svgPath = wxT(""));
 
     wxString GetSelectPageTitle();
     void SetActivePageTitle(wxString& title);

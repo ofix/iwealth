@@ -35,3 +35,4 @@
 *.log
 
 build/meson/build
+build/cmake/*

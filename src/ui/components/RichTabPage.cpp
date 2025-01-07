@@ -22,10 +22,6 @@ RichTabPage::RichTabPage(wxWindow* parent,
 RichTabPage::~RichTabPage() {
 }
 
-int RichTabPage::GetRowCount() const {
-    return 0;
-}
-
 int RichTabPage::GetSelection() const {
     return m_selected;
 }
@@ -40,7 +36,7 @@ int RichTabPage::ChangeSelection(size_t page) {
     return m_selected;
 }
 
-bool RichTabPage::InsertPage(size_t index, wxWindow* page, const wxString& text, bool select) {
+bool RichTabPage::InsertPage(size_t index, wxWindow* page, const wxString& text, bool select, const wxString& svgPath) {
     return false;
 }
 
@@ -50,4 +46,28 @@ wxString RichTabPage::GetSelectPageTitle() {
 
 void RichTabPage::SetActivePageTitle(wxString& title) {
     m_tabTitles[m_selected] = title;
+}
+
+bool RichTabPage::DeleteAllPages() {
+    return false;
+}
+
+bool RichTabPage::DeletePage(size_t nPage) {
+    return false;
+}
+
+bool RichTabPage::RemovePage(size_t nPage) {
+    return false;
+}
+
+wxString RichTabPage::GetPageTitle(size_t nPage) const {
+    return wxT("");
+}
+
+bool RichTabPage::SetPageTitle(size_t nPage, const wxString& title) {
+    return false;
+}
+
+int RichTabPage::GetPageCount() const {
+    return false;
 }
