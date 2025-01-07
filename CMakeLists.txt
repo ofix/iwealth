@@ -146,6 +146,8 @@ list_remove(SRC_LIST "console")
 
 # 设置 动态库运行时搜索路径 RPATH
 set(CMAKE_INSTALL_RPATH "$ORIGIN/libs") # $ORIGIN 表示可执行文件所在目录
+# 等价于下面这条语句,注意 $ORIGIN 需要用单引号（'）括起来，以防止 Shell 解释它。
+# set_target_properties(iwealth PROPERTIES LINK_FLAGS "-Wl,-rpath,'$ORIGIN/libs'")
 set(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE) # 在构建时也使用 RPATH
 set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 
@@ -160,17 +162,22 @@ target_compile_definitions(iwealth PUBLIC __WXGTK__)
 target_compile_definitions(iwealth PUBLIC _FILE_OFFSET_BITS=64)
 
 
-# 设置库搜索路径, 注意一定要带引号传递 CUSTOM_LINK_DIRS 列表参数
+# 设置库搜索路径, 注意一定要带引号传递 CUSTOM_LINK_DIRS 列表参数，此路径和运行时动态库路径rpath可以不一样
 custom_link_directories(iwealth "${CUSTOM_LINK_DIRS}")
 
-# 将依赖的第三方动态库拷贝到可执行文件所在的目录
+# 将依赖的 第三方动态库、文件和图片 拷贝到可执行文件所在的目录
 install_files(iwealth "${CUSTOM_LIB_FILES}" "libs")
-# 拷贝assets目录和拼音字典文件
 file(COPY ${CMAKE_SOURCE_DIR}/src/assets DESTINATION ${CMAKE_BINARY_DIR} FOLLOW_SYMLINK_CHAIN)
 file(COPY ${CMAKE_SOURCE_DIR}/src/search/ChinesePinYin.dic DESTINATION ${CMAKE_BINARY_DIR} FOLLOW_SYMLINK_CHAIN)
 
 # 链接动态库
-# set_target_properties(iwealth PROPERTIES LINK_FLAGS "-Wl,-rpath,./")
-#set_target_properties(myapp PROPERTIES LINK_FLAGS "-pthread")
+# set_target_properties(iwealth PROPERTIES LINK_FLAGS "-pthread")
 target_link_libraries(iwealth PRIVATE pthread)
 target_link_libraries(iwealth PRIVATE ${SHARE_LIBRARIES})
+
+
+# 安装文件到指定目录中 (make install)
+install(TARGETS iwealth RUNTIME DESTINATION .)
+install(DIRECTORY ${CMAKE_BINARY_DIR}/libs DESTINATION .)
+install(DIRECTORY ${CMAKE_BINARY_DIR}/assets DESTINATION .)
+install(FILES ${CMAKE_BINARY_DIR}/ChinesePinYin.dic DESTINATION .)

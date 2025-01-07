@@ -33,3 +33,9 @@ COMPILER_PATH=/usr/lib/gcc/aarch64-linux-gnu/9/:/usr/lib/gcc/aarch64-linux-gnu/9
 LIBRARY_PATH=/usr/lib/gcc/aarch64-linux-gnu/9/:/usr/lib/gcc/aarch64-linux-gnu/9/../../../aarch64-linux-gnu/:/usr/lib/gcc/aarch64-linux-gnu/9/../../../../lib/:/lib/aarch64-linux-gnu/:/lib/../lib/:/usr/lib/aarch64-linux-gnu/:/usr/lib/../lib/:/usr/lib/gcc/aarch64-linux-gnu/9/../../../:/lib/:/usr/lib/
 COLLECT_GCC_OPTIONS='-E' '-v' '-o' '/dev/null' '-mlittle-endian' '-mabi=lp64'
 ```
+
+## CMAKE 安装到指定路径,并保持依赖库路径可移植
+
+```
+cmake -B build/cmake -DCMAKE_INSTALL_PREFIX=~/iwealth_install
+```
