@@ -45,6 +45,7 @@ function(copy_files TARGET FILE_PATHS DEST_DIR)
     # 添加自定义命令来拷贝库文件
     foreach(FILE_PATH ${FILE_PATHS})
         file(COPY ${FILE_PATH} DESTINATION ${CMAKE_BINARY_DIR}/${DEST_DIR} FOLLOW_SYMLINK_CHAIN)
+        message("-- Copying file ${FILE_PATH} --> ${CMAKE_BINARY_DIR}/${DEST_DIR}")
     endforeach()
 endfunction()
 
@@ -144,26 +145,54 @@ include_directories(
         ${LIB_DIR}/wxWidgets/3.2.4/aarch64_linux/wx/include/gtk3-unicode-3.2
 )
 
-# 源代码，方式一
-# aux_source_directory(${SRC_DIR}/console SRC_CONSOLE)
-# aux_source_directory(${SRC_DIR}/formula SRC_FORMULA)
-# aux_source_directory(${SRC_DIR}/net SRC_NET)
-# aux_source_directory(${SRC_DIR}/search SRC_SEARCH)
-# aux_source_directory(${SRC_DIR}/spider SRC_SPIDER)
-# aux_source_directory(${SRC_DIR}/stock SRC_STOCK)
-# aux_source_directory(${SRC_DIR}/ui SRC_UI)
-# aux_source_directory(${SRC_DIR}/util SRC_UTIL)
-# set(SRC_LIST ${SRC_CONSOLE} ${SRC_FORMULA} ${SRC_NET} ${SRC_SEARCH} ${SRC_SPIDER} ${SRC_STOCK} ${SRC_UI} ${SRC_UTIL})
+# iWealth 源代码
+file(GLOB_RECURSE WEALTH_SRC_LIST ${SRC_DIR}/*.cpp)
+list_remove(WEALTH_SRC_LIST "console")
 
-# message(status "Sources 1= ${SRC_LIST}")
+# iConsole 源代码
+set(CONSOLE_SRC_LIST
+    ${SRC_DIR}/console/Test.cpp
+    ${SRC_DIR}/stock/Stock.cpp
+    ${SRC_DIR}/stock/StockDataStorage.cpp
+    ${SRC_DIR}/stock/StockShareKline.cpp
+    ${SRC_DIR}/spider/SpiderShareBriefInfo.cpp
+    ${SRC_DIR}/spider/SpiderConceptListEastMoney.cpp
+    ${SRC_DIR}/spider/SpiderShareQuote.cpp
+    ${SRC_DIR}/spider/SpiderShareKline.cpp
+    ${SRC_DIR}/spider/SpiderShareKlineProviderBaidu.cpp
+    ${SRC_DIR}/spider/SpiderShareKlineProviderEastMoney.cpp
+    ${SRC_DIR}/spider/SpiderShareKlineProvider.cpp
+    ${SRC_DIR}/spider/SpiderShareCategory.cpp
+    ${SRC_DIR}/spider/Spider.cpp
+    ${SRC_DIR}/stock/StockMonitorShare.cpp
+    ${SRC_DIR}/stock/UserFavoriteShare.cpp
+    ${SRC_DIR}/stock/Stock.cpp
+    ${SRC_DIR}/stock/ShareCategory.cpp
+    ${SRC_DIR}/net/Request.cpp
+    ${SRC_DIR}/net/ConcurrentRequest.cpp
+    ${SRC_DIR}/search/Trie.cpp
+    ${SRC_DIR}/search/ChinesePinYin.cpp
+    ${SRC_DIR}/ui/RichHelper.cpp
+    ${SRC_DIR}/util/Timer.cpp
+    ${SRC_DIR}/util/DateTime.cpp
+    ${SRC_DIR}/util/ConsoleTable.cpp
+    ${SRC_DIR}/util/EasyLogger.cpp
+    ${SRC_DIR}/util/FileTool.cpp
+    ${SRC_DIR}/util/Global.cpp
+    ${SRC_DIR}/util/RichResult.cpp
+    )
 
-# 源代码，方式二
-file(GLOB_RECURSE SRC_LIST ${SRC_DIR}/*.cpp)
-list_remove(SRC_LIST "console")
-
+# iSmith 源代码
+set(SMITH_SRC_LIST
+    ${SRC_DIR}/console/Smith.cpp
+    ${SRC_DIR}/util/FileTool.cpp
+    ${SRC_DIR}/util/Global.cpp
+)
 
 # 生成可执行文件
-add_executable(iwealth ${SRC_LIST})
+add_executable(iwealth ${WEALTH_SRC_LIST})
+add_executable(iconsole  ${CONSOLE_SRC_LIST})
+add_executable(ismith  ${SMITH_SRC_LIST})
 
 # 预处理器定义
 target_compile_definitions(iwealth PRIVATE IWEALTH)
@@ -172,9 +201,20 @@ target_compile_definitions(iwealth PUBLIC __WXGTK3__)
 target_compile_definitions(iwealth PUBLIC __WXGTK__)
 target_compile_definitions(iwealth PUBLIC _FILE_OFFSET_BITS=64)
 
+target_compile_definitions(iconsole PUBLIC WXUSINGDLL)
+target_compile_definitions(iconsole PUBLIC __WXGTK3__)
+target_compile_definitions(iconsole PUBLIC __WXGTK__)
+target_compile_definitions(iconsole PUBLIC _FILE_OFFSET_BITS=64)
+
+target_compile_definitions(ismith PUBLIC WXUSINGDLL)
+target_compile_definitions(ismith PUBLIC __WXGTK3__)
+target_compile_definitions(ismith PUBLIC __WXGTK__)
+target_compile_definitions(ismith PUBLIC _FILE_OFFSET_BITS=64)
 
 # 设置库搜索路径, 注意一定要带引号传递 CUSTOM_LINK_DIRS 列表参数，此路径和运行时动态库路径rpath可以不一样
 custom_link_directories(iwealth "${CUSTOM_LINK_DIRS}")
+custom_link_directories(iconsole "${CUSTOM_LINK_DIRS}")
+custom_link_directories(ismith "${CUSTOM_LINK_DIRS}")
 
 # 将依赖的 第三方动态库、文件和图片 拷贝到可执行文件所在的目录
 copy_files(iwealth "${CUSTOM_LIB_FILES}" "libs")
@@ -186,9 +226,14 @@ file(COPY ${CMAKE_SOURCE_DIR}/src/search/ChinesePinYin.dic DESTINATION ${CMAKE_B
 target_link_libraries(iwealth PRIVATE pthread)
 target_link_libraries(iwealth PRIVATE ${SHARE_LIBRARIES})
 
+target_link_libraries(iconsole PRIVATE pthread)
+target_link_libraries(iconsole PRIVATE ${SHARE_LIBRARIES})
+
+target_link_libraries(ismith PRIVATE pthread)
+target_link_libraries(ismith PRIVATE ${SHARE_LIBRARIES})
 
 # 安装文件到指定目录中 (make install)
-install(TARGETS iwealth
+install(TARGETS iwealth iconsole ismith
         RUNTIME DESTINATION .
         PERMISSIONS
         OWNER_READ OWNER_WRITE OWNER_EXECUTE  # 所有者权限：读、写、执行
@@ -199,6 +244,7 @@ install(DIRECTORY ${CMAKE_BINARY_DIR}/libs DESTINATION .)
 install(DIRECTORY ${CMAKE_BINARY_DIR}/assets DESTINATION .)
 install(FILES ${CMAKE_BINARY_DIR}/ChinesePinYin.dic DESTINATION .)
 create_symlink(${CMAKE_INSTALL_PREFIX}/iwealth /usr/bin/iwealth)
+create_symlink(${CMAKE_INSTALL_PREFIX}/iconsole /usr/bin/iconsole)
 # 修改安装目录写入权限，否者以普通用户运行程序，无法创建子目录 data
 install(
     CODE "execute_process(COMMAND chmod -R a+w ${CMAKE_INSTALL_PREFIX})"
