@@ -104,7 +104,7 @@ set(CMAKE_INSTALL_RPATH "$ORIGIN/libs") # $ORIGIN 表示可执行文件所在目
 set(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE) # 在构建时也使用 RPATH
 set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 # 设置工程默认安装路径
-set(CMAKE_INSTALL_PREFIX "/opt/apps/iwealth")
+set(CMAKE_INSTALL_PREFIX "/usr/local/iwealth")
 # 可执行文件输出目录
 #set(CMAKE_RUNTIME_OUTPUT_DIRECTORY $(CMAKE_BINARY_DIR))
 
@@ -188,8 +188,18 @@ target_link_libraries(iwealth PRIVATE ${SHARE_LIBRARIES})
 
 
 # 安装文件到指定目录中 (make install)
-install(TARGETS iwealth RUNTIME DESTINATION .)
+install(TARGETS iwealth
+        RUNTIME DESTINATION .
+        PERMISSIONS
+        OWNER_READ OWNER_WRITE OWNER_EXECUTE  # 所有者权限：读、写、执行
+        GROUP_READ GROUP_EXECUTE              # 组权限：读、执行
+        WORLD_READ WORLD_EXECUTE              # 其他用户权限：读、执行
+        )
 install(DIRECTORY ${CMAKE_BINARY_DIR}/libs DESTINATION .)
 install(DIRECTORY ${CMAKE_BINARY_DIR}/assets DESTINATION .)
 install(FILES ${CMAKE_BINARY_DIR}/ChinesePinYin.dic DESTINATION .)
 create_symlink(${CMAKE_INSTALL_PREFIX}/iwealth /usr/bin/iwealth)
+# 修改安装目录写入权限，否者以普通用户运行程序，无法创建子目录 data
+install(
+    CODE "execute_process(COMMAND chmod -R a+w ${CMAKE_INSTALL_PREFIX})"
+)
