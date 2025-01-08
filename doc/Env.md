@@ -193,10 +193,7 @@ make install
 5. pacman -S pkg-config
 6. pacman -S mingw-w64-x86_64-cairo
 7. pacman -S mingw-w64-x86_64-pango
-8. pacman -S autoconf
-9. pacman -S mingw-w64-ucrt-x86_64-gtk4
-10. pacman -S mingw-w64-ucrt-x86_64-toolchain base-devel
-11. ./configure --prefix="/d/work_c++/_libs/wxsvg-1.5.15"
+8. ./configure --prefix="/d/work_c++/_libs/wxsvg-1.5.15"
 ```
 
 ### 软链接拷贝问题
