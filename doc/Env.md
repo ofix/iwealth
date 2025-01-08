@@ -185,6 +185,9 @@ make install
 
 ### windows11 X64 编译wxSVG
 ```shell
+# 导出 wx-config 文件路径到 PATH 路径 (cmake 编译的产物)
+export PATH=/e/work/cpp_libs/wxWidgets-3.2.4/build_win:$PATH
+# 拷贝使用mingw-make 在 build/msw 目录下编译出来的 setup.h 文件(在wxWidgets源码lib子目录里面)到 wxWidgets源码 include/wx目录下
 # 先安装 msys2 工具链（cygwin64升级版），支持 `pacman -S 软件包名` 安装软件; `pacman -Ss 软件包名` 搜索软件`
 1. 打开命令行工具 MSYS2 MINGW64
 2. pacman -S autoconf automake libtool
@@ -193,6 +196,8 @@ make install
 5. pacman -S pkg-config
 6. pacman -S mingw-w64-x86_64-cairo
 7. pacman -S mingw-w64-x86_64-pango
+8. pacman -S mingw-w64-x86_64-ffmpeg
+9. pacman -S mingw-w64-x86_64-libexif
 8. ./configure --prefix="/d/work_c++/_libs/wxsvg-1.5.15"
 ```
 
