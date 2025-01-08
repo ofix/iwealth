@@ -11,6 +11,7 @@
 #include "RichMinuteVolumeIndicatorCtrl.h"
 #include "ui/RichHelper.h"
 #include "ui/components/RichKlineCtrl.h"
+#include "util/Color.h"
 #include "util/Global.h"
 
 RichMinuteVolumeIndicatorCtrl::RichMinuteVolumeIndicatorCtrl(RichKlineCtrl* pKlineCtrl,
@@ -86,7 +87,9 @@ void RichMinuteVolumeIndicatorCtrl::DrawMinuteBar(wxDC* pDC,
     } else {
         nTotalLine = pMinuteKlines->size() < 1200 ? pMinuteKlines->size() : 1200;
     }
-    wxPen greenPen(wxColor(84, 255, 255));
+
+    wxPen redPen(RED_COLOR);
+    wxPen greenPen(GREEN_COLOR);
     wxPen normalPen(wxColor(215, 215, 215));
     for (size_t i = 1; i < nTotalLine; i++) {
         minuteKline kline = pMinuteKlines->at(i);
@@ -95,7 +98,7 @@ void RichMinuteVolumeIndicatorCtrl::DrawMinuteBar(wxDC* pDC,
         double h = kline.volume / max_volume * m_height;
         double prevPrice = pMinuteKlines->at(i - 1).price;
         if (kline.price > prevPrice) {
-            pDC->SetPen(*wxRED_PEN);
+            pDC->SetPen(redPen);
         } else if (kline.price == prevPrice) {
             pDC->SetPen(normalPen);
         } else {
@@ -105,7 +108,7 @@ void RichMinuteVolumeIndicatorCtrl::DrawMinuteBar(wxDC* pDC,
     }
 
     // 绘制矩形边框
-    pDC->SetPen(wxPen(wxColor(45, 45, 45)));
+    pDC->SetPen(wxPen(KLINE_PANEL_BORDER_COLOR));
     pDC->SetBrush(*wxTRANSPARENT_BRUSH);
     wxPoint ptTopLeft(offsetX, m_y);
     wxSize rtSize(m_width, m_height);
@@ -116,8 +119,8 @@ void RichMinuteVolumeIndicatorCtrl::DrawMinuteBar(wxDC* pDC,
     double rowPrice = max_volume / 4;
 
     // 绘制中间的虚横线
-    wxPen dotPen(wxColor(45, 45, 45), 1, wxPENSTYLE_DOT);
-    wxPen solidPen(wxColor(45, 45, 45), 2, wxPENSTYLE_SOLID);
+    wxPen dotPen(KLINE_PANEL_BORDER_COLOR, 1, wxPENSTYLE_DOT);
+    wxPen solidPen(KLINE_PANEL_BORDER_COLOR, 2, wxPENSTYLE_SOLID);
     pDC->SetPen(dotPen);
     wxPoint ptLeft(offsetX, m_y + hRow);
     wxPoint ptRight(offsetX + m_width, m_y + hRow);

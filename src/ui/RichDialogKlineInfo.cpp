@@ -25,6 +25,10 @@ void RichDialogKlineInfo::OnDrawClient(wxDC* pDC) {
     if (m_pKline == nullptr) {
         return;
     }
+#define CLR_RED wxColor(255, 0, 0)
+#define CLR_WHITE wxColor(255, 255, 255)
+#define CLR_GREEN wxColor(0, 255, 0)
+#define CLR_TEXT wxColor(210, 210, 210)
     ////////////////////////////////
     int x = 8;
     int y = 28;
@@ -32,83 +36,83 @@ void RichDialogKlineInfo::OnDrawClient(wxDC* pDC) {
     wxRect rect(x + 20, y, 110, hFont);
     int alignment = wxALIGN_RIGHT | wxALIGN_CENTER_VERTICAL;
     std::string week = GetWeek(m_pKline->day);
-    pDC->SetTextForeground(wxColor(210, 210, 210));
+    pDC->SetTextForeground(CLR_TEXT);
     pDC->DrawText(CN("时间"), x, y);
     pDC->DrawLabel(CN(m_pKline->day + "/" + week), rect, alignment);
     ////////////////////////////////
     pDC->DrawText(CN("开盘价"), x, y + hFont * 1);
     if (m_pKline->price_open < m_pPreviousKline->price_close) {
-        pDC->SetTextForeground(wxColor(0, 255, 0));
+        pDC->SetTextForeground(CLR_GREEN);
     } else if (m_pKline->price_open == m_pPreviousKline->price_close) {
-        pDC->SetTextForeground(wxColor(255, 255, 255));
+        pDC->SetTextForeground(CLR_WHITE);
     } else {
-        pDC->SetTextForeground(wxColor(255, 0, 0));
+        pDC->SetTextForeground(CLR_RED);
     }
     rect.Offset(0, hFont);
     pDC->DrawLabel(CN(convert_double(m_pKline->price_open)), rect, alignment);
     ////////////////////////////////
-    pDC->SetTextForeground(wxColor(210, 210, 210));
+    pDC->SetTextForeground(CLR_TEXT);
     pDC->DrawText(CN("收盘价"), x, y + hFont * 2);
     if (m_pKline->price_close < m_pPreviousKline->price_close) {
-        pDC->SetTextForeground(wxColor(0, 255, 0));
+        pDC->SetTextForeground(CLR_GREEN);
     } else if (m_pKline->price_close == m_pPreviousKline->price_close) {
-        pDC->SetTextForeground(wxColor(255, 255, 255));
+        pDC->SetTextForeground(CLR_WHITE);
     } else {
-        pDC->SetTextForeground(wxColor(255, 0, 0));
+        pDC->SetTextForeground(CLR_RED);
     }
     rect.Offset(0, hFont);
     pDC->DrawLabel(CN(convert_double(m_pKline->price_close)), rect, alignment);
 
     ////////////////////////////////
-    pDC->SetTextForeground(wxColor(210, 210, 210));
+    pDC->SetTextForeground(CLR_TEXT);
     pDC->DrawText(CN("最高价"), x, y + hFont * 3);
     if (m_pKline->price_max < m_pPreviousKline->price_close) {
-        pDC->SetTextForeground(wxColor(0, 255, 0));
+        pDC->SetTextForeground(CLR_GREEN);
     } else if (m_pKline->price_max == m_pPreviousKline->price_close) {
-        pDC->SetTextForeground(wxColor(255, 255, 255));
+        pDC->SetTextForeground(CLR_WHITE);
     } else {
-        pDC->SetTextForeground(wxColor(255, 0, 0));
+        pDC->SetTextForeground(CLR_RED);
     }
     rect.Offset(0, hFont);
     pDC->DrawLabel(CN(convert_double(m_pKline->price_max)), rect, alignment);
     ////////////////////////////////
-    pDC->SetTextForeground(wxColor(210, 210, 210));
+    pDC->SetTextForeground(CLR_TEXT);
     pDC->DrawText(CN("最低价"), x, y + hFont * 4);
     if (m_pKline->price_min < m_pPreviousKline->price_close) {
-        pDC->SetTextForeground(wxColor(0, 255, 0));
+        pDC->SetTextForeground(CLR_GREEN);
     } else if (m_pKline->price_min == m_pPreviousKline->price_close) {
-        pDC->SetTextForeground(wxColor(255, 255, 255));
+        pDC->SetTextForeground(CLR_WHITE);
     } else {
-        pDC->SetTextForeground(wxColor(255, 0, 0));
+        pDC->SetTextForeground(CLR_RED);
     }
     rect.Offset(0, hFont);
     pDC->DrawLabel(CN(convert_double(m_pKline->price_min)), rect, alignment);
     ////////////////////////////////
-    pDC->SetTextForeground(wxColor(210, 210, 210));
+    pDC->SetTextForeground(CLR_TEXT);
     pDC->DrawText(CN("当前价"), x, y + hFont * 5);
     if (m_pKline->price_now < m_pPreviousKline->price_close) {
-        pDC->SetTextForeground(wxColor(0, 255, 0));
+        pDC->SetTextForeground(CLR_GREEN);
     } else if (m_pKline->price_now == m_pPreviousKline->price_close) {
-        pDC->SetTextForeground(wxColor(255, 255, 255));
+        pDC->SetTextForeground(CLR_WHITE);
     } else {
-        pDC->SetTextForeground(wxColor(255, 0, 0));
+        pDC->SetTextForeground(CLR_RED);
     }
     rect.Offset(0, hFont);
     pDC->DrawLabel(CN(convert_double(m_pKline->price_now)), rect, alignment);
     ////////////////////////////////
-    pDC->SetTextForeground(wxColor(210, 210, 210));
+    pDC->SetTextForeground(CLR_TEXT);
     pDC->DrawText(CN("涨幅"), x, y + hFont * 6);
     if (m_pKline->change_rate < 0) {
-        pDC->SetTextForeground(wxColor(0, 255, 0));
+        pDC->SetTextForeground(CLR_GREEN);
     } else if (m_pKline->change_rate == 0) {
-        pDC->SetTextForeground(wxColor(255, 255, 255));
+        pDC->SetTextForeground(CLR_WHITE);
     } else {
-        pDC->SetTextForeground(wxColor(255, 0, 0));
+        pDC->SetTextForeground(CLR_RED);
     }
     rect.Offset(0, hFont);
     pDC->DrawLabel(CN(convert_double(m_pKline->change_rate) + "%"), rect, alignment);
     ////////////////////////////////
-    pDC->SetTextForeground(wxColor(210, 210, 210));
+    pDC->SetTextForeground(CLR_TEXT);
     pDC->DrawText(CN("换手率"), x, y + hFont * 7);
     rect.Offset(0, hFont);
     pDC->DrawLabel(CN(convert_double(m_pKline->turnover_rate) + "%"), rect, alignment);

@@ -18,6 +18,7 @@
 #include "ui/indicators/RichMinuteVolumeIndicatorCtrl.h"
 #include "ui/indicators/RichTurnoverRateIndicatorCtrl.h"
 #include "ui/indicators/RichVolumeIndicatorCtrl.h"
+#include "util/Color.h"
 #include "util/Macro.h"
 
 const long RichPanelKline::ID_SHARE_NAME_CTRL = wxNewId();
@@ -50,7 +51,7 @@ RichPanelKline::RichPanelKline(PanelType type,
     m_pShareNameCtrl =
         new wxStaticText(this, ID_SHARE_NAME_CTRL, wxT("---"), wxPoint(KLINE_PANEL_PADDING, KLINE_PANEL_PADDING),
                          wxSize(64, KLINE_PANEL_TOP_CTRL_HEIGHT));
-    m_pShareNameCtrl->SetBackgroundColour(wxColor(0, 0, 0));
+    m_pShareNameCtrl->SetBackgroundColour(KLINE_PANEL_BACKGROUND_COLOR);
     m_pShareNameCtrl->SetForegroundColour(wxColor(200, 200, 200));
 
     // 日/周/月/季/年 K线
@@ -91,6 +92,8 @@ RichPanelKline::RichPanelKline(PanelType type,
 
     // 日K线主图
     m_pKlineCtrl = new RichKlineCtrl(pStorage, m_ptKlineCtrl, m_sizeKlineCtrl);
+    int crossLineHeight = GetSize().GetHeight() - KLINE_PANEL_TOP_CTRL_HEIGHT * 2;
+    m_pKlineCtrl->SetCrossLineHeight(crossLineHeight);
 
     // 成交量附图
     RichIndicatorCtrl* pVolumeIndicator = new RichVolumeIndicatorCtrl(m_pKlineCtrl);
@@ -167,11 +170,18 @@ void RichPanelKline::OnPaint(wxPaintEvent& event) {
     for (auto& indicator : m_indicators) {
         indicator->Draw(&dc);
     }
+    if (!m_inMinuteMode) {
+        m_pKlineCtrl->DrawCrossLine(&dc);
+    }
     m_pMinuteIndicator->Draw(&dc);
 }
 
 void RichPanelKline::OnBackground(wxEraseEvent& event) {
-    m_pKlineCtrl->OnBackground(event);
+    wxSize size = GetClientSize();
+    wxRect rect(size);
+    wxDC* pDC = event.GetDC();
+    pDC->SetBrush(wxBrush(KLINE_PANEL_BACKGROUND_COLOR));
+    pDC->DrawRectangle(rect);
 }
 
 void RichPanelKline::OnSize(wxSizeEvent& event) {

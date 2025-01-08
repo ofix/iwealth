@@ -13,6 +13,7 @@
 #include <wx/filename.h>
 #include <wx/graphics.h>
 #include <iostream>
+#include "util/Color.h"
 
 RichPngKline::RichPngKline(StockDataStorage* pStorage,
                            const std::string& png_file_path,
@@ -68,7 +69,7 @@ void RichPngKline::DrawPng(wxMemoryDC* pDC, int n, std::vector<uiKline>* pKlines
     double hZoomRatio = m_height / hPrice;
     double offsetY = n * m_height + m_margin;
     if (false) {  // 折线
-        pDC->SetPen(wxPen(wxColor(255, 0, 0)));
+        pDC->SetPen(wxPen(RED_COLOR));
         uiKline currentKline = pKlines->at(0);
         double x1 = m_margin;
         double y1 = (max_price - currentKline.price_close) * hZoomRatio + offsetY;

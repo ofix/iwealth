@@ -21,4 +21,15 @@
 #define BOLD(x) "\x1B[1m" x RST
 #define UNDERLINE(x) "\x1B[4m" x RST
 
+#define GREEN_COLOR wxColor(84, 255, 255)
+#define RED_COLOR wxColor(255, 0, 0)
+#define NORMAL_COLOR wxColor(215, 215, 215)
+
+#define INDICATOR_COLOR_1 wxColor(230, 230, 230)
+#define INDICATOR_COLOR_2 wxColor(255, 255, 0)
+#define INDICATOR_COLOR_3 wxColor(255, 0, 255)
+
+#define KLINE_PANEL_BACKGROUND_COLOR wxColor(25, 25, 25)
+#define KLINE_PANEL_BORDER_COLOR wxColor(50, 51, 55)
+
 #endif

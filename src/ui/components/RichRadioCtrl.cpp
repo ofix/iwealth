@@ -15,6 +15,7 @@
 #include <iostream>
 #include "ui/RichHelper.h"
 #include "ui/events/RichRadioEvent.h"
+#include "util/Color.h"
 
 RichRadioCtrl::RichRadioCtrl(const std::vector<std::string>& options,  // 需要显示的选项
                              int current,                              // 初始化第几项选中
@@ -25,7 +26,7 @@ RichRadioCtrl::RichRadioCtrl(const std::vector<std::string>& options,  // 需要
                              long style                                // 窗口样式
                              )
     : wxControl(parent, id, pos, size, style | wxNO_BORDER), m_active(current), m_focus(current) {
-    m_clrBackground = wxColor(0, 0, 0);
+    m_clrBackground = KLINE_PANEL_BACKGROUND_COLOR;
     m_clrTextDefault = wxColor(180, 180, 180);
     m_clrTextActive = wxColor(233, 223, 0);
     SetBackgroundColour(m_clrBackground);
@@ -122,7 +123,8 @@ void RichRadioCtrl::OnClick(wxMouseEvent& event) {
 
 void RichRadioCtrl::OnEraseBackground(wxEraseEvent& event) {
     wxDC* pDC = event.GetDC();
-    pDC->SetBrush(*wxBLACK_BRUSH);
+    pDC->SetBrush(wxBrush(KLINE_PANEL_BACKGROUND_COLOR));
+    pDC->SetPen(wxPen(KLINE_PANEL_BACKGROUND_COLOR));
     wxSize size = GetSize();
     pDC->DrawRectangle(wxPoint(0, 0), size);
 }

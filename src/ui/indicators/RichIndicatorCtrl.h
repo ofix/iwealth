@@ -4,10 +4,7 @@
 #include <wx/dc.h>
 #include <string>
 #include "ui/RichHelper.h"
-
-#define INDICATOR_COLOR_1 wxColor(230, 230, 230)
-#define INDICATOR_COLOR_2 wxColor(255, 255, 0)
-#define INDICATOR_COLOR_3 wxColor(255, 0, 255)
+#include "util/Color.h"
 
 class RichKlineCtrl;
 class RichIndicatorCtrl {

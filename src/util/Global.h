@@ -8,7 +8,6 @@
 #include <stdexcept>
 #include <string>
 #include <vector>
-#include "Color.h"
 
 #ifdef _WIN32
 #define DIR_SEPARATOR "\\"

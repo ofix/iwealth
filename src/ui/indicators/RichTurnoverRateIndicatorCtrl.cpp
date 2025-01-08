@@ -65,17 +65,23 @@ void RichTurnoverRateIndicatorCtrl::DrawTurnoverRateBar(wxDC* pDC) {
     int body_y = m_y + m_titleHeight;
     std::vector<uiKline>::const_iterator it;
     int i = 0;
+
+    wxPen redPen(RED_COLOR);
+    wxPen greenPen(GREEN_COLOR);
+    wxBrush blackBrush(KLINE_PANEL_BACKGROUND_COLOR);
+    wxBrush greenBrush(GREEN_COLOR);
+
     for (it = klines.begin() + klineRng.begin; it <= klines.begin() + klineRng.end; ++it, ++i) {
         double x = (double)i * m_pKlineCtrl->m_klineWidth;
         double y = body_y + m_bodyHeight - it->turnover_rate * m_bodyHeight / max_turnover_rate;
         double h = it->turnover_rate / max_turnover_rate * m_bodyHeight;
 
         if (it->price_close >= it->price_open) {  // red bar
-            pDC->SetPen(*wxRED_PEN);
-            pDC->SetBrush(*wxBLACK_BRUSH);
+            pDC->SetPen(redPen);
+            pDC->SetBrush(blackBrush);
         } else {  // green bar
-            pDC->SetPen(wxPen(wxColor(84, 255, 255)));
-            pDC->SetBrush(wxBrush(wxColor(84, 255, 255)));
+            pDC->SetPen(greenPen);
+            pDC->SetBrush(greenBrush);
         }
         if (h < 2) {
             h = 2;

@@ -23,7 +23,9 @@
 #include <wx/dcbuffer.h>
 #include "ui/RichHelper.h"
 #include "ui/components/RichDialog.h"
+#include "util/Color.h"
 #include "util/Global.h"
+
 
 BEGIN_EVENT_TABLE(RichDialog, wxDialog)
 EVT_PAINT(RichDialog::OnPaint)
@@ -117,7 +119,7 @@ bool RichDialog::IsInCloseButton(wxPoint& pt) {
 void RichDialog::OnPaint(wxPaintEvent& event) {
     wxAutoBufferedPaintDC dc(this);
     dc.SetPen(*wxTRANSPARENT_PEN);
-    dc.SetBrush(*wxBLACK_BRUSH);
+    dc.SetBrush(wxBrush(KLINE_PANEL_BACKGROUND_COLOR));
     dc.DrawRectangle(0, 0, GetSize().GetWidth(), GetSize().GetHeight());
     DrawTitle(&dc);
     OnDrawClient(&dc);

@@ -14,6 +14,7 @@
 #include <algorithm>  // 引入std::swap
 #include "formula/FormulaEma.h"
 #include "stock/StockDataStorage.h"
+#include "util/Color.h"
 #include "util/Macro.h"
 
 RichKlineCtrl::~RichKlineCtrl() {
@@ -245,8 +246,6 @@ void RichKlineCtrl::ZoomOut() {
 }
 
 void RichKlineCtrl::OnBackground(wxEraseEvent& event) {
-    wxDC* pDC = event.GetDC();
-    pDC->SetBrush(wxBrush(wxColour(0, 0, 0)));
 }
 
 void RichKlineCtrl::OnSize(wxSizeEvent& event) {
@@ -358,6 +357,10 @@ void RichKlineCtrl::SetWidth(int width) {
 
 void RichKlineCtrl::SetHeight(int height) {
     m_height = height;
+}
+
+void RichKlineCtrl::SetCrossLineHeight(int height) {
+    m_crossLineHeight = height;
 }
 
 /**
@@ -485,7 +488,7 @@ void RichKlineCtrl::CalcVisibleKlineWidth() {
 }
 
 void RichKlineCtrl::OnPaint(wxAutoBufferedPaintDC* pDC) {
-    pDC->SetBackground(*wxBLACK_BRUSH);
+    pDC->SetBackground(wxBrush(KLINE_PANEL_BACKGROUND_COLOR));
     pDC->Clear();
     if (m_mode == KlineType::Minute) {
         DrawMinuteKlines(pDC);
@@ -503,14 +506,14 @@ void RichKlineCtrl::OnPaint(wxAutoBufferedPaintDC* pDC) {
 
 // 绘制日K线|周K线|月K线|季K线|年K线背景图
 void RichKlineCtrl::DrawKlineBackground(wxDC* pDC, double min_price, double max_price) {
-    wxPen solid_pen(wxColor(255, 0, 0), 1, wxPENSTYLE_DOT);
+    wxPen solid_pen(RED_COLOR, 1, wxPENSTYLE_DOT);
     pDC->SetPen(solid_pen);
     pDC->SetBrush(*wxBLACK_BRUSH);
     int minX = 0;
     int minY = m_pos.y;
     int wRect = GetInnerWidth();
     int hRect = GetInnerHeight();  // 不包括上下间距
-    int NLINES = hRect / 60; // 每四十个像素高度一个价格
+    int NLINES = hRect / 60;       // 每四十个像素高度一个价格
     // pDC->DrawRectangle(minX, minY, wRect, hRect);
     // 绘制横线和价格
     double avg_price = (max_price - min_price) / NLINES;
@@ -549,6 +552,13 @@ void RichKlineCtrl::DrawDayKlines(wxDC* pDC) {
     int hRect = GetInnerHeight();
     double hZoomRatio = hRect / hPrice;
 
+    wxBrush blackBrush(KLINE_PANEL_BACKGROUND_COLOR);
+    wxBrush greenBrush(GREEN_COLOR);
+    wxBrush grayBrush(wxColor(220, 220, 220));
+    wxPen redPen(RED_COLOR);
+    wxPen greenPen(GREEN_COLOR);
+    wxPen grayPen(wxColor(220, 220, 220));
+
     uiKline kline;
     int nKline = 0;
     for (int i = m_klineRng.begin; i <= m_klineRng.end; i++) {
@@ -562,8 +572,8 @@ void RichKlineCtrl::DrawDayKlines(wxDC* pDC) {
                 y1 = (m_maxRectPrice - kline.price_close) * hZoomRatio + minY;
                 x2 = x1;
                 y2 = (m_maxRectPrice - kline.price_open) * hZoomRatio + minY;
-                pDC->SetPen(*wxRED_PEN);
-                pDC->SetBrush(*wxBLACK_BRUSH);
+                pDC->SetPen(redPen);
+                pDC->SetBrush(blackBrush);
                 pDC->DrawLine(x1, y1, x2, y2);
                 // 上下影线X坐标
                 xShadow = x1;
@@ -572,8 +582,8 @@ void RichKlineCtrl::DrawDayKlines(wxDC* pDC) {
                 y1 = (m_maxRectPrice - kline.price_open) * hZoomRatio + minY;
                 x2 = x1;
                 y2 = (m_maxRectPrice - kline.price_close) * hZoomRatio + minY;
-                pDC->SetPen(wxPen(wxColor(84, 255, 255)));
-                pDC->SetBrush(wxBrush(wxColor(84, 255, 255)));
+                pDC->SetPen(greenPen);
+                pDC->SetBrush(greenBrush);
                 pDC->DrawLine(x1, y1, x2, y2);
                 // 上下影线X坐标
                 xShadow = x1;
@@ -583,16 +593,16 @@ void RichKlineCtrl::DrawDayKlines(wxDC* pDC) {
                 x2 = x1 + m_klineInnerWidth;
                 y2 = y1;
                 if (is_up_limit_price(kline, m_pShare)) {
-                    pDC->SetPen(*wxRED_PEN);
-                    pDC->SetBrush(*wxBLACK_BRUSH);
+                    pDC->SetPen(redPen);
+                    pDC->SetBrush(blackBrush);
                     pDC->DrawLine(x1, y1, x2, y2);
                 } else if (is_down_limit_price(kline, m_pShare)) {
-                    pDC->SetPen(wxPen(wxColor(84, 255, 255)));
-                    pDC->SetBrush(wxBrush(wxColor(84, 255, 255)));
+                    pDC->SetPen(greenPen);
+                    pDC->SetBrush(greenBrush);
                     pDC->DrawLine(x1, y1, x2, y2);
                 } else {
-                    pDC->SetPen(wxPen(wxColor(220, 220, 220)));
-                    pDC->SetBrush(wxBrush(wxColor(220, 220, 220)));
+                    pDC->SetPen(grayPen);
+                    pDC->SetBrush(grayBrush);
                     pDC->DrawLine(x1, y1, x2, y2);
                 }
                 // 上下影线X坐标
@@ -611,8 +621,8 @@ void RichKlineCtrl::DrawDayKlines(wxDC* pDC) {
                 y1 = (m_maxRectPrice - kline.price_close) * hZoomRatio + minY;
                 x2 = x1 + m_klineInnerWidth;
                 y2 = (m_maxRectPrice - kline.price_open) * hZoomRatio + minY;
-                pDC->SetPen(*wxRED_PEN);
-                pDC->SetBrush(*wxBLACK_BRUSH);
+                pDC->SetPen(redPen);
+                pDC->SetBrush(blackBrush);
                 pDC->DrawRectangle(x1, y1, x2 - x1, y2 - y1);
                 // 上下影线X坐标
                 xShadow = (x1 + x2) / 2;
@@ -621,8 +631,8 @@ void RichKlineCtrl::DrawDayKlines(wxDC* pDC) {
                 y1 = (m_maxRectPrice - kline.price_open) * hZoomRatio + minY;
                 x2 = x1 + m_klineInnerWidth;
                 y2 = (m_maxRectPrice - kline.price_close) * hZoomRatio + minY;
-                pDC->SetPen(wxPen(wxColor(84, 255, 255)));
-                pDC->SetBrush(wxBrush(wxColor(84, 255, 255)));
+                pDC->SetPen(greenPen);
+                pDC->SetBrush(greenBrush);
                 pDC->DrawRectangle(x1, y1, x2 - x1, y2 - y1);
                 // 上下影线X坐标
                 xShadow = (x1 + x2) / 2;
@@ -632,16 +642,16 @@ void RichKlineCtrl::DrawDayKlines(wxDC* pDC) {
                 x2 = x1 + m_klineInnerWidth;
                 y2 = y1;
                 if (is_up_limit_price(kline, m_pShare)) {
-                    pDC->SetPen(*wxRED_PEN);
-                    pDC->SetBrush(*wxBLACK_BRUSH);
+                    pDC->SetPen(redPen);
+                    pDC->SetBrush(blackBrush);
                     pDC->DrawLine(x1, y1, x2, y2);
                 } else if (is_down_limit_price(kline, m_pShare)) {
-                    pDC->SetPen(wxPen(wxColor(84, 255, 255)));
-                    pDC->SetBrush(wxBrush(wxColor(84, 255, 255)));
+                    pDC->SetPen(greenPen);
+                    pDC->SetBrush(greenBrush);
                     pDC->DrawLine(x1, y1, x2, y2);
                 } else {
-                    pDC->SetPen(wxPen(wxColor(220, 220, 220)));
-                    pDC->SetBrush(wxBrush(wxColor(220, 220, 220)));
+                    pDC->SetPen(grayPen);
+                    pDC->SetBrush(grayBrush);
                     pDC->DrawLine(x1, y1, x2, y2);
                 }
                 // 上下影线X坐标
@@ -659,9 +669,6 @@ void RichKlineCtrl::DrawDayKlines(wxDC* pDC) {
     DrawEmaCurves(pDC, m_maxRectPrice, m_minRectPrice, 0, minY, GetInnerWidth(), minY + GetInnerHeight(), m_klineWidth);
     DrawEmaText(pDC);
     DrawMinMaxRectPrice(pDC);
-    if (m_crossLine != NO_CROSS_LINE) {
-        DrawCrossLine(pDC, m_crossLinePt.x, m_crossLinePt.y, m_width, m_height);
-    }
 }
 
 void RichKlineCtrl::DrawMinMaxRectPrice(wxDC* pDC) {
@@ -699,12 +706,13 @@ void RichKlineCtrl::DrawMinMaxRectPrice(wxDC* pDC) {
  * @param int h 控件高度
  * @author songhuabiao
  */
-void RichKlineCtrl::DrawCrossLine(wxDC* pDC, int centerX, int centerY, int w,
-                                  int h) {  // 光标十字线
-    wxPen dash_pen(wxColor(200, 200, 200), 1, wxPENSTYLE_DOT);
-    pDC->SetPen(dash_pen);
-    pDC->DrawLine(0, centerY, w, centerY);        // 横线
-    pDC->DrawLine(centerX, m_pos.y, centerX, h);  // 竖线
+void RichKlineCtrl::DrawCrossLine(wxDC* pDC) {  // 光标十字线
+    if (m_crossLine != NO_CROSS_LINE) {
+        wxPen dash_pen(wxColor(200, 200, 200), 1, wxPENSTYLE_DOT);
+        pDC->SetPen(dash_pen);
+        pDC->DrawLine(0, m_crossLinePt.y, m_width, m_crossLinePt.y);                  // 横线
+        pDC->DrawLine(m_crossLinePt.x, m_pos.y, m_crossLinePt.x, m_crossLineHeight);  // 竖线
+    }
 }
 
 bool RichKlineCtrl::CheckPtInEmaText(wxPoint& pt) {
@@ -931,7 +939,7 @@ void RichKlineCtrl::DrawFiveDayMinuteKlines(wxDC* pDC) {
         path.AddLineToPoint(nTotalLine * w + m_paddingLeft, minY + hRect);
         path.CloseSubpath();
         // 绘制线条
-        pDC->SetPen(wxPen(wxColor(255, 0, 0), 1, wxPENSTYLE_SOLID));
+        pDC->SetPen(wxPen(RED_COLOR, 1, wxPENSTYLE_SOLID));
         for (size_t i = 0; i < m_fiveMinutePoints.size() - 1; i++) {
             wxPoint pt1 = m_fiveMinutePoints.at(i);
             wxPoint pt2 = m_fiveMinutePoints.at(i + 1);
@@ -1017,10 +1025,10 @@ void RichKlineCtrl::DrawFiveDayMinuteKlineBackground(wxDC* pDC, double ref_close
     double hRow = static_cast<double>(hRect - (nrows + 2)) / nrows;
     int wCol = (wRect) / ncols;
     int dwCol = (wRect) / 5;
-    wxColor clr(45, 45, 45);
-    wxPen solidPen(clr, 1, wxPENSTYLE_SOLID);
-    wxPen solidPen2(clr, 2, wxPENSTYLE_SOLID);
-    wxPen dotPen(clr, 1, wxPENSTYLE_DOT);
+
+    wxPen solidPen(KLINE_PANEL_BORDER_COLOR, 1, wxPENSTYLE_SOLID);
+    wxPen solidPen2(KLINE_PANEL_BORDER_COLOR, 2, wxPENSTYLE_SOLID);
+    wxPen dotPen(KLINE_PANEL_BORDER_COLOR, 1, wxPENSTYLE_DOT);
 
     // 计算左边价格，计算右边幅度
     std::vector<double> prices;       // 价格
@@ -1091,7 +1099,7 @@ void RichKlineCtrl::DrawFiveDayMinuteKlineBackground(wxDC* pDC, double ref_close
     }
 
     // 绘制左右两边上半部分价格和涨幅
-    pDC->SetTextForeground(wxColor(255, 0, 0));
+    pDC->SetTextForeground(RED_COLOR);
     wxRect rectLeft(2, m_pos.y - hRow / 2, m_paddingLeft - 4, hRow + 1);
     wxRect rectRight(m_width - m_paddingRight + 2, m_pos.y - hRow / 2, m_paddingRight, hRow + 1);
     for (int i = 0; i < 8; i++) {
@@ -1128,10 +1136,9 @@ void RichKlineCtrl::DrawMinuteKlineBackground(wxDC* pDC, double yesterday_close_
     double hRow = static_cast<double>(hRect - (nrows + 2)) / nrows;
     int wCol = (wRect) / ncols;
 
-    wxColor clr(45, 45, 45);
-    wxPen solidPen(clr, 1, wxPENSTYLE_SOLID);
-    wxPen solidPen2(clr, 2, wxPENSTYLE_SOLID);
-    wxPen dotPen(clr, 1, wxPENSTYLE_DOT);
+    wxPen solidPen(KLINE_PANEL_BORDER_COLOR, 1, wxPENSTYLE_SOLID);
+    wxPen solidPen2(KLINE_PANEL_BORDER_COLOR, 2, wxPENSTYLE_SOLID);
+    wxPen dotPen(KLINE_PANEL_BORDER_COLOR, 1, wxPENSTYLE_DOT);
 
     // 计算左边价格，计算右边幅度
     std::vector<double> prices;       // 价格
@@ -1193,7 +1200,7 @@ void RichKlineCtrl::DrawMinuteKlineBackground(wxDC* pDC, double yesterday_close_
     }
 
     // 绘制左右两边上半部分价格和涨幅
-    pDC->SetTextForeground(wxColor(255, 0, 0));
+    pDC->SetTextForeground(RED_COLOR);
     wxRect rectLeft(2, m_pos.y - hRow / 2, m_paddingLeft - 4, hRow + 1);
     wxRect rectRight(m_width - m_paddingRight + 2, m_pos.y - hRow / 2, m_paddingRight, hRow + 1);
     for (int i = 0; i < 8; i++) {

@@ -44,10 +44,12 @@ class RichKlineCtrl {
 
     // 绘制函数
     void OnPaint(wxAutoBufferedPaintDC* pDC);
+    void DrawCrossLine(wxDC* pDC);  // 光标十字线
     int GetWidth();
     int GetHeight();
     void SetWidth(int width);
     void SetHeight(int height);
+    void SetCrossLineHeight(int height);
 
    protected:
     int GetInnerWidth();
@@ -63,7 +65,6 @@ class RichKlineCtrl {
     void DrawEmaText(wxDC* pDC);
     void DrawMinMaxRectPrice(wxDC* pDC);
     bool CheckPtInEmaText(wxPoint& pt);
-    void DrawCrossLine(wxDC* pDC, int centerX, int centerY, int w, int h);  // 光标十字线
     void DrawEmaCurves(wxDC* pDC,
                        float rect_price_max,
                        float rect_price_min,
@@ -92,6 +93,7 @@ class RichKlineCtrl {
     wxPoint m_pos;     // 起始位置
     int m_width;
     int m_height;
+    int m_crossLineHeight;
     double m_klineInnerWidth;  // K线实际宽度，有可能为小数
     double m_klineWidth;       // K线宽度，包含K线间距,有可能为小数
     int m_visibleKlineCount;   // 可见的K线数量
