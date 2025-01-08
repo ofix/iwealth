@@ -345,12 +345,12 @@ void RichPanelKline::IndicatorReLayout() {
     int indicator_height = INDICATOR_CTRL_HEIGHT * height / fullscreen_height;
     int top_height = KLINE_PANEL_TOP_CTRL_HEIGHT * 2 + KLINE_PANEL_PADDING * 3;
     if (m_inMinuteMode) {
-        int main_height = height - 1 * indicator_height - top_height;
+        int main_height = height - indicator_height * 2 - top_height - 30;
         m_pKlineCtrl->SetWidth(width);
         m_pKlineCtrl->SetHeight(main_height);
-        m_pMinuteIndicator->SetPosition(KLINE_PANEL_PADDING, top_height + main_height + 0 * indicator_height);
+        m_pMinuteIndicator->SetPosition(KLINE_PANEL_PADDING, top_height + main_height + 30);
         m_pMinuteIndicator->SetWidth(width);
-        m_pMinuteIndicator->SetManualHeight(indicator_height);
+        m_pMinuteIndicator->SetManualHeight(indicator_height * 2 - 20);
     } else {
         if (n < 4) {  // 如果附图指标小于4个，附图高度固定+K线主图高度减少
             int main_height = height - n * indicator_height - top_height;

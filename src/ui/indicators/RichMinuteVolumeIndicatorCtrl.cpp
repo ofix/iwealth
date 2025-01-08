@@ -13,7 +13,9 @@
 #include "ui/components/RichKlineCtrl.h"
 #include "util/Global.h"
 
-RichMinuteVolumeIndicatorCtrl::RichMinuteVolumeIndicatorCtrl(RichKlineCtrl* pKlineCtrl, const wxPoint& pos, const wxSize& size)
+RichMinuteVolumeIndicatorCtrl::RichMinuteVolumeIndicatorCtrl(RichKlineCtrl* pKlineCtrl,
+                                                             const wxPoint& pos,
+                                                             const wxSize& size)
     : RichIndicatorCtrl(pKlineCtrl, pos, size) {
 }
 
@@ -22,7 +24,6 @@ RichMinuteVolumeIndicatorCtrl::~RichMinuteVolumeIndicatorCtrl() {
 
 void RichMinuteVolumeIndicatorCtrl::DrawTitleBar(wxDC* pDC) {
 }
-
 
 void RichMinuteVolumeIndicatorCtrl::Draw(wxDC* pDC) {
     if (!m_visible) {
@@ -67,9 +68,9 @@ double RichMinuteVolumeIndicatorCtrl::GetFiveDayMaxVolume() {
     return max;
 }
 
-void RichMinuteVolumeIndicatorCtrl::DrawMinuteBar(wxDC* pDC, std::vector<minuteKline>* pMinuteKlines, KlineType
-kline_type)
-{
+void RichMinuteVolumeIndicatorCtrl::DrawMinuteBar(wxDC* pDC,
+                                                  std::vector<minuteKline>* pMinuteKlines,
+                                                  KlineType kline_type) {
     if (pMinuteKlines == nullptr || pMinuteKlines->size() == 0) {
         return;
     }
@@ -78,6 +79,7 @@ kline_type)
     double inner_width =
         static_cast<double>((m_pKlineCtrl->m_width - m_pKlineCtrl->m_paddingLeft - m_pKlineCtrl->m_paddingRight));
     double w = inner_width / max_lines;
+    double offsetX = m_pKlineCtrl->m_pos.x + m_pKlineCtrl->m_paddingLeft;
     size_t nTotalLine = 240;
     if (kline_type == KlineType::Minute) {
         nTotalLine = pMinuteKlines->size() < 240 ? pMinuteKlines->size() : 240;
@@ -101,11 +103,12 @@ kline_type)
         }
         pDC->DrawLine(x, y, x, y + h);
     }
+
     // 绘制矩形边框
     pDC->SetPen(wxPen(wxColor(45, 45, 45)));
     pDC->SetBrush(*wxTRANSPARENT_BRUSH);
-    wxPoint ptTopLeft(m_x, m_y);
-    wxSize rtSize(m_width,m_height);
+    wxPoint ptTopLeft(offsetX, m_y);
+    wxSize rtSize(m_width, m_height);
     pDC->DrawRectangle(ptTopLeft, rtSize);
 
     // 计算左右两边的分时成交量或者成交额
@@ -113,21 +116,21 @@ kline_type)
     double rowPrice = max_volume / 4;
 
     // 绘制中间的虚横线
-    wxPen dotPen(wxColor(45, 45, 45), 1, wxPENSTYLE_SHORT_DASH);
-    wxPen dotPen2(wxColor(45, 45, 45), 2, wxPENSTYLE_SOLID);
+    wxPen dotPen(wxColor(45, 45, 45), 1, wxPENSTYLE_DOT);
+    wxPen solidPen(wxColor(45, 45, 45), 2, wxPENSTYLE_SOLID);
     pDC->SetPen(dotPen);
-    wxPoint ptLeft(m_x,m_y);
-    wxPoint ptRight(m_x+m_width,m_y+m_height);
+    wxPoint ptLeft(offsetX, m_y + hRow);
+    wxPoint ptRight(offsetX + m_width, m_y + hRow);
     for (size_t i = 0; i < 4; i++) {
         pDC->DrawLine(ptLeft, ptRight);
         ptLeft.y += hRow;
         ptRight.y += hRow;
     }
     // 绘制中间的虚竖线
-    int nCols = (kline_type == KlineType::Day) ? 8 : 20;
+    int nCols = (kline_type == KlineType::Minute) ? 8 : 20;
     double wCol = inner_width / nCols;
-    wxPoint ptTop(m_x,m_y);
-    wxPoint ptBottom(m_x+m_width,m_y+m_height);
+    wxPoint ptTop(offsetX, m_y);
+    wxPoint ptBottom(offsetX, m_y + m_height);
     for (size_t i = 0; i < nCols; i++) {
         ptTop.x += wCol;
         ptBottom.x += wCol;
@@ -137,8 +140,8 @@ kline_type)
         pDC->DrawLine(ptTop, ptBottom);
     }
     // 绘制中间的粗虚竖线
-    pDC->SetPen(dotPen2);
-    ptTop.x = m_pKlineCtrl->m_paddingLeft;
+    pDC->SetPen(solidPen);
+    ptTop.x = offsetX;
     ptBottom.x = m_pKlineCtrl->m_paddingLeft;
     for (size_t i = 0; i < nCols;) {
         ptTop.x += wCol * 4;
@@ -146,6 +149,7 @@ kline_type)
         i += 4;
         pDC->DrawLine(ptTop, ptBottom);
     }
+
     // 绘制左右两边的分时成交量或者成交额
     wxRect rectLeft(2, m_y - hRow / 2, m_pKlineCtrl->m_paddingLeft - 4, hRow);
     wxRect rectRight(m_pKlineCtrl->m_width - m_pKlineCtrl->m_paddingRight + 2, m_y - hRow / 2,
@@ -158,4 +162,6 @@ kline_type)
         rectLeft.y += hRow;
         rectRight.y += hRow;
     }
+    pDC->DrawLabel(wxT("0"), rectLeft, wxALIGN_RIGHT | wxALIGN_CENTER_VERTICAL);
+    pDC->DrawLabel(wxT("0"), rectRight, wxALIGN_LEFT | wxALIGN_CENTER_VERTICAL);
 }
