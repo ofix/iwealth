@@ -79,6 +79,15 @@ function(custom_link_directories TARGET LIB_DIRS)
     endforeach()
 endfunction()
 
+# 定义一个函数，用于判断是否是 Windows 环境
+function(is_windows result)
+    if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
+        set(${result} TRUE PARENT_SCOPE)  # 如果是 Windows，返回 TRUE
+    else()
+        set(${result} FALSE PARENT_SCOPE) # 如果不是 Windows，返回 FALSE
+    endif()
+endfunction()
+
 ##################################################################################################
 
 
@@ -106,11 +115,13 @@ set(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE) # 在构建时也使用 RPATH
 set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 # 设置工程默认安装路径
 set(CMAKE_INSTALL_PREFIX "/usr/local/iwealth")
+
+is_windows(IS_WINDOWS)
 # 可执行文件输出目录
 #set(CMAKE_RUNTIME_OUTPUT_DIRECTORY $(CMAKE_BINARY_DIR))
 
 # 依赖的动态库
-if("${CMAKE_SYSTEM_NAME}" STREQUAL "Windows")
+if(IS_WINDOWS)
     set(SHARE_LIBRARIES
         curl
         wxsvg
@@ -121,7 +132,7 @@ if("${CMAKE_SYSTEM_NAME}" STREQUAL "Windows")
         wxbase32u_net
         wxbase32u)
     message("SET Window C++ Compiler")
-elseif("${CMAKE_SYSTEM_NAME}" STREQUAL "Linux")
+else()
     set(SHARE_LIBRARIES
         curl
         wxsvg
@@ -142,8 +153,13 @@ include_directories(
         ${LIB_DIR}/curl/include
         ${LIB_DIR}/wxsvg/include
         ${LIB_DIR}/wxWidgets/3.2.4/include
-        ${LIB_DIR}/wxWidgets/3.2.4/aarch64_linux/wx/include/gtk3-unicode-3.2
 )
+
+if(IS_WINDOWS)
+    include_directories(${LIB_DIR}/wxWidgets/3.2.4/mingw_x64_windows/mswu)
+else()
+    include_directories(${LIB_DIR}/wxWidgets/3.2.4/aarch64_linux/wx/include/gtk3-unicode-3.2)
+endif()
 
 # iWealth 源代码
 file(GLOB_RECURSE WEALTH_SRC_LIST ${SRC_DIR}/*.cpp)
@@ -195,21 +211,31 @@ add_executable(iconsole  ${CONSOLE_SRC_LIST})
 add_executable(ismith  ${SMITH_SRC_LIST})
 
 # 预处理器定义
-target_compile_definitions(iwealth PRIVATE IWEALTH)
-target_compile_definitions(iwealth PUBLIC WXUSINGDLL)
-target_compile_definitions(iwealth PUBLIC __WXGTK3__)
-target_compile_definitions(iwealth PUBLIC __WXGTK__)
-target_compile_definitions(iwealth PUBLIC _FILE_OFFSET_BITS=64)
+if(IS_WINDOWS)
+    target_compile_definitions(iwealth PRIVATE IWEALTH)
+    target_compile_definitions(iwealth PUBLIC WXUSINGDLL)
+    target_compile_definitions(iconsole PUBLIC WXUSINGDLL)
+    target_compile_definitions(ismith PUBLIC WXUSINGDLL)
+    add_definitions(-D_CRT_SECURE_NO_WARNINGS)
+    add_compile_options(-Wno-ignored-attributes)
+else()
+    target_compile_definitions(iwealth PRIVATE IWEALTH)
+    target_compile_definitions(iwealth PUBLIC WXUSINGDLL)
+    target_compile_definitions(iwealth PUBLIC __WXGTK3__)
+    target_compile_definitions(iwealth PUBLIC __WXGTK__)
+    target_compile_definitions(iwealth PUBLIC _FILE_OFFSET_BITS=64)
 
-target_compile_definitions(iconsole PUBLIC WXUSINGDLL)
-target_compile_definitions(iconsole PUBLIC __WXGTK3__)
-target_compile_definitions(iconsole PUBLIC __WXGTK__)
-target_compile_definitions(iconsole PUBLIC _FILE_OFFSET_BITS=64)
+    target_compile_definitions(iconsole PUBLIC WXUSINGDLL)
+    target_compile_definitions(iconsole PUBLIC __WXGTK3__)
+    target_compile_definitions(iconsole PUBLIC __WXGTK__)
+    target_compile_definitions(iconsole PUBLIC _FILE_OFFSET_BITS=64)
 
-target_compile_definitions(ismith PUBLIC WXUSINGDLL)
-target_compile_definitions(ismith PUBLIC __WXGTK3__)
-target_compile_definitions(ismith PUBLIC __WXGTK__)
-target_compile_definitions(ismith PUBLIC _FILE_OFFSET_BITS=64)
+    target_compile_definitions(ismith PUBLIC WXUSINGDLL)
+    target_compile_definitions(ismith PUBLIC __WXGTK3__)
+    target_compile_definitions(ismith PUBLIC __WXGTK__)
+    target_compile_definitions(ismith PUBLIC _FILE_OFFSET_BITS=64)
+endif()
+
 
 # 设置库搜索路径, 注意一定要带引号传递 CUSTOM_LINK_DIRS 列表参数，此路径和运行时动态库路径rpath可以不一样
 custom_link_directories(iwealth "${CUSTOM_LINK_DIRS}")

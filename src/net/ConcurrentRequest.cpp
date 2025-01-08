@@ -158,7 +158,7 @@ void ConcurrentRequest::_SetMiscOptions(conn_t* conn) {
             }
         }
     } else if ((conn->method == "PUT") || (conn->method == "PATCH")) {
-        curl_easy_setopt(conn->easy_curl, CURLOPT_CUSTOMREQUEST, conn->method);
+        curl_easy_setopt(conn->easy_curl, CURLOPT_CUSTOMREQUEST, conn->method.c_str());
         if (conn->payload.length() == 0) {
             curl_easy_setopt(conn->easy_curl, CURLOPT_POSTFIELDSIZE, 0);
         } else {

@@ -2,6 +2,7 @@
 #include <codecvt>
 #include <locale>
 #include <random>
+#include <sstream>
 
 /**
  * @todo 通过管道调用系统命令并获取命令执行输出结果
@@ -9,6 +10,9 @@
  * @author songhuabiao@greatwall.com.cn
  */
 std::string exec(const char* cmd) {
+#if defined(_WIN32) || defined(_WIN64)
+    return "";
+#else
     std::array<char, 128> buffer;
     std::string result;
     std::unique_ptr<FILE, decltype(&pclose)> pipe(popen(cmd, "r"), pclose);
@@ -19,6 +23,7 @@ std::string exec(const char* cmd) {
         result += buffer.data();
     }
     return result;
+#endif
 }
 
 // /**

@@ -10,6 +10,7 @@
 #include "spider/Spider.h"
 #include <curl.h>
 #include <mutex>
+#include <sstream>
 #include "net/ConcurrentRequest.h"
 #include "stock/StockDataStorage.h"
 #include "util/EasyLogger.h"

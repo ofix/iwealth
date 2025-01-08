@@ -39,3 +39,9 @@ COLLECT_GCC_OPTIONS='-E' '-v' '-o' '/dev/null' '-mlittle-endian' '-mabi=lp64'
 ```
 cmake -B build/cmake -DCMAKE_INSTALL_PREFIX=~/iwealth_install
 ```
+
+## windows 下使用cmake编译，需指定mingw编译器,否则默认使用VS编译器编译
+
+```
+cmake ../../ -G "MinGW Makefiles"
+```

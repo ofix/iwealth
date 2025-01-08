@@ -125,7 +125,7 @@ void RichMainFrame::CreatePanelKline() {
 }
 
 void RichMainFrame::CreatePanelTest() {
-    RichPanelTest* panelTest = new RichPanelTest(this, wxNewId(), wxPoint(0, 32), wxSize(1240, 600));
+    // RichPanelTest* panelTest = new RichPanelTest(this, wxNewId(), wxPoint(0, 32), wxSize(1240, 600));
 }
 
 // bool RichMainFrame::CanDragFrame(wxPoint& ptMouse) {
