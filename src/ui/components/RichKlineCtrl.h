@@ -125,6 +125,7 @@ class RichKlineCtrl {
     friend class RichVolumeIndicatorCtrl;
     friend class RichAmountIndicatorCtrl;
     friend class RichTurnoverRateIndicatorCtrl;
+    friend class RichMinuteVolumeIndicatorCtrl;
 };
 
 #endif  // RICH_CTRL_KLINE_H

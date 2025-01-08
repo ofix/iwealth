@@ -15,6 +15,7 @@
 #include "ui/RichHelper.h"
 #include "ui/RichMainFrame.h"
 #include "ui/indicators/RichAmountIndicatorCtrl.h"
+#include "ui/indicators/RichMinuteVolumeIndicatorCtrl.h"
 #include "ui/indicators/RichTurnoverRateIndicatorCtrl.h"
 #include "ui/indicators/RichVolumeIndicatorCtrl.h"
 #include "util/Macro.h"
@@ -103,6 +104,13 @@ RichPanelKline::RichPanelKline(PanelType type,
     RichIndicatorCtrl* pTurnoverRateIndicator = new RichTurnoverRateIndicatorCtrl(m_pKlineCtrl);
     wxASSERT(pTurnoverRateIndicator != nullptr);
     IndicatorInsert(pTurnoverRateIndicator);
+    // 分时图附图
+    m_pMinuteIndicator = new RichMinuteVolumeIndicatorCtrl(m_pKlineCtrl);
+    m_pMinuteIndicator->Hide();
+    wxASSERT(m_pMinuteIndicator != nullptr);
+
+    m_inMinuteMode = false;
+    m_oldInMinuteMode = false;
     // 重新计算主图+附图高度
     IndicatorReLayout();
 
@@ -127,11 +135,16 @@ RichPanelKline::~RichPanelKline() {
         delete m_pDialogKlineInfo;
         m_pDialogKlineInfo = nullptr;
     }
-    // 释放附图指标资源
+    // 释放 日/周/月/年 附图指标资源
     for (auto& indicator : m_indicators) {
         delete indicator;
     }
     m_indicators.clear();
+    // 释放 分时图/5日分时图 附图指标资源
+    if (m_pMinuteIndicator != nullptr) {
+        delete m_pMinuteIndicator;
+        m_pMinuteIndicator = nullptr;
+    }
 }
 
 void RichPanelKline::SetShareCode(const std::string& share_code) {
@@ -154,6 +167,7 @@ void RichPanelKline::OnPaint(wxPaintEvent& event) {
     for (auto& indicator : m_indicators) {
         indicator->Draw(&dc);
     }
+    m_pMinuteIndicator->Draw(&dc);
 }
 
 void RichPanelKline::OnBackground(wxEraseEvent& event) {
@@ -240,9 +254,13 @@ void RichPanelKline::OnKlineChanged(RichRadioEvent& event) {
     int selection = event.GetSelection();
     // 分时图/5日分时图需要隐藏 VolumeBarCtrl
     if (selection == 0 || selection == 1) {
-        m_pSecondRadioCtrl->Show(false);
+        HideIndicators();
+        ShowMinuteIndicator();
+        m_inMinuteMode = true;
     } else {
-        m_pSecondRadioCtrl->Show(true);
+        ShowIndicators();
+        HideMinuteIndicator();
+        m_inMinuteMode = false;
     }
     bool result = m_pKlineCtrl->LoadKlines(static_cast<KlineType>(selection));
     if (!result) {  // 数据有可能加载失败，弹窗提示用户
@@ -251,6 +269,10 @@ void RichPanelKline::OnKlineChanged(RichRadioEvent& event) {
     m_pShare = m_pStorage->FindShare(m_pKlineCtrl->GetShareCode());
     if (m_pShare != nullptr) {  // 更新股票名称
         m_pShareNameCtrl->SetLabel(CN(m_pShare->name));
+    }
+    if (m_oldInMinuteMode != m_inMinuteMode) {
+        IndicatorReLayout();
+        m_oldInMinuteMode = m_inMinuteMode;
     }
     this->Refresh();
 }
@@ -322,15 +344,44 @@ void RichPanelKline::IndicatorReLayout() {
     // 等比例计算窗口缩放后的附图指标高度
     int indicator_height = INDICATOR_CTRL_HEIGHT * height / fullscreen_height;
     int top_height = KLINE_PANEL_TOP_CTRL_HEIGHT * 2 + KLINE_PANEL_PADDING * 3;
-    if (n < 4) {  // 如果附图指标小于4个，附图高度固定+K线主图高度减少
-        int main_height = height - n * indicator_height - top_height;
+    if (m_inMinuteMode) {
+        int main_height = height - 1 * indicator_height - top_height;
         m_pKlineCtrl->SetWidth(width);
         m_pKlineCtrl->SetHeight(main_height);
-        for (size_t i = 0; i < m_indicators.size(); i++) {
-            auto indicator = m_indicators[i];
-            indicator->SetPosition(KLINE_PANEL_PADDING, top_height + main_height + i * indicator_height);
-            indicator->SetWidth(width);
-            indicator->SetManualHeight(indicator_height);
+        m_pMinuteIndicator->SetPosition(KLINE_PANEL_PADDING, top_height + main_height + 0 * indicator_height);
+        m_pMinuteIndicator->SetWidth(width);
+        m_pMinuteIndicator->SetManualHeight(indicator_height);
+    } else {
+        if (n < 4) {  // 如果附图指标小于4个，附图高度固定+K线主图高度减少
+            int main_height = height - n * indicator_height - top_height;
+            m_pKlineCtrl->SetWidth(width);
+            m_pKlineCtrl->SetHeight(main_height);
+            for (size_t i = 0; i < m_indicators.size(); i++) {
+                auto indicator = m_indicators[i];
+                indicator->SetPosition(KLINE_PANEL_PADDING, top_height + main_height + i * indicator_height);
+                indicator->SetWidth(width);
+                indicator->SetManualHeight(indicator_height);
+            }
         }
     }
+}
+
+void RichPanelKline::ShowIndicators() {
+    for (size_t i = 0; i < m_indicators.size(); i++) {
+        m_indicators[i]->Show();
+    }
+}
+
+void RichPanelKline::HideIndicators() {
+    for (size_t i = 0; i < m_indicators.size(); i++) {
+        m_indicators[i]->Hide();
+    }
+}
+
+void RichPanelKline::ShowMinuteIndicator() {
+    m_pMinuteIndicator->Show();
+}
+
+void RichPanelKline::HideMinuteIndicator() {
+    m_pMinuteIndicator->Hide();
 }

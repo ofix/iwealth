@@ -42,8 +42,10 @@ wxString RichAmountIndicatorCtrl::GetWeekAmount() {
 }
 
 void RichAmountIndicatorCtrl::Draw(wxDC* pDC) {
-    DrawTitleBar(pDC);
-    DrawAmountBar(pDC);
+    if (m_visible) {
+        DrawTitleBar(pDC);
+        DrawAmountBar(pDC);
+    }
 }
 
 wxString RichAmountIndicatorCtrl::GetName() {

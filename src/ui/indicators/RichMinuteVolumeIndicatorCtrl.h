@@ -1,5 +1,5 @@
-#ifndef RICH_VOLUME_INDICATOR_CTRL_H
-#define RICH_VOLUME_INDICATOR_CTRL_H
+#ifndef RICH_MINUTE_VOLUME_INDICATOR_CTRL_H
+#define RICH_MINUTE_VOLUME_INDICATOR_CTRL_H
 
 #include <wx/dcclient.h>
 #include <vector>
@@ -7,13 +7,13 @@
 #include "stock/Stock.h"
 
 class RichKlineCtrl;
-class RichVolumeIndicatorCtrl : public RichIndicatorCtrl {
+class RichMinuteVolumeIndicatorCtrl : public RichIndicatorCtrl {
    public:
 #define GUARD(x, y) ((x) < (y) ? (y) : (x))
-    RichVolumeIndicatorCtrl(RichKlineCtrl* pKlineCtrl,
+    RichMinuteVolumeIndicatorCtrl(RichKlineCtrl* pKlineCtrl,
                             const wxPoint& pos = wxDefaultPosition,
                             const wxSize& size = wxDefaultSize);
-    virtual ~RichVolumeIndicatorCtrl();
+    virtual ~RichMinuteVolumeIndicatorCtrl();
     void DrawTitleBar(wxDC* pDC);
     virtual void Draw(wxDC* pDC) override;
     virtual wxString GetName() override;
@@ -22,8 +22,7 @@ class RichVolumeIndicatorCtrl : public RichIndicatorCtrl {
     wxString GetYesterdayVolume();
     wxString GetWeekVolume();
 
-    void DrawVolumeBar(wxDC* pDC);
-    // void DrawMinuteBar(wxDC* pDC, std::vector<minuteKline>* pMinuteKlines, KlineType kline_type = KlineType::Minute);
+    void DrawMinuteBar(wxDC* pDC, std::vector<minuteKline>* pMinuteKlines, KlineType kline_type = KlineType::Minute);
     void DrawCrossLine(wxDC* pDC, int centerX, int centerY, int w, int h);
 
    protected:
@@ -33,4 +32,4 @@ class RichVolumeIndicatorCtrl : public RichIndicatorCtrl {
     double GetFiveDayMaxVolume();
 };
 
-#endif  // RICH_VOLUME_INDICATOR_CTRL_H
+#endif  // RICH_MINUTE_VOLUME_INDICATOR_CTRL_H

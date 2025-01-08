@@ -44,8 +44,10 @@ wxString RichTurnoverRateIndicatorCtrl::GetWeekTurnoverRate() {
 }
 
 void RichTurnoverRateIndicatorCtrl::Draw(wxDC* pDC) {
-    DrawTitleBar(pDC);
-    DrawTurnoverRateBar(pDC);
+    if (m_visible) {
+        DrawTitleBar(pDC);
+        DrawTurnoverRateBar(pDC);
+    }
 }
 
 void RichTurnoverRateIndicatorCtrl::DrawTurnoverRateBar(wxDC* pDC) {
