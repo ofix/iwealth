@@ -12,10 +12,13 @@
 #include <wx/geometry.h>
 #include <wx/graphics.h>
 #include <algorithm>  // 引入std::swap
+#include <utility>
 #include "formula/FormulaEma.h"
 #include "stock/StockDataStorage.h"
+#include "ui/RichHelper.h"
 #include "util/Color.h"
 #include "util/Macro.h"
+
 
 RichKlineCtrl::~RichKlineCtrl() {
 }
@@ -31,6 +34,7 @@ void RichKlineCtrl::Init() {
     m_visibleKlineCount = 120;
     m_shareCode = "";
     m_pShare = nullptr;
+    m_showEmaPriceReferenceLine = true;  // 分时图是否显示EMA日均线参考价
     m_klineRng.begin = 0;
     m_klineRng.end = 0;
     m_curKline = -1;
@@ -86,8 +90,18 @@ bool RichKlineCtrl::LoadKlines(const std::string& share_code, const KlineType& k
 
     m_pShare = m_pStorage->FindShare(share_code);
     RichResult status;
-    if (kline_type == KlineType::Minute) {
-        status = m_pStorage->QueryMinuteKlines(share_code, kline_type, &m_pMinuteKlines);
+    if (kline_type == KlineType::Minute) {  // 查看分时图时，同时下载日K线数据, 这样就可以在分时图上看到各均线价格
+        RichResult status1 = m_pStorage->QueryMinuteKlines(share_code, kline_type, &m_pMinuteKlines);
+        RichResult status2 = m_pStorage->QueryKlines(share_code, KlineType::Day, &m_pKlines);
+        if (!status1.Ok() && !status2.Ok()) {
+            std::cout << "LoadKlines Failed! " + status1.What() + " | " + status2.What() << std::endl;
+            return false;
+        }
+        // 添加 EMA 曲线的时候会自动计算相关数据
+        std::vector<int> periods = {5, 10, 20, 30, 60, 99, 255, 905};
+        for (auto period : periods) {
+            GetNearestEmaPrice(period);
+        }
     } else if (kline_type == KlineType::FiveDay) {
         status = m_pStorage->QueryMinuteKlines(share_code, kline_type, &m_pFiveDayMinuteKlines);
     } else {
@@ -842,6 +856,23 @@ bool RichKlineCtrl::AddEmaCurve(int n, wxColor color, bool visible) {
     return true;
 }
 
+// 获取最近N周期均线价格
+double RichKlineCtrl::GetNearestEmaPrice(int period) {
+    if (m_nearestEmaPrices.find(period) != m_nearestEmaPrices.end()) {
+        return m_nearestEmaPrices[period];
+    }
+
+    if (m_pKlines != nullptr) {
+        std::vector<double> ema_price = {};
+        ema_price.reserve(m_pKlines->size());  // 防止std::vector 频繁申请内存
+        FormulaEma::GetEmaPrice(*m_pKlines, ema_price, period);
+        m_nearestEmaPrices[period] = ema_price.back();
+        return ema_price.back();
+    }
+
+    return 0;
+}
+
 // 删除周期为n的EMA平滑移动价格曲线
 bool RichKlineCtrl::DelEmaCurve(int n) {
     auto it = std::remove_if(m_emaCurves.begin(), m_emaCurves.end(), [n](const ShareEmaCurve& curve) {
@@ -967,10 +998,15 @@ void RichKlineCtrl::DrawMinuteKlines(wxDC* pDC) {
     size_t nKlines = m_pMinuteKlines->size() - 1;
     double maxMinutePrice = GetRectMaxPrice(*m_pMinuteKlines, 0, nKlines - 1);
     double minMinutePrice = GetRectMinPrice(*m_pMinuteKlines, 0, nKlines - 1);
-
-    int minY = m_pos.y;
     // 昨日收盘价
     double yesterday_close_price = m_pMinuteKlines->at(0).price - m_pMinuteKlines->at(0).change_amount;
+
+    if (m_showEmaPriceReferenceLine) {                 // 显示 EMA 均价参考线
+        maxMinutePrice = yesterday_close_price * 1.1;  // 涨停价
+        minMinutePrice = yesterday_close_price * 0.9;  // 跌停价
+    }
+
+    int minY = m_pos.y;
     // 计算当日最大幅度
     double max_amount = std::abs(maxMinutePrice - yesterday_close_price);
     double min_amount = std::abs(minMinutePrice - yesterday_close_price);
@@ -1008,6 +1044,32 @@ void RichKlineCtrl::DrawMinuteKlines(wxDC* pDC) {
         wxPoint pt2 = m_avgPoints.at(i + 1);
         pDC->DrawLine(pt1, pt2);
     }
+    // 绘制EMA均价参考线
+    if (m_showEmaPriceReferenceLine) {
+        std::vector<std::pair<int, wxColor>> periods = {{5, wxColor(0, 255, 0)},      {10, wxColor(255, 255, 255)},
+                                                        {20, wxColor(239, 72, 111)},  {30, wxColor(255, 159, 26)},
+                                                        {60, wxColor(201, 243, 240)}, {99, wxColor(255, 0, 255)},
+                                                        {255, wxColor(255, 255, 0)},  {905, wxColor(0, 255, 0)}};
+        for (auto& pair : periods) {
+            double ema_price = GetNearestEmaPrice(pair.first);
+            if (ema_price <= maxMinutePrice && ema_price >= minMinutePrice) {
+                double y = (ema_price - hPrice) * hZoomRatio + minY;
+                wxPoint ptStart(m_paddingLeft + 2, y);
+                wxPoint ptEnd(m_paddingLeft + wRect, y);
+                DrawEmaPriceReferenceLine(pDC, pair.first, pair.second, ptStart, ptEnd);
+            }
+        }
+    }
+}
+
+// 绘制周期为n的EMA均价参考线
+void RichKlineCtrl::DrawEmaPriceReferenceLine(wxDC* pDC, int n, wxColour& clr, wxPoint& ptStart, wxPoint& ptEnd) {
+    // 添加 EMA 曲线的时候会自动计算相关数据
+    double ema_price = GetNearestEmaPrice(n);
+    pDC->SetPen(wxPen(clr, 1, wxPENSTYLE_DOT));
+    pDC->DrawLine(ptStart, ptEnd);
+    pDC->SetTextForeground(clr);
+    pDC->DrawText(CN(std::to_string(n) + "日均价:" + convert_double(ema_price)), ptEnd.x - 100, ptEnd.y - 24);
 }
 
 /**

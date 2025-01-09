@@ -6,6 +6,7 @@
 #include <wx/dcclient.h>
 #include <wx/textfile.h>
 #include <stack>
+#include <unordered_map>
 #include <vector>
 
 #include "stock/Stock.h"
@@ -72,12 +73,19 @@ class RichKlineCtrl {
                        int minY,
                        int maxX,
                        int maxY,
-                       double klineWidth);                        // 绘制所有EMA曲线
-    bool ShowEmaCurve(int n);                                     // 显示周期为n的EMA平滑移动价格曲线
-    bool HideEmaCurve(int n);                                     // 隐藏周期为n的EMA平滑移动价格曲线
-    bool AddEmaCurve(int n, wxColor color, bool visible = true);  // 添加周期为n的EMA平滑移动价格曲线
-    bool DelEmaCurve(int n);                                      // 删除周期为n的EMA平滑移动价格曲线
-    bool HasEmaCurve();                                           // 判断是否显示EMA曲线
+                       double klineWidth);  // 绘制所有EMA曲线
+    void DrawEmaPriceReferenceLine(wxDC* pDC,
+                                   int n,
+                                   wxColor& clr,
+                                   wxPoint& ptStart,
+                                   wxPoint& ptEnd);  // 绘制周期为n的EMA均价参考线
+    bool ShowEmaCurve(int n);                        // 显示周期为n的EMA平滑移动价格曲线
+    bool HideEmaCurve(int n);                        // 隐藏周期为n的EMA平滑移动价格曲线
+    bool AddEmaCurve(int n, wxColour color,
+                     bool visible = true);  // 添加周期为n的EMA平滑移动价格曲线
+    bool DelEmaCurve(int n);                // 删除周期为n的EMA平滑移动价格曲线
+    bool HasEmaCurve();                     // 判断是否显示EMA曲线
+    double GetNearestEmaPrice(int n);       // 获取最近N周期均线价格(5日线/10日线/20日线)
 
     // 分时图/5日分时图
     void CalcMinuteKlineAvgPrice(std::vector<minuteKline>& minuteKlines, std::vector<double>& avg_price);
@@ -107,13 +115,15 @@ class RichKlineCtrl {
     wxPoint m_crossLinePt;     // 当前K线十字线坐标
     int m_crossLine;
 
-    StockDataStorage* m_pStorage;                      // 股票存储中心
-    std::string m_shareCode;                           // 股票代码
-    Share* m_pShare;                                   // 股票指针
-    std::vector<uiKline>* m_pKlines;                   // 当前绘制的K线数据
-    std::vector<minuteKline>* m_pMinuteKlines;         // 当前绘制的分时图数据
-    std::vector<ShareEmaCurve> m_emaCurves;            // 指数移动平均线
-    std::vector<minuteKline>* m_pFiveDayMinuteKlines;  // 5日分时图
+    StockDataStorage* m_pStorage;                        // 股票存储中心
+    std::string m_shareCode;                             // 股票代码
+    Share* m_pShare;                                     // 股票指针
+    std::vector<uiKline>* m_pKlines;                     // 当前绘制的K线数据
+    std::vector<minuteKline>* m_pMinuteKlines;           // 当前绘制的分时图数据
+    std::vector<ShareEmaCurve> m_emaCurves;              // 指数移动平均线
+    std::vector<minuteKline>* m_pFiveDayMinuteKlines;    // 5日分时图
+    std::unordered_map<int, double> m_nearestEmaPrices;  // 5/10/20/30/60/90等日均线最新价格
+    bool m_showEmaPriceReferenceLine;                    // 是否显示EMA日均线参考线
 
     uiKlineRange m_klineRng;
 
