@@ -9,6 +9,8 @@
 #include "ui/components/RichPanel.h"
 #include "ui/components/RichRadioCtrl.h"
 #include "ui/events/RichRadioEvent.h"
+#include "ui/components/RichCheckBox.h"
+#include "ui/events/RichCheckBoxEvent.h"
 #include "ui/indicators/RichIndicatorCtrl.h"
 
 class RichPanelKline : public RichPanel {
@@ -30,6 +32,7 @@ class RichPanelKline : public RichPanel {
     void OnLeftMouseDown(wxMouseEvent& event);
     void OnKlineChanged(RichRadioEvent& event);
     void OnVolumeBarChanged(RichRadioEvent& event);
+    void OnEmaPriceReferenceLineChanged(RichCheckBoxEvent& event);
     void OnMouseWheel(wxMouseEvent& event);
     void ShowDialogKlineInfoIfNeeded();
 
@@ -52,6 +55,7 @@ class RichPanelKline : public RichPanel {
     wxStaticText* m_pShareNameCtrl;    // 股票名称控件
     wxStaticText* m_pAddFavoriteCtrl;  // 增加自选
     RichRadioCtrl* m_pRadioCtrl;       // 日K线/周K线/月K线/季度K线/年K线
+    RichCheckBox* m_pEmaPriceCheckBox; // EMA均价参考线选择框
 
     std::vector<uiKline>* m_pKlines;               // 当前需要显示的K线
     std::vector<RichIndicatorCtrl*> m_indicators;  // 日线/周线/月线/年线 附图指标集合
@@ -65,6 +69,7 @@ class RichPanelKline : public RichPanel {
     static const long ID_SECOND_RADIO_CTRL;
     static const long ID_KLINE_CTRL;
     static const long ID_DIALOG_KLINE_INFO;
+    static const long ID_EMA_PRICE_CHECKBOX;
 
     wxPoint m_ptKlineCtrl;
     wxSize m_sizeKlineCtrl;

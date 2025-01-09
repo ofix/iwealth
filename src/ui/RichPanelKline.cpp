@@ -27,6 +27,7 @@ const long RichPanelKline::ID_KLINE_CTRL = wxNewId();
 const long RichPanelKline::ID_DIALOG_KLINE_INFO = wxNewId();
 const long RichPanelKline::ID_RADIO_CTRL = wxNewId();
 const long RichPanelKline::ID_SECOND_RADIO_CTRL = wxNewId();
+const long RichPanelKline::ID_EMA_PRICE_CHECKBOX = wxNewId();
 
 // 以下函数实现必须写，否则会爆错误 undefined reference to 'vtable for RichPanelKline'
 BEGIN_EVENT_TABLE(RichPanelKline, RichPanel)
@@ -37,6 +38,7 @@ EVT_LEFT_DOWN(RichPanelKline::OnLeftMouseDown)
 EVT_ERASE_BACKGROUND(RichPanelKline::OnBackground)
 EVT_RICH_RADIO(RichPanelKline::ID_RADIO_CTRL, RichPanelKline::OnKlineChanged)
 EVT_RICH_RADIO(RichPanelKline::ID_SECOND_RADIO_CTRL, RichPanelKline::OnVolumeBarChanged)
+EVT_RICH_CHECKBOX(RichPanelKline::ID_EMA_PRICE_CHECKBOX, RichPanelKline::OnEmaPriceReferenceLineChanged)
 EVT_MOUSEWHEEL(RichPanelKline::OnMouseWheel)
 END_EVENT_TABLE()
 
@@ -107,6 +109,12 @@ RichPanelKline::RichPanelKline(PanelType type,
     RichIndicatorCtrl* pTurnoverRateIndicator = new RichTurnoverRateIndicatorCtrl(m_pKlineCtrl);
     wxASSERT(pTurnoverRateIndicator != nullptr);
     IndicatorInsert(pTurnoverRateIndicator);
+    // 分时图EMA均价参考线选择框
+    std::vector<std::string> ema_options = {"5日", "10日", "20日", "30日", "60日", "99日", "144日", "255日", "905日"};
+    m_pEmaPriceCheckBox = new RichCheckBox(ema_options, 2, this, ID_EMA_PRICE_CHECKBOX,
+                                           wxPoint(KLINE_PANEL_PADDING + 64, KLINE_PANEL_PADDING),
+                                           wxSize(600, KLINE_PANEL_TOP_CTRL_HEIGHT));
+    m_pEmaPriceCheckBox->Hide();
     // 分时图附图
     m_pMinuteIndicator = new RichMinuteVolumeIndicatorCtrl(m_pKlineCtrl);
     m_pMinuteIndicator->Hide();
@@ -295,6 +303,9 @@ void RichPanelKline::OnVolumeBarChanged(RichRadioEvent& event) {
     this->Refresh();
 }
 
+void RichPanelKline::OnEmaPriceReferenceLineChanged(RichCheckBoxEvent& event) {
+}
+
 /////////////////////////////////// 附图指标相关操作 ///////////////////////////////////
 // 附图指标上移
 void RichPanelKline::IndicatorMoveUp(int i) {
@@ -355,12 +366,13 @@ void RichPanelKline::IndicatorReLayout() {
     int indicator_height = INDICATOR_CTRL_HEIGHT * height / fullscreen_height;
     int top_height = KLINE_PANEL_TOP_CTRL_HEIGHT * 2 + KLINE_PANEL_PADDING * 3;
     if (m_inMinuteMode) {
-        int main_height = height - indicator_height * 2 - top_height - 30;
+        int main_height = height - indicator_height * 2 - top_height - 50;
         m_pKlineCtrl->SetWidth(width);
         m_pKlineCtrl->SetHeight(main_height);
-        m_pMinuteIndicator->SetPosition(KLINE_PANEL_PADDING, top_height + main_height + 30);
+        m_pEmaPriceCheckBox->SetPosition(wxPoint(KLINE_PANEL_PADDING, top_height + main_height + 10));
+        m_pMinuteIndicator->SetPosition(KLINE_PANEL_PADDING, top_height + main_height + 50);
         m_pMinuteIndicator->SetWidth(width);
-        m_pMinuteIndicator->SetManualHeight(indicator_height * 2 - 20);
+        m_pMinuteIndicator->SetManualHeight(indicator_height * 2 - 40);
     } else {
         if (n < 4) {  // 如果附图指标小于4个，附图高度固定+K线主图高度减少
             int main_height = height - n * indicator_height - top_height;

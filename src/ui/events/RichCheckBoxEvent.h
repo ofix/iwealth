@@ -8,7 +8,7 @@ class RichCheckBoxEvent;
 wxDECLARE_EVENT(wxEVT_RICH_CHECKBOX, RichCheckBoxEvent);
 typedef void (wxEvtHandler::*RichCheckBoxEventFunction)(RichCheckBoxEvent&);
 #define RichCheckBoxEventHandler(func) wxEVENT_HANDLER_CAST(RichCheckBoxEventFunction, func)
-#define EVT_RICH_RADIO(id, func) wx__DECLARE_EVT1(wxEVT_RICH_CHECKBOX, id, RichCheckBoxEventHandler(func))
+#define EVT_RICH_CHECKBOX(id, func) wx__DECLARE_EVT1(wxEVT_RICH_CHECKBOX, id, RichCheckBoxEventHandler(func))
 
 class RichCheckBoxEvent : public wxEvent {
    public:
