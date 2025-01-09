@@ -120,8 +120,8 @@ RichPanelKline::RichPanelKline(PanelType type,
     m_pMinuteIndicator->Hide();
     wxASSERT(m_pMinuteIndicator != nullptr);
 
-    m_inMinuteMode = false;
-    m_oldInMinuteMode = false;
+    m_curKlineType = KlineType::Day;
+    m_oldKlineType = KlineType::Day;
     // 重新计算主图+附图高度
     IndicatorReLayout();
 
@@ -156,6 +156,11 @@ RichPanelKline::~RichPanelKline() {
         delete m_pMinuteIndicator;
         m_pMinuteIndicator = nullptr;
     }
+    // 释放 EMA均线参考线多选框
+    if (m_pEmaPriceCheckBox != nullptr) {
+        delete m_pEmaPriceCheckBox;
+        m_pEmaPriceCheckBox = nullptr;
+    }
 }
 
 void RichPanelKline::SetShareCode(const std::string& share_code) {
@@ -178,7 +183,8 @@ void RichPanelKline::OnPaint(wxPaintEvent& event) {
     for (auto& indicator : m_indicators) {
         indicator->Draw(&dc);
     }
-    if (!m_inMinuteMode) {
+    if (m_curKlineType == KlineType::Day || m_curKlineType == KlineType::Week || m_curKlineType == KlineType::Month ||
+        m_curKlineType == KlineType::Quarter || m_curKlineType == KlineType::Year) {
         m_pKlineCtrl->DrawCrossLine(&dc);
     }
     m_pMinuteIndicator->Draw(&dc);
@@ -270,17 +276,21 @@ void RichPanelKline::OnLeftMouseDown(wxMouseEvent& event) {
 
 void RichPanelKline::OnKlineChanged(RichRadioEvent& event) {
     int selection = event.GetSelection();
+    m_curKlineType = static_cast<KlineType>(selection);
     // 分时图/5日分时图需要隐藏 VolumeBarCtrl
-    if (selection == 0 || selection == 1) {
+    if (m_curKlineType == KlineType::Minute || m_curKlineType == KlineType::FiveDay) {
         HideIndicators();
         ShowMinuteIndicator();
-        m_inMinuteMode = true;
+        if (m_curKlineType == KlineType::Minute) {
+            m_pEmaPriceCheckBox->Show();
+        } else {
+            m_pEmaPriceCheckBox->Hide();
+        }
     } else {
         ShowIndicators();
         HideMinuteIndicator();
-        m_inMinuteMode = false;
     }
-    bool result = m_pKlineCtrl->LoadKlines(static_cast<KlineType>(selection));
+    bool result = m_pKlineCtrl->LoadKlines(m_curKlineType);
     if (!result) {  // 数据有可能加载失败，弹窗提示用户
         return;
     }
@@ -288,9 +298,9 @@ void RichPanelKline::OnKlineChanged(RichRadioEvent& event) {
     if (m_pShare != nullptr) {  // 更新股票名称
         m_pShareNameCtrl->SetLabel(CN(m_pShare->name));
     }
-    if (m_oldInMinuteMode != m_inMinuteMode) {
+    if (m_curKlineType != m_oldKlineType) {
         IndicatorReLayout();
-        m_oldInMinuteMode = m_inMinuteMode;
+        m_oldKlineType = m_curKlineType;
     }
     this->Refresh();
 }
@@ -365,12 +375,19 @@ void RichPanelKline::IndicatorReLayout() {
     // 等比例计算窗口缩放后的附图指标高度
     int indicator_height = INDICATOR_CTRL_HEIGHT * height / fullscreen_height;
     int top_height = KLINE_PANEL_TOP_CTRL_HEIGHT * 2 + KLINE_PANEL_PADDING * 3;
-    if (m_inMinuteMode) {
+    if (m_curKlineType == KlineType::Minute) {
         int main_height = height - indicator_height * 2 - top_height - 50;
         m_pKlineCtrl->SetWidth(width);
         m_pKlineCtrl->SetHeight(main_height);
         m_pEmaPriceCheckBox->SetPosition(wxPoint(KLINE_PANEL_PADDING, top_height + main_height + 10));
         m_pMinuteIndicator->SetPosition(KLINE_PANEL_PADDING, top_height + main_height + 50);
+        m_pMinuteIndicator->SetWidth(width);
+        m_pMinuteIndicator->SetManualHeight(indicator_height * 2 - 40);
+    } else if (m_curKlineType == KlineType::FiveDay) {
+        int main_height = height - indicator_height * 2 - top_height - 30;
+        m_pKlineCtrl->SetWidth(width);
+        m_pKlineCtrl->SetHeight(main_height);
+        m_pMinuteIndicator->SetPosition(KLINE_PANEL_PADDING, top_height + main_height + 30);
         m_pMinuteIndicator->SetWidth(width);
         m_pMinuteIndicator->SetManualHeight(indicator_height * 2 - 40);
     } else {

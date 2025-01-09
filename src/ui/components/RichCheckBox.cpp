@@ -77,7 +77,7 @@ bool RichCheckBox::Layout() {
     if (m_checkboxLabels.size() < 1) {
         return false;
     }
-    int offsetX = 0;
+    int offsetX = this->GetPosition().x;
     int offsetY = 0;
     int padding = 12;
     wxClientDC dc(this);

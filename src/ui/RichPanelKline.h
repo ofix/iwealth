@@ -5,12 +5,12 @@
 #include <vector>
 #include "stock/Stock.h"
 #include "ui/RichDialogKlineInfo.h"
+#include "ui/components/RichCheckBox.h"
 #include "ui/components/RichKlineCtrl.h"
 #include "ui/components/RichPanel.h"
 #include "ui/components/RichRadioCtrl.h"
-#include "ui/events/RichRadioEvent.h"
-#include "ui/components/RichCheckBox.h"
 #include "ui/events/RichCheckBoxEvent.h"
+#include "ui/events/RichRadioEvent.h"
 #include "ui/indicators/RichIndicatorCtrl.h"
 
 class RichPanelKline : public RichPanel {
@@ -52,15 +52,16 @@ class RichPanelKline : public RichPanel {
     RichKlineCtrl* m_pKlineCtrl;
 
     RichDialogKlineInfo* m_pDialogKlineInfo;
-    wxStaticText* m_pShareNameCtrl;    // 股票名称控件
-    wxStaticText* m_pAddFavoriteCtrl;  // 增加自选
-    RichRadioCtrl* m_pRadioCtrl;       // 日K线/周K线/月K线/季度K线/年K线
-    RichCheckBox* m_pEmaPriceCheckBox; // EMA均价参考线选择框
+    wxStaticText* m_pShareNameCtrl;     // 股票名称控件
+    wxStaticText* m_pAddFavoriteCtrl;   // 增加自选
+    RichRadioCtrl* m_pRadioCtrl;        // 日K线/周K线/月K线/季度K线/年K线
+    RichCheckBox* m_pEmaPriceCheckBox;  // EMA均价参考线选择框
 
     std::vector<uiKline>* m_pKlines;               // 当前需要显示的K线
     std::vector<RichIndicatorCtrl*> m_indicators;  // 日线/周线/月线/年线 附图指标集合
     RichIndicatorCtrl* m_pMinuteIndicator;         // 分时/五日分时 附图指标
-    bool m_inMinuteMode;                           // 是否分时模式
+    KlineType m_curKlineType;                      // 当前K线界面类别(分时/5日/日线/周线/月线/年线)
+    KlineType m_oldKlineType;                      // 之前的K线类型
     bool m_oldInMinuteMode;                        // 之前是否是分时模式，如果值相同，无需ReLayout
    protected:
     static const long ID_SHARE_NAME_CTRL;
