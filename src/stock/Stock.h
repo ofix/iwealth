@@ -239,5 +239,7 @@ inline std::string MARKET_NAME(Market market) {
 bool is_up_limit_price(uiKline& kline, Share* pShare);
 bool is_down_limit_price(uiKline& kline, Share* pShare);
 bool is_st_share(Share* pShare);
+double get_share_up_limit_price(Share* pShare);
+double get_share_down_limit_price(Share* pShare);
 
 #endif  // STOCK_H

@@ -269,3 +269,33 @@ bool is_st_share(Share* pShare) {
     }
     return false;
 }
+
+double get_share_up_limit_price(Share* pShare) {
+    if (pShare->code.substr(0, 1) == "N") {  // 新股，没有涨跌幅限制
+        return pShare->price_yesterday_close * (1 + 0.44);
+    } else if (pShare->code.substr(0, 2) == "ST") {  // ST股，5%涨跌幅限制
+        return pShare->price_yesterday_close * (1 + 0.05);
+    } else if (pShare->code.substr(0, 3) == "688" ||
+               pShare->code.substr(0, 3) == "300") {  // 科创板和创业板股票, 20%涨跌幅限制
+        return pShare->price_yesterday_close * (1 + 0.2);
+    } else if (pShare->code.substr(0, 1) == "8") {  // 北交所股票，30%涨跌幅限制
+        return pShare->price_yesterday_close * (1 + 0.3);
+    } else {  // 沪深主板股票，10%涨跌幅限制
+        return pShare->price_yesterday_close * (1 + 0.1);
+    }
+}
+
+double get_share_down_limit_price(Share* pShare) {
+    if (pShare->code.substr(0, 1) == "N") {  // 新股，没有涨跌幅限制
+        return pShare->price_yesterday_close * (1 - 0.44);
+    } else if (pShare->code.substr(0, 2) == "ST") {  // ST股，5%涨跌幅限制
+        return pShare->price_yesterday_close * (1 - 0.05);
+    } else if (pShare->code.substr(0, 3) == "688" ||
+               pShare->code.substr(0, 3) == "300") {  // 科创板和创业板股票, 20%涨跌幅限制
+        return pShare->price_yesterday_close * (1 - 0.2);
+    } else if (pShare->code.substr(0, 1) == "8") {  // 北交所股票，30%涨跌幅限制
+        return pShare->price_yesterday_close * (1 - 0.3);
+    } else {  // 沪深主板股票，10%涨跌幅限制
+        return pShare->price_yesterday_close * (1 - 0.1);
+    }
+}

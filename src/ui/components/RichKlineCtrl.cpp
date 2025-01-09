@@ -19,7 +19,6 @@
 #include "util/Color.h"
 #include "util/Macro.h"
 
-
 RichKlineCtrl::~RichKlineCtrl() {
 }
 
@@ -1001,9 +1000,15 @@ void RichKlineCtrl::DrawMinuteKlines(wxDC* pDC) {
     // 昨日收盘价
     double yesterday_close_price = m_pMinuteKlines->at(0).price - m_pMinuteKlines->at(0).change_amount;
 
-    if (m_showEmaPriceReferenceLine) {                 // 显示 EMA 均价参考线
-        maxMinutePrice = yesterday_close_price * 1.1;  // 涨停价
-        minMinutePrice = yesterday_close_price * 0.9;  // 跌停价
+    if (m_showEmaPriceReferenceLine && m_pShare != nullptr) {            // 显示 EMA 均价参考线
+        double up_limit_price = get_share_up_limit_price(m_pShare);      // 涨停价
+        double down_limit_price = get_share_down_limit_price(m_pShare);  // 跌停价
+        if (up_limit_price > maxMinutePrice) {
+            maxMinutePrice = up_limit_price;
+        }
+        if (down_limit_price < minMinutePrice) {
+            minMinutePrice = down_limit_price;
+        }
     }
 
     int minY = m_pos.y;
